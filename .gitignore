@@ -1,0 +1,42 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# convex
+.convex/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# debug
+npm-debug.log*
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# drizzle
+drizzle/meta/
+
+# agent sessions (optional, uncomment if needed)
+# agent-sessions/
+
+# misc
+*.pem
+node_modules
+
+# brag video workspace
+brag-output/

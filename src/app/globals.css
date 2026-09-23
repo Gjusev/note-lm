@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #FFFFFF;
+  --color-ink: #0A0A0A;
+  --color-accent: #DC2626;
+  --color-accent-light: #FEE2E2;
+  --color-paper-muted: #FAFAFA;
+  --color-rule: #E5E5E5;
+  --color-grid: #FECACA;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: white;
+  }
+}
+
+@layer utilities {
+  .text-hero {
+    font-size: clamp(2.2rem, 5.5vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .text-section-title {
+    font-size: clamp(1.5rem, 3.5vw, 3rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .text-mono-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .text-mono-data {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+  }
+
+  .notebook-grid {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        var(--color-grid) 31px,
+        var(--color-grid) 32px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 31px,
+        var(--color-grid) 31px,
+        var(--color-grid) 32px
+      );
+    background-size: 32px 32px;
+  }
+
+  .notebook-grid-hero {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 39px,
+        rgba(220, 38, 38, 0.12) 39px,
+        rgba(220, 38, 38, 0.12) 40px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 39px,
+        rgba(220, 38, 38, 0.12) 39px,
+        rgba(220, 38, 38, 0.12) 40px
+      );
+    background-size: 40px 40px;
+  }
+
+  .red-margin-line {
+    border-left: 2px solid rgba(220, 38, 38, 0.25);
+  }
+
+  .grain-overlay::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+  }
+}
