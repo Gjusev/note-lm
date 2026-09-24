@@ -22,14 +22,16 @@ for your deployment using the names read by the application:
 | `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | Auth signing and origin |
 | `NEXT_PUBLIC_APP_URL` | Public app origin used by the auth client |
 | `NEXT_PUBLIC_CONVEX_URL` | Convex HTTP/client endpoint |
-| `CONVEX_SELF_HOSTED_URL` / `CONVEX_SELF_HOSTED_ADMIN_KEY` | Server-side self-hosted Convex access |
 | `INTERNAL_API_KEY` | Server-to-Convex request authentication |
 | `OPENAI_API_KEY` | OpenAI-compatible transcription, embedding, chat and TTS calls |
 | `OPENAI_TRANSCRIPTION_MODEL` / `OPENAI_EMBEDDING_MODEL` / `OPENAI_CHAT_MODEL` / `OPENAI_TTS_MODEL` | Optional model overrides |
+| `OPENAI_TTS_VOICE_HOST_1` / `OPENAI_TTS_VOICE_HOST_2` | Optional voices for generated audio |
 | `SEAR_ENDPOINT` | SearXNG search endpoint |
 | `AZURE_OCR_ENDPOINT` / `AZURE_OCR_KEY` | Optional OCR for scanned documents |
 | `FFMPEG_PATH` | Optional FFmpeg executable override |
 | `MAX_PDF_MB` / `MAX_TEXT_MB` / `MAX_AUDIO_MB` / `MAX_VIDEO_MB` | Upload limits |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional Google OAuth sign-in |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | SMTP transport for email flows |
 
 Use placeholders locally. Never commit values for these variables.
 
