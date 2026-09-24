@@ -2,7 +2,7 @@
 
 ![Landing](docs/screenshots/landing-desktop.png)
 
-[▶ 16s demo video](docs/screenshots/brag.mp4) — the app in motion.
+[![16s demo video — click to play](docs/screenshots/brag-poster.png)](docs/screenshots/brag.mp4)
 
 **A self-hosted research notebook: drop in sources (PDFs, videos, pages), let a background pipeline transcribe and index them, then chat with citations across everything — on your own infrastructure.** NotebookLM's workflow, your server, your keys.
 
