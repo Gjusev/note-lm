@@ -2,6 +2,8 @@
 
 ![Landing](docs/screenshots/landing-desktop.png)
 
+[▶ 16s demo video](docs/screenshots/brag.mp4) — the app in motion.
+
 **A self-hosted research notebook: drop in sources (PDFs, videos, pages), let a background pipeline transcribe and index them, then chat with citations across everything — on your own infrastructure.** NotebookLM's workflow, your server, your keys.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
