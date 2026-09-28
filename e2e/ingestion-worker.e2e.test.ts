@@ -1,204 +1,45 @@
 /**
- * E2E for the ingestion worker: the REAL worker process (tsx workers/ingestion.ts)
- * runs against a local resource HTTP server and an in-memory fake of the Convex
- * HTTP mutation API (mirroring convex/importJobs.ts: leases, fencing, retries,
- * idempotent completion). No OpenAI/ffmpeg/Azure needed — text and HTML paths only.
+ * E2E for the local ingestion worker: the REAL worker process (tsx
+ * workers/ingestion.ts) runs against a local resource HTTP server and the
+ * real SQLite database in a temp data dir (leases, fencing, retries,
+ * idempotent completion — pinned by the import-jobs service). No
+ * OpenAI/ffmpeg/Azure needed — text and HTML paths only.
  */
-import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterAll, afterEach } from "vitest";
 import http from "http";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { spawn, type ChildProcess } from "child_process";
-import path from "path";
 import { classifyUrl } from "@/lib/ingestion/identify";
+import {
+  openLocalDb,
+  closeLocalDb,
+  fastForwardForTests,
+  type LocalDb,
+} from "@/db/local";
+import { LocalStore } from "@/lib/storage/local";
+import { createNotebook } from "@/lib/services/notebooks";
+import { createSource, getChunksBySource, listSourcesByNotebook } from "@/lib/services/sources";
+import {
+  createImportJob,
+  getImportJob,
+  type ImportJobDoc,
+} from "@/lib/services/import-jobs";
+import {
+  enqueueProcessingJob,
+} from "@/lib/services/processing-jobs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "..");
-
-const WORKER_KEY = "e2e-worker-key";
-const LEASE_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 3;
 
-// ── Fake Convex state (mirrors convex/importJobs.ts) ──
+// ── Local state (mirrors what the API layer writes) ──
 
-interface Job {
-  _id: string;
-  ownerId: string;
-  notebookId: string;
-  url: string;
-  provider: string;
-  kind: string;
-  resourceKey: string;
-  externalId?: string;
-  canonicalUrl?: string;
-  status: string;
-  attempts: number;
-  maxAttempts: number;
-  nextAttemptAt: number;
-  leaseToken?: string;
-  leaseExpiresAt?: number;
-  errorCode?: string;
-  errorMessage?: string;
-  sourceId?: string;
-  title?: string;
-  createdAt: number;
-}
-
-interface SourceDoc {
-  _id: string;
-  ownerId: string;
-  notebookId: string;
-  fileName: string;
-  fileType: string;
-  fileSize: number;
-  url: string;
-  provider: string;
-  externalId?: string;
-  importedAt?: number;
-}
-
-interface ChunkDoc {
-  sourceId: string;
-  content: string;
-  chunkIndex: number;
-}
-
-const jobs = new Map<string, Job>();
-const sources = new Map<string, SourceDoc>();
-const chunks = new Map<string, ChunkDoc[]>(); // by sourceId
-let jobSeq = 0;
-let sourceSeq = 0;
-
-const RUNNING = ["inspecting", "awaiting_selection", "downloading", "processing"];
-const owns = (j: Job, token: string) => j.leaseToken === token && RUNNING.includes(j.status);
-
-function fakeCreate(args: Record<string, string>) {
-  const active = [...jobs.values()].find(
-    (j) => j.notebookId === args.notebookId && j.resourceKey === args.resourceKey && !["completed", "failed", "cancelled"].includes(j.status)
-  );
-  if (active) return { jobId: active._id, deduped: true };
-  const id = `j${++jobSeq}`;
-  const now = Date.now();
-  jobs.set(id, {
-    _id: id,
-    ownerId: args.ownerId,
-    notebookId: args.notebookId,
-    url: args.url,
-    provider: args.provider,
-    kind: args.kind,
-    resourceKey: args.resourceKey,
-    externalId: args.externalId,
-    canonicalUrl: args.canonicalUrl,
-    status: "queued",
-    attempts: 0,
-    maxAttempts: MAX_ATTEMPTS,
-    nextAttemptAt: now,
-    createdAt: now,
-  });
-  return { jobId: id, deduped: false };
-}
-
-function fakeClaim(workerKey: string) {
-  if (workerKey !== WORKER_KEY) throw new Error("Worker-Schlüssel ungültig");
-  const now = Date.now();
-  let job: Job | undefined = [...jobs.values()]
-    .filter((j) => j.status === "queued" && j.nextAttemptAt <= now)
-    .sort((a, b) => a.createdAt - b.createdAt)[0];
-  if (!job) {
-    job = [...jobs.values()].find(
-      (j) => RUNNING.includes(j.status) && (j.leaseExpiresAt ?? 0) < now
-    );
-  }
-  if (!job) return null;
-  job.status = "inspecting";
-  job.attempts += 1;
-  job.leaseToken = `t${job._id}-${job.attempts}-${Math.random().toString(36).slice(2, 8)}`;
-  job.leaseExpiresAt = now + LEASE_MS;
-  return job;
-}
-
-function fakeHeartbeat(args: { jobId: string; leaseToken: string }) {
-  const j = jobs.get(args.jobId);
-  if (!j || !owns(j, args.leaseToken)) return false;
-  j.leaseExpiresAt = Date.now() + LEASE_MS;
-  return true;
-}
-
-function fakeUpdatePhase(args: { jobId: string; leaseToken: string; phase: string; title?: string }) {
-  const j = jobs.get(args.jobId);
-  if (!j || !owns(j, args.leaseToken)) return false;
-  j.status = args.phase;
-  if (args.title !== undefined) j.title = args.title;
-  return true;
-}
-
-function fakeFail(args: { jobId: string; leaseToken: string; errorCode: string; errorMessage: string; transient: boolean; retryAfterMs?: number }) {
-  const j = jobs.get(args.jobId);
-  if (!j || j.leaseToken !== args.leaseToken) return false;
-  const now = Date.now();
-  if (args.transient && j.attempts < j.maxAttempts) {
-    const backoff = args.retryAfterMs ?? Math.min(15_000 * 2 ** (j.attempts - 1), 10 * 60_000);
-    j.status = "queued";
-    j.nextAttemptAt = now + backoff;
-  } else {
-    j.status = "failed";
-  }
-  j.errorCode = args.errorCode;
-  j.errorMessage = args.errorMessage;
-  j.leaseToken = undefined;
-  return true;
-}
-
-function fakeComplete(args: {
-  jobId: string;
-  leaseToken: string;
-  source: { fileName: string; fileType: string; fileSize: number; url: string; provider: string; externalId?: string };
-  chunks: { content: string; chunkIndex: number }[];
-}) {
-  const j = jobs.get(args.jobId);
-  if (!j || !owns(j, args.leaseToken)) return { ok: false };
-  const now = Date.now();
-
-  let sourceId = j.sourceId;
-  if (!sourceId && args.source.externalId) {
-    sourceId = [...sources.values()].find(
-      (s) => s.notebookId === j.notebookId && s.provider === args.source.provider && s.externalId === args.source.externalId
-    )?._id;
-  }
-  if (sourceId) {
-    const old = sources.get(sourceId)!;
-    sources.set(sourceId, { ...old, ...args.source, importedAt: now });
-    chunks.set(sourceId, []); // replaced, never duplicated
-  } else {
-    sourceId = `s${++sourceSeq}`;
-    sources.set(sourceId, { _id: sourceId, ownerId: j.ownerId, notebookId: j.notebookId, ...args.source, importedAt: now });
-  }
-  chunks.set(sourceId, args.chunks.map((c) => ({ sourceId, ...c })));
-
-  j.status = "completed";
-  j.sourceId = sourceId;
-  j.leaseToken = undefined;
-  return { ok: true, sourceId };
-}
-
-function fakeCancel(args: { jobId: string }) {
-  const j = jobs.get(args.jobId);
-  if (!j) throw new Error("Job nicht gefunden");
-  if (["completed", "failed", "cancelled"].includes(j.status)) throw new Error("Job ist bereits abgeschlossen");
-  j.status = "cancelled";
-  j.leaseToken = undefined;
-  return true;
-}
-
-// Test hook: simulate lease expiry / backoff elapse without real waiting
-function expireLeases() {
-  for (const j of jobs.values()) if (RUNNING.includes(j.status)) j.leaseExpiresAt = 0;
-}
-function tickQueue() {
-  for (const j of jobs.values()) if (j.status === "queued") j.nextAttemptAt = 0;
-}
-
-// ── Fake Convex HTTP server ──
-
-let convexServer: http.Server;
-let convexUrl = "";
+let dir: string;
+let db: LocalDb;
+let store: LocalStore;
+let notebookId: string;
+const OWNER = "local-e2e";
 
 // ── Resource server ──
 
@@ -301,37 +142,9 @@ function startServers() {
       }
     });
 
-    convexServer = http.createServer(async (req, res) => {
-      const body = await new Promise<string>((r) => {
-        let data = "";
-        req.on("data", (c) => (data += c));
-        req.on("end", () => r(data));
-      });
-      const { path: fnPath, args = {} } = JSON.parse(body);
-      try {
-        let value: unknown;
-        if (fnPath === "importJobs:create") value = fakeCreate(args);
-        else if (fnPath === "importJobs:claim") value = fakeClaim(args.workerKey);
-        else if (fnPath === "importJobs:heartbeat") value = fakeHeartbeat(args);
-        else if (fnPath === "importJobs:updatePhase") value = fakeUpdatePhase(args);
-        else if (fnPath === "importJobs:fail") value = fakeFail(args);
-        else if (fnPath === "importJobs:complete") value = fakeComplete(args);
-        else if (fnPath === "importJobs:cancel") value = fakeCancel(args);
-        else throw new Error(`unknown function ${fnPath}`);
-        res.writeHead(200, { "content-type": "application/json" });
-        res.end(JSON.stringify({ value }));
-      } catch (err) {
-        res.writeHead(500, { "content-type": "application/json" });
-        res.end(JSON.stringify({ errorMessage: (err as Error).message }));
-      }
-    });
-
     resourceServer.listen(0, "127.0.0.1", () => {
-      convexServer.listen(0, "127.0.0.1", () => {
-        resourceBase = `http://127.0.0.1:${(resourceServer.address() as { port: number }).port}`;
-        convexUrl = `http://127.0.0.1:${(convexServer.address() as { port: number }).port}`;
-        resolve();
-      });
+      resourceBase = `http://127.0.0.1:${(resourceServer.address() as { port: number }).port}`;
+      resolve();
     });
   });
 }
@@ -352,10 +165,7 @@ function startWorker(envOverrides: Record<string, string> = {}): WorkerHandle {
       cwd: REPO_ROOT,
       env: {
         ...process.env,
-        CONVEX_URL: convexUrl,
-        INTERNAL_API_KEY: "e2e-internal",
-        WORKER_KEY,
-        OPENAI_API_KEY: "dummy-e2e",
+        NOTELM_DATA_DIR: dir,
         INGEST_ALLOW_PRIVATE: "1",
         INGEST_POLL_MS: "500",
         INGEST_MAX_AUDIO_MB: "1",
@@ -386,50 +196,40 @@ async function stopWorker(w: WorkerHandle) {
 
 // ── Test helpers ──
 
-async function mutate(fnPath: string, args: Record<string, unknown> = {}): Promise<unknown> {
-  const res = await fetch(`${convexUrl}/api/mutation`, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-internal-key": "e2e-internal" },
-    body: JSON.stringify({ path: fnPath, args }),
-  });
-  return (await res.json()) as { value: unknown };
-}
-
 async function createJob(url: string): Promise<{ jobId: string; deduped: boolean }> {
   // Mirrors what POST /api/imports does: classify locally, then enqueue
   const classified = classifyUrl(url);
-  const { value } = (await mutate("importJobs:create", {
-    ownerId: "u1",
-    notebookId: "nb1",
+  return createImportJob(db, {
+    ownerId: OWNER,
+    notebookId,
     url,
     provider: classified.provider,
     kind: classified.kind,
     resourceKey: classified.resourceKey,
     ...(classified.externalId ? { externalId: classified.externalId } : {}),
     ...(classified.canonicalUrl ? { canonicalUrl: classified.canonicalUrl } : {}),
-  })) as { value: { jobId: string; deduped: boolean } };
-  return value;
+  });
 }
 
-function getJob(id: string): Job {
-  return jobs.get(id)!;
+function getJob(id: string): ImportJobDoc {
+  return getImportJob(db, id)!;
 }
 
-async function waitFor(desc: string, predicate: () => boolean, timeoutMs = 20_000): Promise<void> {
+async function waitFor(desc: string, predicate: () => boolean | Promise<boolean>, timeoutMs = 20_000): Promise<void> {
   const start = Date.now();
-  while (!predicate()) {
+  while (!(await predicate())) {
     if (Date.now() - start > timeoutMs) {
-      const jobStates = [...jobs.values()].map((j) => `${j._id}:${j.status}/${j.attempts}${j.errorCode ? `/${j.errorCode}` : ""}`).join(", ") || "none";
       const logTail = worker ? worker.logs.join("").split("\n").slice(-6).join("\n") : "no worker";
-      throw new Error(`timeout waiting for: ${desc}\njobs: ${jobStates}\nworker tail:\n${logTail}`);
+      throw new Error(`timeout waiting for: ${desc}\nworker tail:\n${logTail}`);
     }
     await new Promise((r) => setTimeout(r, 50));
   }
 }
 
-const jobCompleted = (id: string) => getJob(id).status === "completed";
-const jobFailed = (id: string) => getJob(id).status === "failed";
-const sourcesForNotebook = () => [...sources.values()].filter((s) => s.notebookId === "nb1");
+const jobStatus = (id: string) => getImportJob(db, id)?.status;
+const jobCompleted = (id: string) => jobStatus(id) === "completed";
+const jobFailed = (id: string) => jobStatus(id) === "failed";
+const sourcesForNotebook = () => listSourcesByNotebook(db, notebookId);
 
 // ── Suite ──
 
@@ -439,38 +239,51 @@ beforeAll(async () => {
   await startServers();
 });
 
+beforeEach(async () => {
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-e2e-"));
+  db = openLocalDb(dir);
+  store = new LocalStore(db, dir);
+  notebookId = await createNotebook(db, { ownerId: OWNER, title: "E2E" });
+  rateLimitHits = 0;
+});
+
 afterEach(async () => {
   if (worker) {
     await stopWorker(worker);
     worker = null;
   }
-  jobs.clear();
-  sources.clear();
-  chunks.clear();
-  rateLimitHits = 0;
+  closeLocalDb(db);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
 
 afterAll(async () => {
   await new Promise<void>((r) => resourceServer.close(() => r()));
-  await new Promise<void>((r) => convexServer.close(() => r()));
 });
 
-describe("ingestion worker e2e", () => {
-  it("imports an HTML page into chunks with title and provenance", async () => {
+describe("ingestion worker e2e (SQLite)", () => {
+  it("imports an HTML page into chunks with title, provenance and stored original", async () => {
     const { jobId } = await createJob(`${resourceBase}/page.html?utm=tracker`);
     worker = startWorker();
     await waitFor("job completed", () => jobCompleted(jobId));
 
     const job = getJob(jobId);
-    const source = sources.get(job.sourceId!)!;
+    const sources = sourcesForNotebook();
+    expect(sources).toHaveLength(1);
+    const source = sources[0];
     expect(source.fileType).toBe("text/html");
-    expect(source.fileName).toBe("E2E Testseite");
     expect(source.url).toBe(`${resourceBase}/page.html?utm=tracker`); // original URL kept
-    expect(source.importedAt).toBeGreaterThan(0);
+    expect((source as { importedAt?: number }).importedAt).toBeGreaterThan(0);
 
-    const jobChunks = chunks.get(job.sourceId!)!;
-    expect(jobChunks.length).toBeGreaterThan(0);
-    expect(jobChunks[0].content).toContain("Artikelinhalt");
+    const storedSource = listSourcesByNotebook(db, notebookId)[0];
+    expect(storedSource.fileName).toBe("E2E Testseite");
+    expect(storedSource.storageId).toBeTruthy(); // original persisted to disk
+    const file = await store.get(storedSource.storageId!);
+    expect(file).toBeTruthy();
+    expect(fs.existsSync(path.join(dir, file!.path))).toBe(true);
+
+    const chunks = getChunksBySource(db, job.sourceId!);
+    expect(chunks.length).toBeGreaterThan(0);
+    expect(chunks[0].content).toContain("Artikelinhalt");
     expect(job.attempts).toBe(1);
   });
 
@@ -479,17 +292,17 @@ describe("ingestion worker e2e", () => {
     worker = startWorker();
     await waitFor("job completed", () => jobCompleted(jobId));
 
-    const source = sources.get(getJob(jobId).sourceId!)!;
-    expect(source.fileType).toBe("text/plain");
-    expect(chunks.get(source._id)!.length).toBeGreaterThan(0);
+    const job = getJob(jobId);
+    const sources = sourcesForNotebook();
+    expect(sources[0].fileType).toBe("text/plain");
+    expect(getChunksBySource(db, job.sourceId!).length).toBeGreaterThan(0);
   });
 
   it("follows redirects within the same provider", async () => {
     const { jobId } = await createJob(`${resourceBase}/redirect-page`);
     worker = startWorker();
     await waitFor("job completed", () => jobCompleted(jobId));
-    const source = sources.get(getJob(jobId).sourceId!)!;
-    expect(source.fileType).toBe("text/html");
+    expect(sourcesForNotebook()[0].fileType).toBe("text/html");
   });
 
   it("re-dispatches when a short link lands on a direct file", async () => {
@@ -497,10 +310,8 @@ describe("ingestion worker e2e", () => {
     worker = startWorker();
     await waitFor("job completed", () => jobCompleted(jobId));
 
-    const job = getJob(jobId);
     expect(worker.logs.join("")).toContain("REDISPATCH");
-    const source = sources.get(job.sourceId!)!;
-    expect(source.fileType).toBe("text/plain");
+    expect(sourcesForNotebook()[0].fileType).toBe("text/plain");
   });
 
   it("fails cleanly on redirect loops", async () => {
@@ -541,15 +352,15 @@ describe("ingestion worker e2e", () => {
     worker = startWorker();
     // Each failed attempt is requeued with a real backoff — fast-forward it
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
-      tickQueue();
+      tickJobs();
       await waitFor(
         `attempt ${i + 1} runs`,
-        () => getJob(jobId).status !== "queued" || getJob(jobId).status === "failed",
+        () => ["inspecting", "downloading", "processing", "failed"].includes(getImportJob(db, jobId)?.status ?? ""),
         30_000
       );
       await waitFor(
         `attempt ${i + 1} ends`,
-        () => ["queued", "failed"].includes(getJob(jobId).status),
+        () => ["queued", "failed"].includes(getImportJob(db, jobId)?.status ?? ""),
         30_000
       );
       if (jobFailed(jobId)) break;
@@ -565,12 +376,12 @@ describe("ingestion worker e2e", () => {
     const { jobId } = await createJob(`${resourceBase}/rate-limited.txt`);
     worker = startWorker();
     // first attempt → 429 → queued with nextAttemptAt ≈ now+1000ms
-    await waitFor("first attempt failed and requeued", () => getJob(jobId).status === "queued" && getJob(jobId).attempts === 1, 30_000);
+    await waitFor("first attempt failed and requeued", () => { const j = getImportJob(db, jobId); return j?.status === "queued" && j.attempts === 1; }, 30_000);
     expect(getJob(jobId).errorCode).toBe("rate_limited");
-    tickQueue(); // skip the 1s wait
+    tickJobs(); // skip the 1s wait
     await waitFor("job completed", () => jobCompleted(jobId), 30_000);
     expect(getJob(jobId).attempts).toBe(2);
-    expect(sources.get(getJob(jobId).sourceId!)!.fileType).toBe("text/plain");
+    expect(sourcesForNotebook()[0].fileType).toBe("text/plain");
   });
 
   it("deduplicates concurrent jobs for the same resource", async () => {
@@ -591,44 +402,47 @@ describe("ingestion worker e2e", () => {
     worker = startWorker();
     await waitFor("second completed", () => jobCompleted(second.jobId));
 
-    expect(sourcesForNotebook().length).toBe(1); // reused, not duplicated
+    const sources = sourcesForNotebook();
+    expect(sources.length).toBe(1); // reused, not duplicated
     const job = getJob(second.jobId);
     expect(job.sourceId).toBe(getJob(first.jobId).sourceId);
-    expect(chunks.get(job.sourceId!)!.length).toBe(chunks.get(getJob(first.jobId).sourceId!)!.length);
+    expect(getChunksBySource(db, job.sourceId!).length).toBeGreaterThan(0);
   });
 
   it("cancelling mid-download fences the stale worker write", async () => {
     const { jobId } = await createJob(`${resourceBase}/slow.html`);
     worker = startWorker();
-    await waitFor("download started", () => getJob(jobId).status === "downloading");
-    await mutate("importJobs:cancel", { jobId });
+    await waitFor("download started", () => jobStatus(jobId) === "downloading");
+    const { cancelImportJob } = await import("@/lib/services/import-jobs");
+    cancelImportJob(db, jobId);
 
     // worker finishes its download, then its next phase write is rejected
     await waitFor("worker aborted", () => worker!.logs.join("").includes("ABORTED"), 30_000);
-    await waitFor("cancel visible", () => getJob(jobId).status === "cancelled");
+    await waitFor("cancel visible", () => jobStatus(jobId) === "cancelled");
     expect(sourcesForNotebook().length).toBe(0);
   });
 
   it("a worker killed mid-download is recovered after lease expiry without duplicates", async () => {
     const { jobId } = await createJob(`${resourceBase}/slow.html`);
     worker = startWorker();
-    await waitFor("download started", () => getJob(jobId).status === "downloading");
+    await waitFor("download started", () => jobStatus(jobId) === "downloading");
 
     // SIGKILL: no finally-cleanup, no fail() write — simulates a crash
     worker.proc.kill("SIGKILL");
     await worker.waitEnd();
     worker = null;
 
-    expect(getJob(jobId).status).toBe("downloading"); // stuck, owned by dead worker
+    expect(getImportJob(db, jobId)?.status).toBe("downloading"); // stuck, owned by dead worker
 
-    expireLeases(); // simulate lease timeout
+    fastForwardForTests(db); // simulate lease timeout
     worker = startWorker();
     await waitFor("job completed after recovery", () => jobCompleted(jobId), 30_000);
 
     const job = getJob(jobId);
     expect(job.attempts).toBe(2);
-    expect(sourcesForNotebook().length).toBe(1);
-    expect(chunks.get(job.sourceId!)!.length).toBeGreaterThan(0);
+    const sources = sourcesForNotebook();
+    expect(sources.length).toBe(1);
+    expect(getChunksBySource(db, job.sourceId!).length).toBeGreaterThan(0);
   });
 
   it("blocks cloud metadata addresses when the private-range policy is active", async () => {
@@ -638,4 +452,55 @@ describe("ingestion worker e2e", () => {
     expect(getJob(jobId).errorCode).toBe("blocked");
     expect(sourcesForNotebook().length).toBe(0);
   });
+
+  it("processes a queued manual upload end-to-end (extract + chunk)", async () => {
+    const file = await store.save(Buffer.from(DOC_TEXT, "utf-8"), {
+      fileName: "upload.txt",
+      contentType: "text/plain",
+    });
+    const sourceId = await createSource(db, {
+      ownerId: OWNER,
+      notebookId,
+      fileName: "upload.txt",
+      fileType: "text/plain",
+      fileSize: Buffer.byteLength(DOC_TEXT),
+      storageId: file.id,
+    });
+    enqueueProcessingJob(db, { ownerId: OWNER, sourceId, notebookId });
+
+    worker = startWorker();
+    await waitFor(
+      "source completed",
+      () => (sourcesForNotebook()[0] as { status?: string })?.status === "completed",
+      30_000
+    );
+    const chunks = await getChunksBySource(db, sourceId);
+    expect(chunks.length).toBeGreaterThan(0);
+    expect(chunks[0].content).toContain("Chunking-Test");
+  });
+
+  it("fails a queued upload whose original file is missing", async () => {
+    const sourceId = await createSource(db, {
+      ownerId: OWNER,
+      notebookId,
+      fileName: "ghost.txt",
+      fileType: "text/plain",
+      fileSize: 10,
+      // no storageId — nothing on disk
+    });
+    enqueueProcessingJob(db, { ownerId: OWNER, sourceId, notebookId });
+
+    worker = startWorker();
+    await waitFor(
+      "source errored",
+      () => (sourcesForNotebook()[0] as { status?: string })?.status === "error",
+      30_000
+    );
+    expect((listSourcesByNotebook(db, notebookId)[0] as { errorMessage?: string }).errorMessage).toContain("Originaldatei");
+  });
 });
+
+/** Test hook: pretend backoff elapsed (queued jobs due immediately). */
+function tickJobs() {
+  fastForwardForTests(db);
+}

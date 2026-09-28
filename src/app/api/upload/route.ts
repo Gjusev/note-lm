@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { createSource } from "@/lib/services/sources";
+import { userOwnsNotebook } from "@/lib/services/notebooks";
+import { enqueueProcessingJob } from "@/lib/services/processing-jobs";
 
 export const runtime = "nodejs";
-export const maxDuration = 300; // 5 minutes for large file uploads
+export const maxDuration = 60; // only the upload itself; processing runs in the worker queue
 
 const MAX_FILE_SIZE: Record<string, number> = {
   "application/pdf": (parseInt(process.env.MAX_PDF_MB || "20")) * 1024 * 1024,
@@ -20,13 +25,21 @@ function getMaxSizeForType(fileType: string): number {
 }
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
+
   const formData = await req.formData();
   const file = formData.get("file") as File | null;
   const notebookId = formData.get("notebookId") as string | null;
-  const ownerId = formData.get("ownerId") as string | null;
 
-  if (!file || !notebookId || !ownerId) {
-    return NextResponse.json({ error: "file, notebookId und ownerId sind erforderlich" }, { status: 400 });
+  if (!file || !notebookId) {
+    return NextResponse.json({ error: "file und notebookId sind erforderlich" }, { status: 400 });
+  }
+
+  const { db, store } = getLocalContext();
+  if (!(await userOwnsNotebook(db, user.id, notebookId))) {
+    return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
 
   const rawType = file.type || "";
@@ -51,82 +64,27 @@ export async function POST(req: NextRequest) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-
   console.log(`[UPLOAD] ${file.name} | rawType=${rawType} | resolved=${fileType} | size=${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
 
-  // Upload to Convex storage via internal API
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
-  const uploadUrlRes = await fetch(`${convexUrl}/api/mutation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-internal-key": process.env.INTERNAL_API_KEY!,
-    },
-    body: JSON.stringify({
-      path: "sources:generateUploadUrl",
-      args: {},
-    }),
-  });
+  // Bytes go to the local store; the source row points at them. If the DB
+  // steps fail, the orphaned bytes are removed again.
+  const stored = await store.save(buffer, { fileName: file.name, contentType: fileType });
+  try {
+    const sourceId = await createSource(db, {
+      ownerId: user.id,
+      notebookId,
+      fileName: file.name,
+      fileType,
+      fileSize: file.size,
+      storageId: stored.id,
+    });
 
-  if (!uploadUrlRes.ok) {
-    return NextResponse.json({ error: "Upload-URL konnte nicht generiert werden" }, { status: 500 });
+    // Extraction/transcription runs in the worker queue, not in this request.
+    await enqueueProcessingJob(db, { ownerId: user.id, sourceId, notebookId });
+
+    return NextResponse.json({ sourceId, processing: true });
+  } catch (err) {
+    await store.delete(stored.id);
+    throw err;
   }
-
-  const { value: uploadUrl } = await uploadUrlRes.json();
-
-  const uploadRes = await fetch(uploadUrl, {
-    method: "POST",
-    headers: { "Content-Type": fileType },
-    body: buffer,
-  });
-
-  if (!uploadRes.ok) {
-    return NextResponse.json({ error: "Datei konnte nicht hochgeladen werden" }, { status: 500 });
-  }
-
-  const { storageId } = await uploadRes.json();
-
-  // Create source record via internal API
-  const sourceRes = await fetch(`${convexUrl}/api/mutation`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-internal-key": process.env.INTERNAL_API_KEY!,
-    },
-    body: JSON.stringify({
-      path: "sources:create",
-      args: {
-        ownerId,
-        notebookId,
-        fileName: file.name,
-        fileType,
-        fileSize: file.size,
-        storageId,
-      },
-    }),
-  });
-
-  if (!sourceRes.ok) {
-    return NextResponse.json({ error: "Quelle konnte nicht erstellt werden" }, { status: 500 });
-  }
-
-  const { value: sourceId } = await sourceRes.json();
-
-  // Trigger processing in the background (fire-and-forget)
-  const host = req.headers.get("host") || `localhost:${process.env.PORT || 3000}`;
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `http://${host}`;
-  console.log(`[UPLOAD] Triggering process: ${appUrl}/api/process | sourceId=${sourceId}`);
-  fetch(`${appUrl}/api/process`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ sourceId, notebookId, ownerId, fileType }),
-  }).catch((err) => {
-    console.error("Processing trigger failed:", err);
-  });
-
-  return NextResponse.json({
-    sourceId,
-    storageId,
-    processing: true,
-  });
 }

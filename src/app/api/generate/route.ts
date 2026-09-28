@@ -1,43 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-import { chatCompletion } from "@/lib/openai";
+import { chatCompletion, textToSpeech } from "@/lib/openai";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { getMaterial, updateMaterial } from "@/lib/services/learning-materials";
+import { getChunksByNotebook } from "@/lib/services/sources";
+import { userOwnsNotebook } from "@/lib/services/notebooks";
+import type { MaterialType } from "@/db/local/schema";
 
 export const runtime = "nodejs";
 export const maxDuration = 600; // 10 minutes for TTS podcast generation
-
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL!;
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY!;
-const openai = new OpenAI();
-
-async function convexMutation(path: string, args: Record<string, unknown>) {
-  const res = await fetch(`${CONVEX_URL}/api/mutation`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-internal-key": INTERNAL_KEY },
-    body: JSON.stringify({ path, args }),
-  });
-  return res.json();
-}
-
-async function convexQuery(path: string, args: Record<string, unknown>) {
-  const res = await fetch(`${CONVEX_URL}/api/query`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-internal-key": INTERNAL_KEY },
-    body: JSON.stringify({ path, args }),
-  });
-  return res.json();
-}
-
-async function uploadToConvexStorage(audioBuffer: Buffer): Promise<string> {
-  const { value: uploadUrl } = await convexMutation("sources:generateUploadUrl", {});
-  const uploadRes = await fetch(uploadUrl, {
-    method: "POST",
-    headers: { "Content-Type": "audio/mpeg" },
-    body: new Uint8Array(audioBuffer),
-  });
-  if (!uploadRes.ok) throw new Error("Audio-Upload fehlgeschlagen");
-  const { storageId } = await uploadRes.json();
-  return storageId;
-}
 
 async function generatePodcastAudio(script: string): Promise<Buffer> {
   const voice1 = process.env.OPENAI_TTS_VOICE_HOST_1 || "alloy";
@@ -65,14 +36,8 @@ async function generatePodcastAudio(script: string): Promise<Buffer> {
 
     const voice = currentHost === 1 ? voice1 : voice2;
     try {
-      const mp3 = await openai.audio.speech.create({
-        model: process.env.OPENAI_TTS_MODEL || "gpt-4o-mini-tts",
-        voice: voice as OpenAI.Audio.SpeechCreateParams["voice"],
-        input: trimmed.slice(0, 4096),
-        response_format: "mp3",
-      }, { signal: AbortSignal.timeout(60_000) });
-      const buf = Buffer.from(await mp3.arrayBuffer());
-      if (buf.length > 0) segments.push(buf);
+      const mp3 = await textToSpeech(trimmed, voice);
+      if (mp3.length > 0) segments.push(mp3);
     } catch (err) {
       console.error("TTS segment error:", err);
     }
@@ -92,71 +57,74 @@ const TYPE_PROMPTS: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
+
   const { materialId, notebookId, type } = await req.json();
 
   if (!materialId || !notebookId || !type) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
+  if (!TYPE_PROMPTS[type]) {
+    return NextResponse.json({ error: "Unknown type" }, { status: 400 });
+  }
+
+  const { db, store } = getLocalContext();
+  if (!(await userOwnsNotebook(db, user.id, notebookId))) {
+    return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
+  }
 
   try {
-    await convexMutation("learningMaterials:updateContent", {
-      materialId,
-      status: "generating",
-    });
+    const material = await getMaterial(db, materialId);
+    if (!material || material.notebookId !== notebookId) {
+      return NextResponse.json({ error: "Material nicht gefunden" }, { status: 404 });
+    }
 
-    const { value: chunks } = await convexQuery("chunks:getByNotebook", { notebookId });
+    await updateMaterial(db, materialId, { status: "generating" });
 
-    if (!chunks || chunks.length === 0) {
-      await convexMutation("learningMaterials:updateContent", {
-        materialId,
+    const chunks = await getChunksByNotebook(db, notebookId);
+    if (chunks.length === 0) {
+      await updateMaterial(db, materialId, {
         status: "error",
         errorMessage: "Keine Quelleninhalte verfügbar. Lade zuerst Quellen hoch.",
       });
       return NextResponse.json({ error: "No content available" }, { status: 400 });
     }
 
-    const sourceText = chunks.map((c: { content: string }) => c.content).join("\n\n").slice(0, 12000);
-
-    const prompt = TYPE_PROMPTS[type];
-    if (!prompt) {
-      await convexMutation("learningMaterials:updateContent", {
-        materialId,
-        status: "error",
-        errorMessage: `Unbekannter Materialtyp: ${type}`,
-      });
-      return NextResponse.json({ error: "Unknown type" }, { status: 400 });
-    }
+    const sourceText = chunks.map((c) => c.content).join("\n\n").slice(0, 12000);
 
     const content = await chatCompletion([
-      { role: "system", content: prompt },
+      { role: "system", content: TYPE_PROMPTS[type] },
       { role: "user", content: `Quellen:\n\n${sourceText}` },
     ]);
 
-    let audioStorageId: string | undefined;
-
-    if (type === "podcastSummary") {
+    let audioFileId: string | undefined;
+    if (type === ("podcastSummary" as MaterialType)) {
       try {
         const audioBuffer = await generatePodcastAudio(content);
         if (audioBuffer.length > 0) {
-          audioStorageId = await uploadToConvexStorage(audioBuffer);
+          const file = await store.save(audioBuffer, {
+            fileName: "podcast.mp3",
+            contentType: "audio/mpeg",
+          });
+          audioFileId = file.id;
         }
       } catch (err) {
         console.error("Podcast audio generation failed:", err);
       }
     }
 
-    await convexMutation("learningMaterials:updateContent", {
-      materialId,
+    await updateMaterial(db, materialId, {
       status: "completed",
       content,
-      ...(audioStorageId ? { audioStorageId } : {}),
+      ...(audioFileId ? { audioFileId } : {}),
     });
 
     return NextResponse.json({ success: true, materialId });
   } catch (error) {
     console.error("Generation error:", error);
-    await convexMutation("learningMaterials:updateContent", {
-      materialId,
+    await updateMaterial(db, materialId, {
       status: "error",
       errorMessage: error instanceof Error ? error.message : "Generierung fehlgeschlagen",
     });

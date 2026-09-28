@@ -1,21 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chunkText } from "@/lib/text-extraction";
-import { getSessionUser, userOwnsNotebook } from "@/lib/server/notebook-access";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { createSource, replaceChunks, updateSourceStatus } from "@/lib/services/sources";
+import { userOwnsNotebook } from "@/lib/services/notebooks";
 import { extractTextFromHtml, extractTitleFromHtml } from "@/lib/ingestion/html-extract";
 
 export const runtime = "nodejs";
-
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL!;
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY!;
-
-async function convexMutation(path: string, args: Record<string, unknown>) {
-  const res = await fetch(`${CONVEX_URL}/api/mutation`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-internal-key": INTERNAL_KEY },
-    body: JSON.stringify({ path, args }),
-  });
-  return res.json();
-}
 
 async function fetchAndExtractText(url: string): Promise<{ text: string; title: string }> {
   const res = await fetch(url, {
@@ -42,19 +33,17 @@ async function fetchAndExtractText(url: string): Promise<{ text: string; title: 
 }
 
 export async function POST(req: NextRequest) {
-  const { url, notebookId, forceText, title: customTitle } = await req.json();
-
-  // ownerId comes from the session, never from the request body
   const user = await getSessionUser();
-  if (!user) {
-    return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
-  }
-  const ownerId = user.id;
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
+
+  const { url, notebookId, forceText, title: customTitle } = await req.json();
 
   if (!notebookId) {
     return NextResponse.json({ error: "notebookId ist erforderlich" }, { status: 400 });
   }
-  if (!(await userOwnsNotebook(ownerId, notebookId))) {
+  const { db } = getLocalContext();
+  if (!(await userOwnsNotebook(db, user.id, notebookId))) {
     return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
 
@@ -92,9 +81,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create source record
-    const { value: sourceId } = await convexMutation("sources:create", {
-      ownerId,
+    const sourceId = await createSource(db, {
+      ownerId: user.id,
       notebookId,
       fileName: title,
       fileType: forceText ? "text/plain" : "text/html",
@@ -102,30 +90,19 @@ export async function POST(req: NextRequest) {
       ...(url && !forceText ? { url } : {}),
     });
 
-    // Update status to processing
-    await convexMutation("sources:updateStatus", { sourceId, status: "processing" });
-
-    // Chunk and store
-    const chunks = chunkText(text);
-    for (let i = 0; i < chunks.length; i++) {
-      const embeddingId = `emb_${sourceId}_${i}`;
-      await convexMutation("chunks:create", {
-        ownerId,
-        sourceId,
-        notebookId,
-        content: chunks[i],
-        chunkIndex: i,
-        embeddingId,
+    await updateSourceStatus(db, sourceId, { status: "processing" });
+    try {
+      const chunks = chunkText(text);
+      replaceChunks(db, { ownerId: user.id, sourceId, notebookId }, chunks);
+      await updateSourceStatus(db, sourceId, { status: "completed" });
+      return NextResponse.json({ sourceId, title, chunksCreated: chunks.length });
+    } catch (err) {
+      await updateSourceStatus(db, sourceId, {
+        status: "error",
+        errorMessage: err instanceof Error ? err.message : "Verarbeitung fehlgeschlagen",
       });
+      throw err;
     }
-
-    await convexMutation("sources:updateStatus", { sourceId, status: "completed" });
-
-    return NextResponse.json({
-      sourceId,
-      title,
-      chunksCreated: chunks.length,
-    });
   } catch (error) {
     console.error("URL fetch error:", error);
     return NextResponse.json(

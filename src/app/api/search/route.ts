@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chunkText } from "@/lib/text-extraction";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { createSource, replaceChunks, updateSourceStatus } from "@/lib/services/sources";
+import { userOwnsNotebook } from "@/lib/services/notebooks";
+import { searchChunks } from "@/lib/services/search";
 
 export const runtime = "nodejs";
 
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL!;
-const INTERNAL_KEY = process.env.INTERNAL_API_KEY!;
-const SEAR_ENDPOINT = process.env.SEAR_ENDPOINT || "https://your-sear-instance.example.com";
-
-async function convexMutation(path: string, args: Record<string, unknown>) {
-  const res = await fetch(`${CONVEX_URL}/api/mutation`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-internal-key": INTERNAL_KEY },
-    body: JSON.stringify({ path, args }),
-  });
-  return res.json();
-}
+const SEAR_ENDPOINT = process.env.SEAR_ENDPOINT;
 
 interface SearResult {
   title: string;
@@ -30,9 +24,7 @@ interface SearResponse {
 
 async function searchSear(query: string): Promise<SearResponse> {
   const url = `${SEAR_ENDPOINT}/search?q=${encodeURIComponent(query)}&format=json`;
-  const res = await fetch(url, {
-    signal: AbortSignal.timeout(30000),
-  });
+  const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
 
   if (!res.ok) {
     const text = await res.text();
@@ -49,16 +41,42 @@ async function searchSear(query: string): Promise<SearResponse> {
   return { results };
 }
 
-// Search-only: returns results without creating sources
+// Notebook-scoped local search (FTS5/BM25) — always available, no provider.
 export async function GET(req: NextRequest) {
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+
   const query = req.nextUrl.searchParams.get("q");
+  const notebookId = req.nextUrl.searchParams.get("notebookId");
   if (!query) {
     return NextResponse.json({ error: "Suchbegriff erforderlich (?q=...)" }, { status: 400 });
   }
 
+  const { db } = getLocalContext();
+
+  if (notebookId) {
+    if (!(await userOwnsNotebook(db, user.id, notebookId))) {
+      return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
+    }
+    const hits = searchChunks(db, notebookId, query, 20);
+    const results = hits.map((h) => ({
+      chunkIndex: h.chunkIndex,
+      sourceId: h.sourceId,
+      content: h.content,
+    }));
+    return NextResponse.json({ results, scope: "notebook" });
+  }
+
+  // Web search is optional: it needs an explicit SearXNG endpoint
+  if (!SEAR_ENDPOINT) {
+    return NextResponse.json(
+      { error: "Websuche ist nicht konfiguriert (SEAR_ENDPOINT fehlt). Die Notizbuch-Suche funktioniert mit ?notebookId= lokal." },
+      { status: 501 }
+    );
+  }
+
   try {
-    const data = await searchSear(query);
-    return NextResponse.json(data);
+    return NextResponse.json(await searchSear(query));
   } catch (error) {
     console.error("Search error:", error);
     return NextResponse.json(
@@ -68,22 +86,34 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Search + add selected results as sources to a notebook
+// Web search + add selected results as sources to a notebook (optional provider)
 export async function POST(req: NextRequest) {
-  const { query, notebookId, ownerId, addResults } = await req.json();
+  const user = await getSessionUser();
+  if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
 
+  const { query, notebookId, addResults } = await req.json();
   if (!query) {
     return NextResponse.json({ error: "Suchbegriff erforderlich" }, { status: 400 });
+  }
+  if (!SEAR_ENDPOINT) {
+    return NextResponse.json(
+      { error: "Websuche ist nicht konfiguriert (SEAR_ENDPOINT fehlt)." },
+      { status: 501 }
+    );
   }
 
   try {
     const data = await searchSear(query);
 
-    if (!addResults || !notebookId || !ownerId) {
+    if (!addResults || !notebookId) {
       return NextResponse.json(data);
     }
+    const { db } = getLocalContext();
+    if (!(await userOwnsNotebook(db, user.id, notebookId))) {
+      return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
+    }
 
-    // Add search results as sources
     const results = data.results || [];
     const created: string[] = [];
 
@@ -91,8 +121,8 @@ export async function POST(req: NextRequest) {
       const text = result.content || result.snippet || "";
       if (text.length < 30) continue;
 
-      const { value: sourceId } = await convexMutation("sources:create", {
-        ownerId,
+      const sourceId = await createSource(db, {
+        ownerId: user.id,
         notebookId,
         fileName: result.title || new URL(result.url).hostname,
         fileType: "text/html",
@@ -100,21 +130,9 @@ export async function POST(req: NextRequest) {
         url: result.url,
       });
 
-      await convexMutation("sources:updateStatus", { sourceId, status: "processing" });
-
-      const chunks = chunkText(text);
-      for (let i = 0; i < chunks.length; i++) {
-        await convexMutation("chunks:create", {
-          ownerId,
-          sourceId,
-          notebookId,
-          content: chunks[i],
-          chunkIndex: i,
-          embeddingId: `emb_${sourceId}_${i}`,
-        });
-      }
-
-      await convexMutation("sources:updateStatus", { sourceId, status: "completed" });
+      await updateSourceStatus(db, sourceId, { status: "processing" });
+      replaceChunks(db, { ownerId: user.id, sourceId, notebookId }, chunkText(text));
+      await updateSourceStatus(db, sourceId, { status: "completed" });
       created.push(sourceId);
     }
 

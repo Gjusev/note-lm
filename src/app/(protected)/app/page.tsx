@@ -1,40 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useSession } from "@/lib/auth-client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api, type Notebook } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-interface NotebookData {
-  _id: string;
-  title: string;
-  description?: string;
-  updatedAt: number;
-}
-
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const notebooks: NotebookData[] | undefined = useQuery(api.notebooks.list, session?.user?.id ? { ownerId: session.user.id } : "skip") as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const createNotebook = useMutation(api.notebooks.create) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deleteNotebook = useMutation(api.notebooks.remove) as any;
+  const { data: notebooks, isLoading } = useQuery({
+    queryKey: ["notebooks"],
+    queryFn: () => api.listNotebooks(),
+  });
+
+  const createNotebook = useMutation({
+    mutationFn: (t: string) => api.createNotebook(t),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["notebooks"] });
+      setTitle("");
+      setShowForm(false);
+      router.push(`/app/notebooks/${data.id}`);
+    },
+  });
+
+  const deleteNotebook = useMutation({
+    mutationFn: (id: string) => api.deleteNotebook(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["notebooks"] }),
+  });
+
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  async function handleCreate(e: React.FormEvent) {
+  function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !session?.user?.id) return;
-    const id = await createNotebook({ ownerId: session.user.id, title: title.trim() });
-    setTitle("");
-    setShowForm(false);
-    router.push(`/app/notebooks/${id}`);
+    if (!title.trim()) return;
+    createNotebook.mutate(title.trim());
   }
 
   return (
@@ -65,7 +68,8 @@ export default function DashboardPage() {
             />
             <button
               type="submit"
-              className="bg-accent text-white border-2 border-accent px-6 py-3 text-mono-label font-bold hover:bg-ink hover:border-ink transition-colors"
+              disabled={createNotebook.isPending || !title.trim()}
+              className="bg-accent text-white border-2 border-accent px-6 py-3 text-mono-label font-bold hover:bg-ink hover:border-ink transition-colors disabled:opacity-50"
             >
               ERSTELLEN
             </button>
@@ -73,7 +77,7 @@ export default function DashboardPage() {
         </form>
       )}
 
-      {!notebooks ? (
+      {isLoading || !notebooks ? (
         <p className="text-mono-data opacity-50">Laden...</p>
       ) : notebooks.length === 0 ? (
         <div className="border-2 border-rule border-dashed p-16 text-center">
@@ -90,7 +94,7 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-rule">
-          {notebooks.map((nb) => (
+          {notebooks.map((nb: Notebook) => (
             <div
               key={nb._id}
               className="bg-paper p-6 hover:bg-paper-muted transition-colors group relative"
@@ -101,10 +105,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-center truncate max-w-full">{nb.title}</p>
                   <div className="flex gap-2">
                     <button
-                      onClick={async () => {
-                        await deleteNotebook({ notebookId: nb._id });
-                        setConfirmDelete(null);
-                      }}
+                      onClick={() => deleteNotebook.mutate(nb._id)}
                       className="bg-accent text-white px-4 py-2 text-mono-label font-bold hover:bg-red-700 transition-colors"
                     >
                       LÖSCHEN

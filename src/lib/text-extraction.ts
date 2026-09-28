@@ -1,23 +1,43 @@
+import { PDFParse } from "pdf-parse";
 import { DocumentAnalysisClient, AzureKeyCredential } from "@azure/ai-form-recognizer";
 
-const azureEndpoint = process.env.AZURE_OCR_ENDPOINT!;
-const azureKey = process.env.AZURE_OCR_KEY!;
+/**
+ * Text extraction. Local-first: pdf-parse (PDF.js) for PDFs, no network.
+ * Azure OCR stays available as an OPTIONAL provider for scanned/mixed PDFs
+ * that carry no text layer; without it, such files fail with a clear message
+ * instead of silently calling a cloud service.
+ *
+ * ponytail: local OCR (PDF.js render + Tesseract.js, plan §4) is the known
+ * upgrade path when scanned-PDF support must work offline.
+ */
 
 export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
-  const client = new DocumentAnalysisClient(
-    azureEndpoint,
-    new AzureKeyCredential(azureKey)
-  );
-
-  const poller = await client.beginAnalyzeDocument("prebuilt-read", buffer);
-  const result = await poller.pollUntilDone();
-
-  const pages: string[] = [];
-  for (const page of result.pages ?? []) {
-    const pageText = (page.lines ?? []).map((line) => line.content).join("\n");
-    pages.push(pageText);
+  const parser = new PDFParse({ data: new Uint8Array(buffer) });
+  try {
+    const result = await parser.getText();
+    const text = result.pages.map((p) => p.text).join("\n\n").trim();
+    if (text.length > 0) return text;
+  } finally {
+    await parser.destroy?.();
   }
-  return pages.join("\n\n");
+
+  // No text layer (scanned PDF) → optional Azure provider
+  const endpoint = process.env.AZURE_OCR_ENDPOINT;
+  const key = process.env.AZURE_OCR_KEY;
+  if (endpoint && key) {
+    const client = new DocumentAnalysisClient(endpoint, new AzureKeyCredential(key));
+    const poller = await client.beginAnalyzeDocument("prebuilt-read", buffer);
+    const result = await poller.pollUntilDone();
+    const pages: string[] = [];
+    for (const page of result.pages ?? []) {
+      pages.push((page.lines ?? []).map((line) => line.content).join("\n"));
+    }
+    return pages.join("\n\n");
+  }
+
+  throw new Error(
+    "PDF enthält keinen Text (Scan). Lokale Texterkennung ist noch nicht konfiguriert; optional AZURE_OCR_ENDPOINT/AZURE_OCR_KEY setzen."
+  );
 }
 
 export async function extractTextFromFile(

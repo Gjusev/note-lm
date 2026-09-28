@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser, userOwnsNotebook } from "@/lib/server/notebook-access";
-import { convexMutation, convexQuery } from "@/lib/server/convex-api";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { userOwnsNotebook } from "@/lib/services/notebooks";
+import { createImportJob, listImportJobsByNotebook } from "@/lib/services/import-jobs";
 import { classifyUrl, providerEnabled } from "@/lib/ingestion/identify";
 
 export const runtime = "nodejs";
@@ -8,6 +10,7 @@ export const runtime = "nodejs";
 export async function POST(req: NextRequest) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
 
   const { url, notebookId } = await req.json();
   if (!url || !notebookId) {
@@ -28,11 +31,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Anbieter '${classified.provider}' ist deaktiviert` }, { status: 400 });
   }
 
-  if (!(await userOwnsNotebook(user.id, notebookId))) {
+  const { db } = getLocalContext();
+  if (!(await userOwnsNotebook(db, user.id, notebookId))) {
     return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
 
-  const { value } = await convexMutation<{ value: { jobId: string; deduped: boolean } }>("importJobs:create", {
+  const { jobId, deduped } = createImportJob(db, {
     ownerId: user.id,
     notebookId,
     url,
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
     ...(classified.canonicalUrl && { canonicalUrl: classified.canonicalUrl }),
   });
 
-  return NextResponse.json({ jobId: value.jobId, deduped: value.deduped, provider: classified.provider }, { status: 202 });
+  return NextResponse.json({ jobId, deduped, provider: classified.provider }, { status: 202 });
 }
 
 export async function GET(req: NextRequest) {
@@ -54,10 +58,10 @@ export async function GET(req: NextRequest) {
   if (!notebookId) {
     return NextResponse.json({ error: "notebookId ist erforderlich" }, { status: 400 });
   }
-  if (!(await userOwnsNotebook(user.id, notebookId))) {
+  const { db } = getLocalContext();
+  if (!(await userOwnsNotebook(db, user.id, notebookId))) {
     return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
 
-  const { value } = await convexQuery<{ value: unknown[] }>("importJobs:listByNotebook", { notebookId });
-  return NextResponse.json({ jobs: value ?? [] });
+  return NextResponse.json({ jobs: await listImportJobsByNotebook(db, notebookId) });
 }

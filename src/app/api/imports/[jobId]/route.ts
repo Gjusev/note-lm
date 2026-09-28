@@ -1,45 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/server/notebook-access";
-import { convexMutation, convexQuery } from "@/lib/server/convex-api";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSessionUser, assertSameOrigin } from "@/lib/server/local-user";
+import { cancelImportJob, getImportJob, retryImportJob } from "@/lib/services/import-jobs";
 
 export const runtime = "nodejs";
 
-interface JobDoc {
-  ownerId: string;
-  status: string;
+interface Params {
+  params: Promise<{ jobId: string }>;
 }
 
-async function getOwnedJob(jobId: string, userId: string): Promise<JobDoc | null> {
-  const { value } = await convexQuery<{ value: JobDoc | null }>("importJobs:get", { jobId });
-  return value && value.ownerId === userId ? value : null;
+async function getOwnedJob(db: ReturnType<typeof getLocalContext>["db"], jobId: string, userId: string) {
+  const job = await getImportJob(db, jobId);
+  return job && job.ownerId === userId ? job : null;
 }
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ jobId: string }> }) {
+export async function GET(_req: NextRequest, { params }: Params) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
 
   const { jobId } = await params;
-  const job = await getOwnedJob(jobId, user.id);
+  const { db } = getLocalContext();
+  const job = await getOwnedJob(db, jobId, user.id);
   if (!job) return NextResponse.json({ error: "Job nicht gefunden" }, { status: 404 });
   return NextResponse.json({ job });
 }
 
-export async function POST(req: NextRequest, { params }: { params: Promise<{ jobId: string }> }) {
+export async function POST(req: NextRequest, { params }: Params) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  if (!(await assertSameOrigin())) return NextResponse.json({ error: "Ursprung nicht erlaubt" }, { status: 403 });
 
   const { jobId } = await params;
-  const job = await getOwnedJob(jobId, user.id);
+  const { db } = getLocalContext();
+  const job = await getOwnedJob(db, jobId, user.id);
   if (!job) return NextResponse.json({ error: "Job nicht gefunden" }, { status: 404 });
 
   const { action } = await req.json();
-  const path = action === "cancel" ? "importJobs:cancel" : action === "retry" ? "importJobs:retry" : null;
-  if (!path) return NextResponse.json({ error: "action muss 'cancel' oder 'retry' sein" }, { status: 400 });
-
-  const res = await convexMutation<{ errorMessage?: string }>(path, { jobId });
-  if (res.errorMessage) {
-    // Convex wraps thrown errors; surface a clean 409
-    return NextResponse.json({ error: res.errorMessage }, { status: 409 });
+  try {
+    if (action === "cancel") cancelImportJob(db, jobId);
+    else if (action === "retry") retryImportJob(db, jobId);
+    else return NextResponse.json({ error: "action muss 'cancel' oder 'retry' sein" }, { status: 400 });
+  } catch (err) {
+    // Terminal-state conflicts surface as a clean 409 (Convex parity)
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Aktion fehlgeschlagen" }, { status: 409 });
   }
   return NextResponse.json({ ok: true });
 }

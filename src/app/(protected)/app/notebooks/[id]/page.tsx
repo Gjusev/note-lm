@@ -1,35 +1,29 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../../../convex/_generated/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
-import { useSession } from "@/lib/auth-client";
+import { useLocalProfile } from "@/lib/use-local-profile";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useToast } from "@/components/ui/toaster";
 import { UploadDialog } from "@/components/notebook/upload-dialog";
+import { CitationList } from "@/components/notebook/citation-list";
 
 interface SourceData {
   _id: string;
   fileName: string;
   fileType: string;
   fileSize: number;
-  status: string;
-  url?: string;
+  status: "pending" | "processing" | "completed" | "error";
+  url?: string | null;
 }
 
 interface ChunkData {
   _id: string;
   content: string;
   chunkIndex: number;
-}
-
-interface MessageData {
-  _id: string;
-  role: "user" | "assistant";
-  content: string;
-  citations?: { sourceId: string; chunkIndex: number; text: string; fileName?: string }[];
 }
 
 interface NoteData {
@@ -64,26 +58,58 @@ const JOB_STATUS_LABELS: Record<string, string> = {
 export default function NotebookPage() {
   const params = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const notebookId = params?.id as string;
-  const { data: session } = useSession();
+  const { data: session } = useLocalProfile();
   const { toast } = useToast();
   const [message, setMessage] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const notebook = useQuery(api.notebooks.get, { notebookId } as any);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const sources: SourceData[] | undefined = useQuery(api.sources.listByNotebook, { notebookId } as any) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const messages: MessageData[] | undefined = useQuery(api.messages.listByNotebook, { notebookId } as any) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deleteNotebook = useMutation(api.notebooks.remove) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deleteSource = useMutation(api.sources.remove) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const clearChat = useMutation(api.messages.clearByNotebook) as any;
+  const { data: notebook } = useQuery({
+    queryKey: ["notebook", notebookId],
+    queryFn: () => api.getNotebook(notebookId),
+  });
+  const { data: sources } = useQuery({
+    queryKey: ["sources", notebookId],
+    queryFn: () => api.listSources(notebookId),
+    refetchInterval: (query) =>
+      query.state.data?.some((s) => s.status === "pending" || s.status === "processing") ? 4000 : false,
+  });
+  const { data: messages } = useQuery({
+    queryKey: ["messages", notebookId],
+    queryFn: () => api.listMessages(notebookId),
+  });
+
+  const invalidateSources = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["sources", notebookId] }),
+    [queryClient, notebookId]
+  );
+  const invalidateMessages = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["messages", notebookId] }),
+    [queryClient, notebookId]
+  );
+  const invalidateNotes = useCallback(
+    () => queryClient.invalidateQueries({ queryKey: ["notes", notebookId] }),
+    [queryClient, notebookId]
+  );
+
+  const deleteNotebook = useMutation({
+    mutationFn: () => api.deleteNotebook(notebookId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notebooks"] });
+      router.push("/app");
+    },
+  });
+  const deleteSource = useMutation({
+    mutationFn: (id: string) => api.deleteSource(id),
+    onSuccess: invalidateSources,
+  });
+  const clearChat = useMutation({
+    mutationFn: () => api.clearMessages(notebookId),
+    onSuccess: invalidateMessages,
+  });
   const [deletingSourceId, setDeletingSourceId] = useState<string | null>(null);
   const [viewingSource, setViewingSource] = useState<SourceData | null>(null);
   const [viewingChunks, setViewingChunks] = useState<ChunkData[]>([]);
@@ -103,14 +129,23 @@ export default function NotebookPage() {
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteContent, setNewNoteContent] = useState("");
   const [showNewNote, setShowNewNote] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const notes: NoteData[] | undefined = useQuery(api.notes.listByNotebook, { notebookId } as any) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const createNote = useMutation(api.notes.create) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateNote = useMutation(api.notes.update) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deleteNote = useMutation(api.notes.remove) as any;
+  const { data: notes } = useQuery({
+    queryKey: ["notes", notebookId],
+    queryFn: () => api.listNotes(notebookId),
+  });
+  const createNote = useMutation({
+    mutationFn: (args: { title: string; content: string }) => api.createNote(notebookId, args.title, args.content),
+    onSuccess: invalidateNotes,
+  });
+  const updateNote = useMutation({
+    mutationFn: (args: { id: string; title: string; content: string }) =>
+      api.updateNote(args.id, { title: args.title, content: args.content }),
+    onSuccess: invalidateNotes,
+  });
+  const deleteNote = useMutation({
+    mutationFn: (id: string) => api.deleteNote(id),
+    onSuccess: invalidateNotes,
+  });
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -121,15 +156,7 @@ export default function NotebookPage() {
     setViewingChunksLoading(true);
     setViewingChunks([]);
     try {
-      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
-      const internalKey = process.env.INTERNAL_API_KEY!;
-      const res = await fetch(`${convexUrl}/api/query`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-internal-key": internalKey },
-        body: JSON.stringify({ path: "chunks:getBySource", args: { sourceId: source._id } }),
-      });
-      const data = await res.json();
-      setViewingChunks(data.value || []);
+      setViewingChunks(await api.getChunks(source._id));
     } catch {
       toast("Chunks konnten nicht geladen werden", "error");
     } finally {
@@ -137,8 +164,10 @@ export default function NotebookPage() {
     }
   }, [toast]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const createMessage = useMutation(api.messages.create) as any;
+  const createMessage = useMutation({
+    mutationFn: (content: string) => api.createMessage(notebookId, "user", content),
+    onSuccess: invalidateMessages,
+  });
 
   const handleChat = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,12 +178,7 @@ export default function NotebookPage() {
     setChatLoading(true);
 
     // Save user message immediately so it appears in the chat
-    await createMessage({
-      ownerId: session.user.id,
-      notebookId,
-      role: "user",
-      content: userMessage,
-    });
+    await createMessage.mutateAsync(userMessage);
 
     try {
       const res = await fetch("/api/chat", {
@@ -163,18 +187,20 @@ export default function NotebookPage() {
         body: JSON.stringify({
           message: userMessage,
           notebookId,
-          ownerId: session.user.id,
           skipUserMessage: true,
         }),
       });
-
-      if (!res.ok) throw new Error("Chat fehlgeschlagen");
-    } catch {
-      toast("Chat-Anfrage fehlgeschlagen", "error");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Chat fehlgeschlagen");
+      }
+      invalidateMessages();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Chat-Anfrage fehlgeschlagen", "error");
     } finally {
       setChatLoading(false);
     }
-  }, [message, chatLoading, session, notebookId, toast, createMessage]);
+  }, [message, chatLoading, session, notebookId, toast, createMessage, invalidateMessages]);
 
   const hasActiveJobs = importJobs.some((j) => !["completed", "failed", "cancelled"].includes(j.status));
 
@@ -184,8 +210,11 @@ export default function NotebookPage() {
       if (!res.ok) return;
       const data = await res.json();
       setImportJobs(data.jobs || []);
+      // Completed imports create sources directly — without Convex realtime
+      // subscriptions the sources list must be refetched alongside the jobs.
+      queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
     } catch { /* keep last state */ }
-  }, [notebookId]);
+  }, [notebookId, queryClient]);
 
   // Poll import jobs while the import tabs are open or work is in flight
   useEffect(() => {
@@ -276,13 +305,13 @@ export default function NotebookPage() {
   }, [session, startImport]);
 
   const handleSaveNote = useCallback(async () => {
-    if (!session?.user?.id || !newNoteTitle.trim()) return;
+    if (!newNoteTitle.trim()) return;
     try {
       if (editingNote) {
-        await updateNote({ noteId: editingNote._id, title: newNoteTitle, content: newNoteContent });
+        await updateNote.mutateAsync({ id: editingNote._id, title: newNoteTitle, content: newNoteContent });
         toast("Notiz aktualisiert", "success");
       } else {
-        await createNote({ ownerId: session.user.id, notebookId, title: newNoteTitle, content: newNoteContent });
+        await createNote.mutateAsync({ title: newNoteTitle, content: newNoteContent });
         toast("Notiz erstellt", "success");
       }
       setNewNoteTitle("");
@@ -292,7 +321,7 @@ export default function NotebookPage() {
     } catch {
       toast("Notiz konnte nicht gespeichert werden", "error");
     }
-  }, [session, notebookId, newNoteTitle, newNoteContent, editingNote, createNote, updateNote, toast]);
+  }, [newNoteTitle, newNoteContent, editingNote, createNote, updateNote, toast]);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [materialsOpen, setMaterialsOpen] = useState(false);
@@ -376,7 +405,7 @@ export default function NotebookPage() {
                             <button
                               onClick={async () => {
                                 try {
-                                  await deleteSource({ sourceId: s._id });
+                                  await deleteSource.mutateAsync(s._id);
                                   toast(`"${s.fileName}" gelöscht`, "success");
                                   if (viewingSource?._id === s._id) setViewingSource(null);
                                 } catch {
@@ -567,7 +596,7 @@ export default function NotebookPage() {
                           <button
                             onClick={async () => {
                               try {
-                                await deleteNote({ noteId: n._id });
+                                await deleteNote.mutateAsync(n._id);
                                 toast("Notiz gelöscht", "success");
                               } catch {
                                 toast("Löschen fehlgeschlagen", "error");
@@ -597,8 +626,7 @@ export default function NotebookPage() {
             <div className="flex gap-2">
               <button
                 onClick={async () => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  await deleteNotebook({ notebookId } as any);
+                  await deleteNotebook.mutateAsync();
                   router.push("/app");
                 }}
                 className="flex-1 bg-accent text-white text-mono-label py-2 hover:bg-red-700 transition-colors"
@@ -646,7 +674,7 @@ export default function NotebookPage() {
           <div className="flex items-center gap-2">
             {messages && messages.length > 0 && (
               <button
-                onClick={async () => { await clearChat({ notebookId }); }}
+                onClick={() => { clearChat.mutate(); }}
                 className="text-mono-label text-[0.55rem] opacity-30 hover:opacity-70 hover:text-accent transition-all"
                 title="Chat löschen"
               >
@@ -726,18 +754,7 @@ export default function NotebookPage() {
                     <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                   )}
                   {msg.citations && msg.citations.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-rule/20 flex flex-wrap gap-1.5">
-                      {msg.citations.map((c, i) => (
-                        <span key={i} className="inline-flex items-center gap-1 text-[0.6rem] font-mono bg-accent/5 text-accent border border-accent/15 px-2 py-0.5 rounded-full">
-                          <span className="w-1 h-1 bg-accent rounded-full" />
-                          {(() => {
-                            const src = sources?.find((s) => s._id === c.sourceId);
-                            const name = src?.fileName || c.fileName || "Quelle " + (i + 1);
-                            return <span className="truncate max-w-[140px]">{name}</span>;
-                          })()}
-                        </span>
-                      ))}
-                    </div>
+                    <CitationList citations={msg.citations} sources={sources} />
                   )}
                 </div>
               ))}
@@ -835,7 +852,7 @@ export default function NotebookPage() {
               <p className="text-mono-label font-bold">LERNMATERIALIEN</p>
               <MaterialCountBadge notebookId={notebookId} />
             </div>
-            <LearningMaterialsPanel notebookId={notebookId} ownerId={session?.user?.id || ""} />
+            <LearningMaterialsPanel notebookId={notebookId} />
           </>
         )}
       </aside>
@@ -858,7 +875,7 @@ export default function NotebookPage() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <LearningMaterialsPanel notebookId={notebookId} ownerId={session?.user?.id || ""} />
+              <LearningMaterialsPanel notebookId={notebookId} />
             </div>
           </div>
         </>
@@ -869,7 +886,9 @@ export default function NotebookPage() {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         notebookId={notebookId}
-        ownerId={session?.user?.id || ""}
+        onUploaded={() => {
+          invalidateSources();
+        }}
       />
     </div>
   );
@@ -983,8 +1002,10 @@ function MaterialIcon({ icon, className }: { icon: string; className?: string })
 // ── Count Badge ──
 
 function MaterialCountBadge({ notebookId }: { notebookId: string }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const materials: MaterialData[] | undefined = useQuery(api.learningMaterials.listByNotebook, { notebookId } as any) as any;
+  const { data: materials } = useQuery({
+    queryKey: ["materials", notebookId],
+    queryFn: () => api.listMaterials(notebookId),
+  });
   if (!materials) return null;
   const done = materials.filter((m) => m.status === "completed").length;
   return <span className="text-[0.65rem] text-gray-400 font-mono">{done}/{MATERIAL_TYPES.length}</span>;
@@ -996,21 +1017,27 @@ interface MaterialData {
   _id: string;
   type: string;
   status: string;
-  content?: string;
-  errorMessage?: string;
+  content?: string | null;
+  errorMessage?: string | null;
   audioStorageId?: string;
 }
 
 // ── Panel ──
 
-function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; ownerId: string }) {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
-  const internalKey = process.env.INTERNAL_API_KEY!;
+function LearningMaterialsPanel({ notebookId }: { notebookId: string }) {
   const { toast } = useToast();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const materials: MaterialData[] | undefined = useQuery(api.learningMaterials.listByNotebook, { notebookId } as any) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const deleteMaterial = useMutation(api.learningMaterials.remove) as any;
+  const queryClient = useQueryClient();
+  const { data: materials } = useQuery({
+    queryKey: ["materials", notebookId],
+    queryFn: () => api.listMaterials(notebookId),
+    // generating materials finish out-of-band (server request completes later)
+    refetchInterval: (query) =>
+      query.state.data?.some((m) => m.status === "pending" || m.status === "generating") ? 3000 : false,
+  });
+  const deleteMaterial = useMutation({
+    mutationFn: (id: string) => api.deleteMaterial(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["materials", notebookId] }),
+  });
   const [generating, setGenerating] = useState<string | null>(null);
   const [viewing, setViewing] = useState<MaterialData | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -1031,18 +1058,10 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
   };
 
   async function handleGenerate(type: string) {
-    if (!ownerId) return;
     setGenerating(type);
     try {
-      const res = await fetch(`${convexUrl}/api/mutation`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-internal-key": internalKey },
-        body: JSON.stringify({
-          path: "learningMaterials:requestGeneration",
-          args: { ownerId, notebookId, type },
-        }),
-      });
-      const { value: materialId } = await res.json();
+      const { id: materialId } = await api.requestMaterial(notebookId, type);
+      queryClient.invalidateQueries({ queryKey: ["materials", notebookId] });
 
       const genRes = await fetch("/api/generate", {
         method: "POST",
@@ -1053,10 +1072,12 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
       if (genRes.ok) {
         toast(`${MATERIAL_TYPES.find((m) => m.type === type)?.label} erstellt`, "success");
       } else {
-        toast("Generierung fehlgeschlagen", "error");
+        const data = await genRes.json().catch(() => ({}));
+        toast(data.error || "Generierung fehlgeschlagen", "error");
       }
-    } catch {
-      toast("Generierung fehlgeschlagen", "error");
+      queryClient.invalidateQueries({ queryKey: ["materials", notebookId] });
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Generierung fehlgeschlagen", "error");
     } finally {
       setGenerating(null);
     }
@@ -1064,7 +1085,7 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
 
   async function handleDelete(materialId: string) {
     try {
-      await deleteMaterial({ materialId });
+      await deleteMaterial.mutateAsync(materialId);
       toast("Material gelöscht", "success");
     } catch {
       toast("Löschen fehlgeschlagen", "error");
@@ -1073,7 +1094,7 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
   }
 
   async function handleAddAsSource(material: MaterialData) {
-    if (!material.content || !ownerId) return;
+    if (!material.content) return;
     try {
       const label = MATERIAL_TYPES.find((m) => m.type === material.type)?.label || material.type;
       const res = await fetch("/api/fetch-url", {
@@ -1081,7 +1102,6 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           notebookId,
-          ownerId,
           title: `${label} (Lernmaterial)`,
           forceText: material.content,
         }),
@@ -1089,6 +1109,7 @@ function LearningMaterialsPanel({ notebookId, ownerId }: { notebookId: string; o
       const data = await res.json();
       if (res.ok) {
         toast(`"${label}" als Quelle hinzugefügt`, "success");
+        queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
       } else {
         toast(data.error || "Quelle konnte nicht hinzugefügt werden", "error");
       }
@@ -1286,22 +1307,8 @@ function MaterialViewer({ material, onClose, onDelete, onAddAsSource }: { materi
   const label = MATERIAL_TYPES.find((m) => m.type === material.type)?.label || material.type;
   const icon = MATERIAL_TYPES.find((m) => m.type === material.type)?.icon || "doc";
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [audioUrl, setAudioUrl] = useState<string | undefined>();
-
-  useEffect(() => {
-    if (material.audioStorageId) {
-      const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL!;
-      const internalKey = process.env.INTERNAL_API_KEY!;
-      fetch(`${convexUrl}/api/query`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-internal-key": internalKey },
-        body: JSON.stringify({ path: "sources:getDownloadUrl", args: { storageId: material.audioStorageId } }),
-      })
-        .then((r) => r.json())
-        .then((data) => { if (data.value) setAudioUrl(data.value); })
-        .catch(() => {});
-    }
-  }, [material.audioStorageId]);
+  // Local file serving needs no signed URL roundtrip
+  const audioUrl = material.audioStorageId ? api.fileUrl(material.audioStorageId) : undefined;
 
   function handleExport(format: "md" | "json" | "txt") {
     const content = material.content || "";
