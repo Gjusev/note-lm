@@ -48,3 +48,4 @@ src-tauri/gen/
 src-tauri/binaries/
 .probe-downloads/
 src-tauri/resources/ffmpeg/
+src-tauri/resources/llama/

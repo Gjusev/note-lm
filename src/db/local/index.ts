@@ -58,8 +58,10 @@ export function openLocalDb(dataDir: string): LocalDb {
   try {
     const { getLoadablePath } = require("sqlite-vec") as typeof import("sqlite-vec");
     sqlite.loadExtension(getLoadablePath());
-  } catch {
-    /* vectors unavailable — textual retrieval only */
+  } catch (err) {
+    // NOT silent (agent-execution-plan finding 7): textual retrieval still
+    // works, but the operator must see why vectors are off
+    console.error(`[db] sqlite-vec not loaded — vector search disabled: ${err instanceof Error ? err.message : err}`);
   }
 
   return drizzle(sqlite, { schema });

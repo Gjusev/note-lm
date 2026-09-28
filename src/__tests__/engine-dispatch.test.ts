@@ -189,4 +189,15 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     });
     expect((again as { result: { profileId: string } }).result.profileId).toBe(profileId);
   });
+
+  it("reports diagnostics: vec extension version and provider configuration", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const res = await handleEngineRequest("diagnostics.capabilities", {});
+    expect(res.ok).toBe(true);
+    const result = (res as { result: { vecVersion: string | null; localChatConfigured: boolean; localEmbedConfigured: boolean } }).result;
+    // the extension is a dependency of this repo — it must be loaded
+    expect(result.vecVersion).toMatch(/^v?\d+\.\d+/);
+    expect(typeof result.localChatConfigured).toBe("boolean");
+    expect(typeof result.localEmbedConfigured).toBe("boolean");
+  });
 });

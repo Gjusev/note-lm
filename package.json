@@ -19,7 +19,8 @@
     "fetch:node": "node scripts/fetch-node.mjs",
     "fetch:ffmpeg": "node scripts/fetch-ffmpeg.mjs",
     "verify:desktop": "node scripts/desktop-verify.mjs",
-    "eval:retrieval": "tsx scripts/eval-retrieval.ts"
+    "eval:retrieval": "tsx scripts/eval-retrieval.ts",
+    "fetch:llama": "node scripts/fetch-llama.mjs"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",

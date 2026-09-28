@@ -60,6 +60,11 @@ fn smoke() -> Result<(), String> {
     if ffmpeg.exists() {
         std::env::set_var("FFMPEG_PATH", &ffmpeg);
     }
+    // local AI helper directory (models come from settings; env override wins)
+    let llama = resources.join("llama");
+    if llama.exists() && std::env::var_os("NOTELM_LLAMA_DIR").is_none() {
+        std::env::set_var("NOTELM_LLAMA_DIR", &llama);
+    }
 
     let mut eng = engine::Engine::spawn(&resources.join("engine"))?;
     let mut failed = false;
@@ -67,13 +72,17 @@ fn smoke() -> Result<(), String> {
         ("protocol.version", serde_json::json!({})),
         ("notebooks.create", serde_json::json!({ "title": "Smoke Book" })),
         ("notebooks.list", serde_json::json!({})),
+        ("diagnostics.capabilities", serde_json::json!({})),
         ("__unknown__", serde_json::json!({})),
     ] {
         let reply = eng.request(&format!("smoke-{op}"), op, args)?;
         let ok = reply.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
-        // the unknown op MUST answer ok:false with a typed error, not crash
+        // the unknown op MUST answer ok:false with a typed error, not crash;
+        // diagnostics MUST report a loaded sqlite-vec (it ships in the bundle)
         let pass = if op == "__unknown__" {
             !ok && reply["error"]["code"] == "unknown_op"
+        } else if op == "diagnostics.capabilities" {
+            ok && !reply["result"]["vecVersion"].is_null()
         } else {
             ok
         };
@@ -107,6 +116,10 @@ fn main() {
             let ffmpeg = resources.join("ffmpeg").join("ffmpeg.exe");
             if ffmpeg.exists() {
                 std::env::set_var("FFMPEG_PATH", &ffmpeg);
+            }
+            let llama = resources.join("llama");
+            if llama.exists() && std::env::var_os("NOTELM_LLAMA_DIR").is_none() {
+                std::env::set_var("NOTELM_LLAMA_DIR", &llama);
             }
             match engine::Engine::spawn(&engine_dir) {
                 Ok(eng) => {

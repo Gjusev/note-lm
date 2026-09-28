@@ -45,6 +45,7 @@ run("engine e2e", () => sh("npx", ["vitest", "run", "--config", "vitest.e2e.conf
 run("engine bundle (ABI-matched prebuild)", () => sh("npm", ["run", "build:engine"]));
 run("pinned Node runtime", () => sh("npm", ["run", "fetch:node"]));
 run("pinned FFmpeg", () => sh("npm", ["run", "fetch:ffmpeg"]));
+run("pinned llama.cpp", () => sh("npm", ["run", "fetch:llama"]));
 
 // 3) dev build smoke on clean PATH
 run("cargo build (dev)", () => sh("cargo", ["build"], { cwd: path.join(repo, "src-tauri") }));
@@ -79,8 +80,18 @@ run("silent install", () => {
 let installedDataDir;
 run("installed smoke (clean PATH)", () => {
   installedDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-installed-"));
+  // optional deep smoke: real local inference from the INSTALLED package
+  // when models are provided via env (dev machines / .probe-downloads)
+  const chatModel = process.env.NOTELM_SMOKE_CHAT_MODEL;
+  const embedModel = process.env.NOTELM_SMOKE_EMBED_MODEL;
   const out = spawnSync(path.join(installDir, "notelm-spike.exe"), ["--smoke"], {
-    env: { ...process.env, NOTELM_DATA_DIR: installedDataDir, PATH: STRIPPED_PATH },
+    env: {
+      ...process.env,
+      NOTELM_DATA_DIR: installedDataDir,
+      PATH: STRIPPED_PATH,
+      ...(chatModel && { NOTELM_CHAT_MODEL: chatModel }),
+      ...(embedModel && { NOTELM_EMBED_MODEL: embedModel }),
+    },
     encoding: "utf8",
   });
   console.log(out.stdout);

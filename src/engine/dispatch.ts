@@ -352,6 +352,26 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         return { ok: true, result: { profile } };
       }
 
+      case "diagnostics.capabilities": {
+        const { db } = getLocalContext();
+        const { vecExtensionAvailable } = await import("@/lib/services/vector-index");
+        let vecVersion: string | null = null;
+        if (vecExtensionAvailable(db)) {
+          const { rawClient } = await import("@/db/local");
+          vecVersion = String(
+            (rawClient(db).prepare("SELECT vec_version() AS v").get() as { v: string }).v
+          );
+        }
+        return {
+          ok: true,
+          result: {
+            vecVersion,
+            localChatConfigured: !!(process.env.NOTELM_LLAMA_DIR && process.env.NOTELM_CHAT_MODEL),
+            localEmbedConfigured: !!(process.env.NOTELM_LLAMA_DIR && process.env.NOTELM_EMBED_MODEL),
+          },
+        };
+      }
+
       case "chat.send": {
         const { notebookId, message } = args as { notebookId?: string; message?: string };
         if (!notebookId || !message) {
