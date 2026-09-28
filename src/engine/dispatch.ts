@@ -5,6 +5,27 @@
 import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { createNotebook, listNotebooks } from "@/lib/services/notebooks";
+import { createNote, listNotesByNotebook, removeNote, updateNote } from "@/lib/services/notes";
+import {
+  getChunksBySource,
+  getSource,
+  listSourcesByNotebook,
+  removeSource,
+} from "@/lib/services/sources";
+import { clearMessagesByNotebook, createMessage, listMessagesByNotebook } from "@/lib/services/messages";
+import {
+  listMaterialsByNotebook,
+  removeMaterial,
+  requestGeneration,
+} from "@/lib/services/learning-materials";
+import {
+  cancelImportJob,
+  createImportJob,
+  listImportJobsByNotebook,
+  retryImportJob,
+} from "@/lib/services/import-jobs";
+import { classifyUrl } from "@/lib/ingestion/identify";
+import type { MaterialType } from "@/db/local/schema";
 
 export type EngineResult =
   | { ok: true; result: unknown }
@@ -33,6 +54,217 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const { db } = getLocalContext();
         const profile = await getOrCreateProfile(db);
         return { ok: true, result: await listNotebooks(db, profile.id) };
+      }
+
+      case "notes.create": {
+        const { notebookId, title, content } = args as {
+          notebookId?: string; title?: string; content?: string;
+        };
+        if (!notebookId || !title) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and title are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const id = await createNote(db, {
+          ownerId: profile.id, notebookId, title, content: content ?? "",
+        });
+        return { ok: true, result: { id } };
+      }
+
+      case "notes.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: await listNotesByNotebook(db, notebookId) };
+      }
+
+      case "notes.update": {
+        const { noteId, title, content } = args as {
+          noteId?: string; title?: string; content?: string;
+        };
+        if (!noteId) {
+          return { ok: false, error: { code: "bad_args", message: "noteId is required" } };
+        }
+        const { db } = getLocalContext();
+        await updateNote(db, noteId, {
+          ...(title !== undefined && { title }),
+          ...(content !== undefined && { content }),
+        });
+        return { ok: true, result: {} };
+      }
+
+      case "notes.delete": {
+        const { noteId } = args as { noteId?: string };
+        if (!noteId) {
+          return { ok: false, error: { code: "bad_args", message: "noteId is required" } };
+        }
+        const { db } = getLocalContext();
+        await removeNote(db, noteId);
+        return { ok: true, result: {} };
+      }
+
+      case "sources.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: listSourcesByNotebook(db, notebookId) };
+      }
+
+      case "sources.get": {
+        const { sourceId } = args as { sourceId?: string };
+        if (!sourceId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId is required" } };
+        }
+        const { db } = getLocalContext();
+        const source = getSource(db, sourceId);
+        if (!source) return { ok: false, error: { code: "not_found", message: "source not found" } };
+        return { ok: true, result: source };
+      }
+
+      case "sources.chunks": {
+        const { sourceId } = args as { sourceId?: string };
+        if (!sourceId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: getChunksBySource(db, sourceId) };
+      }
+
+      case "sources.delete": {
+        const { sourceId } = args as { sourceId?: string };
+        if (!sourceId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId is required" } };
+        }
+        const { db, store } = getLocalContext();
+        await removeSource(db, store, sourceId);
+        return { ok: true, result: {} };
+      }
+
+      case "messages.create": {
+        const { notebookId, role, content } = args as {
+          notebookId?: string; role?: "user" | "assistant"; content?: string;
+        };
+        if (!notebookId || !content || (role !== "user" && role !== "assistant")) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId, role and content are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const id = await createMessage(db, { ownerId: profile.id, notebookId, role, content });
+        return { ok: true, result: { id } };
+      }
+
+      case "messages.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: await listMessagesByNotebook(db, notebookId) };
+      }
+
+      case "messages.clear": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        await clearMessagesByNotebook(db, notebookId);
+        return { ok: true, result: {} };
+      }
+
+      case "materials.request": {
+        const { notebookId, type } = args as { notebookId?: string; type?: string };
+        const VALID_TYPES: MaterialType[] = [
+          "summary", "flashcards", "quiz", "studyGuide", "keyInsights", "podcastSummary", "slides",
+        ];
+        if (!notebookId || !type || !VALID_TYPES.includes(type as MaterialType)) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and a valid type are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const id = await requestGeneration(db, {
+          ownerId: profile.id, notebookId, type: type as MaterialType,
+        });
+        return { ok: true, result: { id } };
+      }
+
+      case "materials.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: await listMaterialsByNotebook(db, notebookId) };
+      }
+
+      case "materials.delete": {
+        const { materialId } = args as { materialId?: string };
+        if (!materialId) {
+          return { ok: false, error: { code: "bad_args", message: "materialId is required" } };
+        }
+        const { db, store } = getLocalContext();
+        await removeMaterial(db, store, materialId);
+        return { ok: true, result: {} };
+      }
+
+      case "imports.create": {
+        const { notebookId, url } = args as { notebookId?: string; url?: string };
+        if (!notebookId || !url) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and url are required" } };
+        }
+        let classified;
+        try {
+          classified = classifyUrl(url);
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "bad_url", message: err instanceof Error ? err.message : "invalid url" },
+          };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const outcome = createImportJob(db, {
+          ownerId: profile.id,
+          notebookId,
+          url,
+          provider: classified.provider,
+          kind: classified.kind,
+          resourceKey: classified.resourceKey,
+          ...(classified.externalId && { externalId: classified.externalId }),
+          ...(classified.canonicalUrl && { canonicalUrl: classified.canonicalUrl }),
+        });
+        return { ok: true, result: outcome };
+      }
+
+      case "imports.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: await listImportJobsByNotebook(db, notebookId) };
+      }
+
+      case "imports.action": {
+        const { jobId, action } = args as { jobId?: string; action?: "cancel" | "retry" };
+        if (!jobId || (action !== "cancel" && action !== "retry")) {
+          return { ok: false, error: { code: "bad_args", message: "jobId and action cancel|retry are required" } };
+        }
+        const { db } = getLocalContext();
+        try {
+          if (action === "cancel") cancelImportJob(db, jobId);
+          else retryImportJob(db, jobId);
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "conflict", message: err instanceof Error ? err.message : "action failed" },
+          };
+        }
+        return { ok: true, result: {} };
       }
 
       default:

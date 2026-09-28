@@ -48,4 +48,110 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect(notebooks[0]._id).toBe(id);
     expect(notebooks[0].title).toBe("Engine Book");
   });
+
+  it("manages notes within a notebook", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const nb = await handleEngineRequest("notebooks.create", { title: "Notes Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+
+    const created = await handleEngineRequest("notes.create", {
+      notebookId, title: "First", content: "engine note body",
+    });
+    expect(created.ok).toBe(true);
+    const noteId = (created as { result: { id: string } }).result.id;
+
+    const updated = await handleEngineRequest("notes.update", {
+      noteId, title: "First!", content: "changed",
+    });
+    expect(updated.ok).toBe(true);
+
+    const listed = await handleEngineRequest("notes.list", { notebookId });
+    const notes = (listed as { result: Array<{ _id: string; title: string; content: string }> }).result;
+    expect(notes).toHaveLength(1);
+    expect(notes[0]._id).toBe(noteId);
+    expect(notes[0].title).toBe("First!");
+    expect(notes[0].content).toBe("changed");
+
+    const deleted = await handleEngineRequest("notes.delete", { noteId });
+    expect(deleted.ok).toBe(true);
+    const after = await handleEngineRequest("notes.list", { notebookId });
+    expect((after as { result: unknown[] }).result).toHaveLength(0);
+  });
+
+  it("serves sources and their chunks", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { createSource, replaceChunks } = await import("@/lib/services/sources");
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "Sources Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+
+    const { db } = getLocalContext();
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "paper.txt", fileType: "text/plain", fileSize: 30,
+    });
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId }, ["alpha content", "beta content"]);
+
+    const listed = await handleEngineRequest("sources.list", { notebookId });
+    const sources = (listed as { result: Array<{ _id: string; fileName: string }> }).result;
+    expect(sources).toHaveLength(1);
+    expect(sources[0]._id).toBe(sourceId);
+    expect(sources[0].fileName).toBe("paper.txt");
+
+    const one = await handleEngineRequest("sources.get", { sourceId });
+    expect((one as { result: { _id: string } }).result._id).toBe(sourceId);
+
+    const chunks = await handleEngineRequest("sources.chunks", { sourceId });
+    expect((chunks as { result: Array<{ content: string }> }).result.map((c) => c.content))
+      .toEqual(["alpha content", "beta content"]);
+
+    const deleted = await handleEngineRequest("sources.delete", { sourceId });
+    expect(deleted.ok).toBe(true);
+    const after = await handleEngineRequest("sources.list", { notebookId });
+    expect((after as { result: unknown[] }).result).toHaveLength(0);
+  });
+
+  it("serves chat messages, learning materials and import jobs", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const nb = await handleEngineRequest("notebooks.create", { title: "Chat Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+
+    // messages
+    const msg = await handleEngineRequest("messages.create", {
+      notebookId, role: "user", content: "Frage?",
+    });
+    expect(msg.ok).toBe(true);
+    const messages = await handleEngineRequest("messages.list", { notebookId });
+    expect((messages as { result: Array<{ content: string }> }).result).toHaveLength(1);
+    expect((messages as { result: Array<{ content: string }> }).result[0].content).toBe("Frage?");
+
+    const cleared = await handleEngineRequest("messages.clear", { notebookId });
+    expect(cleared.ok).toBe(true);
+    const empty = await handleEngineRequest("messages.list", { notebookId });
+    expect((empty as { result: unknown[] }).result).toHaveLength(0);
+
+    // materials
+    const requested = await handleEngineRequest("materials.request", {
+      notebookId, type: "summary",
+    });
+    expect(requested.ok).toBe(true);
+    const materialId = (requested as { result: { id: string } }).result.id;
+    const materials = await handleEngineRequest("materials.list", { notebookId });
+    expect((materials as { result: Array<{ _id: string; type: string }> }).result).toHaveLength(1);
+    expect((materials as { result: Array<{ _id: string; type: string }> }).result[0].type).toBe("summary");
+    const materialDeleted = await handleEngineRequest("materials.delete", { materialId });
+    expect(materialDeleted.ok).toBe(true);
+
+    // imports
+    const enqueued = await handleEngineRequest("imports.create", {
+      notebookId, url: "https://example.com/article",
+    });
+    expect(enqueued.ok).toBe(true);
+    const jobId = (enqueued as { result: { jobId: string } }).result.jobId;
+    const jobs = await handleEngineRequest("imports.list", { notebookId });
+    expect((jobs as { result: Array<{ _id: string; provider: string }> }).result).toHaveLength(1);
+    expect((jobs as { result: Array<{ _id: string }> }).result[0]._id).toBe(jobId);
+    const cancelled = await handleEngineRequest("imports.action", { jobId, action: "cancel" });
+    expect(cancelled.ok).toBe(true);
+  });
 });
