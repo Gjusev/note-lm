@@ -1,0 +1,33 @@
+name: Desktop verification
+
+# Full packaging pipeline: build, silently install, smoke-test the installed
+# app on a PATH without Node, uninstall. Heavy (~15 min) — manual + weekly.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1" # Mondays, off the :00 mark
+
+jobs:
+  verify-desktop:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run verify:desktop
+        env:
+          # big downloads (Node runtime, FFmpeg, crates, NSIS) — cache what we can
+          CARGO_INCREMENTAL: "0"
+      - name: upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: note-lm-windows-setup
+          path: src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: warn
