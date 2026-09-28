@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { desktopApi } from "./lib/api";
+import { CloseDialog } from "./CloseDialog";
 import { Library } from "./screens/Library";
 import { NotebookWorkspace } from "./screens/NotebookWorkspace";
 import { Settings } from "./screens/Settings";
@@ -78,6 +79,7 @@ export function App() {
           <NotebookWorkspace key={route.id} notebookId={route.id} />
         )}
       </main>
+      <CloseDialog />
     </div>
   );
 }

@@ -34,6 +34,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | eval harness | `runRetrievalEval` over a versioned corpus | `src/__tests__/retrieval-eval.test.ts` |
 | llama supervisor | `startLlama` lifecycle + embed | `src/__tests__/llama-supervisor.test.ts` (fake) + `e2e/llama-server.e2e.test.ts` (real, artifact-gated) |
 | engine job pool | `runProcessingJob` / `runImportJob` stage gates + job-control checkpoint fns over a real temp SQLite (driven like `engine-imports`) | `src/__tests__/engine-pool.test.ts` |
+| job event stream | `emitJobEvent`/`emitProgress` writer coalescing + `setProgressClock` test hook, `eventsSince` paging, over a real temp SQLite | `src/__tests__/job-control.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

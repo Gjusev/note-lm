@@ -501,7 +501,20 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const { notebookId: nbFilter } = args as { notebookId?: string };
         const { db } = getLocalContext();
         const { listJobs } = await import("@/lib/services/job-control");
-        return { ok: true, result: { jobs: listJobs(db, nbFilter) } };
+        // schedulerPaused rides along so the UI can show the paused state
+        // without a second round trip (close/tray slice)
+        const schedulerPaused = (await getSetting<boolean>(db, "scheduler.paused")) === true;
+        return { ok: true, result: { jobs: listJobs(db, nbFilter), schedulerPaused } };
+      }
+
+      case "scheduler.pause":
+      case "scheduler.resume": {
+        // Global pause is a settings row the scheduler loop reads every claim
+        // tick (see src/engine/jobs.ts) — persisting it here keeps the engine
+        // the sole state writer, e.g. for "Pausieren und beenden".
+        const { db } = getLocalContext();
+        await setSetting(db, "scheduler.paused", op === "scheduler.pause");
+        return { ok: true, result: { paused: op === "scheduler.pause" } };
       }
 
       case "jobs.pause":
@@ -532,8 +545,17 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
       case "jobs.eventsSince": {
         const { cursor } = args as { cursor?: number };
         const { db } = getLocalContext();
-        const { eventsSince } = await import("@/lib/services/job-control");
-        return { ok: true, result: { events: eventsSince(db, cursor ?? 0) } };
+        const { eventsSince, latestEventSeq } = await import("@/lib/services/job-control");
+        const events = eventsSince(db, cursor ?? 0);
+        // the max seq rides along: when the page is empty the caller is at the
+        // head, otherwise it resumes after the last delivered event
+        return {
+          ok: true,
+          result: {
+            events,
+            cursor: events.length ? events.at(-1)!.seq : latestEventSeq(db),
+          },
+        };
       }
 
       case "notebook.export": {

@@ -40,11 +40,15 @@ export const desktopApi = {
     call<Array<{ _id: string; type: string; status: string; content?: string | null; errorMessage?: string | null }>>("materials.list", { notebookId }),
   requestMaterial: (notebookId: string, type: string) =>
     call<{ id: string }>("materials.request", { notebookId, type }),
-  listJobs: () => call<{ jobs: Array<{ kind: "processing" | "import" | "material"; id: string; notebookId: string; title: string; status: string; intent: "run" | "pause" | "cancel"; updatedAt: number }> }>("jobs.list", {}),
+  listJobs: () => call<{ jobs: Array<{ kind: "processing" | "import" | "material"; id: string; notebookId: string; title: string; status: string; intent: "run" | "pause" | "cancel"; updatedAt: number }>; schedulerPaused: boolean }>("jobs.list", {}),
+  /** Global scheduler pause (close/tray slice): "Pausieren und beenden"
+   *  persists it via the engine; the activity screen offers the way back. */
+  schedulerPause: () => call<{ paused: boolean }>("scheduler.pause"),
+  schedulerResume: () => call<{ paused: boolean }>("scheduler.resume"),
   jobAction: (kind: string, jobId: string, action: "pause" | "resume" | "cancel") =>
     call<{ intent: string }>(`jobs.${action}`, { kind, jobId }),
   eventsSince: (cursor: number) =>
-    call<{ events: Array<{ seq: number; jobKind: string; jobId: string; type: string; payload: string | null }> }>("jobs.eventsSince", { cursor }),
+    call<{ events: Array<{ seq: number; jobKind: string; jobId: string; type: string; payload: string | null }>; cursor: number }>("jobs.eventsSince", { cursor }),
   exportNotebook: (notebookId: string, targetDir: string) =>
     call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
   importNotebook: (sourceDir: string) =>

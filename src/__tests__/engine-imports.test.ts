@@ -24,6 +24,7 @@ import {
   reconcileStartupArtifacts,
   setJobCheckpoint,
   setJobIntent,
+  setProgressClock,
 } from "@/lib/services/job-control";
 import { downloadPlan } from "@/lib/ingestion/download";
 import { runImportJob } from "@/engine/imports";
@@ -129,6 +130,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  setProgressClock(null); // restore the real progress writer clock
   server.closeAllConnections();
   await new Promise<void>((resolve) => server.close(() => resolve()));
   closeLocalDb(db);
@@ -385,6 +387,10 @@ describe("resumable transcription segments (desktop-workers-plan slice 3c)", () 
     serverMode = "audio";
     transcribe.calls.length = 0;
     transcribe.onSeg = null;
+    // progress coalescing is clock-based; a stepping fake keeps every
+    // segment's progress row writable so the counter assertions hold
+    let fakeNow = Date.now();
+    setProgressClock(() => (fakeNow += 60_000));
   });
 
   it("transcription resumes from the confirmed segment — earlier segments are not re-sent to the transcriber", async () => {

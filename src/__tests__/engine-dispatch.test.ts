@@ -155,6 +155,35 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect(cancelled.ok).toBe(true);
   });
 
+  it("jobs.eventsSince returns the events plus the next cursor for the UI reconnect", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const nb = await handleEngineRequest("notebooks.create", { title: "Event Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const created = await handleEngineRequest("imports.create", {
+      notebookId, url: "https://x.test/events",
+    });
+    const jobId = (created as { result: { jobId: string } }).result.jobId;
+    const paused = await handleEngineRequest("jobs.pause", { kind: "import", jobId }); // emits intent.pause
+    expect(paused.ok).toBe(true);
+
+    const page = (await handleEngineRequest("jobs.eventsSince", { cursor: 0 })) as {
+      ok: boolean;
+      result: { events: Array<{ seq: number; type: string }>; cursor: number };
+    };
+    expect(page.ok).toBe(true);
+    expect(page.result.events.length).toBeGreaterThan(0);
+    // max seq rides along so the UI knows its next read offset
+    expect(page.result.cursor).toBe(page.result.events.at(-1)!.seq);
+
+    // already at the head: no new events and the cursor stays parked there
+    const head = (await handleEngineRequest("jobs.eventsSince", { cursor: page.result.cursor })) as {
+      ok: boolean;
+      result: { events: unknown[]; cursor: number };
+    };
+    expect(head.result.events).toHaveLength(0);
+    expect(head.result.cursor).toBe(page.result.cursor);
+  });
+
   it("activates and reports the embedding profile for retrieval", async () => {
     const { handleEngineRequest } = await import("@/engine/dispatch");
 
@@ -188,6 +217,28 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
       pooling: "mean",
     });
     expect((again as { result: { profileId: string } }).result.profileId).toBe(profileId);
+  });
+
+  it("pauses and resumes the global scheduler through the engine (close/tray slice)", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { getSetting } = await import("@/lib/services/settings");
+    const { db } = getLocalContext();
+
+    // default: running, and jobs.list reports the scheduler state alongside
+    let listed = await handleEngineRequest("jobs.list", {});
+    expect((listed as { result: { schedulerPaused: boolean } }).result.schedulerPaused).toBe(false);
+
+    const paused = await handleEngineRequest("scheduler.pause", {});
+    expect(paused).toEqual({ ok: true, result: { paused: true } });
+    expect(await getSetting<boolean>(db, "scheduler.paused")).toBe(true);
+
+    listed = await handleEngineRequest("jobs.list", {});
+    expect((listed as { result: { schedulerPaused: boolean } }).result.schedulerPaused).toBe(true);
+
+    const resumed = await handleEngineRequest("scheduler.resume", {});
+    expect(resumed).toEqual({ ok: true, result: { paused: false } });
+    expect(await getSetting<boolean>(db, "scheduler.paused")).toBe(false);
   });
 
   it("reports diagnostics: vec extension version and provider configuration", async () => {

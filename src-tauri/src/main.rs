@@ -3,9 +3,91 @@
 mod engine;
 
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
+use tauri::menu::{Menu, MenuItem};
+use tauri::tray::TrayIconBuilder;
 
 struct EngineState(Mutex<Option<engine::Engine>>);
+
+/// One engine round trip from Rust (no webview involved). None on any
+/// failure — callers treat an unreachable engine as "nothing running".
+fn engine_call(state: &EngineState, op: &str, args: serde_json::Value) -> Option<serde_json::Value> {
+    let mut guard = state.0.lock().ok()?;
+    let engine = guard.as_mut()?;
+    let reply = engine
+        .request(&format!("sys-{op}"), op, args)
+        .ok()?;
+    if !reply.get("ok").and_then(|v| v.as_bool()).unwrap_or(false) {
+        return None;
+    }
+    Some(reply.get("result").cloned().unwrap_or(serde_json::Value::Null))
+}
+
+/// Active work = any job whose observed status is not terminal — the same
+/// rule the activity screen applies, decided from the engine's jobs.list.
+fn has_active_jobs(state: &EngineState) -> bool {
+    match engine_call(state, "jobs.list", serde_json::json!({})) {
+        Some(result) => has_active_jobs_reply(&result),
+        None => false, // engine down: nothing can be executing; close normally
+    }
+}
+
+/// Pure predicate over the jobs.list result (unit-testable without a window).
+fn has_active_jobs_reply(result: &serde_json::Value) -> bool {
+    const TERMINAL: [&str; 3] = ["completed", "failed", "cancelled"];
+    result
+        .get("jobs")
+        .and_then(|j| j.as_array())
+        .is_some_and(|jobs| {
+            jobs.iter().any(|j| {
+                !j.get("status")
+                    .and_then(|s| s.as_str())
+                    .is_some_and(|s| TERMINAL.contains(&s))
+            })
+        })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn close_dialog_triggers_only_on_non_terminal_jobs() {
+        // no jobs, engine-error-shaped payloads and terminal states all mean
+        // a plain close (today's behavior); only non-terminal status asks
+        assert!(!has_active_jobs_reply(&serde_json::json!({ "jobs": [] })));
+        assert!(!has_active_jobs_reply(&serde_json::json!({
+            "jobs": [
+                { "status": "completed" }, { "status": "failed" }, { "status": "cancelled" }
+            ]
+        })));
+        for status in ["queued", "running", "paused", "retry_wait", "pending", "generating"] {
+            assert!(has_active_jobs_reply(&serde_json::json!({
+                "jobs": [{ "status": status }]
+            })));
+        }
+    }
+}
+
+/// Single exit path: persist the global pause THROUGH THE ENGINE (the engine
+/// is the sole state writer; Rust never writes SQLite), then exit via the
+/// normal run loop — the same teardown that already kills the engine child.
+fn pause_then_exit(app: &tauri::AppHandle, state: &EngineState) {
+    let _ = engine_call(state, "scheduler.pause", serde_json::json!({}));
+    app.exit(0);
+}
+
+/// UI command: hide the window to the tray ("Weiter im Hintergrund").
+#[tauri::command]
+fn hide_to_tray(window: tauri::WebviewWindow) -> Result<(), String> {
+    window.hide().map_err(|e| e.to_string())
+}
+
+/// UI command: "Pausieren und beenden" — pause via the engine, then exit.
+#[tauri::command]
+fn pause_and_exit(app: tauri::AppHandle, state: tauri::State<EngineState>) {
+    pause_then_exit(&app, state.inner());
+}
 
 /// UI command: perform the protocol handshake with the local engine.
 #[tauri::command]
@@ -138,9 +220,65 @@ fn main() {
                     app.manage(EngineState(Mutex::new(None)));
                 }
             }
+
+            // Tray (close/tray slice): always present so a hidden window can
+            // always be brought back or quit. Icon = the bundled app icon.
+            let open = MenuItem::with_id(app, "open", "note-lm öffnen", true, None::<&str>)?;
+            let quit = MenuItem::with_id(app, "quit", "Beenden", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&open, &quit])?;
+            TrayIconBuilder::with_id("main")
+                .icon(
+                    app.default_window_icon()
+                        .expect("bundle icon present")
+                        .clone(),
+                )
+                .tooltip("note-lm")
+                .menu(&menu)
+                .on_menu_event(|app, event| match event.id().as_ref() {
+                    "open" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.show();
+                            let _ = w.unminimize();
+                            let _ = w.set_focus();
+                        }
+                    }
+                    "quit" => {
+                        let state = app.state::<EngineState>();
+                        // Same semantics as the close dialog: active work
+                        // pauses first; idle exit goes straight out.
+                        if has_active_jobs(&state) {
+                            pause_then_exit(app, &state);
+                        } else {
+                            app.exit(0);
+                        }
+                        // Note: if the scheduler-pause round trip fails the
+                        // app still exits — quitting must never hang.
+                    }
+                    _ => {}
+                })
+                .build(app)?;
+
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![engine_handshake, engine_op])
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                // Idle (or engine down): today's plain close — the run loop
+                // exits, the engine child dies with the managed state drop.
+                let state = window.app_handle().state::<EngineState>();
+                if !has_active_jobs(&state) {
+                    return;
+                }
+                // Active work: ask the UI; if the webview cannot answer,
+                // fall back to the safe pause-and-exit path rather than hang.
+                api.prevent_close();
+                if window.emit("close-requested", ()).is_err() {
+                    pause_then_exit(window.app_handle(), &state);
+                }
+            }
+        })
+        .invoke_handler(tauri::generate_handler![
+            engine_handshake, engine_op, hide_to_tray, pause_and_exit
+        ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

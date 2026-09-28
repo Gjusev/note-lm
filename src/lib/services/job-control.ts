@@ -107,7 +107,28 @@ export function observeJobIntent(
   return "run";
 }
 
-export function emitJobEvent(
+// --- durable event log (desktop-workers-plan: event-stream slice) -----------
+
+// Writer-side coalescing: progress events fire per batch/segment, so the
+// writer throttles them to at most one durable row per (job_kind, job_id)
+// per ~1000ms (leading edge — the first write in a window wins; payloads are
+// monotone counters, so the next window carries the latest). Terminal and
+// phase events never pass through here. The throttle map is engine-lifetime
+// only: a restart clears it, so the first progress after a restart writes.
+const PROGRESS_WINDOW_MS = 1000;
+const lastProgressAt = new Map<string, number>();
+let progressNow: () => number = () => Date.now();
+
+/**
+ * Test hook: swap the writer clock (and drop throttle state) deterministically.
+ * Pass null to restore the real clock.
+ */
+export function setProgressClock(fn: (() => number) | null): void {
+  progressNow = fn ?? (() => Date.now());
+  lastProgressAt.clear();
+}
+
+function writeJobEvent(
   db: LocalDb,
   kind: JobKind,
   jobId: string,
@@ -118,6 +139,40 @@ export function emitJobEvent(
   sqlite
     .prepare(`INSERT INTO job_events (job_kind, job_id, type, payload) VALUES (?, ?, ?, ?)`)
     .run(kind, jobId, type, payload === undefined ? null : JSON.stringify(payload));
+}
+
+/** Rate-limited progress writer (type="progress" only). */
+export function emitProgress(db: LocalDb, kind: JobKind, jobId: string, payload?: unknown): void {
+  const key = `${kind}:${jobId}`;
+  const now = progressNow();
+  const last = lastProgressAt.get(key);
+  if (last !== undefined && now - last < PROGRESS_WINDOW_MS) return; // coalesced away
+  lastProgressAt.set(key, now);
+  writeJobEvent(db, kind, jobId, "progress", payload);
+}
+
+export function emitJobEvent(
+  db: LocalDb,
+  kind: JobKind,
+  jobId: string,
+  type: string,
+  payload?: unknown
+): void {
+  // the runners' per-segment progress goes through the throttled writer;
+  // every other event type keeps its exact previous semantics
+  if (type === "progress") {
+    emitProgress(db, kind, jobId, payload);
+    return;
+  }
+  writeJobEvent(db, kind, jobId, type, payload);
+}
+
+/** Head of the event log — the read offset a fresh UI snapshot resumes from. */
+export function latestEventSeq(db: LocalDb): number {
+  const row = rawClient(db)
+    .prepare(`SELECT COALESCE(MAX(seq), 0) AS seq FROM job_events`)
+    .get() as { seq: number };
+  return row.seq;
 }
 
 export function eventsSince(db: LocalDb, cursor: number, limit = 200): JobEvent[] {
