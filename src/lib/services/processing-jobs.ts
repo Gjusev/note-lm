@@ -55,9 +55,22 @@ const CLAIM_INTENT_FILTER = (kind: string, table: string) =>
 
 /** Atomic claim with lease; reclaims jobs whose worker crashed mid-run.
  *  Pending rows whose lease_expires_at lies in the future are waiting out a
- *  transient-failure backoff (column reused as the not-before gate). */
-export function claimProcessingJob(db: LocalDb): Row | null {
+ *  transient-failure backoff (column reused as the not-before gate).
+ *  opts.excludeMedia: skip jobs whose source looks like audio/video so the
+ *  engine's shared ffmpeg/transcription slot (one at a time) is honored -
+ *  the job simply stays queued for a later tick (desktop-workers-plan 3d).
+ *  Approximation: the SQL filter matches file_type prefixes only; a media
+ *  file uploaded with a generic octet-stream MIME slips past the filter and
+ *  is caught by the loop's resolveFileType check after the claim instead. */
+export function claimProcessingJob(
+  db: LocalDb,
+  opts?: { excludeMedia?: boolean }
+): Row | null {
   const sqlite = rawClient(db);
+  const mediaFilter = opts?.excludeMedia
+    ? `AND NOT EXISTS (SELECT 1 FROM sources WHERE sources.id = processing_jobs.source_id
+         AND (sources.file_type LIKE 'audio/%' OR sources.file_type LIKE 'video/%'))`
+    : "";
   const run = sqlite.transaction((): Row | null => {
     const now = Date.now();
     let stale = false;
@@ -66,6 +79,7 @@ export function claimProcessingJob(db: LocalDb): Row | null {
         `SELECT ${PJ_COLUMNS} FROM processing_jobs
          WHERE status = 'pending' AND (lease_expires_at IS NULL OR lease_expires_at < ?)
          ${CLAIM_INTENT_FILTER("processing", "processing_jobs")}
+         ${mediaFilter}
          ORDER BY created_at ASC LIMIT 1`
       )
       .get(now) as Row | undefined;
@@ -76,6 +90,7 @@ export function claimProcessingJob(db: LocalDb): Row | null {
           `SELECT ${PJ_COLUMNS} FROM processing_jobs
            WHERE lease_expires_at IS NOT NULL AND lease_expires_at < ? AND status = 'running'
            ${CLAIM_INTENT_FILTER("processing", "processing_jobs")}
+           ${mediaFilter}
            ORDER BY lease_expires_at ASC LIMIT 1`
         )
         .get(now) as Row | undefined;
