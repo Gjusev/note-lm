@@ -1,0 +1,107 @@
+{
+  "versions": {
+    "pageindex": "0.2.10",
+    "litellm": "1.103.0",
+    "openai-agents": "0.20.0"
+  },
+  "phases": {
+    "index_flash": {
+      "ok": true,
+      "seconds": 2.9,
+      "result": {
+        "doc_id": "pi-38af43378cf1489e8c8d1438b468c535",
+        "name": "probe_1.pdf"
+      }
+    },
+    "tree": {
+      "ok": true,
+      "seconds": 0.0,
+      "top_nodes": [
+        {
+          "title": "Beta Methodology",
+          "node_id": "0000",
+          "page_index": 2
+        },
+        {
+          "title": "Gamma Archive",
+          "node_id": "0001",
+          "page_index": 3
+        },
+        {
+          "title": "Delta Contacts",
+          "node_id": "0002",
+          "page_index": 4
+        }
+      ]
+    },
+    "query_1": {
+      "question": "What is the daily calibration budget under the Alpha Protocol?",
+      "ok": true,
+      "seconds": 9.7,
+      "answer": "The document structure for the probe_1.pdf is as follows:\n\n1. Beta Methodology\n   - Rule B-one: every measurement is reviewed by exactly two reviewers.\n   - Rule B-two: reviewers must not have contributed to the measurement.\n   - Rule B-three: the archive threshold is 500 kilobytes per record.\n   - Rule B-four: the review window is 90 days.\n\n2. Gamma Archive\n   - Rule G-one: archived records are read-only.\n   - Rule G-two: each record keeps a checksum and a reviewer pair.\n   - Rule G-three: retrieval from the archive takes one working day.\n\n3. Delta Contacts\n   - Escalations for the Alpha Protocol go to Dr. Irene Vogel.\n   - Escalations for the Beta Methodology go to the review board.\n   - Escalations for the Gamma Archive go to the archive keeper.\n   - The emergency number is printed in the entrance hall.\n\nYou can now proceed to read and answer about the daily calibration budget under the Alpha Protocol.",
+      "usage": {
+        "prompt_tokens": 4023,
+        "completion_tokens": 254,
+        "total_tokens": 4277,
+        "prompt_tokens_details": {
+          "cached_tokens": 1850
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "query_2": {
+      "question": "How many reviewers must review each measurement under the Beta Methodology?",
+      "ok": true,
+      "seconds": 2.7,
+      "answer": "The structure of the probe_1.pdf document contains three different methodologies. Each methodology is designed to guide how measurements are reviewed. The Beta Methodology is known for having three different reviewers reviewing each measurement. The Gamma Archive is also reviewed under the Beta Methodology, but it has a specific storage policy. The Delta Contacts section lists who to contact for what, with the emergency number printed in the entrance hall.",
+      "usage": {
+        "prompt_tokens": 4014,
+        "completion_tokens": 107,
+        "total_tokens": 4121,
+        "prompt_tokens_details": {
+          "cached_tokens": 3636
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "query_3": {
+      "question": "Which rule defines the archive threshold?",
+      "ok": true,
+      "seconds": 0.2,
+      "answer": "The archive threshold rule does not exist in the provided functions.",
+      "usage": {
+        "prompt_tokens": 1809,
+        "completion_tokens": 13,
+        "total_tokens": 1822,
+        "prompt_tokens_details": {
+          "cached_tokens": 1797
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "chat_grounded": {
+      "ok": true,
+      "seconds": 1.7,
+      "answer": "According to the document, who supervises the Alpha Protocol?",
+      "usage": {
+        "prompt_tokens": 4025,
+        "completion_tokens": 51,
+        "total_tokens": 4076,
+        "prompt_tokens_details": {
+          "cached_tokens": 3648
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  },
+  "llama_server_peak_working_set_mb": 627.7,
+  "total_seconds": 21.0
+}

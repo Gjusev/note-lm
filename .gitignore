@@ -50,3 +50,8 @@ src-tauri/binaries/
 src-tauri/resources/ffmpeg/
 src-tauri/resources/llama/
 src/desktop/dist/
+
+# pageindex eval prototype (PI-1): venv, local index store, run logs
+eval/pageindex-proto/.venv/
+eval/pageindex-proto/pi_store/
+eval/pageindex-proto/*.log

@@ -1,0 +1,32 @@
+[
+  {
+    "total_page_number": 4
+  },
+  {
+    "total_token": 284
+  },
+  {
+    "toc_content": "Laboratory Handbook\nThis handbook collects the operating rules of the measurement\nlaboratory. It has four sections, one per page.\nAlpha Protocol\nThe Alpha Protocol defines the daily calibration budget of the lab.\nRule A-one: the calibration budget is 42 units per day.\nRule A-two: unused units expire at midnight and never carry over.\nRule A-three: the supervisor of the Alpha Protocol is Dr. Irene Vogel.\nRule A-four: calibration must be logged in the ledger within a day.Beta Methodology\nThe Beta Methodology governs how measurements are reviewed.\nRule B-one: every measurement is reviewed by exactly two reviewers.\nRule B-two: reviewers must not have contributed to the measurement.\nRule B-three: the archive threshold is 500 kilobytes per record.\nRule B-four: the review window is 90 days.Gamma Archive\nThe Gamma Archive stores every reviewed record permanently.\nRule G-one: archived records are read-only.\nRule G-two: each record keeps a checksum and a reviewer pair.\nRule G-three: retrieval from the archive takes one working day.Delta Contacts\nThis section lists who to contact for what.\nEscalations for the Alpha Protocol go to Dr. Irene Vogel.\nEscalations for the Beta Methodology go to the review board.\nEscalations for the Gamma Archive go to the archive keeper.\nThe emergency number is printed in the entrance hall.",
+    "toc_page_list": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "page_index_given_in_toc": "no"
+  },
+  {
+    "message": "len(group_texts): 1"
+  },
+  {
+    "message": "generate_toc: {}"
+  },
+  {
+    "message": "convert_physical_index_to_int: {}"
+  },
+  {
+    "mode": "process_toc_with_page_numbers",
+    "accuracy": 0,
+    "incorrect_results": []
+  }
+]

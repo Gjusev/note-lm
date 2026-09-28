@@ -1,0 +1,107 @@
+{
+  "versions": {
+    "pageindex": "0.2.10",
+    "litellm": "1.103.0",
+    "openai-agents": "0.20.0"
+  },
+  "phases": {
+    "index_flash": {
+      "ok": true,
+      "seconds": 5.4,
+      "result": {
+        "doc_id": "pi-873dbb94200b446ebca7a88e0b331526",
+        "name": "probe.pdf"
+      }
+    },
+    "tree": {
+      "ok": true,
+      "seconds": 0.0,
+      "top_nodes": [
+        {
+          "title": "Beta Methodology",
+          "node_id": "0000",
+          "page_index": 2
+        },
+        {
+          "title": "Gamma Archive",
+          "node_id": "0001",
+          "page_index": 3
+        },
+        {
+          "title": "Delta Contacts",
+          "node_id": "0002",
+          "page_index": 4
+        }
+      ]
+    },
+    "query_1": {
+      "question": "What is the daily calibration budget under the Alpha Protocol?",
+      "ok": true,
+      "seconds": 16.0,
+      "answer": "The document metadata includes the following sections:\n\n1. **Title:** Beta Methodology\n2. **Node ID:** 0000\n3. **Start Index:** 2\n4. **End Index:** 2\n5. **Summary:** Beta Methodology\n6. **Node ID:** 0001\n7. **Start Index:** 3\n8. **End Index:** 3\n9. **Summary:** Gamma Archive\n10. **Start Index:** 4\n11. **End Index:** 4\n\nThe Alpha Protocol uses these sections to provide a comprehensive overview of the document's contents. To extract specific content from the pages, please use the following options:\n\n1. **Use get_page_content() to extract specific content from pages**\n2. **Use get_page_content() to extract specific content from pages**\n\nOnce you have the content from the pages, you can proceed to read the document.",
+      "usage": {
+        "prompt_tokens": 4065,
+        "completion_tokens": 229,
+        "total_tokens": 4294,
+        "prompt_tokens_details": {
+          "cached_tokens": 1871
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "query_2": {
+      "question": "How many reviewers must review each measurement under the Beta Methodology?",
+      "ok": true,
+      "seconds": 2.6,
+      "answer": "The Beta Methodology is governed by 2 reviewers reviewing each measurement. The Gamma Archive and Delta Contacts sections provide additional context and details. If you need specific content from pages, proceed with `get_page_content()`.",
+      "usage": {
+        "prompt_tokens": 4062,
+        "completion_tokens": 73,
+        "total_tokens": 4135,
+        "prompt_tokens_details": {
+          "cached_tokens": 3686
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "query_3": {
+      "question": "Which rule defines the archive threshold?",
+      "ok": true,
+      "seconds": 0.5,
+      "answer": "The rule defining the archive threshold in the provided JSON is \"folder browsing and semantic ranking (sort=\\\"relevance\\\").",
+      "usage": {
+        "prompt_tokens": 1832,
+        "completion_tokens": 25,
+        "total_tokens": 1857,
+        "prompt_tokens_details": {
+          "cached_tokens": 1820
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    },
+    "chat_grounded": {
+      "ok": true,
+      "seconds": 4.4,
+      "answer": "The document mentions two methods: Beta and Gamma. According to the Beta Methodology, every measurement is reviewed by exactly two reviewers, and reviewers are not allowed to contribute to the measurement. The Gamma Archive records are stored permanently, with each record keeping a checksum and a reviewer pair. The Alpha Protocol is supervised by Dr. Irene Vogel, and the Beta Methodology is overseen by the review board. The Gamma Archive is responsible for archiving records permanently, and the Alpha Protocol is supervised by the emergency number printed in the entrance hall.",
+      "usage": {
+        "prompt_tokens": 4067,
+        "completion_tokens": 145,
+        "total_tokens": 4212,
+        "prompt_tokens_details": {
+          "cached_tokens": 3692
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0
+        }
+      }
+    }
+  },
+  "llama_server_peak_working_set_mb": 653.7,
+  "total_seconds": 33.1
+}
