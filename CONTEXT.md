@@ -27,7 +27,12 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | worker queues | the real worker process against real SQLite | `e2e/ingestion-worker.e2e.test.ts` |
 | engine protocol | `src/engine/protocol.ts` codec (NDJSON over stdio) | `src/__tests__/engine-protocol.test.ts` |
 | engine dispatch | `handleEngineRequest(op, args)` ops without HTTP | `src/__tests__/engine-dispatch.test.ts` |
-| retrieval | `fuseRankings` RRF fusion | `src/__tests__/retrieval.test.ts` |
+| retrieval fusion | `fuseRankings` RRF fusion | `src/__tests__/retrieval.test.ts` |
+| retrieval metrics | `computeRetrievalMetrics` (recall@10/MRR/nDCG@10) | `src/__tests__/retrieval-metrics.test.ts` |
+| vector index | vec0 table ops + resumable `indexNotebookChunks` | `src/__tests__/vector-index.test.ts` |
+| hybrid search | `searchHybrid` (FTS+vector, notebook-scoped, fts fallback) | `src/__tests__/hybrid-search.test.ts` |
+| eval harness | `runRetrievalEval` over a versioned corpus | `src/__tests__/retrieval-eval.test.ts` |
+| llama supervisor | `startLlama` lifecycle + embed | `src/__tests__/llama-supervisor.test.ts` (fake) + `e2e/llama-server.e2e.test.ts` (real, artifact-gated) |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).
