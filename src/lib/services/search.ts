@@ -25,19 +25,33 @@ export function toFtsMatch(query: string): string {
   return terms.map((t) => `"${t}"`).join(" OR ");
 }
 
-export function searchChunks(db: LocalDb, notebookId: string, query: string, limit = 50): ScoredChunk[] {
+export function searchChunks(
+  db: LocalDb,
+  notebookId: string,
+  query: string,
+  limit = 50,
+  allowedSourceIds?: Set<string> | null
+): ScoredChunk[] {
   const match = toFtsMatch(query);
   if (!match) return [];
+  // Source filter goes INSIDE the query (before truncation). Only completed
+  // sources are retrievable — unfinished ones must not consume candidates.
+  const sourceFilter = allowedSourceIds
+    ? `AND f.source_id IN (${[...allowedSourceIds].map(() => "?").join(",")})`
+    : "";
+  const params: unknown[] = [match, notebookId];
+  if (allowedSourceIds) params.push(...allowedSourceIds);
   const rows = rawClient(db)
     .prepare(
       `SELECT c.id AS "chunkId", f.source_id AS "sourceId", f.notebook_id AS "notebookId",
               f.chunk_index AS "chunkIndex", f.content, bm25(chunks_fts) AS rank
        FROM chunks_fts f
        JOIN chunks c ON c.rowid = f.rowid
-       WHERE chunks_fts MATCH ? AND f.notebook_id = ?
+       JOIN sources s ON s.id = f.source_id AND s.status = 'completed'
+       WHERE chunks_fts MATCH ? AND f.notebook_id = ? ${sourceFilter}
        ORDER BY rank
        LIMIT ?`
     )
-    .all(match, notebookId, limit) as ScoredChunk[];
+    .all(...(params as never[]), limit) as ScoredChunk[];
   return rows;
 }

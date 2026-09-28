@@ -36,16 +36,19 @@ beforeEach(async () => {
     provider: "test", model: "axis", revision: "1", dimension: PROFILE.dimension, pooling: "mean",
   });
 
+  const { updateSourceStatus } = await import("@/lib/services/sources");
   const s1 = await createSource(db, { ownerId: OWNER, notebookId, fileName: "a.txt", fileType: "text/plain", fileSize: 1 });
   replaceChunks(db, { ownerId: OWNER, sourceId: s1, notebookId }, ["alpha content", "beta content", "gamma content"]);
+  await updateSourceStatus(db, s1, { status: "completed" });
   const s2 = await createSource(db, { ownerId: OWNER, notebookId: otherNotebook, fileName: "b.txt", fileType: "text/plain", fileSize: 1 });
   replaceChunks(db, { ownerId: OWNER, sourceId: s2, notebookId: otherNotebook }, ["gamma private other notebook"]);
+  await updateSourceStatus(db, s2, { status: "completed" });
 
   ensureVecTable(db, PROFILE.id, PROFILE.dimension);
   const { getChunksByNotebook } = await import("@/lib/services/sources");
   for (const nb of [notebookId, otherNotebook]) {
     for (const c of getChunksByNotebook(db, nb)) {
-      insertVector(db, PROFILE.id, c._id, nb, embedText(c.content));
+      insertVector(db, PROFILE.id, c._id, nb, embedText(c.content), c.sourceId);
     }
   }
 });
@@ -95,7 +98,59 @@ describe("hybrid search (issue #4)", () => {
       embedQuery,
       limit: 3,
     });
-    expect(result.mode).toBe("hybrid");
+    // nothing indexed for this profile yet → the UI can say "indexing"
+    expect(result.vectorStatus).toBe("indexing");
     expect(result.hits[0].content).toContain("beta");
+  });
+
+  it("reports a typed vector status — failure is never presented as hybrid (finding 2)", async () => {
+    // extension present, profile given, but the embedder THROWS
+    const boom = () => {
+      throw new Error("llama died");
+    };
+    const failed = await searchHybrid(db, {
+      notebookId,
+      query: "alpha",
+      profile: PROFILE,
+      embedQuery: boom,
+      limit: 3,
+    });
+    expect(failed.mode).toBe("fts");
+    expect(failed.vectorStatus).toBe("failed");
+    expect(failed.hits[0].content).toContain("alpha"); // textual results survive
+
+    // profile given, embedder fine, but nothing indexed for it → still
+    // building, and the UI can say so
+    const emptyProfile = { id: "p-status-8", dimension: 8 };
+    ensureVecTable(db, emptyProfile.id, emptyProfile.dimension);
+    const indexing = await searchHybrid(db, {
+      notebookId,
+      query: "alpha",
+      profile: emptyProfile,
+      embedQuery,
+      limit: 3,
+    });
+    expect(indexing.vectorStatus).toBe("indexing");
+
+    // no profile at all → plainly unavailable
+    const none = await searchHybrid(db, {
+      notebookId,
+      query: "alpha",
+      profile: null,
+      embedQuery: null,
+      limit: 3,
+    });
+    expect(none.vectorStatus).toBe("unavailable");
+
+    // healthy hybrid run
+    const ok = await searchHybrid(db, {
+      notebookId,
+      query: "gamma",
+      profile: PROFILE,
+      embedQuery,
+      limit: 3,
+    });
+    expect(ok.mode).toBe("hybrid");
+    expect(ok.vectorStatus).toBe("ok");
   });
 });

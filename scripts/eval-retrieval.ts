@@ -58,7 +58,7 @@ async function main() {
         for (const c of chunks) {
           const v = await llama.embed(c.content);
           vectors.set(c._id, float32(v));
-          insertVector(corpus.db, profile._id, c._id, corpus.notebookId, vectors.get(c._id)!);
+          insertVector(corpus.db, profile._id, c._id, corpus.notebookId, vectors.get(c._id)!, c.sourceId);
         }
         // sanity: KNN works before running the eval
         const probe = vectorSearch(corpus.db, profile._id, vectors.get(chunks[0]._id)!, corpus.notebookId, 1);

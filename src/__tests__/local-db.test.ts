@@ -18,6 +18,7 @@ import {
   replaceChunks,
   removeSource,
   getChunksBySource,
+  updateSourceStatus,
 } from "@/lib/services/sources";
 import { createMessage, listMessagesByNotebook, clearMessagesByNotebook } from "@/lib/services/messages";
 import { createNote, listNotesByNotebook, updateNote, removeNote } from "@/lib/services/notes";
@@ -327,6 +328,8 @@ describe("FTS5 search", () => {
       "Kartoffeln wachsen unter der Erde",
     ]);
     await replaceChunks(db, { ownerId: OWNER, sourceId: s2, notebookId: otherNotebook }, ["Quantenphysik in anderem Notizbuch"]);
+    await updateSourceStatus(db, s1, { status: "completed" });
+    await updateSourceStatus(db, s2, { status: "completed" });
 
     const hits = searchChunks(db, notebookId, "quantenphysik wellen");
     expect(hits.length).toBeGreaterThanOrEqual(1);
@@ -382,6 +385,27 @@ describe("RAG schema — embedding profiles (issue #3)", () => {
       docPrefix: "",
     });
     expect(other._id).not.toBe(first._id);
+  });
+
+  it("treats a changed recipe (dimension/pooling/prefix) as a different profile — finding 3", async () => {
+    const base = {
+      provider: "llamacpp", model: "m", revision: "r", pooling: "mean",
+      queryPrefix: "", docPrefix: "",
+    };
+    const a = await registerEmbeddingProfile(db, { ...base, dimension: 384 });
+    const sameRecipe = await registerEmbeddingProfile(db, { ...base, dimension: 384 });
+    expect(sameRecipe._id).toBe(a._id);
+
+    const dim = await registerEmbeddingProfile(db, { ...base, dimension: 768 });
+    expect(dim._id).not.toBe(a._id);
+    const pool = await registerEmbeddingProfile(db, { ...base, dimension: 384, pooling: "cls" });
+    expect(pool._id).not.toBe(a._id);
+    const prefix = await registerEmbeddingProfile(db, { ...base, dimension: 384, queryPrefix: "q: " });
+    expect(prefix._id).not.toBe(a._id);
+
+    // nonsense dimensions are rejected loudly
+    await expect(registerEmbeddingProfile(db, { ...base, dimension: 12.5 })).rejects.toThrow(/dimension/);
+    await expect(registerEmbeddingProfile(db, { ...base, dimension: 0 })).rejects.toThrow(/dimension/);
   });
 
   it("still applies migrations idempotently alongside FTS5 (0002 included)", () => {

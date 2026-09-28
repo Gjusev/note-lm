@@ -292,7 +292,10 @@ export const embeddingProfiles = sqliteTable(
     createdAt: integer("created_at").notNull(),
   },
   (t) => [
-    uniqueIndex("embedding_profiles_natural").on(t.provider, t.model, t.revision),
+    uniqueIndex("embedding_profiles_natural").on(
+      t.provider, t.model, t.revision, t.dimension, t.pooling,
+      t.queryPrefix, t.docPrefix, t.processingVersion
+    ),
   ]
 );
 

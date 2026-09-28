@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { openLocalDb, closeLocalDb, type LocalDb } from "@/db/local";
 import { createNotebook } from "./notebooks";
-import { createSource, replaceChunks } from "./sources";
+import { createSource, replaceChunks, updateSourceStatus } from "./sources";
 import { searchChunks } from "./search";
 import { searchHybrid } from "./hybrid-search";
 import { computeRetrievalMetrics, type RetrievalMetrics } from "./retrieval-metrics";
@@ -59,6 +59,7 @@ export async function buildCorpusDb(corpus: EvalCorpus): Promise<CorpusDb> {
       fileSize: doc.text.length,
     });
     await replaceChunks(db, { ownerId: "eval", sourceId, notebookId }, [doc.text]);
+    await updateSourceStatus(db, sourceId, { status: "completed" });
     const { getChunksBySource } = await import("./sources");
     chunkByDoc.set(doc.id, getChunksBySource(db, sourceId)[0]._id);
   }

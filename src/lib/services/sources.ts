@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { asc, eq } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import { chunks, sources, type MessageCitation, type SourceStatus } from "@/db/local/schema";
+import { purgeOrphanVectors } from "./vector-index";
 import type { LocalStore } from "@/lib/storage/local";
 import { toWire } from "./wire";
 
@@ -68,7 +69,7 @@ export function replaceChunks(
   chunkTexts: string[]
 ): number {
   const now = Date.now();
-  return db.transaction((tx) => {
+  const result = db.transaction((tx) => {
     tx.delete(chunks).where(eq(chunks.sourceId, args.sourceId)).run();
     // SQLite caps host parameters per statement (~32k) — batch big inserts
     const CHUNK_BATCH = 500;
@@ -91,6 +92,10 @@ export function replaceChunks(
     }
     return chunkTexts.length;
   }, { behavior: "immediate" });
+  // vec0 rows have no FK — purge ghosts AFTER the commit so stale vectors
+  // never consume KNN slots (finding 4)
+  purgeOrphanVectors(db);
+  return result;
 }
 
 export function getChunksBySource(db: LocalDb, sourceId: string) {
@@ -111,6 +116,7 @@ export function getChunksByNotebook(db: LocalDb, notebookId: string) {
 export async function removeSource(db: LocalDb, store: LocalStore, sourceId: string): Promise<void> {
   const [row] = await db.select().from(sources).where(eq(sources.id, sourceId)).limit(1);
   await db.delete(sources).where(eq(sources.id, sourceId)); // cascades chunks
+  purgeOrphanVectors(db); // vec0 rows have no FK — explicit cleanup
   if (row) {
     for (const fid of [row.storageId, row.transcriptStorageId]) {
       if (fid) await store.delete(fid);

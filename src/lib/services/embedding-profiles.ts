@@ -21,8 +21,16 @@ export interface EmbeddingProfileInput {
   docPrefix?: string;
 }
 
-/** Idempotent by natural key: re-registering returns the existing row. */
+/** Idempotent by the FULL recipe: re-registering returns the existing row.
+ *  A changed dimension/pooling/prefix is a different profile — never reuse
+ *  incompatible vectors (finding 3). */
 export async function registerEmbeddingProfile(db: LocalDb, input: EmbeddingProfileInput) {
+  if (!Number.isInteger(input.dimension) || input.dimension < 1 || input.dimension > 4096) {
+    throw new Error(`invalid embedding dimension: ${input.dimension}`);
+  }
+  if (!input.provider || !input.model || !input.revision || !input.pooling) {
+    throw new Error("provider, model, revision, dimension and pooling are required");
+  }
   const existing = await db
     .select()
     .from(embeddingProfiles)
@@ -30,7 +38,11 @@ export async function registerEmbeddingProfile(db: LocalDb, input: EmbeddingProf
       and(
         eq(embeddingProfiles.provider, input.provider),
         eq(embeddingProfiles.model, input.model),
-        eq(embeddingProfiles.revision, input.revision)
+        eq(embeddingProfiles.revision, input.revision),
+        eq(embeddingProfiles.dimension, input.dimension),
+        eq(embeddingProfiles.pooling, input.pooling),
+        eq(embeddingProfiles.queryPrefix, input.queryPrefix ?? ""),
+        eq(embeddingProfiles.docPrefix, input.docPrefix ?? "")
       )
     )
     .limit(1);

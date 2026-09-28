@@ -223,6 +223,15 @@ CREATE TABLE retrieval_runs (
 );
 CREATE INDEX retrieval_runs_by_notebook ON retrieval_runs (notebook_id, created_at);
 `,
+  // 0003 — the profile identity is the FULL recipe (finding 3): the same
+  // provider/model/revision with a different dimension, pooling or prefix
+  // is a DIFFERENT profile; vectors must never be silently reused.
+  `
+DROP INDEX IF EXISTS embedding_profiles_natural;
+CREATE UNIQUE INDEX embedding_profiles_natural
+  ON embedding_profiles (provider, model, revision, dimension, pooling,
+                          query_prefix, doc_prefix, processing_version);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

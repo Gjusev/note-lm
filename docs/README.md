@@ -14,6 +14,7 @@
 | Deliver one installable desktop application | [Tauri 2 desktop plan](specs/desktop-tauri-plan.md) |
 | Build a distinct research and study product from the comparison | [Product blueprint and delivery backlog](specs/product-blueprint.md) |
 | Run local AI and hybrid retrieval inside the desktop application | [llama.cpp and local RAG plan](specs/local-ai-rag-plan.md) |
+| Continue implementation from the current verified code | [Execution plan for the next agent](specs/agent-execution-plan.md) |
 | Understand the product scope and acceptance criteria | [MVP specification](specs/ki-research-notebook-mvp.md) |
 | Review the architecture page copy | [Architecture page copy](specs/architecture-page-copy.md) |
 | Read the user-facing German guide | [Benutzerhandbuch](BENUTZERHANDBUCH.md) |
