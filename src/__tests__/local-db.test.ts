@@ -41,6 +41,11 @@ import {
   getImportJob,
 } from "@/lib/services/import-jobs";
 import { enqueueProcessingJob, claimProcessingJob } from "@/lib/services/processing-jobs";
+import {
+  setJobCheckpoint,
+  getJobCheckpoints,
+  deleteJobCheckpoints,
+} from "@/lib/services/job-control";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { searchChunks } from "@/lib/services/search";
 import {
@@ -425,5 +430,37 @@ describe("RAG schema — embedding profiles (issue #3)", () => {
       rawClient(db).pragma("user_version", { simple: true })
     );
     closeLocalDb(db2);
+  });
+});
+
+describe("job checkpoints (token-fenced, desktop-workers-plan slice 3a)", () => {
+  it("checkpoint upsert survives a lost lease — a stale runner's checkpoint write is rejected, the new claimant's wins", async () => {
+    const sourceId = await createSource(db, {
+      ownerId: OWNER, notebookId, fileName: "ckpt.txt", fileType: "text/plain", fileSize: 3,
+    });
+    const jobId = enqueueProcessingJob(db, { ownerId: OWNER, sourceId, notebookId });
+    const first = claimProcessingJob(db)!;
+    const staleToken = first.leaseToken!;
+    expect(setJobCheckpoint(db, "processing", jobId, staleToken, "extract", JSON.stringify({ offset: 1 }))).toBe(true);
+
+    // crash: the lease expires and a new attempt reclaims the job (new token)
+    fastForwardForTests(db);
+    const second = claimProcessingJob(db)!;
+    expect(second.leaseToken).not.toBe(staleToken);
+
+    // the stale runner's write is rejected …
+    expect(setJobCheckpoint(db, "processing", jobId, staleToken, "extract", JSON.stringify({ offset: 99 }))).toBe(false);
+    // … while the new claimant's upsert lands
+    expect(setJobCheckpoint(db, "processing", jobId, second.leaseToken!, "extract", JSON.stringify({ offset: 42 }))).toBe(true);
+    expect(setJobCheckpoint(db, "processing", jobId, second.leaseToken!, "transcribe", JSON.stringify({ offset: 77 }))).toBe(true);
+
+    // only the winning attempt's rows survive
+    expect(getJobCheckpoints(db, "processing", jobId)).toEqual([
+      { stage: "extract", cursor: JSON.stringify({ offset: 42 }), updatedAt: expect.any(Number) },
+      { stage: "transcribe", cursor: JSON.stringify({ offset: 77 }), updatedAt: expect.any(Number) },
+    ]);
+
+    deleteJobCheckpoints(db, "processing", jobId);
+    expect(getJobCheckpoints(db, "processing", jobId)).toEqual([]);
   });
 });

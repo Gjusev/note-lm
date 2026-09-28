@@ -23,10 +23,9 @@ import {
   completeImportJob,
   failImportJob,
   heartbeatImportJob,
-  releaseImportJob,
   updateImportJobPhase,
 } from "@/lib/services/import-jobs";
-import { emitJobEvent, getJobIntent } from "@/lib/services/job-control";
+import { observeJobIntent } from "@/lib/services/job-control";
 
 const HEARTBEAT_MS = 60_000;
 
@@ -57,32 +56,17 @@ export async function runImportJob(
     console.error(`[IMPORT][${jobId.slice(0, 8)}] ${step}${extra ? ` — ${extra}` : ""}`);
 
   /**
-   * Phase-boundary gate: observe a pending user intent and fence the phase
-   * write. Checked before and after beforePhase — the hook itself may record
-   * an intent (that is how the engine loop pauses/cancels mid-run). Returns
-   * null to proceed into the phase.
+   * Phase-boundary gate (see observeJobIntent): observe a pending user intent
+   * and fence the phase write. Checked before and after beforePhase — the
+   * hook itself may record an intent (that is how the engine loop pauses/
+   * cancels mid-run). Returns null to proceed into the phase.
    */
   const enterPhase = async (phase: ImportPhase): Promise<ImportJobOutcome | null> => {
-    const observeIntent = async (): Promise<ImportJobOutcome | null> => {
-      const intent = getJobIntent(ctx.db, "import", jobId);
-      if (intent === "pause") {
-        if (!releaseImportJob(ctx.db, jobId, token, "queued")) return "lost";
-        emitJobEvent(ctx.db, "import", jobId, "paused");
-        return "paused";
-      }
-      if (intent === "cancel") {
-        if (!releaseImportJob(ctx.db, jobId, token, "cancelled")) return "lost";
-        emitJobEvent(ctx.db, "import", jobId, "cancelled");
-        return "cancelled";
-      }
-      return null;
-    };
-
-    const gate = await observeIntent();
-    if (gate) return gate;
+    const gate = observeJobIntent(ctx.db, "import", jobId, token);
+    if (gate !== "run") return gate;
     await opts?.beforePhase?.(phase);
-    const gated = await observeIntent();
-    if (gated) return gated;
+    const gated = observeJobIntent(ctx.db, "import", jobId, token);
+    if (gated !== "run") return gated;
     return updateImportJobPhase(ctx.db, jobId, token, phase) ? null : "lost";
   };
 

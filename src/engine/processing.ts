@@ -16,6 +16,12 @@ import type { LocalContext } from "@/lib/storage/local";
 import { getSetting } from "@/lib/services/settings";
 import { getEmbeddingProfile } from "@/lib/services/embedding-profiles";
 import { indexNotebookChunks } from "@/lib/services/vector-index";
+import { observeJobIntent } from "@/lib/services/job-control";
+
+/** Upload pipeline stages the intent gate observes before. */
+export type ProcessingStage = "extract" | "transcribe" | "commit";
+
+export type ProcessingJobOutcome = "completed" | "paused" | "cancelled" | "failed" | "lost";
 
 async function maybeIndexNotebook(ctx: LocalContext, notebookId: string): Promise<void> {
   const profileId = await getSetting<string>(ctx.db, "retrieval.activeProfile");
@@ -50,15 +56,45 @@ export function resolveFileType(fileType: string, fileName: string): string {
   return EXT_MIME[ext] || fileType;
 }
 
-/** Port of the former POST /api/process pipeline, queue-driven and fenced. */
+/** Port of the former POST /api/process pipeline, queue-driven and fenced.
+ *  slice 3a: stage-boundary intent gates — a pause releases the lease back to
+ *  pending (attempt refunded), a cancel fails the job and errors the source.
+ *  The outcome is returned so callers/tests can assert the gate behavior. */
 export async function runProcessingJob(
   ctx: LocalContext,
   jobId: string,
   token: string,
-  sourceId: string
-): Promise<void> {
+  sourceId: string,
+  opts?: { beforeStage?: (stage: ProcessingStage) => Promise<void> }
+): Promise<ProcessingJobOutcome> {
   const log = (step: string, extra?: string) =>
     console.log(`[PROCESS][${sourceId.slice(0, 8)}] ${step}${extra ? ` — ${extra}` : ""}`);
+
+  /**
+   * Stage-boundary gate: observe a pending user intent before each fenced
+   * stage (extract/transcribe/commit). Checked before and after beforeStage —
+   * the hook itself may record an intent (that is how the engine loop and
+   * tests pause/cancel mid-run). Returns null to proceed into the stage.
+   */
+  const gate = async (stage: ProcessingStage): Promise<ProcessingJobOutcome | null> => {
+    const finish = (outcome: ProcessingJobOutcome): ProcessingJobOutcome | null => {
+      if (outcome === "cancelled") {
+        // the uploads UI reads the source row: an aborted transcription must
+        // not leave it stuck in "processing" forever
+        updateSourceStatus(ctx.db, sourceId, {
+          status: "error",
+          errorMessage: "Vom Benutzer abgebrochen",
+        });
+      }
+      return outcome;
+    };
+    const observed = observeJobIntent(ctx.db, "processing", jobId, token);
+    if (observed !== "run") return finish(observed);
+    await opts?.beforeStage?.(stage);
+    const gated = observeJobIntent(ctx.db, "processing", jobId, token);
+    if (gated !== "run") return finish(gated);
+    return null;
+  };
 
   const hb = setInterval(() => {
     try {
@@ -76,6 +112,10 @@ export async function runProcessingJob(
     const resolvedType = resolveFileType(source.fileType, source.fileName);
     log(`type=${resolvedType}`);
 
+    // stage gate 1: before extraction (text extraction or ffmpeg audio pull)
+    const extractGate = await gate("extract");
+    if (extractGate) return extractGate;
+
     let text: string;
     let transcriptFileId: string | undefined;
 
@@ -92,6 +132,12 @@ export async function runProcessingJob(
         log("FFMPEG EXTRACT AUDIO");
         audioBuffer = await extractAudioFromVideo(stored.buffer);
       }
+
+      // stage gate 2: before the transcription model call (the long stage —
+      // this is the boundary a pause/cancel clicked mid-transcription lands on)
+      const transcribeGate = await gate("transcribe");
+      if (transcribeGate) return transcribeGate;
+
       text = await transcribeAudio(audioBuffer, "audio.mp3");
 
       const transcriptFile = await ctx.store.save(Buffer.from(text, "utf-8"), {
@@ -113,12 +159,17 @@ export async function runProcessingJob(
       throw new PermanentProcessingError(`Nicht unterstützter Dateityp: ${resolvedType}`);
     }
 
+    // stage gate 3: last intent check before the commit — a pause/cancel
+    // clicked during the long extraction/transcription must not commit
+    const commitGate = await gate("commit");
+    if (commitGate) return commitGate;
+
     // Fencing: if our lease was reclaimed (worker crash + expiry), a newer
     // attempt owns this job now — our result must not clobber it.
     if (!heartbeatProcessingJob(ctx.db, jobId, token)) {
       log("ABORTED", "Lease verloren — Ergebnis verworfen");
       if (transcriptFileId) await ctx.store.delete(transcriptFileId);
-      return;
+      return "lost";
     }
 
     const previousTranscriptId = source.transcriptStorageId ?? undefined;
@@ -131,7 +182,7 @@ export async function runProcessingJob(
     const done = completeProcessingJob(ctx.db, jobId, token);
     if (!done) {
       log("COMPLETE REJECTED", "Lease verloren");
-      return; // chunks were written, but a newer attempt will replace them
+      return "lost"; // chunks were written, but a newer attempt will replace them
     }
     if (previousTranscriptId && previousTranscriptId !== transcriptFileId) {
       await ctx.store.delete(previousTranscriptId);
@@ -144,12 +195,14 @@ export async function runProcessingJob(
     void maybeIndexNotebook(ctx, source.notebookId).catch((err) =>
       console.error(`[PROCESS] auto-index failed: ${err instanceof Error ? err.message : err}`)
     );
+    return "completed";
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const permanent = err instanceof PermanentProcessingError;
     log(permanent ? "REJECTED" : "FAILED", message);
     updateSourceStatus(ctx.db, sourceId, { status: "error", errorMessage: message });
-    failProcessingJob(ctx.db, jobId, token, { errorMessage: message, transient: !permanent });
+    const ok = failProcessingJob(ctx.db, jobId, token, { errorMessage: message, transient: !permanent });
+    return ok ? "failed" : "lost";
   } finally {
     clearInterval(hb);
   }

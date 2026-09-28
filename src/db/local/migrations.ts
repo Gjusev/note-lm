@@ -270,6 +270,20 @@ CREATE TABLE job_events (
   payload TEXT
 );
 `,
+  // 0006 — job checkpoints (desktop-workers-plan slice 3a): per-stage resume
+  // markers keyed by (kind, job, stage). Writes are token-fenced against the
+  // live lease, so a stale runner's cursor can never clobber the winner's.
+  `
+CREATE TABLE job_checkpoints (
+  job_kind TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  stage TEXT NOT NULL,
+  v INTEGER NOT NULL DEFAULT 1,
+  cursor TEXT,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (job_kind, job_id, stage)
+);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

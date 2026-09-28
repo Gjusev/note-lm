@@ -10,9 +10,18 @@
  */
 import type { LocalDb } from "@/db/local";
 import { rawClient } from "@/db/local";
+import { releaseImportJob } from "./import-jobs";
+import { releaseProcessingJob, failProcessingJob } from "./processing-jobs";
 
 export type JobKind = "processing" | "import" | "material";
 export type JobIntent = "run" | "pause" | "cancel";
+
+/**
+ * Result of observing a job's user intent at a stage boundary: "run" proceeds,
+ * "paused"/"cancelled" mean the runner released its lease accordingly, "lost"
+ * means the lease was already gone (another claimant fenced us out).
+ */
+export type IntentObservation = "run" | "paused" | "cancelled" | "lost";
 
 export interface UnifiedJob {
   kind: JobKind;
@@ -55,6 +64,45 @@ export function getJobIntent(db: LocalDb, kind: JobKind, jobId: string): JobInte
     .prepare(`SELECT intent FROM job_intents WHERE job_kind = ? AND job_id = ?`)
     .get(kind, jobId) as { intent: JobIntent } | undefined;
   return row?.intent ?? "run";
+}
+
+/**
+ * Stage-boundary gate shared by both lease-fenced runners (extracted from
+ * imports.ts enterPhase, slice 3a): observe a pending user intent and release
+ * the lease accordingly. pause refunds the attempt back to the queue, cancel
+ * ends the job. Checked before and after the runner's hook — the hook itself
+ * may record an intent (that is how the engine loop and tests pause/cancel
+ * mid-run). Returns "run" to proceed into the stage.
+ */
+export function observeJobIntent(
+  db: LocalDb,
+  kind: "import" | "processing",
+  jobId: string,
+  token: string
+): IntentObservation {
+  const intent = getJobIntent(db, kind, jobId);
+  if (intent === "pause") {
+    const released =
+      kind === "import"
+        ? releaseImportJob(db, jobId, token, "queued")
+        : releaseProcessingJob(db, jobId, token);
+    if (!released) return "lost";
+    emitJobEvent(db, kind, jobId, "paused");
+    return "paused";
+  }
+  if (intent === "cancel") {
+    const released =
+      kind === "import"
+        ? releaseImportJob(db, jobId, token, "cancelled")
+        : failProcessingJob(db, jobId, token, {
+            errorMessage: "Vom Benutzer abgebrochen",
+            transient: false,
+          });
+    if (!released) return "lost";
+    emitJobEvent(db, kind, jobId, "cancelled");
+    return "cancelled";
+  }
+  return "run";
 }
 
 export function emitJobEvent(
@@ -151,4 +199,68 @@ export function listJobs(db: LocalDb, notebookId?: string): UnifiedJob[] {
 
   jobs.sort((a, b) => b.updatedAt - a.updatedAt);
   return jobs;
+}
+
+/** Leased queue tables that checkpoints fence against; materials have no lease. */
+const LEASE_TABLE: Partial<Record<JobKind, string>> = {
+  processing: "processing_jobs",
+  import: "import_jobs",
+};
+
+/**
+ * Token-fenced stage checkpoint upsert (desktop-workers-plan slice 3a):
+ * verifies the writer still owns the live lease inside the write transaction,
+ * so a stale runner's cursor can never clobber the winning attempt's.
+ * cursor is a JSON string (or null). Returns false when fenced out.
+ */
+export function setJobCheckpoint(
+  db: LocalDb,
+  kind: JobKind,
+  jobId: string,
+  token: string,
+  stage: string,
+  cursor: string | null
+): boolean {
+  const table = LEASE_TABLE[kind];
+  if (!table) return false; // materials have no lease to fence against
+  const sqlite = rawClient(db);
+  const run = sqlite.transaction((): boolean => {
+    const job = sqlite
+      .prepare(`SELECT lease_token FROM ${table} WHERE id = ?`)
+      .get(jobId) as { lease_token: string | null } | undefined;
+    if (!job || job.lease_token !== token) return false;
+    sqlite
+      .prepare(
+        `INSERT INTO job_checkpoints (job_kind, job_id, stage, v, cursor, updated_at)
+         VALUES (?, ?, ?, 1, ?, ?)
+         ON CONFLICT (job_kind, job_id, stage) DO UPDATE SET
+           v = v + 1, cursor = excluded.cursor, updated_at = excluded.updated_at`
+      )
+      .run(kind, jobId, stage, cursor, Date.now());
+    return true;
+  });
+  return run.immediate();
+}
+
+export interface JobCheckpoint {
+  stage: string;
+  cursor: string | null;
+  updatedAt: number;
+}
+
+/** Resume markers of a job, ordered by stage. */
+export function getJobCheckpoints(db: LocalDb, kind: JobKind, jobId: string): JobCheckpoint[] {
+  return rawClient(db)
+    .prepare(
+      `SELECT stage, cursor, updated_at AS "updatedAt" FROM job_checkpoints
+       WHERE job_kind = ? AND job_id = ? ORDER BY stage ASC`
+    )
+    .all(kind, jobId) as JobCheckpoint[];
+}
+
+/** Drop a job's resume markers (terminal state — nothing left to resume). */
+export function deleteJobCheckpoints(db: LocalDb, kind: JobKind, jobId: string): void {
+  rawClient(db)
+    .prepare(`DELETE FROM job_checkpoints WHERE job_kind = ? AND job_id = ?`)
+    .run(kind, jobId);
 }

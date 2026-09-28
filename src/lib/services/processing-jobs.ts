@@ -114,6 +114,22 @@ export function heartbeatProcessingJob(db: LocalDb, jobId: string, token: string
   return res.changes > 0;
 }
 
+/** Fenced lease release (user pause observed mid-run): back to pending, the
+ *  attempt is refunded and the job is immediately claimable again — mirrors
+ *  releaseImportJob(to "queued"). False when the lease is already gone. */
+export function releaseProcessingJob(db: LocalDb, jobId: string, token: string): boolean {
+  const now = Date.now();
+  const res = rawClient(db)
+    .prepare(
+      `UPDATE processing_jobs
+       SET status='pending', attempts=MAX(attempts-1, 0), lease_token=NULL,
+           lease_expires_at=NULL, updated_at=?
+       WHERE id=? AND lease_token=? AND status='running'`
+    )
+    .run(now, jobId, token);
+  return res.changes > 0;
+}
+
 export function completeProcessingJob(db: LocalDb, jobId: string, token: string): boolean {
   return db.transaction((tx) => {
     const job = tx.select().from(processingJobs).where(eq(processingJobs.id, jobId)).limit(1).get();

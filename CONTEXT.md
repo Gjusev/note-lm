@@ -33,6 +33,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | hybrid search | `searchHybrid` (FTS+vector, notebook-scoped, fts fallback) | `src/__tests__/hybrid-search.test.ts` |
 | eval harness | `runRetrievalEval` over a versioned corpus | `src/__tests__/retrieval-eval.test.ts` |
 | llama supervisor | `startLlama` lifecycle + embed | `src/__tests__/llama-supervisor.test.ts` (fake) + `e2e/llama-server.e2e.test.ts` (real, artifact-gated) |
+| engine job pool | `runProcessingJob` / `runImportJob` stage gates + job-control checkpoint fns over a real temp SQLite (driven like `engine-imports`) | `src/__tests__/engine-pool.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).
