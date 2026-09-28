@@ -47,6 +47,12 @@ export function enqueueProcessingJob(
   return id;
 }
 
+/** A paused/cancelled intent must never be claimed: claiming-and-releasing
+ *  every tick would starve the sibling queue and flood job_events. */
+const CLAIM_INTENT_FILTER = (kind: string, table: string) =>
+  `AND NOT EXISTS (SELECT 1 FROM job_intents ji WHERE ji.job_kind = '${kind}'
+     AND ji.job_id = ${table}.id AND ji.intent IN ('pause','cancel'))`;
+
 /** Atomic claim with lease; reclaims jobs whose worker crashed mid-run.
  *  Pending rows whose lease_expires_at lies in the future are waiting out a
  *  transient-failure backoff (column reused as the not-before gate). */
@@ -59,6 +65,7 @@ export function claimProcessingJob(db: LocalDb): Row | null {
       .prepare(
         `SELECT ${PJ_COLUMNS} FROM processing_jobs
          WHERE status = 'pending' AND (lease_expires_at IS NULL OR lease_expires_at < ?)
+         ${CLAIM_INTENT_FILTER("processing", "processing_jobs")}
          ORDER BY created_at ASC LIMIT 1`
       )
       .get(now) as Row | undefined;
@@ -68,6 +75,7 @@ export function claimProcessingJob(db: LocalDb): Row | null {
         .prepare(
           `SELECT ${PJ_COLUMNS} FROM processing_jobs
            WHERE lease_expires_at IS NOT NULL AND lease_expires_at < ? AND status = 'running'
+           ${CLAIM_INTENT_FILTER("processing", "processing_jobs")}
            ORDER BY lease_expires_at ASC LIMIT 1`
         )
         .get(now) as Row | undefined;
@@ -116,6 +124,19 @@ export function completeProcessingJob(db: LocalDb, jobId: string, token: string)
       .run();
     return true;
   }, { behavior: "immediate" });
+}
+
+/** End a not-yet-started job: the engine is the sole writer, so a plain
+ *  status update (no fence) is safe for rows that were never claimed.
+ *  Returns false when the job already left 'pending'. */
+export function cancelPendingProcessingJob(db: LocalDb, jobId: string): boolean {
+  const res = rawClient(db)
+    .prepare(
+      `UPDATE processing_jobs SET status='cancelled', lease_token=NULL, lease_expires_at=NULL, updated_at=?
+       WHERE id=? AND status='pending'`
+    )
+    .run(Date.now(), jobId);
+  return res.changes > 0;
 }
 
 /** Failure with the same backoff policy as import jobs; marks the source

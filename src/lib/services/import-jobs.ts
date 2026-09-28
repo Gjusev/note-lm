@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, desc, eq, inArray, not } from "drizzle-orm";
 import { rawClient, type LocalDb } from "@/db/local";
-import { chunks, importJobs, sources, type ImportJobStatus } from "@/db/local/schema";
+import { chunks, importJobs, jobIntents, sources, type ImportJobStatus } from "@/db/local/schema";
 import { toWire } from "./wire";
 
 /**
@@ -150,6 +150,15 @@ export function retryImportJob(db: LocalDb, jobId: string): void {
       })
       .where(eq(importJobs.id, jobId))
       .run();
+    // a stale pause/cancel intent would keep the retried job unclaimable (F1
+    // filters by intent) — retry means "run again"
+    tx.insert(jobIntents)
+      .values({ jobKind: "import", jobId, intent: "run", updatedAt: Date.now() })
+      .onConflictDoUpdate({
+        target: [jobIntents.jobKind, jobIntents.jobId],
+        set: { intent: "run", updatedAt: Date.now() },
+      })
+      .run();
   }, { behavior: "immediate" });
 }
 
@@ -160,6 +169,12 @@ const JOB_COLUMNS = `id, owner_id AS "ownerId", notebook_id AS "notebookId", url
   lease_token AS "leaseToken", lease_expires_at AS "leaseExpiresAt",
   error_code AS "errorCode", error_message AS "errorMessage",
   source_id AS "sourceId", title, created_at AS "createdAt", updated_at AS "updatedAt"`;
+
+/** A paused/cancelled intent must never be claimed: claiming-and-releasing
+ *  every tick would starve the sibling queue and flood job_events. */
+const CLAIM_INTENT_FILTER = (kind: string, table: string) =>
+  `AND NOT EXISTS (SELECT 1 FROM job_intents ji WHERE ji.job_kind = '${kind}'
+     AND ji.job_id = ${table}.id AND ji.intent IN ('pause','cancel'))`;
 
 /** Atomic claim with lease. BEGIN IMMEDIATE so concurrent claimants serialize;
  *  reclaims jobs whose lease expired (worker crash). A crashed job that has
@@ -174,6 +189,7 @@ export function claimImportJob(db: LocalDb): ImportJobDoc | null {
       .prepare(
         `SELECT ${JOB_COLUMNS} FROM import_jobs
          WHERE status = 'queued' AND next_attempt_at <= ?
+         ${CLAIM_INTENT_FILTER("import", "import_jobs")}
          ORDER BY next_attempt_at ASC LIMIT 1`
       )
       .get(now) as Row | undefined;
@@ -184,6 +200,7 @@ export function claimImportJob(db: LocalDb): ImportJobDoc | null {
           `SELECT ${JOB_COLUMNS} FROM import_jobs
            WHERE lease_expires_at IS NOT NULL AND lease_expires_at < ?
              AND status IN ${RUNNING_SQL}
+             ${CLAIM_INTENT_FILTER("import", "import_jobs")}
            ORDER BY lease_expires_at ASC LIMIT 1`
         )
         .get(now) as Row | undefined;
@@ -210,6 +227,27 @@ export function claimImportJob(db: LocalDb): ImportJobDoc | null {
   });
   const row = run.immediate();
   return row ? toJobDoc(row) : null;
+}
+
+/** Fenced lease release (user pause/cancel observed mid-run): queued keeps the
+ *  job resumable and refunds the attempt; cancelled ends it. Returns false
+ *  when the lease is already gone (another claimant fenced us out). */
+export function releaseImportJob(
+  db: LocalDb,
+  jobId: string,
+  token: string,
+  to: "queued" | "cancelled"
+): boolean {
+  const now = Date.now();
+  const res = rawClient(db)
+    .prepare(
+      `UPDATE import_jobs
+       SET status=?, attempts=CASE WHEN ?='queued' THEN MAX(attempts-1, 0) ELSE attempts END,
+           lease_token=NULL, lease_expires_at=NULL, next_attempt_at=?, updated_at=?
+       WHERE id=? AND lease_token=? AND status IN ${RUNNING_SQL}`
+    )
+    .run(to, to, now, now, jobId, token);
+  return res.changes > 0;
 }
 
 export function heartbeatImportJob(db: LocalDb, jobId: string, token: string): boolean {

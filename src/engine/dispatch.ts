@@ -8,7 +8,7 @@ import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { createNotebook, listNotebooks } from "@/lib/services/notebooks";
 import { createSource } from "@/lib/services/sources";
-import { enqueueProcessingJob } from "@/lib/services/processing-jobs";
+import { cancelPendingProcessingJob, enqueueProcessingJob } from "@/lib/services/processing-jobs";
 import { createNote, listNotesByNotebook, removeNote, updateNote } from "@/lib/services/notes";
 import {
   getChunksBySource,
@@ -21,6 +21,7 @@ import { removeMaterial } from "@/lib/services/learning-materials";
 import {
   cancelImportJob,
   createImportJob,
+  getImportJob,
   listImportJobsByNotebook,
   retryImportJob,
 } from "@/lib/services/import-jobs";
@@ -513,6 +514,16 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         }
         const intent = op === "jobs.pause" ? "pause" : op === "jobs.resume" ? "run" : "cancel";
         const { db } = getLocalContext();
+        if (op === "jobs.cancel") {
+          // A queued import / pending processing job is filtered out of the
+          // claim by its intent (claim SQL) — intent alone would leave it
+          // stuck "pending" forever. End it directly; the engine is the sole
+          // writer, so the plain status update is safe for unclaimed rows.
+          if (kind === "import" && getImportJob(db, jobId)?.status === "queued") {
+            cancelImportJob(db, jobId);
+          }
+          if (kind === "processing") cancelPendingProcessingJob(db, jobId);
+        }
         const { setJobIntent } = await import("@/lib/services/job-control");
         setJobIntent(db, kind as "processing", jobId, intent);
         return { ok: true, result: { intent } };

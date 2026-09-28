@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile } from "../lib/api";
 
@@ -15,6 +15,28 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       q.state.data?.some((s) => s.status === "pending" || s.status === "processing") ? 3000 : false,
   });
 
+  // F4: the engine finishes imports in the background — without a ["jobs"]
+  // poll the workspace never learns a source became available.
+  const { data: jobs } = useQuery({
+    queryKey: ["jobs"],
+    queryFn: desktopApi.listJobs,
+    refetchInterval: (q) =>
+      q.state.data?.jobs.some((j) => !["completed", "failed", "cancelled"].includes(j.status)) ? 3000 : false,
+  });
+
+  const lastJobStatus = useRef<Map<string, string>>(new Map());
+  useEffect(() => {
+    for (const j of jobs?.jobs ?? []) {
+      if (j.kind !== "import" || j.notebookId !== notebookId) continue;
+      const prev = lastJobStatus.current.get(j.id);
+      lastJobStatus.current.set(j.id, j.status);
+      if (prev && prev !== j.status && j.status === "completed") {
+        queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+        queryClient.invalidateQueries({ queryKey: ["jobs"] });
+      }
+    }
+  }, [jobs, notebookId, queryClient]);
+
   const importFile = useMutation({
     mutationFn: async () => {
       const picked = await pickFile();
@@ -22,6 +44,15 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       return desktopApi.importFile(picked.path, notebookId, picked.name, guessType(picked.name));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sources", notebookId] }),
+  });
+
+  const [urlInput, setUrlInput] = useState("");
+  const importUrl = useMutation({
+    mutationFn: (url: string) => desktopApi.importUrl(notebookId, url),
+    onSuccess: () => {
+      setUrlInput("");
+      queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+    },
   });
 
   return (
@@ -66,6 +97,35 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
             {importFile.isError && (
               <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>
                 {importFile.error.message}
+              </p>
+            )}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (urlInput.trim() && !importUrl.isPending) importUrl.mutate(urlInput.trim());
+              }}
+              style={{ display: "flex", gap: "var(--space-1)" }}
+            >
+              <input
+                type="url"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="https://…"
+                aria-label="Quelle per URL hinzufügen"
+                disabled={importUrl.isPending}
+              />
+              <button type="submit" disabled={!urlInput.trim() || importUrl.isPending}>
+                {importUrl.isPending ? "Importiere…" : "URL"}
+              </button>
+            </form>
+            {importUrl.data?.deduped && (
+              <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>
+                Import läuft bereits für diese Quelle.
+              </p>
+            )}
+            {importUrl.isError && (
+              <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>
+                {importUrl.error.message}
               </p>
             )}
             <SourceList sources={sources ?? []} />

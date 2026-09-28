@@ -21,6 +21,7 @@ export const desktopApi = {
   listSources: (notebookId: string) => call<Source[]>("sources.list", { notebookId }),
   importFile: (path: string, notebookId: string, fileName: string, fileType: string) =>
     call<{ sourceId: string }>("sources.importFile", { path, notebookId, fileName, fileType }),
+  importUrl: (notebookId: string, url: string) => call<{ jobId: string; deduped: boolean }>("imports.create", { notebookId, url }),
   listMessages: (notebookId: string) => call<Message[]>("messages.list", { notebookId }),
   sendChat: (notebookId: string, message: string) =>
     call<{ response: string; citations: Message["citations"]; mode: string; vectorStatus: string; provider: string }>("chat.send", { notebookId, message }),

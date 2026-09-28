@@ -1,10 +1,12 @@
 /**
  * Local ingestion worker: a Node process separate from Next.js, sharing the
- * SQLite database in the data dir. Consumes two queues:
+ * SQLite database in the data dir. The engine now consumes both queues
+ * in-process (src/engine/jobs.ts); this CLI remains only as the browser-dev
+ * fallback and delegates to the same runner modules.
  *
+ * Consumes two queues:
  *  1. processing_jobs — manual uploads: extract/transcribe → chunk → complete
- *  2. import_jobs     — URL imports: identify → inspect → resolve → download
- *                       → process → store (lease/fenced, crash-recoverable)
+ *  2. import_jobs     — URL imports (delegates to src/engine/imports)
  *
  * Kill it any time — leases expire and the next run picks the job up. No
  * credentials needed to start; AI paths (transcription) only run when a key
@@ -14,31 +16,11 @@
  */
 import { openLocalDb, resolveDataDir } from "../src/db/local";
 import { LocalStore } from "../src/lib/storage/local";
-import { classifyUrl, providerEnabled } from "../src/lib/ingestion/identify";
-import { getAdapter } from "../src/lib/ingestion/registry";
-import { downloadPlan, cleanupDownload, type DownloadResult } from "../src/lib/ingestion/download";
-import { processContent } from "../src/lib/ingestion/process";
-import { processHtmlPage } from "../src/lib/ingestion/web";
-import { chunkText, extractTextFromFile } from "../src/lib/text-extraction";
-import { extractAudioFromVideo } from "../src/lib/ffmpeg";
-import { transcribeAudio } from "../src/lib/openai";
-import { IdentifiedResource, ImportErrorCode, ImportError, ProviderId } from "../src/lib/ingestion/types";
 import type { LocalContext } from "../src/lib/storage/local";
 import { runProcessingJob } from "../src/engine/processing";
-import type { ImportJobDoc } from "../src/lib/services/import-jobs";
-import {
-  claimImportJob,
-  completeImportJob,
-  failImportJob,
-  heartbeatImportJob,
-  updateImportJobPhase,
-} from "../src/lib/services/import-jobs";
-import {
-  claimProcessingJob,
-  completeProcessingJob,
-  failProcessingJob,
-  heartbeatProcessingJob,
-} from "../src/lib/services/processing-jobs";
+import { runImportJob } from "../src/engine/imports";
+import { claimImportJob } from "../src/lib/services/import-jobs";
+import { claimProcessingJob } from "../src/lib/services/processing-jobs";
 
 try {
   process.loadEnvFile?.();
@@ -47,7 +29,6 @@ try {
 }
 
 const POLL_MS = parseInt(process.env.INGEST_POLL_MS || "3000");
-const HEARTBEAT_MS = 60_000;
 
 let ctx: LocalContext;
 
@@ -55,159 +36,6 @@ function log(scope: string, id: string, step: string, extra?: string) {
   console.log(`[${scope}][${id.slice(0, 8)}] ${step}${extra ? ` — ${extra}` : ""}`);
 }
 
-function resourceFromJob(job: ImportJobDoc): IdentifiedResource {
-  return {
-    provider: job.provider as ProviderId,
-    kind: job.kind as IdentifiedResource["kind"],
-    resourceKey: job.resourceKey,
-    originalUrl: job.url,
-    canonicalUrl: job.canonicalUrl || job.url,
-    externalId: job.externalId ?? undefined,
-  };
-}
-
-/** Persist the original bytes so re-processing never needs the network. */
-async function persistOriginal(
-  store: LocalStore,
-  buffer: Buffer,
-  fileName: string,
-  contentType: string
-): Promise<string | undefined> {
-  try {
-    const file = await store.save(buffer, { fileName, contentType });
-    return file.id;
-  } catch (err) {
-    console.error("[IMPORT] original not persisted:", err);
-    return undefined; // provenance + chunks still complete without the blob
-  }
-}
-
-async function runImportJob(job: ImportJobDoc): Promise<void> {
-  const jobId = job._id;
-  const token = job.leaseToken!;
-
-  // The lease is extended while long phases (download/ffmpeg/transcription) run.
-  // Stale or cancelled jobs are fenced at the next phase/complete write.
-  const hb = setInterval(() => {
-    try {
-      heartbeatImportJob(ctx.db, jobId, token);
-    } catch (err) {
-      console.error("[IMPORT] heartbeat error:", err);
-    }
-  }, HEARTBEAT_MS);
-
-  let download: DownloadResult | null = null;
-  try {
-    let resource = resourceFromJob(job);
-    if (!providerEnabled(resource.provider)) {
-      throw new ImportError("unsupported", `Provider '${resource.provider}' ist deaktiviert`);
-    }
-
-    // max 2 dispatch hops: a generic short link may land on a known provider
-    for (let hop = 0; hop < 2; hop++) {
-      const adapter = getAdapter(resource.provider);
-      const meta = await adapter.inspect(resource);
-      updateImportJobPhase(ctx.db, jobId, token, "inspecting", meta.title);
-
-      const plan = await adapter.resolve(resource);
-      const okPhase = updateImportJobPhase(ctx.db, jobId, token, "downloading");
-      if (!okPhase) { log("IMPORT", jobId, "ABORTED", "Lease verloren"); return; }
-
-      download = await downloadPlan(plan);
-      log("IMPORT", jobId, "DOWNLOADED", `${download.contentType} ${(download.bytes / 1024).toFixed(0)} KB`);
-
-      // short-link re-dispatch: final URL may belong to a known provider
-      const finalClassified = classifyUrl(download.finalUrl);
-      if (finalClassified.provider !== resource.provider) {
-        log("IMPORT", jobId, "REDISPATCH", `${resource.provider} → ${finalClassified.provider}`);
-        await cleanupDownload(download);
-        download = null;
-        resource = finalClassified;
-        if (!providerEnabled(resource.provider)) {
-          throw new ImportError("unsupported", `Ziel-Provider '${resource.provider}' ist deaktiviert`);
-        }
-        continue;
-      }
-
-      const okProcessing = updateImportJobPhase(ctx.db, jobId, token, "processing");
-      if (!okProcessing) { log("IMPORT", jobId, "ABORTED", "Lease verloren"); return; }
-
-      let text: string;
-      let title: string | undefined;
-      let originalBuffer: Buffer | null = null;
-      if (download.contentType === "text/html" || download.contentType === "application/xhtml+xml") {
-        originalBuffer = download.buffer;
-        const page = processHtmlPage(download.buffer.toString("utf-8"), resource.canonicalUrl);
-        title = page.title;
-        text = page.text;
-      } else {
-        originalBuffer = download.buffer;
-        const result = await processContent(download.buffer, download.contentType, plan.fileNameHint || "download");
-        text = result.text;
-        title = meta.title || plan.fileNameHint;
-      }
-      if (!text.trim()) {
-        throw new ImportError("bad_content", "Kein Textinhalt extrahierbar");
-      }
-
-      const chunks = chunkText(text).map((content, chunkIndex) => ({ content, chunkIndex }));
-      const hostname = (() => { try { return new URL(resource.originalUrl).hostname; } catch { return resource.provider; } })();
-      const fileName = title || hostname;
-
-      const storageId = originalBuffer
-        ? await persistOriginal(ctx.store, originalBuffer, fileName, download.contentType)
-        : undefined;
-
-      const res = completeImportJob(
-        ctx.db,
-        jobId,
-        token,
-        {
-          fileName,
-          fileType: download.contentType,
-          fileSize: download.contentType === "text/html" ? text.length : download.bytes,
-          url: job.url, // provenance: original URL, never a signed temporary URL
-          provider: resource.provider,
-          ...(storageId !== undefined && { storageId }),
-          canonicalUrl: resource.canonicalUrl,
-          externalId: resource.externalId || resource.resourceKey,
-          title: meta.title,
-          author: meta.author,
-        },
-        chunks
-      );
-      if (!res?.ok) {
-        log("IMPORT", jobId, "COMPLETE REJECTED", "Lease verloren — Ergebnis verworfen");
-        // our original bytes are not referenced by anyone anymore
-        if (storageId) await ctx.store.delete(storageId);
-      } else {
-        for (const staleId of res.staleFileIds ?? []) {
-          await ctx.store.delete(staleId);
-        }
-        log("IMPORT", jobId, "DONE", `${chunks.length} Chunks, Quelle ${res.sourceId}`);
-      }
-      return;
-    }
-    throw new ImportError("unsupported", "Ziel konnte keinem Provider zugeordnet werden");
-  } catch (err) {
-    const isImportError = err instanceof ImportError;
-    const imp = isImportError
-      ? err
-      : new ImportError("internal", err instanceof Error ? err.message : String(err), { transient: true });
-    log("IMPORT", jobId, "FAILED", `${imp.code}: ${imp.message}`);
-    failImportJob(ctx.db, jobId, token, {
-      errorCode: imp.code satisfies ImportErrorCode,
-      errorMessage: imp.message,
-      transient: imp.transient,
-      ...(imp.retryAfterMs !== undefined && { retryAfterMs: imp.retryAfterMs }),
-    });
-  } finally {
-    clearInterval(hb);
-    if (download) await cleanupDownload(download);
-  }
-}
-
-/** Errors that no retry can fix (bad input) — everything else is transient. */
 let stopped = false;
 
 async function main() {
@@ -239,7 +67,8 @@ async function main() {
       const job = claimImportJob(ctx.db);
       if (job) {
         log("IMPORT", job._id, "CLAIMED", `${job.provider} ${job.url}`);
-        await runImportJob(job);
+        const outcome = await runImportJob(ctx, job);
+        log("IMPORT", job._id, outcome.toUpperCase());
         continue;
       }
     } catch (err) {

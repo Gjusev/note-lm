@@ -82,7 +82,13 @@ export function Activity() {
                 </span>
                 <span className="mono">{j.kind}</span>
                 <span className="mono" style={{ color: "var(--ink-40)" }}>
-                  {intentPending ? `wird ${j.intent === "pause" ? "pausiert" : "abgebrochen"}…` : j.status}
+                  {intentPending
+                    ? j.status === "queued" || j.status === "pending"
+                      // never started: the participle would be a lie — the job
+                      // cannot transition, so show the static state instead
+                      ? (j.intent === "pause" ? "pausiert" : "abgebrochen")
+                      : `wird ${j.intent === "pause" ? "pausiert" : "abgebrochen"}…`
+                    : j.status}
                 </span>
                 {!done && (
                   <>
