@@ -2,9 +2,13 @@
  * Engine operation dispatch (issue #10): the seam where engine ops meet the
  * local services, with no HTTP or Next transport involved.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { createNotebook, listNotebooks } from "@/lib/services/notebooks";
+import { createSource } from "@/lib/services/sources";
+import { enqueueProcessingJob } from "@/lib/services/processing-jobs";
 import { createNote, listNotesByNotebook, removeNote, updateNote } from "@/lib/services/notes";
 import {
   getChunksBySource,
@@ -142,6 +146,44 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const { db, store } = getLocalContext();
         await removeSource(db, store, sourceId);
         return { ok: true, result: {} };
+      }
+
+      case "sources.importFile": {
+        // Desktop flow: Rust grants a file path (native dialog / drag&drop);
+        // the engine copies it into the managed store and queues processing.
+        const { path: filePath, notebookId, fileName, fileType } = args as {
+          path?: string; notebookId?: string; fileName?: string; fileType?: string;
+        };
+        if (!filePath || !notebookId || !fileName) {
+          return { ok: false, error: { code: "bad_args", message: "path, notebookId and fileName are required" } };
+        }
+        if (path.isAbsolute(filePath) !== true) {
+          return { ok: false, error: { code: "bad_args", message: "path must be absolute" } };
+        }
+        let buffer: Buffer;
+        try {
+          buffer = await fs.promises.readFile(filePath);
+        } catch {
+          return { ok: false, error: { code: "bad_args", message: `file not readable: ${filePath}` } };
+        }
+        const { db, store } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const stored = await store.save(buffer, { fileName, contentType: fileType ?? "application/octet-stream" });
+        try {
+          const sourceId = await createSource(db, {
+            ownerId: profile.id,
+            notebookId,
+            fileName,
+            fileType: fileType ?? "application/octet-stream",
+            fileSize: buffer.length,
+            storageId: stored.id,
+          });
+          await enqueueProcessingJob(db, { ownerId: profile.id, sourceId, notebookId });
+          return { ok: true, result: { sourceId } };
+        } catch (err) {
+          await store.delete(stored.id);
+          throw err;
+        }
       }
 
       case "messages.create": {

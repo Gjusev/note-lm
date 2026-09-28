@@ -24,7 +24,7 @@ import { extractAudioFromVideo } from "../src/lib/ffmpeg";
 import { transcribeAudio } from "../src/lib/openai";
 import { IdentifiedResource, ImportErrorCode, ImportError, ProviderId } from "../src/lib/ingestion/types";
 import type { LocalContext } from "../src/lib/storage/local";
-import { getSource, updateSourceStatus, replaceChunks } from "../src/lib/services/sources";
+import { runProcessingJob } from "../src/engine/processing";
 import type { ImportJobDoc } from "../src/lib/services/import-jobs";
 import {
   claimImportJob,
@@ -208,110 +208,6 @@ async function runImportJob(job: ImportJobDoc): Promise<void> {
 }
 
 /** Errors that no retry can fix (bad input) — everything else is transient. */
-class PermanentProcessingError extends Error {}
-
-/** Port of the former POST /api/process pipeline, now queue-driven. */
-async function runProcessingJob(jobId: string, token: string, sourceId: string): Promise<void> {
-  const hb = setInterval(() => {
-    try {
-      heartbeatProcessingJob(ctx.db, jobId, token);
-    } catch (err) {
-      console.error("[PROCESS] heartbeat error:", err);
-    }
-  }, HEARTBEAT_MS);
-  const t0 = Date.now();
-  try {
-    updateSourceStatus(ctx.db, sourceId, { status: "processing" });
-    const source = await getSource(ctx.db, sourceId);
-    if (!source) throw new PermanentProcessingError("Quelle nicht gefunden");
-
-    const resolvedType = resolveFileType(source.fileType, source.fileName);
-    log("PROCESS", sourceId, `type=${resolvedType}`);
-
-    let text: string;
-    let transcriptFileId: string | undefined;
-
-    if (resolvedType.startsWith("audio/") || resolvedType.startsWith("video/")) {
-      if (!source.storageId) throw new PermanentProcessingError("Originaldatei fehlt");
-      const stored = await ctx.store.read(source.storageId);
-      if (!stored) throw new PermanentProcessingError("Originaldatei fehlt auf der Platte");
-      log("PROCESS", sourceId, "FILE", `${(stored.buffer.length / 1024 / 1024).toFixed(1)} MB`);
-
-      let audioBuffer = stored.buffer;
-      const ext = source.fileName.split(".").pop()?.toLowerCase() || "wav";
-      const supported = ["mp3", "wav", "m4a", "mp4", "webm", "ogg", "flac"];
-      if (resolvedType.startsWith("video/") || !supported.includes(ext)) {
-        log("PROCESS", sourceId, "FFMPEG EXTRACT AUDIO");
-        audioBuffer = await extractAudioFromVideo(stored.buffer);
-      }
-      text = await transcribeAudio(audioBuffer, "audio.mp3");
-
-      const transcriptFile = await ctx.store.save(Buffer.from(text, "utf-8"), {
-        fileName: `${source.fileName}.transcript.txt`,
-        contentType: "text/plain",
-      });
-      transcriptFileId = transcriptFile.id;
-    } else if (
-      resolvedType === "application/pdf" ||
-      resolvedType === "text/plain" ||
-      resolvedType === "text/markdown" ||
-      resolvedType === "application/markdown"
-    ) {
-      if (!source.storageId) throw new PermanentProcessingError("Originaldatei fehlt");
-      const stored = await ctx.store.read(source.storageId);
-      if (!stored) throw new PermanentProcessingError("Originaldatei fehlt auf der Platte");
-      text = await extractTextFromFile(stored.buffer, resolvedType);
-    } else {
-      throw new PermanentProcessingError(`Nicht unterstützter Dateityp: ${resolvedType}`);
-    }
-
-    // Fencing: if our lease was reclaimed (worker crash + expiry), a newer
-    // attempt owns this job now — our result must not clobber it.
-    if (!heartbeatProcessingJob(ctx.db, jobId, token)) {
-      log("PROCESS", sourceId, "ABORTED", "Lease verloren — Ergebnis verworfen");
-      if (transcriptFileId) await ctx.store.delete(transcriptFileId);
-      return;
-    }
-
-    const previousTranscriptId = source.transcriptStorageId ?? undefined;
-    const chunks = chunkText(text);
-    replaceChunks(ctx.db, { ownerId: source.ownerId, sourceId, notebookId: source.notebookId }, chunks);
-    updateSourceStatus(ctx.db, sourceId, {
-      status: "completed",
-      ...(transcriptFileId && { transcriptStorageId: transcriptFileId }),
-    });
-    const done = completeProcessingJob(ctx.db, jobId, token);
-    if (!done) {
-      log("PROCESS", sourceId, "COMPLETE REJECTED", "Lease verloren");
-      return; // chunks were written, but a newer attempt will replace them
-    }
-    if (previousTranscriptId && previousTranscriptId !== transcriptFileId) {
-      await ctx.store.delete(previousTranscriptId);
-    }
-    log("PROCESS", sourceId, "DONE", `${chunks.length} Chunks, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    const permanent = err instanceof PermanentProcessingError;
-    log("PROCESS", sourceId, permanent ? "REJECTED" : "FAILED", message);
-    updateSourceStatus(ctx.db, sourceId, { status: "error", errorMessage: message });
-    failProcessingJob(ctx.db, jobId, token, { errorMessage: message, transient: !permanent });
-  } finally {
-    clearInterval(hb);
-  }
-}
-
-function resolveFileType(fileType: string, fileName: string): string {
-  if (fileType && fileType !== "application/octet-stream") return fileType;
-  const ext = fileName.split(".").pop()?.toLowerCase() || "";
-  const EXT_MIME: Record<string, string> = {
-    pdf: "application/pdf", txt: "text/plain", md: "text/markdown",
-    mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/mp4",
-    webm: "audio/webm", ogg: "audio/ogg", flac: "audio/flac",
-    mp4: "video/mp4", mov: "video/quicktime", avi: "video/x-msvideo",
-  };
-  return EXT_MIME[ext] || fileType;
-}
-
 let stopped = false;
 
 async function main() {
@@ -336,7 +232,7 @@ async function main() {
       const processing = claimProcessingJob(ctx.db);
       if (processing) {
         log("PROCESS", processing.id, "CLAIMED", `source ${processing.sourceId}`);
-        await runProcessingJob(processing.id, processing.leaseToken!, processing.sourceId);
+        await runProcessingJob(ctx, processing.id, processing.leaseToken!, processing.sourceId);
         continue;
       }
 

@@ -24,7 +24,7 @@ await build({
   format: "cjs",
   target: "node20",
   outfile: path.join(outDir, "engine.cjs"),
-  external: ["better-sqlite3"],
+  external: ["better-sqlite3", "pdf-parse"],
   sourcemap: false,
   logLevel: "info",
 });
@@ -32,7 +32,7 @@ await build({
 // Native addon + its runtime deps ship as real files next to the bundle.
 const nodeModules = path.join(outDir, "node_modules");
 fs.mkdirSync(nodeModules, { recursive: true });
-for (const pkg of ["better-sqlite3", "bindings", "file-uri-to-path"]) {
+for (const pkg of ["better-sqlite3", "bindings", "file-uri-to-path", "pdf-parse", "pdfjs-dist"]) {
   fs.cpSync(path.join("node_modules", pkg), path.join(nodeModules, pkg), {
     recursive: true,
     verbatimSymlinks: true,
