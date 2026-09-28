@@ -232,6 +232,25 @@ CREATE UNIQUE INDEX embedding_profiles_natural
   ON embedding_profiles (provider, model, revision, dimension, pooling,
                           query_prefix, doc_prefix, processing_version);
 `,
+  // 0004 — model library (phase 5): GGUF files managed by the app, verified
+  // by content hash; capability separates chat from embeddings models.
+  `
+CREATE TABLE models (
+  id TEXT PRIMARY KEY,
+  capability TEXT NOT NULL CHECK (capability IN ('chat', 'embeddings')),
+  file_name TEXT NOT NULL,
+  path TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  sha256 TEXT NOT NULL,
+  origin TEXT,
+  status TEXT NOT NULL DEFAULT 'available'
+    CHECK (status IN ('available', 'importing', 'failed')),
+  error_message TEXT,
+  created_at INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX models_by_sha256 ON models (sha256);
+CREATE INDEX models_by_capability ON models (capability, status);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

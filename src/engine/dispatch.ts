@@ -36,6 +36,12 @@ import {
   registerEmbeddingProfile,
 } from "@/lib/services/embedding-profiles";
 import { sendChatMessage } from "@/lib/services/chat";
+import {
+  importModelFromFile,
+  listModels,
+  getModel,
+  modelAbsolutePath,
+} from "@/lib/services/models";
 import { resolveCapabilities } from "./capabilities";
 
 const ACTIVE_PROFILE_KEY = "retrieval.activeProfile";
@@ -370,6 +376,87 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             localEmbedConfigured: !!(process.env.NOTELM_LLAMA_DIR && process.env.NOTELM_EMBED_MODEL),
           },
         };
+      }
+
+      case "models.list": {
+        const { db } = getLocalContext();
+        const rows = listModels(db);
+        const [chatId, embedId] = await Promise.all([
+          getSetting<string>(db, "ai.chatModelId"),
+          getSetting<string>(db, "ai.embedModelId"),
+        ]);
+        return {
+          ok: true,
+          result: {
+            models: rows,
+            activeChatModelId: chatId ?? null,
+            activeEmbedModelId: embedId ?? null,
+          },
+        };
+      }
+
+      case "models.importFile": {
+        // Rust granted the path via the native dialog
+        const { path: filePath, capability } = args as {
+          path?: string; capability?: "chat" | "embeddings";
+        };
+        if (!filePath || (capability !== "chat" && capability !== "embeddings")) {
+          return { ok: false, error: { code: "bad_args", message: "path and capability chat|embeddings are required" } };
+        }
+        if (path.isAbsolute(filePath) !== true) {
+          return { ok: false, error: { code: "bad_args", message: "path must be absolute" } };
+        }
+        const { db, dataDir } = getLocalContext();
+        try {
+          const outcome = await importModelFromFile(db, dataDir, filePath, capability);
+          return { ok: true, result: outcome };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "import_failed", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
+      }
+
+      case "models.select": {
+        const { modelId, capability } = args as {
+          modelId?: string; capability?: "chat" | "embeddings";
+        };
+        if (!modelId || (capability !== "chat" && capability !== "embeddings")) {
+          return { ok: false, error: { code: "bad_args", message: "modelId and capability chat|embeddings are required" } };
+        }
+        const { db } = getLocalContext();
+        const model = getModel(db, modelId);
+        if (!model || model.capability !== capability || model.status !== "available") {
+          return { ok: false, error: { code: "not_found", message: "passendes verfügbares Modell nicht gefunden" } };
+        }
+        await setSetting(db, capability === "chat" ? "ai.chatModelId" : "ai.embedModelId", modelId);
+        // a changed embeddings model invalidates the active profile's index:
+        // deactivate so retrieval degrades visibly to textual until reindex
+        if (capability === "embeddings") {
+          await setSetting(db, "retrieval.activeProfile", null);
+        }
+        return { ok: true, result: {} };
+      }
+
+      case "models.download": {
+        const { url, capability, fileName, sha256 } = args as {
+          url?: string; capability?: "chat" | "embeddings"; fileName?: string; sha256?: string;
+        };
+        if (!url || !fileName || (capability !== "chat" && capability !== "embeddings")) {
+          return { ok: false, error: { code: "bad_args", message: "url, fileName and capability are required" } };
+        }
+        const { db, dataDir } = getLocalContext();
+        const { downloadModel } = await import("@/lib/services/models");
+        try {
+          const model = await downloadModel(db, dataDir, { url, capability, fileName, sha256 });
+          return { ok: true, result: { model } };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "download_failed", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
       }
 
       case "chat.send": {

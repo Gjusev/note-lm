@@ -30,6 +30,11 @@ export const desktopApi = {
   deleteNote: (noteId: string) => call<{}>("notes.delete", { noteId }),
   activeProfile: () => call<{ profile: { _id: string; model: string; dimension: number } | null }>("retrieval.profile.active"),
   diagnostics: () => call<{ vecVersion: string | null; localChatConfigured: boolean; localEmbedConfigured: boolean }>("diagnostics.capabilities"),
+  listModels: () => call<{ models: Array<{ _id: string; capability: "chat" | "embeddings"; fileName: string; sizeBytes: number; sha256: string; status: string; origin: string | null }>; activeChatModelId: string | null; activeEmbedModelId: string | null }>("models.list"),
+  importModel: (path: string, capability: "chat" | "embeddings") =>
+    call<{ model: { _id: string }; deduped: boolean }>("models.importFile", { path, capability }),
+  selectModel: (modelId: string, capability: "chat" | "embeddings") =>
+    call<{}>("models.select", { modelId, capability }),
 };
 
 /** Native file dialog via the Tauri plugin; null in browser dev. */

@@ -10,8 +10,13 @@
  *   NOTELM_EMBED_MODEL      — embeddings GGUF path
  *   NOTELM_EMBED_DIMENSION  — dimension of the embeddings model
  */
+import path from "node:path";
+import fs from "node:fs";
 import { startLlama, type LlamaHandle } from "@/lib/ai/llama-supervisor";
 import { chatCompletion } from "@/lib/openai";
+import { getLocalContext } from "@/lib/storage/local";
+import { getSetting } from "@/lib/services/settings";
+import { getModel } from "@/lib/services/models";
 
 export type ChatFn = (messages: Array<{ role: string; content: string }>) => Promise<string>;
 export type EmbedFn = (texts: string[]) => Promise<Buffer[]>;
@@ -36,12 +41,43 @@ const float32 = (values: number[]): Buffer => {
   return Buffer.from(buf.buffer);
 };
 
+interface ResolvedModelPaths {
+  llamaDir: string | undefined;
+  chatModel: string | undefined;
+  embedModel: string | undefined;
+}
+
+/** Model paths from the settings-chosen library rows first, env fallback. */
+async function resolveModelPaths(): Promise<ResolvedModelPaths> {
+  const { db, dataDir } = getLocalContext();
+  const chatId = await getSetting<string>(db, "ai.chatModelId");
+  const embedId = await getSetting<string>(db, "ai.embedModelId");
+  const absolute = (m: { path: string } | null) =>
+    m ? path.resolve(dataDir, m.path) : undefined;
+
+  const chatRow = chatId ? await getModel(db, chatId) : null;
+  const embedRow = embedId ? await getModel(db, embedId) : null;
+  const chatModel = absolute(chatRow);
+  const embedModel = absolute(embedRow);
+  if (chatRow && !fs.existsSync(chatModel!)) {
+    throw new Error(`Chat-Modelldatei fehlt: ${chatModel}`);
+  }
+  if (embedRow && !fs.existsSync(embedModel!)) {
+    throw new Error(`Embedding-Modelldatei fehlt: ${embedModel}`);
+  }
+
+  const llamaDir =
+    process.env.NOTELM_LLAMA_DIR ||
+    (chatModel || embedModel
+      ? path.resolve(dataDir, "..", "resources", "llama") // packaged layout
+      : undefined);
+  return { llamaDir, chatModel: chatModel ?? process.env.NOTELM_CHAT_MODEL, embedModel: embedModel ?? process.env.NOTELM_EMBED_MODEL };
+}
+
 export async function resolveCapabilities(): Promise<Capabilities> {
   if (override) return override;
 
-  const dir = process.env.NOTELM_LLAMA_DIR;
-  const chatModel = process.env.NOTELM_CHAT_MODEL;
-  const embedModel = process.env.NOTELM_EMBED_MODEL;
+  const { llamaDir: dir, chatModel, embedModel } = await resolveModelPaths();
   const wantLocal = !!dir && (!!chatModel || !!embedModel);
   if (!wantLocal && !process.env.OPENAI_API_KEY) {
     throw new Error(

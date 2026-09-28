@@ -322,6 +322,27 @@ export const chunkEmbeddings = sqliteTable(
   ]
 );
 
+/** Managed GGUF models (phase 5): verified by content hash. */
+export const models = sqliteTable(
+  "models",
+  {
+    id: text("id").primaryKey(),
+    capability: text("capability").$type<"chat" | "embeddings">().notNull(),
+    fileName: text("file_name").notNull(),
+    path: text("path").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    sha256: text("sha256").notNull(),
+    origin: text("origin"),
+    status: text("status").$type<"available" | "importing" | "failed">().notNull().default("available"),
+    errorMessage: text("error_message"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("models_by_sha256").on(t.sha256),
+    index("models_by_capability").on(t.capability, t.status),
+  ]
+);
+
 /** Local retrieval debug trail (config + retrieved ids, never full texts). */
 export const retrievalRuns = sqliteTable(
   "retrieval_runs",

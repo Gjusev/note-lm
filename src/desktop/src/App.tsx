@@ -2,16 +2,22 @@ import { useEffect, useState } from "react";
 import { desktopApi } from "./lib/api";
 import { Library } from "./screens/Library";
 import { NotebookWorkspace } from "./screens/NotebookWorkspace";
+import { Settings } from "./screens/Settings";
 
-/** Minimal hash routing: '' → library, '#/nb/<id>' → workspace. Real routing
- *  with dynamic ids, no Next server in the package (plan phase 4). */
-function useHashRoute(): { name: "library" } | { name: "notebook"; id: string } {
+/** Minimal hash routing: '' → library, '#/nb/<id>' → workspace,
+ *  '#/settings' → settings. Real routing with dynamic ids, no Next server
+ *  in the package (plan phase 4). */
+function useHashRoute():
+  | { name: "library" }
+  | { name: "notebook"; id: string }
+  | { name: "settings" } {
   const [hash, setHash] = useState(() => window.location.hash);
   useEffect(() => {
     const onChange = () => setHash(window.location.hash);
     window.addEventListener("hashchange", onChange);
     return () => window.removeEventListener("hashchange", onChange);
   }, []);
+  if (hash === "#/settings") return { name: "settings" };
   const match = /^#\/nb\/(.+)$/.exec(hash);
   if (match) return { name: "notebook", id: decodeURIComponent(match[1]) };
   return { name: "library" };
@@ -38,11 +44,23 @@ export function App() {
         >
           note-lm
         </button>
-        <StatusBadge />
+        <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
+          <a
+            href="#/settings"
+            className="mono"
+            style={{ textDecoration: "none", color: "inherit" }}
+            aria-label="Einstellungen"
+          >
+            Einstellungen
+          </a>
+          <StatusBadge />
+        </div>
       </header>
       <main style={{ flex: 1, minHeight: 0, display: "flex" }}>
         {route.name === "library" ? (
           <Library />
+        ) : route.name === "settings" ? (
+          <Settings />
         ) : (
           <NotebookWorkspace key={route.id} notebookId={route.id} />
         )}
