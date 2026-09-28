@@ -1,0 +1,77 @@
+{
+  "docId": "en-bluefin-fisheries",
+  "fileName": "en-bluefin-fisheries.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Bluefin Sound Fisheries Cooperative"
+      ],
+      "firstWords": "Bluefin Sound Fisheries Cooperative"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Table of Contents"
+      ],
+      "firstWords": "Table of Contents"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Cooperative Overview"
+      ],
+      "firstWords": "Cooperative Overview"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Fleet Composition"
+      ],
+      "firstWords": "Fleet Composition"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Catch Quotas 2025"
+      ],
+      "firstWords": "Catch Quotas 2025"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Sustainability Measures"
+      ],
+      "firstWords": "Sustainability Measures"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Processing and Markets"
+      ],
+      "firstWords": "Processing and Markets"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Outlook 2026"
+      ],
+      "firstWords": "Outlook 2026"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "table"
+  ]
+}

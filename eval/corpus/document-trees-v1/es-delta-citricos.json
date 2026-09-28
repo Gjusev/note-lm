@@ -1,0 +1,85 @@
+{
+  "docId": "es-delta-citricos",
+  "fileName": "es-delta-citricos.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Citrícola del Delta"
+      ],
+      "firstWords": "Citrícola del Delta"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Índice"
+      ],
+      "firstWords": "Índice"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "La empresa"
+      ],
+      "firstWords": "La empresa"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Producción de campaña"
+      ],
+      "firstWords": "Producción de campaña"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Exportaciones por destino"
+      ],
+      "firstWords": "Exportaciones por destino"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Exportaciones por destino"
+      ],
+      "firstWords": "Tabla 1 (continuación): Exportaciones por país, campaña 2025"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Logística y cadena de frío"
+      ],
+      "firstWords": "Logística y cadena de frío"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Certificaciones"
+      ],
+      "firstWords": "Certificaciones"
+    },
+    {
+      "pageIndex": 9,
+      "sectionTitles": [
+        "Previsión 2026"
+      ],
+      "firstWords": "Previsión 2026"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "notes": [
+    "table-split"
+  ]
+}

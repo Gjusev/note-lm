@@ -1,0 +1,77 @@
+{
+  "docId": "de-ostsee-hafen",
+  "fileName": "de-ostsee-hafen.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Ostsee Hafenverwaltung"
+      ],
+      "firstWords": "Ostsee Hafenverwaltung"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Hafenüberblick"
+      ],
+      "firstWords": "Hafenüberblick"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Umschlag nach Güterart"
+      ],
+      "firstWords": "Umschlag nach Güterart"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Reedereien und Linien"
+      ],
+      "firstWords": "Reedereien und Linien"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Bahnanbindung"
+      ],
+      "firstWords": "Bahnanbindung"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Umweltschutz"
+      ],
+      "firstWords": "Umweltschutz"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Personal und Ausbildung"
+      ],
+      "firstWords": "Personal und Ausbildung"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Zukunft und Bauprojekte"
+      ],
+      "firstWords": "Zukunft und Bauprojekte"
+    }
+  ],
+  "toc": false,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "no-toc"
+  ]
+}

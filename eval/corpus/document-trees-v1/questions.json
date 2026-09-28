@@ -1,0 +1,1624 @@
+{
+  "version": 1,
+  "corpus": "document-trees-v1",
+  "counts": {
+    "total": 80,
+    "dev": 30,
+    "eval": 50
+  },
+  "types": {
+    "exact-fact": 25,
+    "within-doc-xref": 15,
+    "cross-section-comparison": 10,
+    "cross-document-comparison": 10,
+    "unanswerable": 20
+  },
+  "questions": [
+    {
+      "id": "q-001",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "What was the revenue of Riverdale Bicycle Works in 2025?",
+      "docIds": [
+        "en-atlas-bicycles"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 7,
+          "section": "Financial Summary",
+          "quoteSnippet": "Revenue for 2025 was 12.4 million EUR"
+        }
+      ],
+      "expectedAnswer": "12.4 million EUR",
+      "notes": "Single fact on a known page; FTS should hit easily."
+    },
+    {
+      "id": "q-002",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie hoch war der Umsatz der Elbe Werft im Jahr 2025?",
+      "docIds": [
+        "de-elbe-werft"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-elbe-werft",
+          "page": 7,
+          "section": "Finanzen",
+          "quoteSnippet": "Der Umsatz der Werft lag 2025 bei 68,7 Millionen EUR"
+        }
+      ],
+      "expectedAnswer": "68,7 Millionen EUR",
+      "notes": "German decimal comma fact."
+    },
+    {
+      "id": "q-003",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos kilogramos de uva se recogieron en la vendimia de 2025 de Bodegas Ribera del Alba?",
+      "docIds": [
+        "es-ribera-vinedos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-ribera-vinedos",
+          "page": 5,
+          "section": "Vendimia 2025",
+          "quoteSnippet": "Se recogieron 912.000 kilogramos de uva"
+        }
+      ],
+      "expectedAnswer": "912.000 kg",
+      "notes": "Spanish thousands separator (dot)."
+    },
+    {
+      "id": "q-004",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "Was the 2025 herring quota of the Bluefin Sound cooperative fully used?",
+      "docIds": [
+        "en-bluefin-fisheries"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 5,
+          "section": "Catch Quotas 2025",
+          "quoteSnippet": "Herring was fully utilised"
+        }
+      ],
+      "expectedAnswer": "Yes - 5,200 t quota, 5,200 t landed (100%)",
+      "notes": "Fact lives next to the quota table."
+    },
+    {
+      "id": "q-005",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Was kostet der Tages-Skipass der Alpen Bahnen im Winter?",
+      "docIds": [
+        "de-alpen-bahnen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 5,
+          "section": "Gäste und Fahrgäste",
+          "quoteSnippet": "Der Tages-Skipass kostet im Winter 62 EUR"
+        }
+      ],
+      "expectedAnswer": "62 EUR",
+      "notes": ""
+    },
+    {
+      "id": "q-006",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántas toneladas de limón produjo Citrícola del Delta en la campaña 2025?",
+      "docIds": [
+        "es-delta-citricos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-delta-citricos",
+          "page": 4,
+          "section": "Producción de campaña",
+          "quoteSnippet": "7.200 toneladas de limón"
+        }
+      ],
+      "expectedAnswer": "7.200 toneladas",
+      "notes": ""
+    },
+    {
+      "id": "q-007",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "How many consultations did Meridian Community Clinic record in 2025?",
+      "docIds": [
+        "en-meridian-clinic"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-meridian-clinic",
+          "page": 3,
+          "section": "Patient Volumes",
+          "quoteSnippet": "the clinic recorded 52,800 consultations"
+        }
+      ],
+      "expectedAnswer": "52,800",
+      "notes": ""
+    },
+    {
+      "id": "q-008",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wann begann die Lese 2025 am Weingut Moselhang?",
+      "docIds": [
+        "de-mosel-weinberg"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-mosel-weinberg",
+          "page": 5,
+          "section": "Lese 2025",
+          "quoteSnippet": "Die Lese 2025 begann am 29. September"
+        }
+      ],
+      "expectedAnswer": "29. September 2025",
+      "notes": ""
+    },
+    {
+      "id": "q-009",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "What is the single fare of Maple Ridge Transit?",
+      "docIds": [
+        "en-maple-transit"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-maple-transit",
+          "page": 5,
+          "section": "Ridership and Fares",
+          "quoteSnippet": "The single fare is 2.75 CAD"
+        }
+      ],
+      "expectedAnswer": "2.75 CAD",
+      "notes": ""
+    },
+    {
+      "id": "q-010",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "en",
+      "question": "Which Riverdale bicycle model was recalled in 2025, and where are its weight and price listed?",
+      "docIds": [
+        "en-atlas-bicycles"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 6,
+          "section": "Quality and Recalls",
+          "quoteSnippet": "a recall of 4,200 Harrier ST front forks"
+        },
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 5,
+          "section": "Model Lineup 2025",
+          "quoteSnippet": "The gravel model Harrier ST weighs 9.6 kg"
+        }
+      ],
+      "expectedAnswer": "Harrier ST - weight and price are in Model Lineup 2025",
+      "notes": "Links recall section to spec section within one document."
+    },
+    {
+      "id": "q-011",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "es",
+      "question": "¿Cuántas toneladas exportó Citrícola del Delta a Canadá según la tabla de exportaciones?",
+      "docIds": [
+        "es-delta-citricos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-delta-citricos",
+          "page": 6,
+          "section": "Exportaciones por destino",
+          "quoteSnippet": "4.200"
+        }
+      ],
+      "expectedAnswer": "4.200 toneladas",
+      "notes": "Answer lives ONLY on the continuation page of the table split across pages - direct test of page-level navigation."
+    },
+    {
+      "id": "q-012",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "de",
+      "question": "Welche Ablieferung ist bei der Elbe Werft für Baunummer 584 geplant?",
+      "docIds": [
+        "de-elbe-werft"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-elbe-werft",
+          "page": 5,
+          "section": "Schiffbauprojekte",
+          "quoteSnippet": "Die Ablieferung ist für April 2026 geplant"
+        }
+      ],
+      "expectedAnswer": "April 2026",
+      "notes": "Cross-reference between the ships table and the explanatory paragraph."
+    },
+    {
+      "id": "q-013",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "es",
+      "question": "¿Qué variedad domina el viñedo de Ribera del Alba y qué porcentaje de las barricas es de roble americano?",
+      "docIds": [
+        "es-ribera-vinedos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-ribera-vinedos",
+          "page": 4,
+          "section": "Viñedos y variedades",
+          "quoteSnippet": "tempranillo 62 por ciento"
+        },
+        {
+          "docId": "es-ribera-vinedos",
+          "page": 6,
+          "section": "Elaboración y crianza",
+          "quoteSnippet": "60 por ciento son de roble americano"
+        }
+      ],
+      "expectedAnswer": "Tempranillo (62%); 60% roble americano",
+      "notes": "Combines two sections of one document."
+    },
+    {
+      "id": "q-014",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "en",
+      "question": "How many registered patients does Meridian Community Clinic serve, and how many staff were employed at the end of 2025?",
+      "docIds": [
+        "en-meridian-clinic"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-meridian-clinic",
+          "page": 2,
+          "section": "Clinic Overview",
+          "quoteSnippet": "provides primary care for about 24,000 registered patients"
+        },
+        {
+          "docId": "en-meridian-clinic",
+          "page": 2,
+          "section": "Clinic Overview",
+          "quoteSnippet": "employed 38 staff at the end of 2025"
+        }
+      ],
+      "expectedAnswer": "24,000 registered patients; 38 staff",
+      "notes": ""
+    },
+    {
+      "id": "q-015",
+      "subset": "dev",
+      "type": "within-doc-xref",
+      "language": "de",
+      "question": "Welche Güterart schlägt im Hafen der Ostsee Hafenverwaltung mengenmäßig alles, und wie viele Liegeplätze hat der Hafen?",
+      "docIds": [
+        "de-ostsee-hafen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 3,
+          "section": "Umschlag nach Güterart",
+          "quoteSnippet": "Getreide bleibt mit deutlichem Abstand das wichtigste Massengut"
+        },
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 2,
+          "section": "Hafenüberblick",
+          "quoteSnippet": "22 Liegeplätzen"
+        }
+      ],
+      "expectedAnswer": "Getreide; 22 Liegeplätze",
+      "notes": ""
+    },
+    {
+      "id": "q-016",
+      "subset": "dev",
+      "type": "cross-section-comparison",
+      "language": "en",
+      "question": "Which Riverdale plant has the higher planned capacity, Leeds or Porto?",
+      "docIds": [
+        "en-atlas-bicycles"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 4,
+          "section": "Manufacturing Sites",
+          "quoteSnippet": "Planned capacity is 38,000 frames per year"
+        },
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 4,
+          "section": "Manufacturing Sites",
+          "quoteSnippet": "Its planned capacity is 26,000 frames per year"
+        }
+      ],
+      "expectedAnswer": "Leeds (38,000 vs 26,000 frames per year)",
+      "notes": "Two figures from one section must be compared."
+    },
+    {
+      "id": "q-017",
+      "subset": "dev",
+      "type": "cross-section-comparison",
+      "language": "de",
+      "question": "Welche Anlage der Alpen Bahnen ist länger, die Gipfelbahn oder die Sonnenbahn?",
+      "docIds": [
+        "de-alpen-bahnen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 4,
+          "section": "Bahnen und Anlagen",
+          "quoteSnippet": "2.340 m"
+        },
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 4,
+          "section": "Bahnen und Anlagen",
+          "quoteSnippet": "1.720 m"
+        }
+      ],
+      "expectedAnswer": "Gipfelbahn (2.340 m vs 1.720 m)",
+      "notes": "Comparison inside a table."
+    },
+    {
+      "id": "q-018",
+      "subset": "dev",
+      "type": "cross-section-comparison",
+      "language": "es",
+      "question": "¿Qué trimestre de 2025 tuvo la mayor producción en el parque solar Altiplano?",
+      "docIds": [
+        "es-altiplano-energia"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-altiplano-energia",
+          "page": 4,
+          "section": "Producción 2025",
+          "quoteSnippet": "70,4"
+        },
+        {
+          "docId": "es-altiplano-energia",
+          "page": 4,
+          "section": "Producción 2025",
+          "quoteSnippet": "50,1"
+        }
+      ],
+      "expectedAnswer": "T2 (70,4 GWh)",
+      "notes": "Table comparison in Spanish decimal comma."
+    },
+    {
+      "id": "q-019",
+      "subset": "dev",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which institution discovered more new solar system objects in 2025, Orion Hills Observatory or the Brandenburg Observatorium?",
+      "docIds": [
+        "en-orion-observatory",
+        "de-brandenburg-observatorium"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-orion-observatory",
+          "page": 5,
+          "section": "Survey Programs",
+          "quoteSnippet": "discovered 1,342 new minor planets in 2025"
+        },
+        {
+          "docId": "de-brandenburg-observatorium",
+          "page": 4,
+          "section": "Beobachtungsprogramm",
+          "quoteSnippet": "96 neue Objekte vermessen"
+        }
+      ],
+      "expectedAnswer": "Orion Hills Observatory (1,342 vs 96)",
+      "notes": "Cross-document, cross-language (en/de) comparison."
+    },
+    {
+      "id": "q-020",
+      "subset": "dev",
+      "type": "cross-document-comparison",
+      "language": "es",
+      "question": "¿Qué bodega comenzó antes su vendimia/lese de 2025, Ribera del Alba o Weingut Moselhang?",
+      "docIds": [
+        "es-ribera-vinedos",
+        "de-mosel-weinberg"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-ribera-vinedos",
+          "page": 5,
+          "section": "Vendimia 2025",
+          "quoteSnippet": "comenzó el 22 de septiembre"
+        },
+        {
+          "docId": "de-mosel-weinberg",
+          "page": 5,
+          "section": "Lese 2025",
+          "quoteSnippet": "begann am 29. September"
+        }
+      ],
+      "expectedAnswer": "Ribera del Alba (22. vs 29. September)",
+      "notes": "Date comparison across languages (es/de)."
+    },
+    {
+      "id": "q-021",
+      "subset": "dev",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which service carried more passengers in 2025, Maple Ridge Transit or the Ferrocarril de la Cordillera?",
+      "docIds": [
+        "en-maple-transit",
+        "es-cordillera-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-maple-transit",
+          "page": 5,
+          "section": "Ridership and Fares",
+          "quoteSnippet": "Total ridership in 2025 was 41.2 million rides"
+        },
+        {
+          "docId": "es-cordillera-ferrocarril",
+          "page": 5,
+          "section": "Tráfico de viajeros",
+          "quoteSnippet": "la red transportó 1,84 millones de viajeros"
+        }
+      ],
+      "expectedAnswer": "Maple Ridge Transit (41.2M vs 1.84M)",
+      "notes": "en/es pair; both figures are annual passenger volumes."
+    },
+    {
+      "id": "q-022",
+      "subset": "dev",
+      "type": "cross-document-comparison",
+      "language": "de",
+      "question": "Welches Unternehmen hatte 2025 mehr Beschäftigte, die Elbe Werft oder Hilados del Norte?",
+      "docIds": [
+        "de-elbe-werft",
+        "es-norte-textil"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-elbe-werft",
+          "page": 3,
+          "section": "Das Unternehmen",
+          "quoteSnippet": "beschäftigt 410 Mitarbeiter"
+        },
+        {
+          "docId": "es-norte-textil",
+          "page": 2,
+          "section": "La fábrica",
+          "quoteSnippet": "260 trabajadores"
+        }
+      ],
+      "expectedAnswer": "Elbe Werft (410 vs 260)",
+      "notes": "de/es pair."
+    },
+    {
+      "id": "q-023",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "How many hurricane warnings did the Port of Grey Harbor issue in 2025?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No weather events of any kind are reported.",
+      "probeTerm": "hurricane"
+    },
+    {
+      "id": "q-024",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Was verdient der Vorstandsvorsitzende der Rhein Mühlenwerke pro Jahr?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No personal compensation figures anywhere.",
+      "probeTerm": "verdient"
+    },
+    {
+      "id": "q-025",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "es",
+      "question": "¿Cuántas hectáreas ardieron en incendios forestales cerca de la Sierra Blanca en 2025?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Wildfires never mentioned.",
+      "probeTerm": "incendios"
+    },
+    {
+      "id": "q-026",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "What was the 2025 revenue of the Orion Hills Observatory gift shop?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No gift shop exists in any document.",
+      "probeTerm": "gift"
+    },
+    {
+      "id": "q-027",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "What was the price of bitcoin at the end of 2025 according to the corpus?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No cryptocurrency content.",
+      "probeTerm": "bitcoin"
+    },
+    {
+      "id": "q-028",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Hat das Kurhaus Tannenfels ein Schwimmbad, und wie groß ist es?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Spa/wellness is described, a pool never is.",
+      "probeTerm": "Schwimmbad"
+    },
+    {
+      "id": "q-029",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "es",
+      "question": "¿Cuántos seguidores tiene el Museo del Valle en Instagram?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Museum states 31,000 followers on 'redes sociales'; no platform named.",
+      "probeTerm": "Instagram"
+    },
+    {
+      "id": "q-030",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "Which airline offers passenger connections to Bluefin Sound?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No air transport in the corpus.",
+      "probeTerm": "airline"
+    },
+    {
+      "id": "q-031",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "How many new minor planets did the Orion Hills asteroid survey discover in 2025?",
+      "docIds": [
+        "en-orion-observatory"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-orion-observatory",
+          "page": 5,
+          "section": "Survey Programs",
+          "quoteSnippet": "discovered 1,342 new minor planets in 2025"
+        }
+      ],
+      "expectedAnswer": "1,342",
+      "notes": ""
+    },
+    {
+      "id": "q-032",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie hoch war der Güterumschlag der Ostsee Hafenverwaltung 2025?",
+      "docIds": [
+        "de-ostsee-hafen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 2,
+          "section": "Hafenüberblick",
+          "quoteSnippet": "rund 8,4 Millionen Tonnen"
+        }
+      ],
+      "expectedAnswer": "8,4 Millionen Tonnen",
+      "notes": ""
+    },
+    {
+      "id": "q-033",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos viajeros transportó el Ferrocarril de la Cordillera en 2025?",
+      "docIds": [
+        "es-cordillera-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-cordillera-ferrocarril",
+          "page": 5,
+          "section": "Tráfico de viajeros",
+          "quoteSnippet": "la red transportó 1,84 millones de viajeros"
+        }
+      ],
+      "expectedAnswer": "1,84 millones",
+      "notes": ""
+    },
+    {
+      "id": "q-034",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "How many vessels does the Port of Grey Harbor registry list at the end of 2025?",
+      "docIds": [
+        "en-harbor-registry"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-harbor-registry",
+          "page": 2,
+          "section": "Registry Overview",
+          "quoteSnippet": "lists 3,812 registered vessels"
+        }
+      ],
+      "expectedAnswer": "3,812",
+      "notes": "Document has no table of contents."
+    },
+    {
+      "id": "q-035",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos visitantes recibió el Museo del Valle en 2025?",
+      "docIds": [
+        "es-valle-museo"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-valle-museo",
+          "page": 5,
+          "section": "Público y educación",
+          "quoteSnippet": "El museo recibió 68.900 visitantes en 2025"
+        }
+      ],
+      "expectedAnswer": "68.900",
+      "notes": "No-TOC document."
+    },
+    {
+      "id": "q-036",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie viel Prozent des Getreides bei den Rhein Mühlenwerken stammt von vertraglich gebundenen Landwirten?",
+      "docIds": [
+        "de-rhein-muehlen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 5,
+          "section": "Rohstoffbeschaffung",
+          "quoteSnippet": "Rund 87 Prozent des Getreides stammen von 210 vertraglich gebundenen Landwirten"
+        }
+      ],
+      "expectedAnswer": "87 Prozent",
+      "notes": ""
+    },
+    {
+      "id": "q-037",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos paneles tiene instalados el parque solar Altiplano?",
+      "docIds": [
+        "es-altiplano-energia"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-altiplano-energia",
+          "page": 3,
+          "section": "El proyecto",
+          "quoteSnippet": "312.000 paneles"
+        }
+      ],
+      "expectedAnswer": "312.000",
+      "notes": ""
+    },
+    {
+      "id": "q-038",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "What did the restoration of the three draw kilns at Caldstone Quarry cost?",
+      "docIds": [
+        "en-quarry-heritage"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-quarry-heritage",
+          "page": 6,
+          "section": "Membership Benefits",
+          "quoteSnippet": "at a cost of 214,000 GBP"
+        }
+      ],
+      "expectedAnswer": "214,000 GBP",
+      "notes": "Answer sits under the deliberately misleading heading 'Membership Benefits'."
+    },
+    {
+      "id": "q-039",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie viele Übernachtungen verzeichnete das Kurhaus Tannenfels 2025?",
+      "docIds": [
+        "de-schwarzwald-kurhaus"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-schwarzwald-kurhaus",
+          "page": 5,
+          "section": "Gäste und Belegung",
+          "quoteSnippet": "41.600 Übernachtungen"
+        }
+      ],
+      "expectedAnswer": "41.600",
+      "notes": ""
+    },
+    {
+      "id": "q-040",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántas toneladas de hilo produjo Hilados del Norte en 2025?",
+      "docIds": [
+        "es-norte-textil"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-norte-textil",
+          "page": 3,
+          "section": "Producción de hilos",
+          "quoteSnippet": "La producción total fue de 6.480 toneladas"
+        }
+      ],
+      "expectedAnswer": "6.480 toneladas",
+      "notes": "No-TOC document; table spans two pages."
+    },
+    {
+      "id": "q-041",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "From which batch were the Riverdale Harrier ST forks recalled?",
+      "docIds": [
+        "en-atlas-bicycles"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 6,
+          "section": "Quality and Recalls",
+          "quoteSnippet": "batch H-2417"
+        }
+      ],
+      "expectedAnswer": "H-2417",
+      "notes": ""
+    },
+    {
+      "id": "q-042",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Welche Dockkapazität hat die Elbe Werft?",
+      "docIds": [
+        "de-elbe-werft"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-elbe-werft",
+          "page": 6,
+          "section": "Reparaturbetrieb",
+          "quoteSnippet": "Die Dockkapazität beträgt 3.000 Tonnen"
+        }
+      ],
+      "expectedAnswer": "3.000 Tonnen",
+      "notes": ""
+    },
+    {
+      "id": "q-043",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie viele Nächte waren 2025 am Brandenburg Observatorium astronomisch nutzbar?",
+      "docIds": [
+        "de-brandenburg-observatorium"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-brandenburg-observatorium",
+          "page": 4,
+          "section": "Beobachtungsprogramm",
+          "quoteSnippet": "2025 waren 148 Nächte astronomisch nutzbar"
+        }
+      ],
+      "expectedAnswer": "148",
+      "notes": "No-TOC document."
+    },
+    {
+      "id": "q-044",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos kilómetros de senda cubrió la revisión del balizamiento en la Sierra Blanca?",
+      "docIds": [
+        "es-sierra-senderismo"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-sierra-senderismo",
+          "page": 4,
+          "section": "Presupuesto y cuentas",
+          "quoteSnippet": "La revisión del balizamiento cubrió 178 kilómetros de senda"
+        }
+      ],
+      "expectedAnswer": "178 kilómetros",
+      "notes": "Section heading says 'Presupuesto y cuentas' but content is about signage - misleading structure."
+    },
+    {
+      "id": "q-045",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "What was the average ex-vessel price for cod at Bluefin Sound in 2025?",
+      "docIds": [
+        "en-bluefin-fisheries"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 7,
+          "section": "Processing and Markets",
+          "quoteSnippet": "The average ex-vessel price for cod was 4.30 USD per kilogram"
+        }
+      ],
+      "expectedAnswer": "4.30 USD per kilogram",
+      "notes": ""
+    },
+    {
+      "id": "q-046",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie viele Fahrgäste beförderten die Alpen Bahnen in der Wintersaison 2024/25?",
+      "docIds": [
+        "de-alpen-bahnen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 5,
+          "section": "Gäste und Fahrgäste",
+          "quoteSnippet": "512.000 Fahrgäste"
+        }
+      ],
+      "expectedAnswer": "512.000",
+      "notes": ""
+    },
+    {
+      "id": "q-047",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "en",
+      "question": "Which Bluefin species stayed below its quota in 2025 and why?",
+      "docIds": [
+        "en-bluefin-fisheries"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 5,
+          "section": "Catch Quotas 2025",
+          "quoteSnippet": "pollock remained below quota because the fleet shifted effort to haddock"
+        }
+      ],
+      "expectedAnswer": "Pollock - the fleet shifted effort to haddock",
+      "notes": "Requires linking table position to causal sentence."
+    },
+    {
+      "id": "q-048",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "de",
+      "question": "Woraus wird das Kurhaus Tannenfels beheizt, und wie viele Solarmodule stehen auf der Therme?",
+      "docIds": [
+        "de-schwarzwald-kurhaus"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-schwarzwald-kurhaus",
+          "page": 8,
+          "section": "Nachhaltigkeit",
+          "quoteSnippet": "Fernwärmenetz mit Holz aus dem Stadtwald"
+        },
+        {
+          "docId": "de-schwarzwald-kurhaus",
+          "page": 8,
+          "section": "Nachhaltigkeit",
+          "quoteSnippet": "120 Solarmodule"
+        }
+      ],
+      "expectedAnswer": "Fernwärme aus Holz; 120 Solarmodule",
+      "notes": ""
+    },
+    {
+      "id": "q-049",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "es",
+      "question": "¿Qué fuente natural se analiza en el informe de la Sierra Blanca y con qué resultado?",
+      "docIds": [
+        "es-sierra-senderismo"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-sierra-senderismo",
+          "page": 6,
+          "section": "Seguridad en rutas",
+          "quoteSnippet": "La fuente natural Fuente del Roble se analizó cuatro veces"
+        }
+      ],
+      "expectedAnswer": "Fuente del Roble - potable en todas las muestras",
+      "notes": ""
+    },
+    {
+      "id": "q-050",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "en",
+      "question": "Which Maple Ridge route is capacity-limited by a bridge span, and what is its midday headway?",
+      "docIds": [
+        "en-maple-transit"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-maple-transit",
+          "page": 4,
+          "section": "Route Network",
+          "quoteSnippet": "Its bridge span limits vehicle length to 12 metres"
+        },
+        {
+          "docId": "en-maple-transit",
+          "page": 4,
+          "section": "Route Network",
+          "quoteSnippet": "6 min"
+        }
+      ],
+      "expectedAnswer": "Route 3 - 6 minute headway",
+      "notes": "Bridges prose and the route table on the same page."
+    },
+    {
+      "id": "q-051",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "es",
+      "question": "¿Qué mercancía principal transporta el Ferrocarril de la Cordillera y desde qué mina?",
+      "docIds": [
+        "es-cordillera-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-cordillera-ferrocarril",
+          "page": 6,
+          "section": "Tráfico de mercancías",
+          "quoteSnippet": "el concentrado de cobre de la mina de Valdemoros"
+        }
+      ],
+      "expectedAnswer": "Concentrado de cobre - mina de Valdemoros",
+      "notes": ""
+    },
+    {
+      "id": "q-052",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "de",
+      "question": "Welcher Antrieb wurde im Brandenburg Observatorium im Februar 2025 erneuert, und warum?",
+      "docIds": [
+        "de-brandenburg-observatorium"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-brandenburg-observatorium",
+          "page": 7,
+          "section": "Technik und Instandhaltung",
+          "quoteSnippet": "Der Kuppelantrieb wurde im Februar 2025 erneuert, nachdem die alte Zahnstange verschlissen war"
+        }
+      ],
+      "expectedAnswer": "Kuppelantrieb - wegen der verschlissenen Zahnstange",
+      "notes": ""
+    },
+    {
+      "id": "q-053",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "en",
+      "question": "In the Caldstone Quarry Trust review, what does the section titled 'Financial Outlook' actually describe?",
+      "docIds": [
+        "en-quarry-heritage"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-quarry-heritage",
+          "page": 4,
+          "section": "Financial Outlook",
+          "quoteSnippet": "the trust reports on its volunteer training programme"
+        }
+      ],
+      "expectedAnswer": "The volunteer training programme, not finances",
+      "notes": "Robustness probe: heading says X, content is about Y."
+    },
+    {
+      "id": "q-054",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "de",
+      "question": "Welches Produkt bleibt bei den Rhein Mühlenwerken mengenstärkst, und an welchem Standort wird es gemahlen?",
+      "docIds": [
+        "de-rhein-muehlen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 4,
+          "section": "Mahlleistung und Produkte",
+          "quoteSnippet": "Mehl der Type 550 bleibt das mengenstärkste Produkt"
+        },
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 4,
+          "section": "Mahlleistung und Produkte",
+          "quoteSnippet": "Weizenmehl Type 550"
+        }
+      ],
+      "expectedAnswer": "Weizenmehl Type 550 in Worms",
+      "notes": "Prose plus table row on the same page."
+    },
+    {
+      "id": "q-055",
+      "subset": "eval",
+      "type": "within-doc-xref",
+      "language": "es",
+      "question": "¿Cuál fue la exposición temporal más visitada del Museo del Valle y cuántos visitantes tuvo?",
+      "docIds": [
+        "es-valle-museo"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-valle-museo",
+          "page": 4,
+          "section": "Exposiciones temporales",
+          "quoteSnippet": "La más visitada fue Hilos del Sur, sobre tejeduría tradicional, con 21.400 visitantes"
+        }
+      ],
+      "expectedAnswer": "Hilos del Sur - 21.400 visitantes",
+      "notes": ""
+    },
+    {
+      "id": "q-056",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "en",
+      "question": "Which Bluefin species had the higher quota utilisation in 2025, Atlantic cod or pollock?",
+      "docIds": [
+        "en-bluefin-fisheries"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 5,
+          "section": "Catch Quotas 2025",
+          "quoteSnippet": "95%"
+        },
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 5,
+          "section": "Catch Quotas 2025",
+          "quoteSnippet": "74%"
+        }
+      ],
+      "expectedAnswer": "Atlantic cod (95% vs 74%)",
+      "notes": "Percentage cells in the quota table."
+    },
+    {
+      "id": "q-057",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "es",
+      "question": "¿Qué país importó más cítricos de Citrícola del Delta en 2025, Alemania o Francia?",
+      "docIds": [
+        "es-delta-citricos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-delta-citricos",
+          "page": 5,
+          "section": "Exportaciones por destino",
+          "quoteSnippet": "12.400"
+        },
+        {
+          "docId": "es-delta-citricos",
+          "page": 5,
+          "section": "Exportaciones por destino",
+          "quoteSnippet": "9.800"
+        }
+      ],
+      "expectedAnswer": "Alemania (12.400 t vs 9.800 t)",
+      "notes": "First two rows of the export table."
+    },
+    {
+      "id": "q-058",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "de",
+      "question": "Welcher Standort der Rhein Mühlenwerke vermahlte 2025 mehr: Worms mit Type 550 oder Karlsruhe mit Type 997?",
+      "docIds": [
+        "de-rhein-muehlen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 4,
+          "section": "Mahlleistung und Produkte",
+          "quoteSnippet": "46.000"
+        },
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 4,
+          "section": "Mahlleistung und Produkte",
+          "quoteSnippet": "21.000"
+        }
+      ],
+      "expectedAnswer": "Worms (46.000 t vs 21.000 t)",
+      "notes": ""
+    },
+    {
+      "id": "q-059",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "de",
+      "question": "Welcher Wein des Weinguts Moselhang hatte 2025 die höchste Absatzmenge?",
+      "docIds": [
+        "de-mosel-weinberg"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-mosel-weinberg",
+          "page": 7,
+          "section": "Vermarktung",
+          "quoteSnippet": "62.000"
+        }
+      ],
+      "expectedAnswer": "Riesling Gutswein trocken (62.000 Flaschen)",
+      "notes": "Row comparison inside the sales table."
+    },
+    {
+      "id": "q-060",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "en",
+      "question": "Which Maple Ridge route carried more riders per weekday in 2025, route 3 or route 7?",
+      "docIds": [
+        "en-maple-transit"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-maple-transit",
+          "page": 4,
+          "section": "Route Network",
+          "quoteSnippet": "9,100"
+        },
+        {
+          "docId": "en-maple-transit",
+          "page": 4,
+          "section": "Route Network",
+          "quoteSnippet": "7,400"
+        }
+      ],
+      "expectedAnswer": "Route 3 (9,100 vs 7,400)",
+      "notes": ""
+    },
+    {
+      "id": "q-061",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "de",
+      "question": "Was wurde 2025 in größerer Menge umgeschlagen: Dünger oder Stahl und Bleche im Ostsee-Hafen?",
+      "docIds": [
+        "de-ostsee-hafen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 3,
+          "section": "Umschlag nach Güterart",
+          "quoteSnippet": "1.430.000"
+        },
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 3,
+          "section": "Umschlag nach Güterart",
+          "quoteSnippet": "690.000"
+        }
+      ],
+      "expectedAnswer": "Dünger (1.430.000 t vs 690.000 t)",
+      "notes": ""
+    },
+    {
+      "id": "q-062",
+      "subset": "eval",
+      "type": "cross-section-comparison",
+      "language": "es",
+      "question": "¿Qué familia de hilado produjo más toneladas en Hilados del Norte, el algodón peinado o el poliéster filamento?",
+      "docIds": [
+        "es-norte-textil"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-norte-textil",
+          "page": 3,
+          "section": "Producción de hilos",
+          "quoteSnippet": "1.850"
+        },
+        {
+          "docId": "es-norte-textil",
+          "page": 3,
+          "section": "Producción de hilos",
+          "quoteSnippet": "890"
+        }
+      ],
+      "expectedAnswer": "Algodón peinado (1.850 t vs 890 t)",
+      "notes": ""
+    },
+    {
+      "id": "q-063",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which was the larger tonnage in 2025: the fish processed at Bluefin Sound or the citrus exported by Citrícola del Delta?",
+      "docIds": [
+        "en-bluefin-fisheries",
+        "es-delta-citricos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-bluefin-fisheries",
+          "page": 7,
+          "section": "Processing and Markets",
+          "quoteSnippet": "the plant processed 11,900 tonnes of fish"
+        },
+        {
+          "docId": "es-delta-citricos",
+          "page": 5,
+          "section": "Exportaciones por destino",
+          "quoteSnippet": "El total exportado fue de 65.100 toneladas"
+        }
+      ],
+      "expectedAnswer": "Citrícola del Delta (65.100 t vs 11.900 t)",
+      "notes": "en/es pair; totals from different documents."
+    },
+    {
+      "id": "q-064",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which handled more cargo tonnage in 2025, the port of the Ostsee Hafenverwaltung or the Ferrocarril de la Cordillera freight traffic?",
+      "docIds": [
+        "de-ostsee-hafen",
+        "es-cordillera-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 2,
+          "section": "Hafenüberblick",
+          "quoteSnippet": "rund 8,4 Millionen Tonnen"
+        },
+        {
+          "docId": "es-cordillera-ferrocarril",
+          "page": 6,
+          "section": "Tráfico de mercancías",
+          "quoteSnippet": "El tráfico de mercancías alcanzó 210.000 toneladas"
+        }
+      ],
+      "expectedAnswer": "Ostsee Hafen (8,4 Mio. t vs 210.000 t)",
+      "notes": "de/es pair."
+    },
+    {
+      "id": "q-065",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which registered more encounters in 2025, Meridian Community Clinic consultations or Museo del Valle visitors?",
+      "docIds": [
+        "en-meridian-clinic",
+        "es-valle-museo"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-meridian-clinic",
+          "page": 3,
+          "section": "Patient Volumes",
+          "quoteSnippet": "the clinic recorded 52,800 consultations"
+        },
+        {
+          "docId": "es-valle-museo",
+          "page": 5,
+          "section": "Público y educación",
+          "quoteSnippet": "El museo recibió 68.900 visitantes en 2025"
+        }
+      ],
+      "expectedAnswer": "Museo del Valle (68,900 vs 52,800)",
+      "notes": "en/es pair across very different domains."
+    },
+    {
+      "id": "q-066",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which attracted more people in its peak season, Orion Hills Observatory visitors or Alpen Bahnen winter passengers?",
+      "docIds": [
+        "en-orion-observatory",
+        "de-alpen-bahnen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-orion-observatory",
+          "page": 8,
+          "section": "Education and Outreach",
+          "quoteSnippet": "counted 9,400 guests in 2025"
+        },
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 5,
+          "section": "Gäste und Fahrgäste",
+          "quoteSnippet": "512.000 Fahrgäste"
+        }
+      ],
+      "expectedAnswer": "Alpen Bahnen (512,000 vs 9,400)",
+      "notes": "en/de pair."
+    },
+    {
+      "id": "q-067",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "en",
+      "question": "Which institution has more members: the Amigos del Museo association or the Caldstone Quarry Heritage Trust?",
+      "docIds": [
+        "es-valle-museo",
+        "en-quarry-heritage"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-valle-museo",
+          "page": 7,
+          "section": "Amigos del museo",
+          "quoteSnippet": "contaba con 820 socios"
+        },
+        {
+          "docId": "en-quarry-heritage",
+          "page": 3,
+          "section": "Trust and Mission",
+          "quoteSnippet": "the trust had 2,300 members"
+        }
+      ],
+      "expectedAnswer": "Caldstone Quarry Heritage Trust (2,300 vs 820)",
+      "notes": "es/en pair."
+    },
+    {
+      "id": "q-068",
+      "subset": "eval",
+      "type": "cross-document-comparison",
+      "language": "de",
+      "question": "Welches Unternehmen beschäftigt mehr Personal: die Rhein Mühlenwerke oder die Alpen Bahnen?",
+      "docIds": [
+        "de-rhein-muehlen",
+        "de-alpen-bahnen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-rhein-muehlen",
+          "page": 3,
+          "section": "Konzernüberblick",
+          "quoteSnippet": "Die Gruppe beschäftigt 180 Personen"
+        },
+        {
+          "docId": "de-alpen-bahnen",
+          "page": 3,
+          "section": "Das Unternehmen",
+          "quoteSnippet": "beschäftigt 96 Festangestellte"
+        }
+      ],
+      "expectedAnswer": "Rhein Mühlenwerke (180 vs 96 Festangestellte)",
+      "notes": "de/de pair; note the Bahnen figure excludes 140 seasonal workers."
+    },
+    {
+      "id": "q-069",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "How many parking spaces does Maple Ridge Transit own at Ironworks Yard?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Depots described without parking capacity.",
+      "probeTerm": "parking"
+    },
+    {
+      "id": "q-070",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "es",
+      "question": "¿Hubo algún terremoto cerca del parque solar Altiplano en 2025?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No seismic events mentioned.",
+      "probeTerm": "terremoto"
+    },
+    {
+      "id": "q-071",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Wie viele Patente hat die Elbe Werft angemeldet?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Research is described, patents never are.",
+      "probeTerm": "Patent"
+    },
+    {
+      "id": "q-072",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Schüttet die Alpen Bahnen AG eine Dividende aus?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "No shareholder payouts anywhere.",
+      "probeTerm": "Dividende"
+    },
+    {
+      "id": "q-073",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "Does Meridian Community Clinic offer free wifi for patients?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Digital systems discussed, wifi never.",
+      "probeTerm": "wifi"
+    },
+    {
+      "id": "q-074",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Hat das Restaurant des Kurhauses Tannenfels einen Michelin-Stern?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Restaurant awards never mentioned.",
+      "probeTerm": "Michelin"
+    },
+    {
+      "id": "q-075",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "Does the Port of Grey Harbor rent out e-scooters to visitors?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "",
+      "probeTerm": "scooter"
+    },
+    {
+      "id": "q-076",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "Did the Caldstone Quarry Heritage Trust take out travel insurance for its 2025 excursions?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "",
+      "probeTerm": "insurance"
+    },
+    {
+      "id": "q-077",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "es",
+      "question": "¿Cuál era el precio del café en las máquinas de la planta de Hilados del Norte en 2025?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "",
+      "probeTerm": "café"
+    },
+    {
+      "id": "q-078",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Welche Fluggesellschaft fliegt den Hafen der Ostsee Hafenverwaltung an?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "Seaport only; no air traffic.",
+      "probeTerm": "Fluggesellschaft"
+    },
+    {
+      "id": "q-079",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "question": "Who won the 2025 chess championship at Orion Hills Observatory?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "",
+      "probeTerm": "championship"
+    },
+    {
+      "id": "q-080",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "question": "Gibt es am Weingut Moselhang ein Gästezimmer, und was kostet die Übernachtung?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "expectedAnswer": "Not answerable from the corpus",
+      "notes": "",
+      "probeTerm": "Gästezimmer"
+    }
+  ]
+}

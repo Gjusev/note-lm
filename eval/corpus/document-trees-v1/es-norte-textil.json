@@ -1,0 +1,85 @@
+{
+  "docId": "es-norte-textil",
+  "fileName": "es-norte-textil.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Hilados del Norte"
+      ],
+      "firstWords": "Hilados del Norte"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "La fábrica"
+      ],
+      "firstWords": "La fábrica"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Producción de hilos"
+      ],
+      "firstWords": "Producción de hilos"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Producción de hilos"
+      ],
+      "firstWords": "Tejidos medicinales"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Calidad y certificados"
+      ],
+      "firstWords": "Calidad y certificados"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Energía y agua"
+      ],
+      "firstWords": "Energía y agua"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Clientes y pedidos"
+      ],
+      "firstWords": "Clientes y pedidos"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Personal y formación"
+      ],
+      "firstWords": "Personal y formación"
+    },
+    {
+      "pageIndex": 9,
+      "sectionTitles": [
+        "Mercados exteriores"
+      ],
+      "firstWords": "Mercados exteriores"
+    }
+  ],
+  "toc": false,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ],
+  "notes": [
+    "no-toc"
+  ]
+}

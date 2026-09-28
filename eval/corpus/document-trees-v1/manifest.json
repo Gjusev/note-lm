@@ -1,0 +1,241 @@
+{
+  "version": 1,
+  "corpus": "document-trees-v1",
+  "generator": "generate-corpus.mjs",
+  "pdfLib": "1.17.1",
+  "deterministic": true,
+  "docs": [
+    {
+      "docId": "en-atlas-bicycles",
+      "fileName": "en-atlas-bicycles.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": []
+    },
+    {
+      "docId": "en-orion-observatory",
+      "fileName": "en-orion-observatory.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": []
+    },
+    {
+      "docId": "en-bluefin-fisheries",
+      "fileName": "en-bluefin-fisheries.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "en-harbor-registry",
+      "fileName": "en-harbor-registry.pdf",
+      "language": "en",
+      "pages": 9,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    },
+    {
+      "docId": "en-quarry-heritage",
+      "fileName": "en-quarry-heritage.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "misleading-headings"
+      ]
+    },
+    {
+      "docId": "en-maple-transit",
+      "fileName": "en-maple-transit.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "en-meridian-clinic",
+      "fileName": "en-meridian-clinic.pdf",
+      "language": "en",
+      "pages": 8,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    },
+    {
+      "docId": "es-ribera-vinedos",
+      "fileName": "es-ribera-vinedos.pdf",
+      "language": "es",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": []
+    },
+    {
+      "docId": "es-delta-citricos",
+      "fileName": "es-delta-citricos.pdf",
+      "language": "es",
+      "pages": 9,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table-split"
+      ]
+    },
+    {
+      "docId": "es-cordillera-ferrocarril",
+      "fileName": "es-cordillera-ferrocarril.pdf",
+      "language": "es",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": []
+    },
+    {
+      "docId": "es-valle-museo",
+      "fileName": "es-valle-museo.pdf",
+      "language": "es",
+      "pages": 8,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    },
+    {
+      "docId": "es-sierra-senderismo",
+      "fileName": "es-sierra-senderismo.pdf",
+      "language": "es",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "misleading-headings"
+      ]
+    },
+    {
+      "docId": "es-altiplano-energia",
+      "fileName": "es-altiplano-energia.pdf",
+      "language": "es",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "es-norte-textil",
+      "fileName": "es-norte-textil.pdf",
+      "language": "es",
+      "pages": 9,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    },
+    {
+      "docId": "de-elbe-werft",
+      "fileName": "de-elbe-werft.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "de-alpen-bahnen",
+      "fileName": "de-alpen-bahnen.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "de-rhein-muehlen",
+      "fileName": "de-rhein-muehlen.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "de-ostsee-hafen",
+      "fileName": "de-ostsee-hafen.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    },
+    {
+      "docId": "de-schwarzwald-kurhaus",
+      "fileName": "de-schwarzwald-kurhaus.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "misleading-headings"
+      ]
+    },
+    {
+      "docId": "de-mosel-weinberg",
+      "fileName": "de-mosel-weinberg.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": true,
+      "sectionCount": 6,
+      "notes": [
+        "table"
+      ]
+    },
+    {
+      "docId": "de-brandenburg-observatorium",
+      "fileName": "de-brandenburg-observatorium.pdf",
+      "language": "de",
+      "pages": 8,
+      "toc": false,
+      "sectionCount": 7,
+      "notes": [
+        "no-toc"
+      ]
+    }
+  ],
+  "totals": {
+    "docs": 21,
+    "pages": 171
+  },
+  "languageCounts": {
+    "en": 7,
+    "es": 7,
+    "de": 7
+  }
+}

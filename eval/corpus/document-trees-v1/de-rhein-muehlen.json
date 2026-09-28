@@ -1,0 +1,77 @@
+{
+  "docId": "de-rhein-muehlen",
+  "fileName": "de-rhein-muehlen.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Rhein Mühlenwerke"
+      ],
+      "firstWords": "Rhein Mühlenwerke"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Inhaltsverzeichnis"
+      ],
+      "firstWords": "Inhaltsverzeichnis"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Konzernüberblick"
+      ],
+      "firstWords": "Konzernüberblick"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Mahlleistung und Produkte"
+      ],
+      "firstWords": "Mahlleistung und Produkte"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Rohstoffbeschaffung"
+      ],
+      "firstWords": "Rohstoffbeschaffung"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Qualität"
+      ],
+      "firstWords": "Qualität"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Logistik"
+      ],
+      "firstWords": "Logistik"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Energie und Klima"
+      ],
+      "firstWords": "Energie und Klima"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "table"
+  ]
+}

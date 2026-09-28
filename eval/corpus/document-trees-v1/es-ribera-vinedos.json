@@ -1,0 +1,75 @@
+{
+  "docId": "es-ribera-vinedos",
+  "fileName": "es-ribera-vinedos.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Bodegas Ribera del Alba"
+      ],
+      "firstWords": "Bodegas Ribera del Alba"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Índice"
+      ],
+      "firstWords": "Índice"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Presentación de la bodega"
+      ],
+      "firstWords": "Presentación de la bodega"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Viñedos y variedades"
+      ],
+      "firstWords": "Viñedos y variedades"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Vendimia 2025"
+      ],
+      "firstWords": "Vendimia 2025"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Elaboración y crianza"
+      ],
+      "firstWords": "Elaboración y crianza"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Ventas y mercados"
+      ],
+      "firstWords": "Ventas y mercados"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Proyectos 2026"
+      ],
+      "firstWords": "Proyectos 2026"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": []
+}

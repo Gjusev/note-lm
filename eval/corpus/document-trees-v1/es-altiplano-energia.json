@@ -1,0 +1,77 @@
+{
+  "docId": "es-altiplano-energia",
+  "fileName": "es-altiplano-energia.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Parque Solar Altiplano"
+      ],
+      "firstWords": "Parque Solar Altiplano"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Índice"
+      ],
+      "firstWords": "Índice"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "El proyecto"
+      ],
+      "firstWords": "El proyecto"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Producción 2025"
+      ],
+      "firstWords": "Producción 2025"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Inversores y mantenimiento"
+      ],
+      "firstWords": "Inversores y mantenimiento"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Impacto ambiental"
+      ],
+      "firstWords": "Impacto ambiental"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Economía del proyecto"
+      ],
+      "firstWords": "Economía del proyecto"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Ampliación"
+      ],
+      "firstWords": "Ampliación"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "table"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "docId": "de-elbe-werft",
+  "fileName": "de-elbe-werft.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Elbe Werft"
+      ],
+      "firstWords": "Elbe Werft"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Inhaltsverzeichnis"
+      ],
+      "firstWords": "Inhaltsverzeichnis"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Das Unternehmen"
+      ],
+      "firstWords": "Das Unternehmen"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Auftragsbestand 2025"
+      ],
+      "firstWords": "Auftragsbestand 2025"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Schiffbauprojekte"
+      ],
+      "firstWords": "Schiffbauprojekte"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Reparaturbetrieb"
+      ],
+      "firstWords": "Reparaturbetrieb"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Finanzen"
+      ],
+      "firstWords": "Finanzen"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Ausblick"
+      ],
+      "firstWords": "Ausblick"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "table"
+  ]
+}

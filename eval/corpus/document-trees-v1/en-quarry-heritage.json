@@ -1,0 +1,77 @@
+{
+  "docId": "en-quarry-heritage",
+  "fileName": "en-quarry-heritage.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Caldstone Quarry Heritage Trust"
+      ],
+      "firstWords": "Caldstone Quarry Heritage Trust"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Table of Contents"
+      ],
+      "firstWords": "Table of Contents"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Trust and Mission"
+      ],
+      "firstWords": "Trust and Mission"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Financial Outlook"
+      ],
+      "firstWords": "Financial Outlook"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Archive and Collections"
+      ],
+      "firstWords": "Archive and Collections"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Membership Benefits"
+      ],
+      "firstWords": "Membership Benefits"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Site Interpretation"
+      ],
+      "firstWords": "Site Interpretation"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Governance"
+      ],
+      "firstWords": "Governance"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "misleading-headings"
+  ]
+}

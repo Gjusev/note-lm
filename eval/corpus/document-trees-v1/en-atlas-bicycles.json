@@ -1,0 +1,75 @@
+{
+  "docId": "en-atlas-bicycles",
+  "fileName": "en-atlas-bicycles.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Riverdale Bicycle Works"
+      ],
+      "firstWords": "Riverdale Bicycle Works"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Table of Contents"
+      ],
+      "firstWords": "Table of Contents"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Company Overview"
+      ],
+      "firstWords": "Company Overview"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Manufacturing Sites"
+      ],
+      "firstWords": "Manufacturing Sites"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Model Lineup 2025"
+      ],
+      "firstWords": "Model Lineup 2025"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Quality and Recalls"
+      ],
+      "firstWords": "Quality and Recalls"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Financial Summary"
+      ],
+      "firstWords": "Financial Summary"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Research and Outlook"
+      ],
+      "firstWords": "Research and Outlook"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": []
+}

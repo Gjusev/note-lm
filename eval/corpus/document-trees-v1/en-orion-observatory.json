@@ -1,0 +1,75 @@
+{
+  "docId": "en-orion-observatory",
+  "fileName": "en-orion-observatory.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Orion Hills Observatory"
+      ],
+      "firstWords": "Orion Hills Observatory"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Table of Contents"
+      ],
+      "firstWords": "Table of Contents"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Institution Overview"
+      ],
+      "firstWords": "Institution Overview"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Instrumentation"
+      ],
+      "firstWords": "Instrumentation"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Survey Programs"
+      ],
+      "firstWords": "Survey Programs"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Variable Star Monitoring"
+      ],
+      "firstWords": "Variable Star Monitoring"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Publications and Funding"
+      ],
+      "firstWords": "Publications and Funding"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Education and Outreach"
+      ],
+      "firstWords": "Education and Outreach"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": []
+}

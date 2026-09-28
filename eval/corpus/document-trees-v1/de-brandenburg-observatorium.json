@@ -1,0 +1,77 @@
+{
+  "docId": "de-brandenburg-observatorium",
+  "fileName": "de-brandenburg-observatorium.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Brandenburg Observatorium"
+      ],
+      "firstWords": "Brandenburg Observatorium"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Das Observatorium"
+      ],
+      "firstWords": "Das Observatorium"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Instrumente"
+      ],
+      "firstWords": "Instrumente"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Beobachtungsprogramm"
+      ],
+      "firstWords": "Beobachtungsprogramm"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Nachwuchs und Schule"
+      ],
+      "firstWords": "Nachwuchs und Schule"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Amateurkooperation"
+      ],
+      "firstWords": "Amateurkooperation"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Technik und Instandhaltung"
+      ],
+      "firstWords": "Technik und Instandhaltung"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Finanzen und Förderung"
+      ],
+      "firstWords": "Finanzen und Förderung"
+    }
+  ],
+  "toc": false,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "no-toc"
+  ]
+}

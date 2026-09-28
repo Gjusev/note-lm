@@ -1,0 +1,77 @@
+{
+  "docId": "en-meridian-clinic",
+  "fileName": "en-meridian-clinic.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Meridian Community Clinic"
+      ],
+      "firstWords": "Meridian Community Clinic"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Clinic Overview"
+      ],
+      "firstWords": "Clinic Overview"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Patient Volumes"
+      ],
+      "firstWords": "Patient Volumes"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Chronic Disease Program"
+      ],
+      "firstWords": "Chronic Disease Program"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Vaccination Campaigns"
+      ],
+      "firstWords": "Vaccination Campaigns"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Referrals and Diagnostics"
+      ],
+      "firstWords": "Referrals and Diagnostics"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Staffing and Training"
+      ],
+      "firstWords": "Staffing and Training"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Digital Systems"
+      ],
+      "firstWords": "Digital Systems"
+    }
+  ],
+  "toc": false,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "no-toc"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "docId": "es-valle-museo",
+  "fileName": "es-valle-museo.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Museo del Valle"
+      ],
+      "firstWords": "Museo del Valle"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "El museo"
+      ],
+      "firstWords": "El museo"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Colección"
+      ],
+      "firstWords": "Colección"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Exposiciones temporales"
+      ],
+      "firstWords": "Exposiciones temporales"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Público y educación"
+      ],
+      "firstWords": "Público y educación"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Restauración"
+      ],
+      "firstWords": "Restauración"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Amigos del museo"
+      ],
+      "firstWords": "Amigos del museo"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Difusión y comunicación"
+      ],
+      "firstWords": "Difusión y comunicación"
+    }
+  ],
+  "toc": false,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "no-toc"
+  ]
+}

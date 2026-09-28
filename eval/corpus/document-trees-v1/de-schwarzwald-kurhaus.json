@@ -1,0 +1,77 @@
+{
+  "docId": "de-schwarzwald-kurhaus",
+  "fileName": "de-schwarzwald-kurhaus.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Kurhaus Tannenfels"
+      ],
+      "firstWords": "Kurhaus Tannenfels"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Inhaltsverzeichnis"
+      ],
+      "firstWords": "Inhaltsverzeichnis"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Das Haus"
+      ],
+      "firstWords": "Das Haus"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Investitionen und Liquidität"
+      ],
+      "firstWords": "Investitionen und Liquidität"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Gäste und Belegung"
+      ],
+      "firstWords": "Gäste und Belegung"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Personal und Dienstpläne"
+      ],
+      "firstWords": "Personal und Dienstpläne"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Gastronomie"
+      ],
+      "firstWords": "Gastronomie"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Nachhaltigkeit"
+      ],
+      "firstWords": "Nachhaltigkeit"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "misleading-headings"
+  ]
+}

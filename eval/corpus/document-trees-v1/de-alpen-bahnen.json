@@ -1,0 +1,77 @@
+{
+  "docId": "de-alpen-bahnen",
+  "fileName": "de-alpen-bahnen.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Alpen Bahnen AG"
+      ],
+      "firstWords": "Alpen Bahnen AG"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Inhaltsverzeichnis"
+      ],
+      "firstWords": "Inhaltsverzeichnis"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Das Unternehmen"
+      ],
+      "firstWords": "Das Unternehmen"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Bahnen und Anlagen"
+      ],
+      "firstWords": "Bahnen und Anlagen"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Gäste und Fahrgäste"
+      ],
+      "firstWords": "Gäste und Fahrgäste"
+    },
+    {
+      "pageIndex": 6,
+      "sectionTitles": [
+        "Beschneiung und Pisten"
+      ],
+      "firstWords": "Beschneiung und Pisten"
+    },
+    {
+      "pageIndex": 7,
+      "sectionTitles": [
+        "Energiemanagement"
+      ],
+      "firstWords": "Energiemanagement"
+    },
+    {
+      "pageIndex": 8,
+      "sectionTitles": [
+        "Projekte 2026"
+      ],
+      "firstWords": "Projekte 2026"
+    }
+  ],
+  "toc": true,
+  "pageLabels": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ],
+  "notes": [
+    "table"
+  ]
+}
