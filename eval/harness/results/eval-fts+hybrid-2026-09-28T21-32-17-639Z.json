@@ -1,0 +1,1041 @@
+{
+  "meta": {
+    "timestamp": "2026-09-28T21:32:17.639Z",
+    "subset": "eval",
+    "variants": [
+      "fts",
+      "hybrid"
+    ],
+    "questionCount": 5,
+    "corpus": "document-trees-v1",
+    "embedding": {
+      "provider": "llamacpp",
+      "model": "bge-small-en-v1.5",
+      "revision": "q8_0",
+      "dimension": 384,
+      "pooling": "mean"
+    },
+    "chunking": {
+      "maxChunkSize": 180,
+      "overlap": 40,
+      "totalChunks": 72,
+      "totalDocs": 21
+    },
+    "grading": {
+      "hit": "expected (docId, page) covered by a retrieved hit: docId matches and the evidence page lies in the hit's page span (chunk start..end page); firstPageRecallAt10 is the strict variant requiring the chunk to START on the evidence page (boundary chunks -> earlier page)",
+      "partialCredit": "docIdRecallAt10 = expected docId present in top-10 regardless of page",
+      "unanswerable": "evidence-pressure = top-1 score >= threshold (see variants.*.unanswerable.thresholdRule)"
+    }
+  },
+  "phases": {
+    "ingestMs": 550.1177000000001,
+    "indexMs": 4969.362999999999,
+    "runMs": 58.68040000000019,
+    "gradeMs": 0.8975000000000364,
+    "totalMs": 5579.7708
+  },
+  "variants": {
+    "fts": {
+      "answerable": {
+        "count": 5,
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "mrr": 0.9,
+        "ndcgAt10": 0.9261859507142916,
+        "docIdRecallAt10": 1,
+        "firstPageRecallAt10": 0,
+        "perQuestion": [
+          {
+            "id": "q-031",
+            "type": "exact-fact",
+            "language": "en",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-032",
+            "type": "exact-fact",
+            "language": "de",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-033",
+            "type": "exact-fact",
+            "language": "es",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-034",
+            "type": "exact-fact",
+            "language": "en",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-035",
+            "type": "exact-fact",
+            "language": "es",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 0.5,
+            "ndcgAt10": 0.6309297535714575,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          }
+        ]
+      },
+      "unanswerable": {
+        "count": 0,
+        "evidencePressure": 0,
+        "pressuredQuestionIds": [],
+        "threshold": 17.38954301148606,
+        "thresholdRule": "10th percentile of top-1 score over this run's answerable questions (same variant)"
+      },
+      "perType": {
+        "exact-fact": {
+          "count": 5,
+          "recallAt10": 1,
+          "mrr": 0.9
+        }
+      },
+      "perf": {
+        "retrievalP50Ms": 0.5586000000002969,
+        "retrievalP95Ms": 0.6487999999999374,
+        "retrievalMeanMs": 0.6222600000000966,
+        "queryEmbedP50Ms": 7.619100000000799,
+        "queryEmbedP95Ms": 8.748400000000402,
+        "note": "retrieval latency excludes the query-embedding HTTP call (queries are pre-embedded for determinism); queryEmbed* reports it separately"
+      }
+    },
+    "hybrid": {
+      "answerable": {
+        "count": 5,
+        "recallAt5": 1,
+        "recallAt10": 1,
+        "mrr": 0.9,
+        "ndcgAt10": 0.9261859507142916,
+        "docIdRecallAt10": 1,
+        "firstPageRecallAt10": 0,
+        "perQuestion": [
+          {
+            "id": "q-031",
+            "type": "exact-fact",
+            "language": "en",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-032",
+            "type": "exact-fact",
+            "language": "de",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-033",
+            "type": "exact-fact",
+            "language": "es",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-034",
+            "type": "exact-fact",
+            "language": "en",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          },
+          {
+            "id": "q-035",
+            "type": "exact-fact",
+            "language": "es",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 0.5,
+            "ndcgAt10": 0.6309297535714575,
+            "firstPageRecallAt10": 0,
+            "docIdRecallAt10": 1
+          }
+        ]
+      },
+      "unanswerable": {
+        "count": 0,
+        "evidencePressure": 0,
+        "pressuredQuestionIds": [],
+        "threshold": 0.03278688524590164,
+        "thresholdRule": "10th percentile of top-1 score over this run's answerable questions (same variant)"
+      },
+      "perType": {
+        "exact-fact": {
+          "count": 5,
+          "recallAt10": 1,
+          "mrr": 0.9
+        }
+      },
+      "perf": {
+        "retrievalP50Ms": 2.8473000000003594,
+        "retrievalP95Ms": 2.9453000000003158,
+        "retrievalMeanMs": 2.863300000000345,
+        "queryEmbedP50Ms": 7.619100000000799,
+        "queryEmbedP95Ms": 8.748400000000402,
+        "note": "retrieval latency excludes the query-embedding HTTP call (queries are pre-embedded for determinism); queryEmbed* reports it separately"
+      }
+    }
+  },
+  "questions": [
+    {
+      "id": "q-031",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "How many new minor planets did the Orion Hills asteroid survey discover in 2025?",
+      "expected": [
+        {
+          "docId": "en-orion-observatory",
+          "page": 5
+        }
+      ],
+      "perVariant": {
+        "fts": {
+          "latencyMs": 0.8522000000002663,
+          "hits": [
+            {
+              "docId": "en-orion-observatory",
+              "page": 4,
+              "lastPage": 7,
+              "score": 17.847370343277095,
+              "rank": 1
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 1,
+              "lastPage": 5,
+              "score": 16.551025151490776,
+              "rank": 2
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 6,
+              "lastPage": 8,
+              "score": 7.63153865747987,
+              "rank": 3
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 8,
+              "lastPage": 8,
+              "score": 5.0566176230996955,
+              "rank": 4
+            },
+            {
+              "docId": "en-quarry-heritage",
+              "page": 6,
+              "lastPage": 8,
+              "score": 4.517842565260088,
+              "rank": 5
+            },
+            {
+              "docId": "en-meridian-clinic",
+              "page": 1,
+              "lastPage": 4,
+              "score": 3.3861392068716345,
+              "rank": 6
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 6,
+              "lastPage": 9,
+              "score": 3.362138472577176,
+              "rank": 7
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 1,
+              "lastPage": 5,
+              "score": 3.290086360842658,
+              "rank": 8
+            },
+            {
+              "docId": "en-quarry-heritage",
+              "page": 4,
+              "lastPage": 7,
+              "score": 3.2524890918215146,
+              "rank": 9
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 5,
+              "lastPage": 8,
+              "score": 3.2493177835237783,
+              "rank": 10
+            }
+          ]
+        },
+        "hybrid": {
+          "latencyMs": 3.645300000000134,
+          "hits": [
+            {
+              "docId": "en-orion-observatory",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.03278688524590164,
+              "rank": 1
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.03200204813108039,
+              "rank": 2
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.03200204813108039,
+              "rank": 3
+            },
+            {
+              "docId": "en-orion-observatory",
+              "page": 8,
+              "lastPage": 8,
+              "score": 0.03125,
+              "rank": 4
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.02819138376017471,
+              "rank": 5
+            },
+            {
+              "docId": "en-quarry-heritage",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.02804284323271665,
+              "rank": 6
+            },
+            {
+              "docId": "en-atlas-bicycles",
+              "page": 4,
+              "lastPage": 5,
+              "score": 0.027346637102734665,
+              "rank": 7
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.027071520029266508,
+              "rank": 8
+            },
+            {
+              "docId": "en-quarry-heritage",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.027046783625730993,
+              "rank": 9
+            },
+            {
+              "docId": "en-quarry-heritage",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.026838432635534086,
+              "rank": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "q-032",
+      "type": "exact-fact",
+      "language": "de",
+      "question": "Wie hoch war der Güterumschlag der Ostsee Hafenverwaltung 2025?",
+      "expected": [
+        {
+          "docId": "de-ostsee-hafen",
+          "page": 2
+        }
+      ],
+      "perVariant": {
+        "fts": {
+          "latencyMs": 0.6487999999999374,
+          "hits": [
+            {
+              "docId": "de-ostsee-hafen",
+              "page": 1,
+              "lastPage": 4,
+              "score": 18.562776354890847,
+              "rank": 1
+            },
+            {
+              "docId": "de-brandenburg-observatorium",
+              "page": 5,
+              "lastPage": 8,
+              "score": 7.650659122176411,
+              "rank": 2
+            },
+            {
+              "docId": "de-elbe-werft",
+              "page": 5,
+              "lastPage": 8,
+              "score": 6.4980591848842595,
+              "rank": 3
+            },
+            {
+              "docId": "de-brandenburg-observatorium",
+              "page": 8,
+              "lastPage": 8,
+              "score": 4.3619619863630215,
+              "rank": 4
+            },
+            {
+              "docId": "de-ostsee-hafen",
+              "page": 3,
+              "lastPage": 7,
+              "score": 3.9815846351652806,
+              "rank": 5
+            },
+            {
+              "docId": "de-schwarzwald-kurhaus",
+              "page": 5,
+              "lastPage": 8,
+              "score": 3.8269142518706376,
+              "rank": 6
+            },
+            {
+              "docId": "de-alpen-bahnen",
+              "page": 4,
+              "lastPage": 8,
+              "score": 3.822753247079917,
+              "rank": 7
+            },
+            {
+              "docId": "de-mosel-weinberg",
+              "page": 1,
+              "lastPage": 5,
+              "score": 3.699891066317513,
+              "rank": 8
+            },
+            {
+              "docId": "de-alpen-bahnen",
+              "page": 1,
+              "lastPage": 5,
+              "score": 3.681721615281961,
+              "rank": 9
+            },
+            {
+              "docId": "de-rhein-muehlen",
+              "page": 4,
+              "lastPage": 8,
+              "score": 3.6791405551519496,
+              "rank": 10
+            }
+          ]
+        },
+        "hybrid": {
+          "latencyMs": 2.8473000000003594,
+          "hits": [
+            {
+              "docId": "de-ostsee-hafen",
+              "page": 1,
+              "lastPage": 4,
+              "score": 0.03278688524590164,
+              "rank": 1
+            },
+            {
+              "docId": "de-ostsee-hafen",
+              "page": 3,
+              "lastPage": 7,
+              "score": 0.0315136476426799,
+              "rank": 2
+            },
+            {
+              "docId": "de-brandenburg-observatorium",
+              "page": 5,
+              "lastPage": 8,
+              "score": 0.031054405392392875,
+              "rank": 3
+            },
+            {
+              "docId": "de-elbe-werft",
+              "page": 5,
+              "lastPage": 8,
+              "score": 0.03036576949620428,
+              "rank": 4
+            },
+            {
+              "docId": "de-mosel-weinberg",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.030330882352941176,
+              "rank": 5
+            },
+            {
+              "docId": "de-mosel-weinberg",
+              "page": 5,
+              "lastPage": 8,
+              "score": 0.02946912242686891,
+              "rank": 6
+            },
+            {
+              "docId": "de-brandenburg-observatorium",
+              "page": 8,
+              "lastPage": 8,
+              "score": 0.028782894736842105,
+              "rank": 7
+            },
+            {
+              "docId": "de-ostsee-hafen",
+              "page": 7,
+              "lastPage": 8,
+              "score": 0.028693528693528692,
+              "rank": 8
+            },
+            {
+              "docId": "de-alpen-bahnen",
+              "page": 4,
+              "lastPage": 8,
+              "score": 0.028438886647841874,
+              "rank": 9
+            },
+            {
+              "docId": "de-rhein-muehlen",
+              "page": 4,
+              "lastPage": 8,
+              "score": 0.028370221327967807,
+              "rank": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "q-033",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos viajeros transportó el Ferrocarril de la Cordillera en 2025?",
+      "expected": [
+        {
+          "docId": "es-cordillera-ferrocarril",
+          "page": 5
+        }
+      ],
+      "perVariant": {
+        "fts": {
+          "latencyMs": 0.5292999999992389,
+          "hits": [
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 1,
+              "lastPage": 5,
+              "score": 24.007678587525447,
+              "rank": 1
+            },
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 4,
+              "lastPage": 7,
+              "score": 13.234509387383747,
+              "rank": 2
+            },
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 7,
+              "lastPage": 8,
+              "score": 8.475197656953098,
+              "rank": 3
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 6,
+              "lastPage": 8,
+              "score": 5.386459346814317,
+              "rank": 4
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 4,
+              "lastPage": 7,
+              "score": 5.258936671188726,
+              "rank": 5
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 6,
+              "lastPage": 8,
+              "score": 5.250880705402207,
+              "rank": 6
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 6,
+              "lastPage": 8,
+              "score": 5.225960763758655,
+              "rank": 7
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 4,
+              "lastPage": 7,
+              "score": 5.217206482113064,
+              "rank": 8
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 1,
+              "lastPage": 4,
+              "score": 5.18657519630741,
+              "rank": 9
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 4,
+              "lastPage": 7,
+              "score": 5.160992860192572,
+              "rank": 10
+            }
+          ]
+        },
+        "hybrid": {
+          "latencyMs": 2.9453000000003158,
+          "hits": [
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.03278688524590164,
+              "rank": 1
+            },
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.03225806451612903,
+              "rank": 2
+            },
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 7,
+              "lastPage": 8,
+              "score": 0.03149801587301587,
+              "rank": 3
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.030776515151515152,
+              "rank": 4
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.03076923076923077,
+              "rank": 5
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.03057889822595705,
+              "rank": 6
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.029211087420042643,
+              "rank": 7
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 1,
+              "lastPage": 4,
+              "score": 0.02819138376017471,
+              "rank": 8
+            },
+            {
+              "docId": "es-valle-museo",
+              "page": 3,
+              "lastPage": 7,
+              "score": 0.028169014084507043,
+              "rank": 9
+            },
+            {
+              "docId": "es-norte-textil",
+              "page": 8,
+              "lastPage": 9,
+              "score": 0.02758751902587519,
+              "rank": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "q-034",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "How many vessels does the Port of Grey Harbor registry list at the end of 2025?",
+      "expected": [
+        {
+          "docId": "en-harbor-registry",
+          "page": 2
+        }
+      ],
+      "perVariant": {
+        "fts": {
+          "latencyMs": 0.5586000000002969,
+          "hits": [
+            {
+              "docId": "en-harbor-registry",
+              "page": 1,
+              "lastPage": 3,
+              "score": 31.05998654766206,
+              "rank": 1
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 6,
+              "lastPage": 9,
+              "score": 8.826774408476023,
+              "rank": 2
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 3,
+              "lastPage": 6,
+              "score": 8.589222192308874,
+              "rank": 3
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 1,
+              "lastPage": 5,
+              "score": 8.391709253047765,
+              "rank": 4
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 6,
+              "lastPage": 8,
+              "score": 4.547350730647913,
+              "rank": 5
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 4,
+              "lastPage": 7,
+              "score": 4.3454608377999255,
+              "rank": 6
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 1,
+              "lastPage": 4,
+              "score": 4.132704661603565,
+              "rank": 7
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 8,
+              "lastPage": 8,
+              "score": 4.106980953062687,
+              "rank": 8
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 8,
+              "lastPage": 9,
+              "score": 4.010878447664337,
+              "rank": 9
+            },
+            {
+              "docId": "en-meridian-clinic",
+              "page": 6,
+              "lastPage": 8,
+              "score": 3.5610105333748288,
+              "rank": 10
+            }
+          ]
+        },
+        "hybrid": {
+          "latencyMs": 2.6361000000006243,
+          "hits": [
+            {
+              "docId": "en-harbor-registry",
+              "page": 1,
+              "lastPage": 3,
+              "score": 0.03278688524590164,
+              "rank": 1
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 6,
+              "lastPage": 9,
+              "score": 0.03200204813108039,
+              "rank": 2
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 3,
+              "lastPage": 6,
+              "score": 0.03200204813108039,
+              "rank": 3
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.030776515151515152,
+              "rank": 4
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.03076923076923077,
+              "rank": 5
+            },
+            {
+              "docId": "en-bluefin-fisheries",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.03055037313432836,
+              "rank": 6
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 1,
+              "lastPage": 4,
+              "score": 0.029211087420042643,
+              "rank": 7
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 5,
+              "lastPage": 8,
+              "score": 0.028850145288501453,
+              "rank": 8
+            },
+            {
+              "docId": "en-harbor-registry",
+              "page": 8,
+              "lastPage": 9,
+              "score": 0.028577260665441927,
+              "rank": 9
+            },
+            {
+              "docId": "en-maple-transit",
+              "page": 4,
+              "lastPage": 6,
+              "score": 0.02661064425770308,
+              "rank": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "q-035",
+      "type": "exact-fact",
+      "language": "es",
+      "question": "¿Cuántos visitantes recibió el Museo del Valle en 2025?",
+      "expected": [
+        {
+          "docId": "es-valle-museo",
+          "page": 5
+        }
+      ],
+      "perVariant": {
+        "fts": {
+          "latencyMs": 0.5224000000007436,
+          "hits": [
+            {
+              "docId": "es-valle-museo",
+              "page": 1,
+              "lastPage": 4,
+              "score": 17.38954301148606,
+              "rank": 1
+            },
+            {
+              "docId": "es-valle-museo",
+              "page": 3,
+              "lastPage": 7,
+              "score": 17.036632523051928,
+              "rank": 2
+            },
+            {
+              "docId": "es-valle-museo",
+              "page": 6,
+              "lastPage": 8,
+              "score": 9.143446211404893,
+              "rank": 3
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 6,
+              "lastPage": 8,
+              "score": 7.688872425386822,
+              "rank": 4
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 6,
+              "lastPage": 8,
+              "score": 7.467056601809662,
+              "rank": 5
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 4,
+              "lastPage": 7,
+              "score": 7.2637211953271,
+              "rank": 6
+            },
+            {
+              "docId": "es-norte-textil",
+              "page": 8,
+              "lastPage": 9,
+              "score": 4.270606599429452,
+              "rank": 7
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 1,
+              "lastPage": 4,
+              "score": 4.150572156259779,
+              "rank": 8
+            },
+            {
+              "docId": "es-norte-textil",
+              "page": 1,
+              "lastPage": 3,
+              "score": 4.128874335828071,
+              "rank": 9
+            },
+            {
+              "docId": "es-delta-citricos",
+              "page": 1,
+              "lastPage": 5,
+              "score": 4.095010799348961,
+              "rank": 10
+            }
+          ]
+        },
+        "hybrid": {
+          "latencyMs": 2.242500000000291,
+          "hits": [
+            {
+              "docId": "es-valle-museo",
+              "page": 1,
+              "lastPage": 4,
+              "score": 0.03278688524590164,
+              "rank": 1
+            },
+            {
+              "docId": "es-valle-museo",
+              "page": 3,
+              "lastPage": 7,
+              "score": 0.03225806451612903,
+              "rank": 2
+            },
+            {
+              "docId": "es-valle-museo",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.031746031746031744,
+              "rank": 3
+            },
+            {
+              "docId": "es-cordillera-ferrocarril",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.029513888888888888,
+              "rank": 4
+            },
+            {
+              "docId": "es-altiplano-energia",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.0293236301369863,
+              "rank": 5
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.029236022193768675,
+              "rank": 6
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 1,
+              "lastPage": 5,
+              "score": 0.028850145288501453,
+              "rank": 7
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 4,
+              "lastPage": 7,
+              "score": 0.02871794871794872,
+              "rank": 8
+            },
+            {
+              "docId": "es-ribera-vinedos",
+              "page": 1,
+              "lastPage": 4,
+              "score": 0.02821939586645469,
+              "rank": 9
+            },
+            {
+              "docId": "es-sierra-senderismo",
+              "page": 6,
+              "lastPage": 8,
+              "score": 0.02804284323271665,
+              "rank": 10
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
