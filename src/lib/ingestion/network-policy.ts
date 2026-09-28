@@ -96,6 +96,10 @@ export async function assertAllowedUrl(rawUrl: string, lookup: Lookup = defaultL
     throw new ImportError("blocked", `Protokoll nicht erlaubt: ${url.protocol}`);
   }
 
+  // INGEST_ALLOW_PRIVATE=1 disables the internal-address check. Test/local
+  // harnesses only — never enable where users can submit URLs.
+  if (process.env.INGEST_ALLOW_PRIVATE === "1") return url;
+
   const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
   let addresses: { address: string; family: number }[];
   if (/^\d+\.\d+\.\d+\.\d+$/.test(hostname) || hostname.includes(":")) {

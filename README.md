@@ -60,7 +60,10 @@ worker process and Convex env). Importer tuning (optional):
 `INGEST_DISABLE_YOUTUBE=1`, `INGEST_MAX_{HTML,DOC,AUDIO,VIDEO}_MB`.
 **Honest status:** the pipeline runs against *your* Convex deployment and
 search instance — this export has not been re-verified end-to-end against a
-fresh stack. `npm run test` (vitest) runs standalone.
+fresh stack. `npm run test` (vitest, standalone) covers units + components;
+`npm run test:e2e` runs the ingestion-worker E2E suite (spawns the real
+worker against a local resource server + in-memory fake Convex; uses
+`INGEST_ALLOW_PRIVATE=1`, never enable that in production).
 
 ## What I'd do differently
 

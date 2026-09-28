@@ -15,12 +15,16 @@ import { processHtmlPage } from "../src/lib/ingestion/web";
 import { chunkText } from "../src/lib/text-extraction";
 import { IdentifiedResource, ImportErrorCode, ImportError, ProviderId } from "../src/lib/ingestion/types";
 
-process.loadEnvFile?.();
+try {
+  process.loadEnvFile?.();
+} catch {
+  /* no .env file — env comes from the process environment */
+}
 
 const WORKER_KEY = process.env.WORKER_KEY;
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_URL;
 const INTERNAL_KEY = process.env.INTERNAL_API_KEY;
-const POLL_MS = 3000;
+const POLL_MS = parseInt(process.env.INGEST_POLL_MS || "3000");
 const HEARTBEAT_MS = 60_000;
 
 if (!WORKER_KEY || !CONVEX_URL || !INTERNAL_KEY) {
@@ -39,6 +43,7 @@ interface JobDoc {
   notebookId: string;
   url: string;
   provider: string;
+  kind: string;
   resourceKey: string;
   externalId?: string;
   canonicalUrl?: string;
@@ -48,7 +53,7 @@ interface JobDoc {
 function resourceFromJob(job: JobDoc): IdentifiedResource {
   return {
     provider: job.provider as ProviderId,
-    kind: job.provider === "youtube" ? "video" : job.provider === "direct-file" ? "document" : "page",
+    kind: job.kind as IdentifiedResource["kind"],
     resourceKey: job.resourceKey,
     originalUrl: job.url,
     canonicalUrl: job.canonicalUrl || job.url,
@@ -62,7 +67,9 @@ async function call<T>(path: string, args: Record<string, unknown>): Promise<T> 
     headers: { "Content-Type": "application/json", "x-internal-key": INTERNAL_KEY! },
     body: JSON.stringify({ path, args }),
   });
-  return res.json() as Promise<T>;
+  const data = (await res.json()) as { value?: T; errorMessage?: string };
+  if (data.errorMessage) throw new Error(data.errorMessage);
+  return data.value as T;
 }
 
 async function runJob(job: JobDoc): Promise<void> {

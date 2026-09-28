@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "worker": "tsx workers/ingestion.ts"
+    "worker": "tsx workers/ingestion.ts",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",

@@ -33,6 +33,7 @@ export const create = mutation({
     notebookId: v.id("notebooks"),
     url: v.string(),
     provider: v.string(),
+    kind: v.string(),
     resourceKey: v.string(),
     externalId: v.optional(v.string()),
     canonicalUrl: v.optional(v.string()),

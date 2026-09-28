@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     notebookId,
     url,
     provider: classified.provider,
+    kind: classified.kind,
     resourceKey: classified.resourceKey,
     ...(classified.externalId && { externalId: classified.externalId }),
     ...(classified.canonicalUrl && { canonicalUrl: classified.canonicalUrl }),
