@@ -30,6 +30,13 @@ import {
 } from "@/lib/services/import-jobs";
 import { classifyUrl } from "@/lib/ingestion/identify";
 import type { MaterialType } from "@/db/local/schema";
+import { getSetting, setSetting } from "@/lib/services/settings";
+import {
+  getEmbeddingProfile,
+  registerEmbeddingProfile,
+} from "@/lib/services/embedding-profiles";
+
+const ACTIVE_PROFILE_KEY = "retrieval.activeProfile";
 
 export type EngineResult =
   | { ok: true; result: unknown }
@@ -307,6 +314,30 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           };
         }
         return { ok: true, result: {} };
+      }
+
+      case "retrieval.profile.activate": {
+        const { provider, model, revision, dimension, pooling, queryPrefix, docPrefix } = args as {
+          provider?: string; model?: string; revision?: string;
+          dimension?: number; pooling?: string; queryPrefix?: string; docPrefix?: string;
+        };
+        if (!provider || !model || !revision || !dimension || !pooling) {
+          return { ok: false, error: { code: "bad_args", message: "provider, model, revision, dimension and pooling are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await registerEmbeddingProfile(db, {
+          provider, model, revision, dimension, pooling, queryPrefix, docPrefix,
+        });
+        await setSetting(db, ACTIVE_PROFILE_KEY, profile._id);
+        return { ok: true, result: { profileId: profile._id } };
+      }
+
+      case "retrieval.profile.active": {
+        const { db } = getLocalContext();
+        const profileId = await getSetting<string>(db, ACTIVE_PROFILE_KEY);
+        if (!profileId) return { ok: true, result: { profile: null } };
+        const profile = await getEmbeddingProfile(db, profileId);
+        return { ok: true, result: { profile } };
       }
 
       default:

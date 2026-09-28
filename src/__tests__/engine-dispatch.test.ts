@@ -154,4 +154,39 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     const cancelled = await handleEngineRequest("imports.action", { jobId, action: "cancel" });
     expect(cancelled.ok).toBe(true);
   });
+
+  it("activates and reports the embedding profile for retrieval", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+
+    // nothing active by default
+    const none = await handleEngineRequest("retrieval.profile.active", {});
+    expect(none).toEqual({ ok: true, result: { profile: null } });
+
+    const activated = await handleEngineRequest("retrieval.profile.activate", {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "q8_0",
+      dimension: 384,
+      pooling: "mean",
+    });
+    expect(activated.ok).toBe(true);
+    const profileId = (activated as { result: { profileId: string } }).result.profileId;
+    expect(profileId).toBeTruthy();
+
+    const active = await handleEngineRequest("retrieval.profile.active", {});
+    expect((active as { result: { profile: { _id: string; dimension: number } } }).result.profile).toMatchObject({
+      _id: profileId,
+      dimension: 384,
+    });
+
+    // re-activating the same natural key is idempotent
+    const again = await handleEngineRequest("retrieval.profile.activate", {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "q8_0",
+      dimension: 384,
+      pooling: "mean",
+    });
+    expect((again as { result: { profileId: string } }).result.profileId).toBe(profileId);
+  });
 });
