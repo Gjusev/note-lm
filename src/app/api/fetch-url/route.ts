@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { chunkText } from "@/lib/text-extraction";
+import { getSessionUser, userOwnsNotebook } from "@/lib/server/notebook-access";
+import { extractTextFromHtml, extractTitleFromHtml } from "@/lib/ingestion/html-extract";
 
 export const runtime = "nodejs";
 
@@ -34,50 +36,26 @@ async function fetchAndExtractText(url: string): Promise<{ text: string; title: 
     return { text: raw, title };
   }
 
-  // HTML — strip tags to extract text
-  const titleMatch = raw.match(/<title[^>]*>([^<]+)<\/title>/i);
-  const title = titleMatch ? titleMatch[1].trim() : new URL(url).hostname;
-
-  // Remove scripts, styles, nav, footer, header
-  const clean = raw
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<header[\s\S]*?<\/header>/gi, "")
-    .replace(/<aside[\s\S]*?<\/aside>/gi, "");
-
-  // Try to get main content first
-  const mainMatch = clean.match(/<main[\s\S]*?>([\s\S]*?)<\/main>/i)
-    || clean.match(/<article[\s\S]*?>([\s\S]*?)<\/article>/i)
-    || clean.match(/<div[^>]*class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
-
-  const contentHtml = mainMatch ? mainMatch[1] : clean.replace(/<head[\s\S]*?<\/head>/gi, "");
-
-  // Strip remaining tags and normalize whitespace
-  const text = contentHtml
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<\/h[1-6]>/gi, "\n\n")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#\d+;/g, "")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
+  const title = extractTitleFromHtml(raw, new URL(url).hostname);
+  const text = extractTextFromHtml(raw);
   return { text, title };
 }
 
 export async function POST(req: NextRequest) {
-  const { url, notebookId, ownerId, forceText, title: customTitle } = await req.json();
+  const { url, notebookId, forceText, title: customTitle } = await req.json();
 
-  if (!notebookId || !ownerId) {
-    return NextResponse.json({ error: "notebookId und ownerId sind erforderlich" }, { status: 400 });
+  // ownerId comes from the session, never from the request body
+  const user = await getSessionUser();
+  if (!user) {
+    return NextResponse.json({ error: "Nicht angemeldet" }, { status: 401 });
+  }
+  const ownerId = user.id;
+
+  if (!notebookId) {
+    return NextResponse.json({ error: "notebookId ist erforderlich" }, { status: 400 });
+  }
+  if (!(await userOwnsNotebook(ownerId, notebookId))) {
+    return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
 
   try {

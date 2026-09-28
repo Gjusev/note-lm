@@ -8,6 +8,8 @@
 | :--- | :--- |
 | Run the notebook against your own services | [Getting started](getting-started.md) |
 | Follow auth, ingestion, retrieval and chat | [Architecture](architecture.md) |
+| Evaluate Cobalt for multimedia URL imports | [Cobalt integration research](specs/cobalt-integration-research.md) |
+| Build an independent resource importer | [Resource importer plan](specs/resource-importer-plan.md) |
 | Understand the product scope and acceptance criteria | [MVP specification](specs/ki-research-notebook-mvp.md) |
 | Review the architecture page copy | [Architecture page copy](specs/architecture-page-copy.md) |
 | Read the user-facing German guide | [Benutzerhandbuch](BENUTZERHANDBUCH.md) |

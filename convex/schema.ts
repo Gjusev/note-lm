@@ -28,12 +28,20 @@ export default defineSchema({
     ),
     transcriptStorageId: v.optional(v.id("_storage")),
     errorMessage: v.optional(v.string()),
+    // Import provenance (optional, added by the resource importer)
+    provider: v.optional(v.string()),
+    canonicalUrl: v.optional(v.string()),
+    externalId: v.optional(v.string()),
+    author: v.optional(v.string()),
+    language: v.optional(v.string()),
+    importedAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_notebookId", ["notebookId"])
     .index("by_ownerId", ["ownerId"])
-    .index("by_notebookId_status", ["notebookId", "status"]),
+    .index("by_notebookId_status", ["notebookId", "status"])
+    .index("by_notebookId_provider_externalId", ["notebookId", "provider", "externalId"]),
 
   processingJobs: defineTable({
     ownerId: v.string(),
@@ -101,6 +109,41 @@ export default defineSchema({
   })
     .index("by_notebookId", ["notebookId"])
     .index("by_ownerId", ["ownerId"]),
+
+  importJobs: defineTable({
+    ownerId: v.string(),
+    notebookId: v.id("notebooks"),
+    url: v.string(),
+    provider: v.string(),
+    resourceKey: v.string(),
+    externalId: v.optional(v.string()),
+    canonicalUrl: v.optional(v.string()),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("inspecting"),
+      v.literal("awaiting_selection"),
+      v.literal("downloading"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
+    attempts: v.number(),
+    maxAttempts: v.number(),
+    nextAttemptAt: v.number(),
+    leaseToken: v.optional(v.string()),
+    leaseExpiresAt: v.optional(v.number()),
+    errorCode: v.optional(v.string()),
+    errorMessage: v.optional(v.string()),
+    sourceId: v.optional(v.id("sources")),
+    title: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_notebookId_createdAt", ["notebookId", "createdAt"])
+    .index("by_status_nextAttemptAt", ["status", "nextAttemptAt"])
+    .index("by_notebookId_resourceKey", ["notebookId", "resourceKey"])
+    .index("by_leaseExpiresAt", ["leaseExpiresAt"]),
 
   learningMaterials: defineTable({
     ownerId: v.string(),
