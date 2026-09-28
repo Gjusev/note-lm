@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run test:e2e
+        env:
+          INGEST_ALLOW_PRIVATE: "1" # loopback test resource servers only
+      - run: npm run build
+        env:
+          # build must not require any runtime secrets
+          NOTELM_DATA_DIR: ${{ runner.temp }}/notelm-ci
