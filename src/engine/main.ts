@@ -8,6 +8,7 @@ import { handleEngineRequest } from "./dispatch";
 import { startProcessingLoop } from "./jobs";
 import { stopLlamaHelpers } from "./capabilities";
 import { getLocalContext } from "@/lib/storage/local";
+import { reconcileStartupArtifacts } from "@/lib/services/job-control";
 
 // stdout is the protocol channel — ALL other output (job logs, warnings)
 // goes to stderr. Anything console.log'd by engine code would corrupt the
@@ -44,4 +45,8 @@ process.stdin.on("end", () => {
 });
 
 // uploads (extract/transcribe → chunk) run inside the engine process
-startProcessingLoop(getLocalContext());
+const bootCtx = getLocalContext();
+// slice 3b: one reconcile pass at startup — orphan partial dirs and terminal
+// checkpoints are dropped, live jobs' partials survive for their next attempt
+reconcileStartupArtifacts(bootCtx.db, bootCtx.dataDir);
+startProcessingLoop(bootCtx);

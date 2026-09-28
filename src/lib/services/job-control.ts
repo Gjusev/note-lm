@@ -10,6 +10,8 @@
  */
 import type { LocalDb } from "@/db/local";
 import { rawClient } from "@/db/local";
+import fs from "node:fs";
+import path from "node:path";
 import { releaseImportJob } from "./import-jobs";
 import { releaseProcessingJob, failProcessingJob } from "./processing-jobs";
 
@@ -263,4 +265,42 @@ export function deleteJobCheckpoints(db: LocalDb, kind: JobKind, jobId: string):
   rawClient(db)
     .prepare(`DELETE FROM job_checkpoints WHERE job_kind = ? AND job_id = ?`)
     .run(kind, jobId);
+}
+
+const IMPORT_TERMINAL: string[] = ["completed", "failed", "cancelled"];
+
+/**
+ * Startup reconcile (desktop-workers-plan slice 3b): one synchronous pass —
+ * no daemon. Drops resume checkpoints of terminal import jobs and deletes
+ * orphan partial dirs under <dataDir>/tmp/jobs/<jobId>. Partials of queued
+ * (paused / transient-failed) and running jobs survive so the next attempt
+ * resumes them — that is why partials live under the data dir, never os.tmpdir.
+ */
+export function reconcileStartupArtifacts(db: LocalDb, dataDir: string): { removedDirs: number } {
+  const sqlite = rawClient(db);
+  for (const row of sqlite
+    .prepare(`SELECT id FROM import_jobs WHERE status IN ('completed','failed','cancelled')`)
+    .all() as Array<{ id: string }>) {
+    deleteJobCheckpoints(db, "import", row.id);
+  }
+
+  const jobsRoot = path.join(dataDir, "tmp", "jobs");
+  let entries: fs.Dirent[] = [];
+  try {
+    entries = fs.readdirSync(jobsRoot, { withFileTypes: true });
+  } catch {
+    return { removedDirs: 0 }; // no tmp dir yet
+  }
+  let removedDirs = 0;
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const job = sqlite.prepare(`SELECT status FROM import_jobs WHERE id = ?`).get(entry.name) as
+      | { status: string }
+      | undefined;
+    // unknown job ids and terminal jobs are orphans; live jobs keep their partial
+    if (job && !IMPORT_TERMINAL.includes(job.status)) continue;
+    fs.rmSync(path.join(jobsRoot, entry.name), { recursive: true, force: true });
+    removedDirs++;
+  }
+  return { removedDirs };
 }

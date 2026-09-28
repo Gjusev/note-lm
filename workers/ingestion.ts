@@ -21,6 +21,7 @@ import { runProcessingJob } from "../src/engine/processing";
 import { runImportJob } from "../src/engine/imports";
 import { claimImportJob } from "../src/lib/services/import-jobs";
 import { claimProcessingJob } from "../src/lib/services/processing-jobs";
+import { reconcileStartupArtifacts } from "../src/lib/services/job-control";
 
 try {
   process.loadEnvFile?.();
@@ -42,6 +43,9 @@ async function main() {
   const dataDir = resolveDataDir();
   const db = openLocalDb(dataDir);
   ctx = { db, store: new LocalStore(db, dataDir), dataDir };
+  // slice 3b: same single reconcile pass as the engine (orphan partials out,
+  // live partials survive)
+  reconcileStartupArtifacts(ctx.db, ctx.dataDir);
   console.log(`[WORKER] Bereit. Datenverzeichnis: ${ctx.dataDir}. Poll alle ${POLL_MS}ms.`);
 
   const shutdown = (signal: string) => {

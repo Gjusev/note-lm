@@ -9,10 +9,20 @@
  * intent (job-control). "pause" releases the lease back to queued (the
  * attempt is refunded, the job stays resumable), "cancel" ends the job.
  * A lost lease always wins — a released job discards our result ("lost").
+ *
+ * Slice 3b: HTTP-Range-resumable downloads. Every download streams into a
+ * partial under <dataDir>/tmp/jobs/<jobId>/ (never os.tmpdir — it must
+ * survive an app restart) with token-fenced checkpoints written at batch
+ * boundaries. A previous attempt's partial is resumed via HTTP Range; the
+ * file on disk is authoritative for the byte count, the checkpoint only
+ * points at it and carries the validators (etag/last-modified). Pause keeps
+ * the partial (the retry resumes); terminal states delete partial + checkpoint.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { classifyUrl, providerEnabled } from "@/lib/ingestion/identify";
 import { getAdapter } from "@/lib/ingestion/registry";
-import { cleanupDownload, downloadPlan, type DownloadResult } from "@/lib/ingestion/download";
+import { downloadPlan, type DownloadResult, type DownloadResume } from "@/lib/ingestion/download";
 import { processContent } from "@/lib/ingestion/process";
 import { processHtmlPage } from "@/lib/ingestion/web";
 import { chunkText } from "@/lib/text-extraction";
@@ -22,12 +32,28 @@ import type { ImportJobDoc } from "@/lib/services/import-jobs";
 import {
   completeImportJob,
   failImportJob,
+  getImportJob,
   heartbeatImportJob,
   updateImportJobPhase,
 } from "@/lib/services/import-jobs";
-import { observeJobIntent } from "@/lib/services/job-control";
+import {
+  deleteJobCheckpoints,
+  emitJobEvent,
+  getJobCheckpoints,
+  observeJobIntent,
+  setJobCheckpoint,
+} from "@/lib/services/job-control";
 
 const HEARTBEAT_MS = 60_000;
+
+/** Checkpoint write frequency: batches of 256 KB, not per byte (SQLite upsert per boundary). */
+const CP_BATCH_BYTES = 256 * 1024;
+
+/** URL-derived names never reach the filesystem verbatim. */
+function safeFileName(name: string): string {
+  const cleaned = name.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return (cleaned.slice(0, 80) || "download") + ".part";
+}
 
 export type ImportJobOutcome = "completed" | "paused" | "cancelled" | "failed" | "lost";
 
@@ -81,6 +107,24 @@ export async function runImportJob(
   }, HEARTBEAT_MS);
 
   let download: DownloadResult | null = null;
+  // resume state of this attempt's downloading phase (set inside the hop loop)
+  let partDir: string | null = null;
+
+  /**
+   * Terminal bookkeeping (slice 3b): the partial download and its checkpoint
+   * are the resume point — they survive a pause and a transient failure (the
+   * retry resumes). Completed, cancelled and terminal failures discard both.
+   * "lost" touches nothing: the winning claimant owns the job now.
+   */
+  const finish = async (outcome: ImportJobOutcome): Promise<ImportJobOutcome> => {
+    if (outcome === "paused" || outcome === "lost") return outcome;
+    // a transient failure requeues the job: keep partial + checkpoint for the retry
+    if (outcome === "failed" && getImportJob(ctx.db, jobId)?.status === "queued") return outcome;
+    if (partDir) await fs.promises.rm(partDir, { recursive: true, force: true }).catch(() => {});
+    deleteJobCheckpoints(ctx.db, "import", jobId);
+    return outcome;
+  };
+
   try {
     let resource = resourceFromJob(job);
     if (!providerEnabled(resource.provider)) {
@@ -95,20 +139,99 @@ export async function runImportJob(
       // a lost lease is handled by the next gate)
       updateImportJobPhase(ctx.db, jobId, token, "inspecting", meta.title);
       const inspectGate = await enterPhase("inspecting");
-      if (inspectGate) return inspectGate;
+      if (inspectGate) return finish(inspectGate);
 
       const plan = await adapter.resolve(resource);
-      const downloadGate = await enterPhase("downloading");
-      if (downloadGate) return downloadGate;
 
-      download = await downloadPlan(plan);
+      // slice 3b: every download streams into the job's partial dir. Resume
+      // lookup: adopt the checkpointed partial when it belongs to this exact
+      // plan (a provider redispatch changes the plan → fresh download).
+      partDir = path.join(ctx.dataDir, "tmp", "jobs", jobId);
+      const partPath = path.join(partDir, safeFileName(plan.fileNameHint || "download"));
+      let resume: DownloadResume = { partPath, bytesDone: 0, etag: null, lastModified: null };
+      let reuseComplete: { contentType: string; etag: string | null; lastModified: string | null } | null = null;
+      const cp = getJobCheckpoints(ctx.db, "import", jobId).find((c) => c.stage === "downloading");
+      if (cp?.cursor) {
+        try {
+          const cur = JSON.parse(cp.cursor) as {
+            partPath?: string; bytes?: number; etag?: string | null; lastModified?: string | null;
+            contentType?: string; done?: boolean;
+          };
+          if (cur.partPath === partPath) {
+            const size = fs.existsSync(cur.partPath) ? fs.statSync(cur.partPath).size : 0;
+            if (cur.done && cur.bytes === size && cur.contentType) {
+              // the download had already finished before the pause/crash —
+              // reuse the complete file, no network round-trip
+              reuseComplete = { contentType: cur.contentType, etag: cur.etag ?? null, lastModified: cur.lastModified ?? null };
+            } else if (!cur.done && size > 0) {
+              // the part file is authoritative for the byte count: a crash
+              // between a flushed batch and its checkpoint write must never
+              // duplicate bytes on append
+              resume = { partPath, bytesDone: size, etag: cur.etag ?? null, lastModified: cur.lastModified ?? null };
+            }
+          }
+        } catch {
+          /* corrupt cursor → fresh download */
+        }
+      }
+
+      const downloadGate = await enterPhase("downloading");
+      if (downloadGate) return finish(downloadGate);
+
+      if (reuseComplete) {
+        const buffer = await fs.promises.readFile(partPath);
+        download = {
+          buffer,
+          tempPath: null,
+          contentType: reuseComplete.contentType,
+          finalUrl: resource.canonicalUrl,
+          bytes: buffer.length,
+          restarted: false,
+          etag: reuseComplete.etag,
+          lastModified: reuseComplete.lastModified,
+        };
+        log("REUSED", `${(download.bytes / 1024).toFixed(0)} KB`);
+      } else {
+        let lastCheckpointed = resume.bytesDone;
+        download = await downloadPlan(plan, {
+          resume,
+          onProgress: (bytes, validators) => {
+            if (bytes < lastCheckpointed) lastCheckpointed = 0; // download restarted from zero
+            if (bytes - lastCheckpointed < CP_BATCH_BYTES) return;
+            lastCheckpointed = bytes;
+            setJobCheckpoint(ctx.db, "import", jobId, token, "downloading", JSON.stringify({
+              partPath, bytes, etag: validators.etag, lastModified: validators.lastModified,
+            }));
+            emitJobEvent(ctx.db, "import", jobId, "progress", { stage: "downloading", bytes });
+          },
+        });
+        if (download.restarted) {
+          emitJobEvent(ctx.db, "import", jobId, "download_restarted");
+          log("RESTARTED", "Validatoren haben sich geändert — Download startet neu");
+        }
+      }
+
+      // download stage complete: mark the partial reusable without network
+      setJobCheckpoint(ctx.db, "import", jobId, token, "downloading", JSON.stringify({
+        partPath,
+        bytes: download.bytes,
+        etag: download.etag,
+        lastModified: download.lastModified,
+        contentType: download.contentType,
+        done: true,
+      }));
+
       log("DOWNLOADED", `${download.contentType} ${(download.bytes / 1024).toFixed(0)} KB`);
 
       // short-link re-dispatch: final URL may belong to a known provider
       const finalClassified = classifyUrl(download.finalUrl);
       if (finalClassified.provider !== resource.provider) {
         log("REDISPATCH", `${resource.provider} → ${finalClassified.provider}`);
-        await cleanupDownload(download);
+        // hop-1 bytes and its checkpoint are stale for the new plan; the next
+        // download recreates the dir (and checkpoints get rejected via the
+        // partPath mismatch / existsSync check)
+        await fs.promises.rm(partDir, { recursive: true, force: true }).catch(() => {});
+        deleteJobCheckpoints(ctx.db, "import", jobId);
         download = null;
         resource = finalClassified;
         if (!providerEnabled(resource.provider)) {
@@ -118,7 +241,7 @@ export async function runImportJob(
       }
 
       const processGate = await enterPhase("processing");
-      if (processGate) return processGate;
+      if (processGate) return finish(processGate);
 
       let text: string;
       let title: string | undefined;
@@ -138,7 +261,7 @@ export async function runImportJob(
       // last intent gate before the commit: a cancel/pause clicked during the
       // long processContent phase (transcription) must not commit the source
       const preCommitGate = await enterPhase("processing");
-      if (preCommitGate) return preCommitGate;
+      if (preCommitGate) return finish(preCommitGate);
 
       const chunks = chunkText(text).map((content, chunkIndex) => ({ content, chunkIndex }));
       const hostname = (() => { try { return new URL(resource.originalUrl).hostname; } catch { return resource.provider; } })();
@@ -181,7 +304,7 @@ export async function runImportJob(
         await ctx.store.delete(staleId);
       }
       log("DONE", `${chunks.length} Chunks, Quelle ${res.sourceId}`);
-      return "completed";
+      return finish("completed");
     }
     throw new ImportError("unsupported", "Ziel konnte keinem Provider zugeordnet werden");
   } catch (err) {
@@ -197,9 +320,8 @@ export async function runImportJob(
       transient: imp.transient,
       ...(imp.retryAfterMs !== undefined && { retryAfterMs: imp.retryAfterMs }),
     });
-    return ok ? "failed" : "lost";
+    return ok ? finish("failed") : "lost";
   } finally {
     clearInterval(hb);
-    if (download) await cleanupDownload(download);
   }
 }
