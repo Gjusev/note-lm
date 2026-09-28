@@ -68,6 +68,9 @@ export const remove = mutation({
         .collect();
       for (const chunk of chunks) await ctx.db.delete(chunk._id);
       await ctx.db.delete(source._id);
+      for (const sid of [source.storageId, source.transcriptStorageId]) {
+        if (sid) await ctx.storage.delete(sid).catch(() => {});
+      }
     }
 
     const messages = await ctx.db
@@ -87,6 +90,12 @@ export const remove = mutation({
       .withIndex("by_notebookId", (q) => q.eq("notebookId", notebookId))
       .collect();
     for (const mat of materials) await ctx.db.delete(mat._id);
+
+    const jobs = await ctx.db
+      .query("importJobs")
+      .withIndex("by_notebookId_createdAt", (q) => q.eq("notebookId", notebookId))
+      .collect();
+    for (const job of jobs) await ctx.db.delete(job._id);
 
     await ctx.db.delete(notebookId);
   },

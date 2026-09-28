@@ -21,7 +21,7 @@ enough that the notebook can be exposed to the internet safely.
 
 ## What's inside
 
-- **Source ingestion** — file upload with a Convex-backed background pipeline; ffmpeg (bundled in the Docker image) handles audio/video; YouTube sources via search + download; web pages via a SearXNG instance.
+- **Source ingestion** — file upload with a Convex-backed background pipeline; ffmpeg (bundled in the Docker image) handles audio/video; URL imports (pages, direct PDF/audio/video files, YouTube videos) run as persistent Convex jobs through a dedicated Node worker (`npm run worker`); web pages via a SearXNG instance.
 - **Chat over all sources** — retrieval includes context from every matching source, not just top keyword hits; answers cite the sources they used.
 - **Strict data split** — Better Auth (email/password + Google OAuth) lives in PostgreSQL via Drizzle; product data lives in self-hosted Convex. Sessions never mix stores.
 - **Shippable** — Dockerfile with ffmpeg preinstalled, vitest suite, structured e2e script.
@@ -49,14 +49,21 @@ and functions), `src/app/api/` (pipeline entrypoints).
 npm install
 npx drizzle-kit push          # auth schema → your PostgreSQL
 npx convex dev                # schema+functions → your Convex deployment
+npx convex env set WORKER_KEY <random-secret>   # worker credential (Convex side)
 npm run dev
+npm run worker                # ingestion worker (URL/PDF/audio/YouTube imports)
 ```
 
 Environment (names only): `DATABASE_URL`, Convex deployment URL + internal
-key, OpenAI API key, SearXNG endpoint. **Honest status:** the pipeline runs
-against *your* Convex deployment and search instance — this export has not
-been re-verified end-to-end against a fresh stack. `npm run test` (vitest)
-runs standalone.
+key, OpenAI API key, SearXNG endpoint, `WORKER_KEY` (same value for the
+worker process and Convex env). Importer tuning (optional):
+`INGEST_DISABLE_YOUTUBE=1`, `INGEST_MAX_{HTML,DOC,AUDIO,VIDEO}_MB`.
+**Honest status:** the pipeline runs against *your* Convex deployment and
+search instance — this export has not been re-verified end-to-end against a
+fresh stack. `npm run test` (vitest, standalone) covers units + components;
+`npm run test:e2e` runs the ingestion-worker E2E suite (spawns the real
+worker against a local resource server + in-memory fake Convex; uses
+`INGEST_ALLOW_PRIVATE=1`, never enable that in production).
 
 ## What I'd do differently
 

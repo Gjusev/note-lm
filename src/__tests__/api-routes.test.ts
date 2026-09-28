@@ -16,6 +16,12 @@ vi.mock("openai", () => ({
   },
 }));
 
+// Authenticated session + owned notebook for all route tests
+vi.mock("@/lib/server/notebook-access", () => ({
+  getSessionUser: vi.fn(async () => ({ id: "u1", email: "u1@test.example" })),
+  userOwnsNotebook: vi.fn(async () => true),
+}));
+
 function mockFetch(responses: Record<string, unknown>) {
   global.fetch = vi.fn().mockImplementation(async (url: string | Request, init?: RequestInit) => {
     const urlStr = typeof url === "string" ? url : url.toString();
@@ -53,7 +59,7 @@ function mockNextRequest(url: string, init?: RequestInit) {
 // ── URL Fetch Route ──
 
 describe("/api/fetch-url", () => {
-  it("rejects missing notebookId or ownerId", async () => {
+  it("rejects missing notebookId", async () => {
     const { POST } = await import("@/app/api/fetch-url/route");
     const req = new Request("http://localhost/api/fetch-url", {
       method: "POST",

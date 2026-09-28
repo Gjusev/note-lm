@@ -64,12 +64,17 @@ export const get = query({
 export const remove = mutation({
   args: { sourceId: v.id("sources") },
   handler: async (ctx, { sourceId }) => {
+    const source = await ctx.db.get(sourceId);
     const chunks = await ctx.db
       .query("chunks")
       .withIndex("by_sourceId", (q) => q.eq("sourceId", sourceId))
       .collect();
     for (const chunk of chunks) await ctx.db.delete(chunk._id);
     await ctx.db.delete(sourceId);
+    // Associated files are removed too; already-deleted storage is tolerated.
+    for (const sid of [source?.storageId, source?.transcriptStorageId]) {
+      if (sid) await ctx.storage.delete(sid).catch(() => {});
+    }
   },
 });
 

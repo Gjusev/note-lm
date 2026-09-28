@@ -40,6 +40,27 @@ interface NoteData {
   updatedAt: number;
 }
 
+interface ImportJob {
+  _id: string;
+  provider: string;
+  url: string;
+  status: string;
+  title?: string;
+  errorMessage?: string;
+  attempts: number;
+}
+
+const JOB_STATUS_LABELS: Record<string, string> = {
+  queued: "in Warteschlange",
+  inspecting: "wird geprüft",
+  awaiting_selection: "wartet auf Auswahl",
+  downloading: "wird geladen",
+  processing: "wird verarbeitet",
+  completed: "fertig",
+  failed: "fehlgeschlagen",
+  cancelled: "abgebrochen",
+};
+
 export default function NotebookPage() {
   const params = useParams();
   const router = useRouter();
@@ -72,6 +93,7 @@ export default function NotebookPage() {
   const [showDelete, setShowDelete] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [urlLoading, setUrlLoading] = useState(false);
+  const [importJobs, setImportJobs] = useState<ImportJob[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<{ title: string; url: string; snippet?: string }[]>([]);
@@ -154,30 +176,74 @@ export default function NotebookPage() {
     }
   }, [message, chatLoading, session, notebookId, toast, createMessage]);
 
+  const hasActiveJobs = importJobs.some((j) => !["completed", "failed", "cancelled"].includes(j.status));
+
+  const refreshJobs = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/imports?notebookId=${encodeURIComponent(notebookId)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setImportJobs(data.jobs || []);
+    } catch { /* keep last state */ }
+  }, [notebookId]);
+
+  // Poll import jobs while the import tabs are open or work is in flight
+  useEffect(() => {
+    if (activeTab !== "url" && activeTab !== "search" && !hasActiveJobs) return;
+    void refreshJobs();
+    const id = setInterval(() => { void refreshJobs(); }, 4000);
+    return () => clearInterval(id);
+  }, [activeTab, hasActiveJobs, refreshJobs]);
+
+  const handleJobAction = useCallback(async (jobId: string, action: "cancel" | "retry") => {
+    try {
+      const res = await fetch(`/api/imports/${jobId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (!res.ok) toast(data.error || "Aktion fehlgeschlagen", "error");
+      await refreshJobs();
+    } catch {
+      toast("Aktion fehlgeschlagen", "error");
+    }
+  }, [refreshJobs, toast]);
+
+  const startImport = useCallback(async (url: string): Promise<boolean> => {
+    try {
+      const res = await fetch("/api/imports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, notebookId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast(data.error || "Import konnte nicht gestartet werden", "error");
+        return false;
+      }
+      if (data.deduped) toast("Import läuft bereits für diese Quelle", "info");
+      void refreshJobs();
+      return true;
+    } catch {
+      toast("Import konnte nicht gestartet werden", "error");
+      return false;
+    }
+  }, [notebookId, toast, refreshJobs]);
+
   const handleUrlSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim() || !session?.user?.id) return;
 
     setUrlLoading(true);
     try {
-      const res = await fetch("/api/fetch-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlInput.trim(), notebookId, ownerId: session.user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast(data.error || "URL konnte nicht geladen werden", "error");
-      } else {
-        toast(`"${data.title}" als Quelle hinzugefügt`, "success");
+      if (await startImport(urlInput.trim())) {
         setUrlInput("");
       }
-    } catch {
-      toast("URL konnte nicht geladen werden", "error");
     } finally {
       setUrlLoading(false);
     }
-  }, [urlInput, session, notebookId, toast]);
+  }, [urlInput, session, startImport]);
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,23 +272,8 @@ export default function NotebookPage() {
 
   const handleAddSearchResult = useCallback(async (result: { title: string; url: string; snippet?: string; content?: string }) => {
     if (!session?.user?.id) return;
-
-    try {
-      const res = await fetch("/api/fetch-url", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: result.url, notebookId, ownerId: session.user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast(data.error || "Quelle konnte nicht hinzugefügt werden", "error");
-      } else {
-        toast(`"${result.title}" als Quelle hinzugefügt`, "success");
-      }
-    } catch {
-      toast("Quelle konnte nicht hinzugefügt werden", "error");
-    }
-  }, [session, notebookId, toast]);
+    await startImport(result.url);
+  }, [session, startImport]);
 
   const handleSaveNote = useCallback(async () => {
     if (!session?.user?.id || !newNoteTitle.trim()) return;
@@ -379,7 +430,7 @@ export default function NotebookPage() {
             <>
               <p className="text-mono-label text-accent mb-3">[ URL HINZUFÜGEN ]</p>
               <p className="text-mono-data text-sm mb-4 opacity-70">
-                Gib eine URL ein, um den Inhalt als Quelle zu laden.
+                Gib eine URL ein: Artikel, PDFs, Audiodateien oder YouTube-Videos werden importiert.
               </p>
               <form onSubmit={handleUrlSubmit} className="flex flex-col gap-3">
                 <input
@@ -396,9 +447,10 @@ export default function NotebookPage() {
                   disabled={urlLoading || !urlInput.trim()}
                   className="border-2 border-accent text-accent px-4 py-2 text-mono-label font-bold hover:bg-accent hover:text-white transition-colors disabled:opacity-50"
                 >
-                  {urlLoading ? "WIRD GELADEN..." : "URL LADEN →"}
+                  {urlLoading ? "WIRD GESTARTET..." : "IMPORT STARTEN →"}
                 </button>
               </form>
+              <ImportJobsList jobs={importJobs} onAction={handleJobAction} />
             </>
           ) : activeTab === "search" ? (
             <>
@@ -422,6 +474,7 @@ export default function NotebookPage() {
                   {searchLoading ? "SUCHE LÄUFT..." : "SUCHEN →"}
                 </button>
               </form>
+              <ImportJobsList jobs={importJobs} onAction={handleJobAction} />
               {searchResults.length > 0 && (
                 <div className="flex flex-col gap-2">
                   {searchResults.map((r, i) => (
@@ -822,8 +875,57 @@ export default function NotebookPage() {
   );
 }
 
-// ── Material Types ──
+// ── Import jobs list ──
 
+function ImportJobsList({ jobs, onAction }: { jobs: ImportJob[]; onAction: (jobId: string, action: "cancel" | "retry") => void }) {
+  if (jobs.length === 0) return null;
+  const active = (status: string) => !["completed", "failed", "cancelled"].includes(status);
+  return (
+    <div className="mt-4 flex flex-col gap-2">
+      <p className="text-mono-label text-[0.6rem] opacity-40">[ IMPORTS ]</p>
+      {jobs.slice(0, 8).map((j) => (
+        <div key={j._id} className="border border-rule/30 p-2.5">
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-xs font-bold truncate flex-1">{j.title || j.url}</p>
+            <span className="text-mono-label text-[0.5rem] opacity-40 shrink-0 uppercase">{j.provider}</span>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <span className={`inline-block w-1.5 h-1.5 ${
+              j.status === "completed" ? "bg-green-600" :
+              j.status === "failed" ? "bg-accent" :
+              j.status === "cancelled" ? "bg-gray-400" :
+              "bg-yellow-500 animate-pulse"
+            }`} />
+            <p className="text-mono-label text-[0.55rem] opacity-70">
+              {JOB_STATUS_LABELS[j.status] || j.status}
+            </p>
+            {active(j.status) && (
+              <button
+                onClick={() => onAction(j._id, "cancel")}
+                className="text-mono-label text-[0.5rem] ml-auto opacity-40 hover:opacity-100 hover:text-accent"
+              >
+                ABBRECHEN
+              </button>
+            )}
+            {(j.status === "failed" || j.status === "cancelled") && (
+              <button
+                onClick={() => onAction(j._id, "retry")}
+                className="text-mono-label text-[0.5rem] ml-auto text-accent hover:underline"
+              >
+                WIEDERHOLEN
+              </button>
+            )}
+          </div>
+          {j.status === "failed" && j.errorMessage && (
+            <p className="text-[0.6rem] text-accent/80 mt-1 line-clamp-2">{j.errorMessage}</p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Material Types ──
 const MATERIAL_TYPES = [
   { type: "summary" as const, label: "Zusammenfassung", icon: "doc" },
   { type: "flashcards" as const, label: "Karteikarten", icon: "cards" },
