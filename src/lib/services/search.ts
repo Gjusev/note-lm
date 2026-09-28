@@ -6,7 +6,7 @@ import { rawClient, type LocalDb } from "@/db/local";
  */
 
 export interface ScoredChunk {
-  chunkId: number; // FTS rowid == chunks.rowid
+  chunkId: string; // chunk UUID (joined via rowid)
   sourceId: string;
   notebookId: string;
   chunkIndex: number;
@@ -30,10 +30,11 @@ export function searchChunks(db: LocalDb, notebookId: string, query: string, lim
   if (!match) return [];
   const rows = rawClient(db)
     .prepare(
-      `SELECT rowid AS "chunkId", source_id AS "sourceId", notebook_id AS "notebookId",
-              chunk_index AS "chunkIndex", content, bm25(chunks_fts) AS rank
-       FROM chunks_fts
-       WHERE chunks_fts MATCH ? AND notebook_id = ?
+      `SELECT c.id AS "chunkId", f.source_id AS "sourceId", f.notebook_id AS "notebookId",
+              f.chunk_index AS "chunkIndex", f.content, bm25(chunks_fts) AS rank
+       FROM chunks_fts f
+       JOIN chunks c ON c.rowid = f.rowid
+       WHERE chunks_fts MATCH ? AND f.notebook_id = ?
        ORDER BY rank
        LIMIT ?`
     )

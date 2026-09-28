@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
           .map(([, group]) => group[0])
           .filter(Boolean)
           .map((c) => ({
-            chunkId: -1,
+            chunkId: "",
             sourceId: c.sourceId,
             notebookId,
             chunkIndex: c.chunkIndex,
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       for (const [sourceId, group] of bySource) {
         if (!hitSources.has(sourceId) && group[0] && relevant.length < 10) {
           relevant.push({
-            chunkId: -1, sourceId, notebookId,
+            chunkId: "", sourceId, notebookId,
             chunkIndex: group[0].chunkIndex, content: group[0].content, rank: 0,
           });
         }

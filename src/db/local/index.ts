@@ -52,6 +52,16 @@ export function openLocalDb(dataDir: string): LocalDb {
   bootstrap.immediate();
   sqlite.exec(FTS_DDL);
 
+  // sqlite-vec is optional: FTS5 keeps working without it (local-ai-rag-plan
+  // — "FTS5 debe seguir funcionando sin proveedor de embeddings"). Load it
+  // when present so vec0 tables are usable on this connection.
+  try {
+    const { getLoadablePath } = require("sqlite-vec") as typeof import("sqlite-vec");
+    sqlite.loadExtension(getLoadablePath());
+  } catch {
+    /* vectors unavailable — textual retrieval only */
+  }
+
   return drizzle(sqlite, { schema });
 }
 

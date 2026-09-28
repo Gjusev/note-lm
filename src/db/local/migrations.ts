@@ -169,6 +169,60 @@ CREATE TABLE settings (
   updated_at INTEGER NOT NULL
 );
 `,
+  // 0002 — RAG metadata (issue #3): versions, embedding profiles, chunk
+  // embedding state and retrieval debug runs. vec0 tables are created per
+  // profile at activation time (they need the sqlite-vec extension loaded).
+  `
+CREATE TABLE source_versions (
+  id TEXT PRIMARY KEY,
+  source_id TEXT NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+  version INTEGER NOT NULL,
+  content_hash TEXT NOT NULL,
+  extractor TEXT,
+  created_at INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX source_versions_unique ON source_versions (source_id, version);
+CREATE INDEX source_versions_by_source ON source_versions (source_id);
+
+CREATE TABLE embedding_profiles (
+  id TEXT PRIMARY KEY,
+  provider TEXT NOT NULL,
+  model TEXT NOT NULL,
+  revision TEXT NOT NULL,
+  dimension INTEGER NOT NULL,
+  pooling TEXT NOT NULL,
+  normalize INTEGER NOT NULL DEFAULT 1,
+  query_prefix TEXT NOT NULL DEFAULT '',
+  doc_prefix TEXT NOT NULL DEFAULT '',
+  processing_version INTEGER NOT NULL DEFAULT 1,
+  created_at INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX embedding_profiles_natural
+  ON embedding_profiles (provider, model, revision);
+
+CREATE TABLE chunk_embeddings (
+  id TEXT PRIMARY KEY,
+  chunk_id TEXT NOT NULL REFERENCES chunks (id) ON DELETE CASCADE,
+  profile_id TEXT NOT NULL REFERENCES embedding_profiles (id) ON DELETE CASCADE,
+  text_hash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  error_message TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX chunk_embeddings_unique ON chunk_embeddings (chunk_id, profile_id);
+CREATE INDEX chunk_embeddings_by_status ON chunk_embeddings (profile_id, status);
+
+CREATE TABLE retrieval_runs (
+  id TEXT PRIMARY KEY,
+  notebook_id TEXT NOT NULL,
+  profile_id TEXT,
+  config TEXT NOT NULL,
+  result_chunk_ids TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX retrieval_runs_by_notebook ON retrieval_runs (notebook_id, created_at);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

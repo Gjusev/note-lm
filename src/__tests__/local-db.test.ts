@@ -42,6 +42,10 @@ import {
 import { enqueueProcessingJob, claimProcessingJob } from "@/lib/services/processing-jobs";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { searchChunks } from "@/lib/services/search";
+import {
+  registerEmbeddingProfile,
+  getEmbeddingProfile,
+} from "@/lib/services/embedding-profiles";
 
 let dir: string;
 let db: ReturnType<typeof openLocalDb>;
@@ -335,5 +339,67 @@ describe("FTS5 search", () => {
 
   it("sanitizes FTS syntax from user input", () => {
     expect(() => searchChunks(db, notebookId, 'foo" OR 1=1 --')).not.toThrow();
+  });
+});
+
+describe("RAG schema — embedding profiles (issue #3)", () => {
+  it("registers profiles idempotently by natural key and retrieves them", async () => {
+    const first = await registerEmbeddingProfile(db, {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "q8_0",
+      dimension: 384,
+      pooling: "mean",
+      queryPrefix: "",
+      docPrefix: "",
+    });
+    expect(first).toBeTruthy();
+
+    // same natural key → same row, no duplicate
+    const again = await registerEmbeddingProfile(db, {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "q8_0",
+      dimension: 384,
+      pooling: "mean",
+      queryPrefix: "",
+      docPrefix: "",
+    });
+    expect(again._id).toBe(first._id);
+
+    const fetched = await getEmbeddingProfile(db, first._id);
+    expect(fetched?.dimension).toBe(384);
+    expect(fetched?.model).toBe("bge-small-en-v1.5");
+
+    // a different revision is a different profile (never mix vectors)
+    const other = await registerEmbeddingProfile(db, {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "f16",
+      dimension: 384,
+      pooling: "mean",
+      queryPrefix: "",
+      docPrefix: "",
+    });
+    expect(other._id).not.toBe(first._id);
+  });
+
+  it("still applies migrations idempotently alongside FTS5 (0002 included)", () => {
+    const sqlite = rawClient(db);
+    const tables = sqlite
+      .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('embedding_profiles','chunk_embeddings','source_versions','retrieval_runs')")
+      .all() as Array<{ name: string }>;
+    expect(tables.map((t) => t.name).sort()).toEqual([
+      "chunk_embeddings",
+      "embedding_profiles",
+      "retrieval_runs",
+      "source_versions",
+    ]);
+    // reopen over the same dir: user_version must guard a clean no-op
+    const db2 = openLocalDb(dir);
+    expect(rawClient(db2).pragma("user_version", { simple: true })).toBe(
+      rawClient(db).pragma("user_version", { simple: true })
+    );
+    closeLocalDb(db2);
   });
 });

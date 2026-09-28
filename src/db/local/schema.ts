@@ -253,3 +253,82 @@ export const settings = sqliteTable("settings", {
   value: text("value", { mode: "json" }).notNull(),
   updatedAt: integer("updated_at").notNull(),
 });
+
+// ── RAG metadata (issue #3, migration 0002) ────────────────────────────────
+
+/** One extraction version of a source; re-imports create a new version. */
+export const sourceVersions = sqliteTable(
+  "source_versions",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    contentHash: text("content_hash").notNull(),
+    extractor: text("extractor"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("source_versions_unique").on(t.sourceId, t.version),
+    index("source_versions_by_source").on(t.sourceId),
+  ]
+);
+
+/** How embeddings were produced — vectors from different profiles never mix. */
+export const embeddingProfiles = sqliteTable(
+  "embedding_profiles",
+  {
+    id: text("id").primaryKey(),
+    provider: text("provider").notNull(),
+    model: text("model").notNull(),
+    revision: text("revision").notNull(),
+    dimension: integer("dimension").notNull(),
+    pooling: text("pooling").notNull(),
+    normalize: integer("normalize").notNull().default(1),
+    queryPrefix: text("query_prefix").notNull().default(""),
+    docPrefix: text("doc_prefix").notNull().default(""),
+    processingVersion: integer("processing_version").notNull().default(1),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("embedding_profiles_natural").on(t.provider, t.model, t.revision),
+  ]
+);
+
+/** Per-chunk embedding state for one profile (indexing is resumable). */
+export const chunkEmbeddings = sqliteTable(
+  "chunk_embeddings",
+  {
+    id: text("id").primaryKey(),
+    chunkId: text("chunk_id")
+      .notNull()
+      .references(() => chunks.id, { onDelete: "cascade" }),
+    profileId: text("profile_id")
+      .notNull()
+      .references(() => embeddingProfiles.id, { onDelete: "cascade" }),
+    textHash: text("text_hash").notNull(),
+    status: text("status").$type<"pending" | "indexing" | "indexed" | "error">().notNull().default("pending"),
+    errorMessage: text("error_message"),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (t) => [
+    uniqueIndex("chunk_embeddings_unique").on(t.chunkId, t.profileId),
+    index("chunk_embeddings_by_status").on(t.profileId, t.status),
+  ]
+);
+
+/** Local retrieval debug trail (config + retrieved ids, never full texts). */
+export const retrievalRuns = sqliteTable(
+  "retrieval_runs",
+  {
+    id: text("id").primaryKey(),
+    notebookId: text("notebook_id").notNull(),
+    profileId: text("profile_id"),
+    config: text("config", { mode: "json" }).notNull(),
+    resultChunkIds: text("result_chunk_ids", { mode: "json" }).notNull(),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("retrieval_runs_by_notebook").on(t.notebookId, t.createdAt)]
+);
