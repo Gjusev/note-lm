@@ -17,7 +17,8 @@
     "build:engine": "node scripts/build-engine.mjs",
     "spike:desktop": "npm run build:engine && cd src-tauri && cargo run",
     "fetch:node": "node scripts/fetch-node.mjs",
-    "fetch:ffmpeg": "node scripts/fetch-ffmpeg.mjs"
+    "fetch:ffmpeg": "node scripts/fetch-ffmpeg.mjs",
+    "verify:desktop": "node scripts/desktop-verify.mjs"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
