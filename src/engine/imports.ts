@@ -250,7 +250,53 @@ export async function runImportJob(
         title = page.title;
         text = page.text;
       } else {
-        const result = await processContent(download.buffer, download.contentType, plan.fileNameHint || "download");
+        // slice 3c: media transcription checkpoints per confirmed segment.
+        // Resume source: the token-fenced "processing" cursor
+        // { segDir, segments, doneSegments, texts }; seg files live next to
+        // the download partial in partDir, so finish() bookkeeping covers
+        // them unchanged. The mux always re-runs (cheap, deterministic);
+        // only TRANSCRIPTION resumes at doneSegments.
+        const segDir = partDir;
+        let resume: { resumeFrom: number; confirmedTexts: string[] } | undefined;
+        const mediaCp = getJobCheckpoints(ctx.db, "import", jobId).find((c) => c.stage === "processing");
+        if (mediaCp?.cursor) {
+          try {
+            const cur = JSON.parse(mediaCp.cursor) as {
+              segDir?: string; segments?: number; doneSegments?: number; texts?: string[];
+            };
+            if (cur.segDir === segDir && cur.segments && cur.doneSegments && cur.texts) {
+              resume = { resumeFrom: cur.doneSegments, confirmedTexts: cur.texts };
+              log("RESUME", `Transkription ab Segment ${cur.doneSegments}/${cur.segments}`);
+            }
+          } catch {
+            /* corrupt cursor → transcribe from scratch */
+          }
+        }
+
+        // observeJobIntent inside shouldStop releases the lease exactly once on
+        // pause/cancel; the runner then leaves before the commit gate with the
+        // confirmed segments (and the cursor) intact — no partial commit.
+        let stopObservation: ImportJobOutcome | null = null;
+        const result = await processContent(download.buffer, download.contentType, plan.fileNameHint || "download", {
+          segDir,
+          ...(resume && {
+            resumeFrom: resume.resumeFrom,
+            confirmedTexts: resume.confirmedTexts,
+          }),
+          onSegmentDone: (done, total, texts) => {
+            setJobCheckpoint(ctx.db, "import", jobId, token, "processing", JSON.stringify({
+              segDir, segments: total, doneSegments: done, texts,
+            }));
+            emitJobEvent(ctx.db, "import", jobId, "progress", { stage: "transcribing", done, total });
+          },
+          shouldStop: () => {
+            const observed = observeJobIntent(ctx.db, "import", jobId, token);
+            if (observed === "run") return false;
+            stopObservation = observed;
+            return true;
+          },
+        });
+        if (stopObservation) return finish(stopObservation);
         text = result.text;
         title = meta.title || plan.fileNameHint;
       }

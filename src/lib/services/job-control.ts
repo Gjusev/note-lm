@@ -294,7 +294,9 @@ export function reconcileStartupArtifacts(db: LocalDb, dataDir: string): { remov
   let removedDirs = 0;
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    const job = sqlite.prepare(`SELECT status FROM import_jobs WHERE id = ?`).get(entry.name) as
+    // slice 3c: upload jobs' media seg dirs live here too, next to import partials
+    const job = (sqlite.prepare(`SELECT status FROM import_jobs WHERE id = ?`).get(entry.name) ??
+      sqlite.prepare(`SELECT status FROM processing_jobs WHERE id = ?`).get(entry.name)) as
       | { status: string }
       | undefined;
     // unknown job ids and terminal jobs are orphans; live jobs keep their partial

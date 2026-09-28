@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs";
 import http from "node:http";
 import os from "node:os";
@@ -33,6 +33,44 @@ const PAGE_HTML = `<html><head><title>Testseite</title></head><body>
 <h1>Kapitel eins</h1><p>${"Lorem ipsum dolor sit amet, consetetur sadipscing elitr. ".repeat(40)}</p>
 </body></html>`;
 
+const AUDIO_BODY = Buffer.from("fake-audio-bytes-for-segmentation");
+
+/**
+ * Controllable transcription fake (slice 3c), same seam as engine-pool.test.ts:
+ * real transcription never runs offline. onSeg lets a test react right after a
+ * segment's model call (that is how the mid-segment pause intent is recorded).
+ */
+const transcribe = vi.hoisted(() => ({
+  calls: [] as string[],
+  onSeg: null as null | ((segmentIndex: number) => void),
+}));
+
+vi.mock("@/lib/openai", () => ({
+  chatCompletion: vi.fn(async () => "chat"),
+  transcribeAudio: vi.fn(async (_buffer: Buffer, name: string) => {
+    const i = Number(/seg(\d+)/.exec(name)?.[1] ?? 0);
+    transcribe.calls.push(name);
+    transcribe.onSeg?.(i);
+    return `text${i}`;
+  }),
+}));
+
+// segmentation seam (slice 3c): deterministic fake muxer — three tiny segment
+// files in the requested dir, no ffmpeg
+vi.mock("@/lib/ingestion/segments", async () => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const os = await import("node:os");
+  return {
+    toMp3Segments: vi.fn(async (_buffer: Buffer, outDir?: string) => {
+      const target = outDir ?? (await fs.promises.mkdtemp(path.join(os.tmpdir(), "nolm-seg-fake-")));
+      const files = [0, 1, 2].map((i) => path.join(target, `seg00${i}.mp3`));
+      for (const f of files) await fs.promises.writeFile(f, "seg");
+      return files;
+    }),
+  };
+});
+
 // large-ish body (~190 KB) for the Range-resume tests
 const RESUME_BODY = `<html><head><title>Testseite</title></head><body><p>${"Lorem ipsum dolor sit amet, consetetur sadipscing elitr. ".repeat(3000)}</p></body></html>`;
 
@@ -42,7 +80,7 @@ let ctx: LocalContext;
 let notebookId: string;
 let server: http.Server;
 let baseUrl = "";
-let serverMode: "simple" | "range" | "plain" = "simple";
+let serverMode: "simple" | "range" | "plain" | "audio" = "simple";
 let seenRanges: string[] = [];
 
 beforeEach(async () => {
@@ -56,6 +94,11 @@ beforeEach(async () => {
   server = http.createServer((req, res) => {
     const range = req.headers.range;
     if (typeof range === "string") seenRanges.push(range);
+    if (serverMode === "audio") {
+      res.writeHead(200, { "content-type": "audio/mpeg", "content-length": String(AUDIO_BODY.length) });
+      res.end(AUDIO_BODY);
+      return;
+    }
     if (serverMode === "simple") {
       res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
       res.end(PAGE_HTML);
@@ -313,5 +356,98 @@ describe("HTTP-Range-resumable downloads (desktop-workers-plan slice 3b)", () =>
     expect(fs.existsSync(path.join(jobsRoot, "no-such-job"))).toBe(false);
     expect(fs.existsSync(path.join(jobsRoot, liveId))).toBe(true);
     expect(getJobCheckpoints(db, "import", terminalId)).toHaveLength(0);
+  });
+});
+
+describe("resumable transcription segments (desktop-workers-plan slice 3c)", () => {
+  /**
+   * Resume scenario per the slice-3 design: the mux (toMp3Segments) may always
+   * re-run — it is cheap and deterministic — while TRANSCRIPTION resumes at the
+   * confirmed segment: confirmed texts ride inside the token-fenced
+   * "processing" checkpoint cursor, seg files live in the job's tmp dir.
+   */
+  function seedMediaCheckpoint(jobId: string, token: string, cursor: Record<string, unknown>): string {
+    const segDir = path.join(dir, "tmp", "jobs", jobId);
+    fs.mkdirSync(segDir, { recursive: true });
+    setJobCheckpoint(db, "import", jobId, token, "processing", JSON.stringify({ segDir, ...cursor }));
+    return segDir;
+  }
+
+  /** Joined text of all committed chunks (single-source per test). */
+  function sourceText(): string {
+    const rows = rawClient(db).prepare(`SELECT content FROM chunks ORDER BY chunk_index`).all() as Array<{
+      content: string;
+    }>;
+    return rows.map((r) => r.content).join("\n");
+  }
+
+  beforeEach(() => {
+    serverMode = "audio";
+    transcribe.calls.length = 0;
+    transcribe.onSeg = null;
+  });
+
+  it("transcription resumes from the confirmed segment — earlier segments are not re-sent to the transcriber", async () => {
+    const jobId = createWebJob(baseUrl);
+    const job = claimImportJob(db);
+    seedMediaCheckpoint(jobId, job!.leaseToken!, {
+      segments: 3, doneSegments: 1, texts: ["segment-0-text"],
+    });
+
+    const outcome = await runImportJob(ctx, job!);
+
+    expect(outcome).toBe("completed");
+    // only the unconfirmed segments 1..2 reach the model, in order
+    expect(transcribe.calls).toEqual(["seg001.mp3", "seg002.mp3"]);
+    // the final source contains the joined text of all 3 segments
+    const text = sourceText();
+    expect(text).toContain("segment-0-text");
+    expect(text).toContain("text1");
+    expect(text).toContain("text2");
+    // terminal state discards media checkpoint + seg files
+    expect(getJobCheckpoints(db, "import", jobId)).toHaveLength(0);
+  });
+
+  it("a pause clicked mid-transcription keeps the confirmed segment and resumes without duplicating work", async () => {
+    const jobId = createWebJob(baseUrl);
+    const job = claimImportJob(db);
+    // the pause intent lands after the first segment confirms, before segment 2 starts
+    transcribe.onSeg = (i) => {
+      if (i === 0) setJobIntent(db, "import", jobId, "pause");
+    };
+
+    const outcome = await runImportJob(ctx, job!);
+    transcribe.onSeg = null;
+
+    expect(outcome).toBe("paused");
+    expect(transcribe.calls).toEqual(["seg000.mp3"]);
+    // confirmed work survives the pause in the checkpoint
+    const cp = getJobCheckpoints(db, "import", jobId).find((c) => c.stage === "processing");
+    expect(cp).toBeDefined();
+    expect(JSON.parse(cp!.cursor!)).toMatchObject({ segments: 3, doneSegments: 1, texts: ["text0"] });
+    // pause released the lease without burning the attempt, nothing committed
+    const row = rawClient(db)
+      .prepare(`SELECT status, lease_token AS token, attempts FROM import_jobs WHERE id = ?`)
+      .get(jobId) as { status: string; token: string | null; attempts: number };
+    expect(row).toMatchObject({ status: "queued", token: null, attempts: 0 });
+    expect(rawClient(db).prepare(`SELECT COUNT(*) AS n FROM sources`).get() as { n: number }).toEqual({ n: 0 });
+
+    // resume: continues at segment 1, joined text contains every segment exactly once
+    transcribe.calls.length = 0;
+    setJobIntent(db, "import", jobId, "run"); // the resume action clears the pause intent
+    const resumed = claimImportJob(db);
+    expect(resumed?._id).toBe(jobId);
+    expect(await runImportJob(ctx, resumed!)).toBe("completed");
+    expect(transcribe.calls).toEqual(["seg001.mp3", "seg002.mp3"]);
+    const text = sourceText();
+    expect(text).toContain("text0");
+    expect(text).toContain("text1");
+    expect(text).toContain("text2");
+    expect(text.match(/text1/g)).toHaveLength(1); // the stopped segment ran exactly once
+    // progress events report the segment counter
+    const events = rawClient(db)
+      .prepare(`SELECT payload FROM job_events WHERE job_kind = 'import' AND job_id = ? AND type = 'progress'`)
+      .all(jobId) as Array<{ payload: string }>;
+    expect(JSON.parse(events.at(-1)!.payload!)).toEqual({ stage: "transcribing", done: 3, total: 3 });
   });
 });

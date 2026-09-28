@@ -3,9 +3,11 @@
  * desktop engine (desktop-tauri-plan phase 1: workers/ingestion.ts becomes
  * an engine module). Extract → transcribe → chunk, lease-fenced.
  */
+import fs from "node:fs";
+import path from "node:path";
 import { chunkText, extractTextFromFile } from "@/lib/text-extraction";
 import { extractAudioFromVideo } from "@/lib/ffmpeg";
-import { transcribeAudio } from "@/lib/openai";
+import { transcribeMedia } from "@/lib/ingestion/process";
 import { getSource, replaceChunks, updateSourceStatus } from "@/lib/services/sources";
 import {
   completeProcessingJob,
@@ -13,7 +15,13 @@ import {
   heartbeatProcessingJob,
 } from "@/lib/services/processing-jobs";
 import type { LocalContext } from "@/lib/storage/local";
-import { observeJobIntent } from "@/lib/services/job-control";
+import {
+  deleteJobCheckpoints,
+  emitJobEvent,
+  getJobCheckpoints,
+  observeJobIntent,
+  setJobCheckpoint,
+} from "@/lib/services/job-control";
 
 /** Upload pipeline stages the intent gate observes before. */
 export type ProcessingStage = "extract" | "transcribe" | "commit";
@@ -83,6 +91,8 @@ export async function runProcessingJob(
     }
   }, 60_000);
   const t0 = Date.now();
+  // slice 3c: media transcription segments live under tmp/jobs/<jobId>
+  const segDir = path.join(ctx.dataDir, "tmp", "jobs", jobId);
   try {
     updateSourceStatus(ctx.db, sourceId, { status: "processing" });
     const source = await getSource(ctx.db, sourceId);
@@ -117,7 +127,54 @@ export async function runProcessingJob(
       const transcribeGate = await gate("transcribe");
       if (transcribeGate) return transcribeGate;
 
-      text = await transcribeAudio(audioBuffer, "audio.mp3");
+      // slice 3c: resumable transcription for uploads. Confirmed segments ride
+      // the token-fenced "transcribing" checkpoint, seg files live under
+      // tmp/jobs/<jobId> (the startup reconcile knows both job kinds' dirs).
+      let resume: { resumeFrom: number; confirmedTexts: string[] } | undefined;
+      const mediaCp = getJobCheckpoints(ctx.db, "processing", jobId).find((c) => c.stage === "transcribing");
+      if (mediaCp?.cursor) {
+        try {
+          const cur = JSON.parse(mediaCp.cursor) as {
+            segDir?: string; segments?: number; doneSegments?: number; texts?: string[];
+          };
+          if (cur.segDir === segDir && cur.segments && cur.doneSegments && cur.texts) {
+            resume = { resumeFrom: cur.doneSegments, confirmedTexts: cur.texts };
+          }
+        } catch {
+          /* corrupt cursor → transcribe from scratch */
+        }
+      }
+
+      let stopObservation: ProcessingJobOutcome | null = null;
+      text = await transcribeMedia(audioBuffer, source.fileName, {
+        segDir,
+        ...(resume && {
+          resumeFrom: resume.resumeFrom,
+          confirmedTexts: resume.confirmedTexts,
+        }),
+        onSegmentDone: (done, total, texts) => {
+          setJobCheckpoint(ctx.db, "processing", jobId, token, "transcribing", JSON.stringify({
+            segDir, segments: total, doneSegments: done, texts,
+          }));
+          emitJobEvent(ctx.db, "processing", jobId, "progress", { stage: "transcribing", done, total });
+        },
+        shouldStop: () => {
+          const observed = observeJobIntent(ctx.db, "processing", jobId, token);
+          if (observed === "run") return false;
+          stopObservation = observed;
+          return true;
+        },
+      });
+      if (stopObservation) {
+        // same terminal bookkeeping as the stage gates: cancel fails the job
+        // and errors the source, pause released the lease back to pending
+        if (stopObservation === "cancelled") {
+          updateSourceStatus(ctx.db, sourceId, { status: "error", errorMessage: "Vom Benutzer abgebrochen" });
+          await fs.promises.rm(segDir, { recursive: true, force: true }).catch(() => {});
+          deleteJobCheckpoints(ctx.db, "processing", jobId);
+        }
+        return stopObservation;
+      }
 
       const transcriptFile = await ctx.store.save(Buffer.from(text, "utf-8"), {
         fileName: `${source.fileName}.transcript.txt`,
@@ -166,6 +223,9 @@ export async function runProcessingJob(
     if (previousTranscriptId && previousTranscriptId !== transcriptFileId) {
       await ctx.store.delete(previousTranscriptId);
     }
+    // slice 3c terminal bookkeeping: completed — discard media checkpoint + seg files
+    await fs.promises.rm(segDir, { recursive: true, force: true }).catch(() => {});
+    deleteJobCheckpoints(ctx.db, "processing", jobId);
     log("DONE", `${chunks.length} Chunks, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 
     // embedding indexing moved to the engine loop's index lane (slice 3d):
@@ -177,6 +237,12 @@ export async function runProcessingJob(
     log(permanent ? "REJECTED" : "FAILED", message);
     updateSourceStatus(ctx.db, sourceId, { status: "error", errorMessage: message });
     const ok = failProcessingJob(ctx.db, jobId, token, { errorMessage: message, transient: !permanent });
+    // slice 3c: terminal failure discards media checkpoint + seg files, a
+    // transient one keeps them for the retry (mirror of the import runner)
+    if (ok && permanent) {
+      await fs.promises.rm(segDir, { recursive: true, force: true }).catch(() => {});
+      deleteJobCheckpoints(ctx.db, "processing", jobId);
+    }
     return ok ? "failed" : "lost";
   } finally {
     clearInterval(hb);
