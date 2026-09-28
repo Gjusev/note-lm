@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "language": "mixed de/en",
+  "notes": "Single-chunk documents so relevant doc ids map 1:1 to chunk ids. Questions cover exact matches, paraphrases, multilingual terms and no-answer cases.",
+  "documents": [
+    { "id": "doc-quantum-1", "text": "Quantenphysik beschreibt das Verhalten von Teilchen und Wellen. Das Doppelspaltexperiment zeigt, dass Elektronen Interferenzmuster bilden." },
+    { "id": "doc-quantum-2", "text": "The uncertainty principle states that position and momentum of a particle cannot both be known with arbitrary precision simultaneously." },
+    { "id": "doc-potato", "text": "Kartoffeln wachsen unter der Erde und gehören zu den Nachtschattengewächsen. Sie sind reich an Stärke." },
+    { "id": "doc-photosynthesis", "text": "Photosynthese ist der Prozess, bei dem Pflanzen mit Hilfe von Licht Energie aus Wasser und Kohlendioxid gewinnen." },
+    { "id": "doc-ml", "text": "Machine learning systems improve their performance on a task by learning from data rather than following explicitly programmed rules." },
+    { "id": "doc-rl", "text": "Reinforcement learning trains an agent by rewarding actions that maximize cumulative reward in an environment." },
+    { "id": "doc-history", "text": "Die Berliner Mauer fiel im November 1989. Sie hatte die Stadt seit 1961 geteilt." },
+    { "id": "doc-cooking", "text": "Für ein risotto Arborio-Reis langsam in Brühe gegart und am Ende mit Parmesan abgerundet." }
+  ],
+  "questions": [
+    { "id": "q-exact-de", "query": "Doppelspaltexperiment Elektronen", "relevant": ["doc-quantum-1"] },
+    { "id": "q-exact-en", "query": "uncertainty principle momentum", "relevant": ["doc-quantum-2"] },
+    { "id": "q-paraphrase", "query": "Wie gewinnen Pflanzen Energie aus Sonnenlicht?", "relevant": ["doc-photosynthesis"] },
+    { "id": "q-paraphrase-en", "query": "how do computer programs learn from examples", "relevant": ["doc-ml"] },
+    { "id": "q-multilingual", "query": "Teilchen und Wellen particle behavior", "relevant": ["doc-quantum-1", "doc-quantum-2"] },
+    { "id": "q-multilingual-2", "query": "Kartoffeln potatoes Stärke", "relevant": ["doc-potato"] },
+    { "id": "q-no-answer", "query": "Preis von Bitcoin im Jahr 2030", "relevant": [] },
+    { "id": "q-no-answer-2", "query": "best pasta recipe for carbonara cream", "relevant": [] }
+  ]
+}
