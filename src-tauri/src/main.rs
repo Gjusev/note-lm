@@ -26,7 +26,14 @@ fn engine_notebooks(state: tauri::State<EngineState>) -> Result<serde_json::Valu
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            let engine_dir = app.path().resource_dir()?.join("engine");
+            let resources = app.path().resource_dir()?;
+            let engine_dir = resources.join("engine");
+            // The engine resolves FFmpeg via FFMPEG_PATH (cached at first use,
+            // so it must be set before any media op).
+            let ffmpeg = resources.join("ffmpeg").join("ffmpeg.exe");
+            if ffmpeg.exists() {
+                std::env::set_var("FFMPEG_PATH", &ffmpeg);
+            }
             match engine::Engine::spawn(&engine_dir) {
                 Ok(eng) => {
                     app.manage(EngineState(Mutex::new(Some(eng))));

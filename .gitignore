@@ -46,3 +46,5 @@ src-tauri/target/
 src-tauri/resources/engine/
 src-tauri/gen/
 src-tauri/binaries/
+.probe-downloads/
+src-tauri/resources/ffmpeg/

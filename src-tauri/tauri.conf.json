@@ -24,7 +24,8 @@
       "nsis"
     ],
     "resources": [
-      "resources/engine/**/*"
+      "resources/engine/**/*",
+      "resources/ffmpeg/**/*"
     ],
     "windows": {
       "webviewInstallMode": {
