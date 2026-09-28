@@ -251,6 +251,25 @@ CREATE TABLE models (
 CREATE UNIQUE INDEX models_by_sha256 ON models (sha256);
 CREATE INDEX models_by_capability ON models (capability, status);
 `,
+  // 0005 — unified job control (desktop-workers-plan): user intent separated
+  // from observed state, and a durable event log with a monotonic cursor so
+  // the activity center can rebuild from snapshot + events after a restart.
+  `
+CREATE TABLE job_intents (
+  job_kind TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  intent TEXT NOT NULL CHECK (intent IN ('run', 'pause', 'cancel')),
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (job_kind, job_id)
+);
+CREATE TABLE job_events (
+  seq INTEGER PRIMARY KEY AUTOINCREMENT,
+  job_kind TEXT NOT NULL,
+  job_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  payload TEXT
+);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

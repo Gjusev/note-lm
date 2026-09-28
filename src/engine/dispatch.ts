@@ -496,6 +496,35 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         }
       }
 
+      case "jobs.list": {
+        const { notebookId: nbFilter } = args as { notebookId?: string };
+        const { db } = getLocalContext();
+        const { listJobs } = await import("@/lib/services/job-control");
+        return { ok: true, result: { jobs: listJobs(db, nbFilter) } };
+      }
+
+      case "jobs.pause":
+      case "jobs.resume":
+      case "jobs.cancel": {
+        const { kind, jobId } = args as { kind?: string; jobId?: string };
+        const VALID = ["processing", "import", "material"];
+        if (!kind || !VALID.includes(kind) || !jobId) {
+          return { ok: false, error: { code: "bad_args", message: "kind (processing|import|material) and jobId are required" } };
+        }
+        const intent = op === "jobs.pause" ? "pause" : op === "jobs.resume" ? "run" : "cancel";
+        const { db } = getLocalContext();
+        const { setJobIntent } = await import("@/lib/services/job-control");
+        setJobIntent(db, kind as "processing", jobId, intent);
+        return { ok: true, result: { intent } };
+      }
+
+      case "jobs.eventsSince": {
+        const { cursor } = args as { cursor?: number };
+        const { db } = getLocalContext();
+        const { eventsSince } = await import("@/lib/services/job-control");
+        return { ok: true, result: { events: eventsSince(db, cursor ?? 0) } };
+      }
+
       case "notebook.export": {
         // Rust granted the target directory via the native dialog
         const { notebookId: nbId, targetDir } = args as { notebookId?: string; targetDir?: string };

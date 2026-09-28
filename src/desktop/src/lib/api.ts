@@ -39,6 +39,11 @@ export const desktopApi = {
     call<Array<{ _id: string; type: string; status: string; content?: string | null; errorMessage?: string | null }>>("materials.list", { notebookId }),
   requestMaterial: (notebookId: string, type: string) =>
     call<{ id: string }>("materials.request", { notebookId, type }),
+  listJobs: () => call<{ jobs: Array<{ kind: "processing" | "import" | "material"; id: string; notebookId: string; title: string; status: string; intent: "run" | "pause" | "cancel"; updatedAt: number }> }>("jobs.list", {}),
+  jobAction: (kind: string, jobId: string, action: "pause" | "resume" | "cancel") =>
+    call<{ intent: string }>(`jobs.${action}`, { kind, jobId }),
+  eventsSince: (cursor: number) =>
+    call<{ events: Array<{ seq: number; jobKind: string; jobId: string; type: string; payload: string | null }> }>("jobs.eventsSince", { cursor }),
   exportNotebook: (notebookId: string, targetDir: string) =>
     call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
   importNotebook: (sourceDir: string) =>

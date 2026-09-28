@@ -3,6 +3,7 @@ import { desktopApi } from "./lib/api";
 import { Library } from "./screens/Library";
 import { NotebookWorkspace } from "./screens/NotebookWorkspace";
 import { Settings } from "./screens/Settings";
+import { Activity } from "./screens/Activity";
 
 /** Minimal hash routing: '' → library, '#/nb/<id>' → workspace,
  *  '#/settings' → settings. Real routing with dynamic ids, no Next server
@@ -10,7 +11,8 @@ import { Settings } from "./screens/Settings";
 function useHashRoute():
   | { name: "library" }
   | { name: "notebook"; id: string }
-  | { name: "settings" } {
+  | { name: "settings" }
+  | { name: "activity" } {
   const [hash, setHash] = useState(() => window.location.hash);
   useEffect(() => {
     const onChange = () => setHash(window.location.hash);
@@ -18,6 +20,7 @@ function useHashRoute():
     return () => window.removeEventListener("hashchange", onChange);
   }, []);
   if (hash === "#/settings") return { name: "settings" };
+  if (hash === "#/activity") return { name: "activity" };
   const match = /^#\/nb\/(.+)$/.exec(hash);
   if (match) return { name: "notebook", id: decodeURIComponent(match[1]) };
   return { name: "library" };
@@ -46,6 +49,14 @@ export function App() {
         </button>
         <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
           <a
+            href="#/activity"
+            className="mono"
+            style={{ textDecoration: "none", color: "inherit" }}
+            aria-label="Aktivität"
+          >
+            Aktivität
+          </a>
+          <a
             href="#/settings"
             className="mono"
             style={{ textDecoration: "none", color: "inherit" }}
@@ -61,6 +72,8 @@ export function App() {
           <Library />
         ) : route.name === "settings" ? (
           <Settings />
+        ) : route.name === "activity" ? (
+          <Activity />
         ) : (
           <NotebookWorkspace key={route.id} notebookId={route.id} />
         )}

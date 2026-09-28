@@ -9,6 +9,7 @@ import type { LocalContext } from "@/lib/storage/local";
 import { runProcessingJob } from "./processing";
 import { generateMaterial, type MaterialType } from "@/lib/services/materials";
 import { resolveCapabilities, stopLlamaHelpers } from "./capabilities";
+import { getJobIntent, emitJobEvent } from "@/lib/services/job-control";
 
 const materialQueue: Array<{ materialId: string; notebookId: string; type: MaterialType }> = [];
 
@@ -55,10 +56,40 @@ export function startProcessingLoop(ctx: LocalContext, pollMs = 3000): () => voi
     try {
       const job = claimProcessingJob(ctx.db);
       if (job) {
-        console.log(`[PROCESS][${job.id.slice(0, 8)}] CLAIMED source ${job.sourceId}`);
-        await runProcessingJob(ctx, job.id, job.leaseToken!, job.sourceId);
+        const intent = getJobIntent(ctx.db, "processing", job.id);
+        if (intent === "pause" || intent === "cancel") {
+          // user intent gates execution: release the lease, skip this round.
+          // cancel additionally completes the source as cancelled-work state.
+          if (intent === "cancel") {
+            const { failProcessingJob } = await import("@/lib/services/processing-jobs");
+            failProcessingJob(ctx.db, job.id, job.leaseToken!, {
+              errorMessage: "Vom Benutzer abgebrochen", transient: false,
+            });
+            emitJobEvent(ctx.db, "processing", job.id, "cancelled");
+          } else {
+            emitJobEvent(ctx.db, "processing", job.id, "paused");
+          }
+        } else {
+          console.log(`[PROCESS][${job.id.slice(0, 8)}] CLAIMED source ${job.sourceId}`);
+          emitJobEvent(ctx.db, "processing", job.id, "running");
+          await runProcessingJob(ctx, job.id, job.leaseToken!, job.sourceId);
+          emitJobEvent(ctx.db, "processing", job.id, "finished");
+        }
       } else if (materialQueue.length > 0) {
-        await runMaterialGeneration(ctx);
+        const next = materialQueue[0];
+        const intent = getJobIntent(ctx.db, "material", next.materialId);
+        if (intent === "pause" || intent === "cancel") {
+          materialQueue.shift(); // drop from the in-memory queue; the row stays
+          if (intent === "cancel") {
+            const { updateMaterial } = await import("@/lib/services/learning-materials");
+            await updateMaterial(ctx.db, next.materialId, { status: "error", errorMessage: "Abgebrochen" });
+            emitJobEvent(ctx.db, "material", next.materialId, "cancelled");
+          } else {
+            emitJobEvent(ctx.db, "material", next.materialId, "paused");
+          }
+        } else {
+          await runMaterialGeneration(ctx);
+        }
       }
     } catch (err) {
       console.error("[ENGINE] processing loop error:", err);

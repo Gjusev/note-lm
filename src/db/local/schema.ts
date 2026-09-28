@@ -322,6 +322,27 @@ export const chunkEmbeddings = sqliteTable(
   ]
 );
 
+/** User intent for a job, separate from observed state (workers plan). */
+export const jobIntents = sqliteTable(
+  "job_intents",
+  {
+    jobKind: text("job_kind").notNull(),
+    jobId: text("job_id").notNull(),
+    intent: text("intent").$type<"run" | "pause" | "cancel">().notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (t) => [uniqueIndex("job_intents_pk").on(t.jobKind, t.jobId)]
+);
+
+/** Durable event log; seq is the cursor the UI resumes from. */
+export const jobEvents = sqliteTable("job_events", {
+  seq: integer("seq").primaryKey({ autoIncrement: true }),
+  jobKind: text("job_kind").notNull(),
+  jobId: text("job_id").notNull(),
+  type: text("type").notNull(),
+  payload: text("payload"),
+});
+
 /** Managed GGUF models (phase 5): verified by content hash. */
 export const models = sqliteTable(
   "models",
