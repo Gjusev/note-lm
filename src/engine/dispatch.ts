@@ -17,11 +17,7 @@ import {
   removeSource,
 } from "@/lib/services/sources";
 import { clearMessagesByNotebook, createMessage, listMessagesByNotebook } from "@/lib/services/messages";
-import {
-  listMaterialsByNotebook,
-  removeMaterial,
-  requestGeneration,
-} from "@/lib/services/learning-materials";
+import { removeMaterial } from "@/lib/services/learning-materials";
 import {
   cancelImportJob,
   createImportJob,
@@ -36,6 +32,12 @@ import {
   registerEmbeddingProfile,
 } from "@/lib/services/embedding-profiles";
 import { sendChatMessage } from "@/lib/services/chat";
+import { exportNotebook, importNotebook } from "@/lib/services/notebook-transfer";
+import {
+  generateMaterial,
+  listMaterialsByNotebook,
+  requestGeneration,
+} from "@/lib/services/materials";
 import {
   importModelFromFile,
   listModels,
@@ -455,6 +457,76 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           return {
             ok: false,
             error: { code: "download_failed", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
+      }
+
+      case "materials.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: await listMaterialsByNotebook(db, notebookId) };
+      }
+
+      case "materials.request": {
+        // queue generation; the engine job loop executes it with the
+        // configured provider (local llama or remote)
+        const { notebookId, type } = args as { notebookId?: string; type?: string };
+        if (!notebookId || !type) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and type are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        try {
+          const materialId = await requestGeneration(db, {
+            ownerId: profile.id,
+            notebookId,
+            type: type as "summary",
+          });
+          const { enqueueMaterialGeneration } = await import("./jobs");
+          enqueueMaterialGeneration(materialId, notebookId, type as "summary");
+          return { ok: true, result: { id: materialId } };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "bad_args", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
+      }
+
+      case "notebook.export": {
+        // Rust granted the target directory via the native dialog
+        const { notebookId: nbId, targetDir } = args as { notebookId?: string; targetDir?: string };
+        if (!nbId || !targetDir || path.isAbsolute(targetDir) !== true) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and absolute targetDir are required" } };
+        }
+        const { db, store } = getLocalContext();
+        try {
+          const outcome = await exportNotebook(db, store, nbId, targetDir);
+          return { ok: true, result: outcome };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "export_failed", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
+      }
+
+      case "notebook.import": {
+        const { sourceDir } = args as { sourceDir?: string };
+        if (!sourceDir || path.isAbsolute(sourceDir) !== true) {
+          return { ok: false, error: { code: "bad_args", message: "absolute sourceDir is required" } };
+        }
+        const { db, store } = getLocalContext();
+        try {
+          const outcome = await importNotebook(db, store, sourceDir);
+          return { ok: true, result: outcome };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "import_failed", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }

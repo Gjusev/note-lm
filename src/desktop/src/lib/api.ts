@@ -35,6 +35,14 @@ export const desktopApi = {
     call<{ model: { _id: string }; deduped: boolean }>("models.importFile", { path, capability }),
   selectModel: (modelId: string, capability: "chat" | "embeddings") =>
     call<{}>("models.select", { modelId, capability }),
+  listMaterials: (notebookId: string) =>
+    call<Array<{ _id: string; type: string; status: string; content?: string | null; errorMessage?: string | null }>>("materials.list", { notebookId }),
+  requestMaterial: (notebookId: string, type: string) =>
+    call<{ id: string }>("materials.request", { notebookId, type }),
+  exportNotebook: (notebookId: string, targetDir: string) =>
+    call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
+  importNotebook: (sourceDir: string) =>
+    call<{ notebookId: string; documents: number }>("notebook.import", { sourceDir }),
 };
 
 /** Native file dialog via the Tauri plugin; null in browser dev. */

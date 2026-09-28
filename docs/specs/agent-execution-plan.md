@@ -12,6 +12,17 @@ o un proveedor remoto elegido. Una instalación, sin contenedores ni procesos
 que el usuario tenga que arrancar. Incluir identidad visual, ajustes, recuperación
 y exportación como parte del producto.
 
+**Requisito de producto: todas las funciones se operan desde la ventana Tauri.**
+La web existente es una superficie de transición para desarrollo, no un paso
+del recorrido final. Ninguna función puede darse por entregada porque solo
+funcione en una ruta Next, un script o una prueba del motor. No abrir el
+navegador para completar importaciones, chat, modelos, ajustes o recuperación.
+
+La aplicación incorpora workers supervisados y un centro de actividad para
+pausar, reanudar, cancelar, priorizar y recuperar tareas. El
+[plan de workers y operación íntegra en Tauri](desktop-workers-plan.md) concreta
+este requisito y sus pruebas; forma parte obligatoria de esta entrega.
+
 Mantener React/TypeScript, SQLite y el motor existente. No reiniciar el proyecto
 ni reemplazarlo por un fork. Usar las alternativas estudiadas como referencias
 de producto. Si se incorpora código de terceros, revisar y conservar las
@@ -23,6 +34,7 @@ Leer primero este documento y después, según la tarea:
 - [Distribución y marca](desktop-tauri-plan.md).
 - [IA local y RAG](local-ai-rag-plan.md).
 - [Importador de recursos](resource-importer-plan.md).
+- [Workers, pausa, seguimiento y recuperación en Tauri](desktop-workers-plan.md).
 
 Los planes anteriores contienen estados históricos que han quedado atrás.
 La tabla siguiente refleja la revisión actual; el agente debe comprobar el
@@ -102,6 +114,21 @@ no acredita que incluya los últimos cambios o que el recorrido de producto func
 
 ## Secuencia de ejecución
 
+### 0. Contrato de escritorio y tareas persistentes
+
+Primero definir e implementar los contratos y el plan de migración de
+`desktop-workers-plan.md`: estados, checkpoints, dependencias, comandos,
+eventos persistentes y supervisión. Reutilizar las colas existentes mediante
+una migración/adaptador; evitar dos planificadores ejecutando el mismo trabajo.
+
+Crear una primera vista Tauri de actividad conectada al motor para probar
+operaciones reales de pausa/reanudación. Esta vista crece con cada fase;
+no posponer toda la interacción de escritorio hasta la fase 4.
+
+Aceptación inicial: importar un documento desde Tauri, observar sus etapas,
+solicitar pausa, recibir confirmación real y reanudar; cerrar y reabrir conserva
+estado y avances. Se debe ejecutar sin Next ni worker iniciado manualmente.
+
 ### 1. Cerrar contratos y corregir integridad del RAG
 
 Archivos principales: `src/lib/services/{hybrid-search,vector-index,
@@ -134,7 +161,8 @@ Archivos principales: `src/engine/{dispatch,jobs,processing}.ts`,
 `src/app/api/chat/route.ts`, `workers/ingestion.ts`.
 
 - Extraer la lógica del chat a un servicio independiente del transporte.
-  Mantener API web y escritorio como adaptadores del mismo servicio.
+  El adaptador Tauri es obligatorio; conservar el adaptador web durante la
+  transición solo si resulta útil, sin introducir dependencias de HTTP en el motor.
 - Introducir contratos por capacidad: conversación, embeddings, transcripción
   y voz. Implementar primero conversación y embeddings locales, más el
   proveedor remoto existente. No exigir una clave para arrancar.
@@ -147,6 +175,9 @@ Archivos principales: `src/engine/{dispatch,jobs,processing}.ts`,
   Validar entradas en tiempo de ejecución; no confiar solo en casts TypeScript.
 - Integrar el ejecutor de importaciones URL en el motor reutilizando la lógica
   del worker. `imports.create` debe acabar procesándose sin arrancar otro programa.
+- Ejecutar descarga, PDF/OCR, audio/vídeo, transcripción, embeddings y generación
+  con los contratos de workers, checkpoints y controles del plan específico.
+  Gestionar también descarga de modelos, reindexación y exportación como tareas.
 - Implementar modo local/mixto/sin conexión sin fallback remoto silencioso.
 - Conservar los extractos citados; introducir localizadores de página/tiempo
   solo cuando el extractor los proporcione realmente.
@@ -194,6 +225,10 @@ servicios y patrones de consulta existentes; sustituir la pantalla de prueba.
 - Rutas de frontend para IDs dinámicos sin servidor Next en el paquete.
 - Onboarding que permita crear el primer cuaderno antes de configurar IA.
 - Primera UI funcional de proveedores y elección de modelo importado.
+- Centro de actividad global y por cuaderno: fases, progreso, errores, pausa,
+  reanudación, cancelación, prioridad e historial. Acciones individuales y por lote.
+- Comportamiento explícito al cerrar: continuar en bandeja o pausar y salir;
+  sin procesos propios ocultos que sobrevivan a la salida completa.
 
 Aplicar aquí el diseño ya definido: papel/tinta/acento rojo, tipografía
 empaquetada, temas claro/oscuro/sistema, paneles ajustables y navegación por
@@ -261,9 +296,10 @@ hay credenciales; no bloquear las comprobaciones locales por ese motivo.
 
 ## Primer encargo concreto para el agente
 
-Empezar por **fase 1**, en cambios pequeños con pruebas de regresión. Después
-continuar con el recorrido real de fase 2 y su empaquetado de fase 3. No
-construir primero todas las pantallas sobre operaciones que todavía no existen.
+Empezar por **fase 0**, después corregir la integridad del RAG en fase 1 y
+conectar el recorrido de fase 2. Validar empaquetado en fase 3. En cada entrega
+ampliar la vista Tauri mínima para poder ejecutar y controlar lo implementado;
+la fase 4 completa el diseño y la navegación del producto.
 
 Antes de editar: comprobar HEAD, `git status` e instrucciones locales. La base
 estaba limpia durante esta revisión. Mantener los cambios de terceros que
