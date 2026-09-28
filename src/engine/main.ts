@@ -6,6 +6,7 @@
 import { createDecoder, encodeError, encodeResponse } from "./protocol";
 import { handleEngineRequest } from "./dispatch";
 import { startProcessingLoop } from "./jobs";
+import { stopLlamaHelpers } from "./capabilities";
 import { getLocalContext } from "@/lib/storage/local";
 
 // stdout is the protocol channel — ALL other output (job logs, warnings)
@@ -36,7 +37,11 @@ const decoder = createDecoder({
 
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk: string) => decoder.push(chunk));
-process.stdin.on("end", () => process.exit(0));
+// stdin end = the host closed us: stop helper processes (llama-server) so
+// nothing orphans, THEN exit. Findling 8 of agent-execution-plan.
+process.stdin.on("end", () => {
+  void stopLlamaHelpers().finally(() => process.exit(0));
+});
 
 // uploads (extract/transcribe → chunk) run inside the engine process
 startProcessingLoop(getLocalContext());

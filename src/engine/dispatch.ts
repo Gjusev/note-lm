@@ -35,8 +35,20 @@ import {
   getEmbeddingProfile,
   registerEmbeddingProfile,
 } from "@/lib/services/embedding-profiles";
+import { sendChatMessage } from "@/lib/services/chat";
+import { resolveCapabilities } from "./capabilities";
 
 const ACTIVE_PROFILE_KEY = "retrieval.activeProfile";
+
+async function preEmbedQuery(
+  message: string,
+  embed: ((texts: string[]) => Promise<Buffer[]>) | null
+): Promise<((q: string) => Buffer) | null> {
+  if (!embed) return null;
+  const [vector] = await embed([message]);
+  let value = vector;
+  return () => value;
+}
 
 export type EngineResult =
   | { ok: true; result: unknown }
@@ -338,6 +350,44 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         if (!profileId) return { ok: true, result: { profile: null } };
         const profile = await getEmbeddingProfile(db, profileId);
         return { ok: true, result: { profile } };
+      }
+
+      case "chat.send": {
+        const { notebookId, message } = args as { notebookId?: string; message?: string };
+        if (!notebookId || !message) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and message are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const caps = await resolveCapabilities();
+        const embedQuery = await preEmbedQuery(message, caps.embed);
+        try {
+          const reply = await sendChatMessage(db, {
+            notebookId,
+            ownerId: profile.id,
+            message,
+            chat: caps.chat,
+            embedQuery,
+          });
+          return {
+            ok: true,
+            result: {
+              response: reply.response,
+              citations: reply.citations,
+              mode: reply.mode,
+              vectorStatus: reply.vectorStatus,
+              provider: caps.chatProvider,
+            },
+          };
+        } catch (err) {
+          return {
+            ok: false,
+            error: {
+              code: err instanceof Error && /Kein KI-Anbieter/.test(err.message) ? "no_provider" : "chat_failed",
+              message: err instanceof Error ? err.message : String(err),
+            },
+          };
+        }
       }
 
       default:

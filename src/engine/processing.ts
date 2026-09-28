@@ -13,6 +13,27 @@ import {
   heartbeatProcessingJob,
 } from "@/lib/services/processing-jobs";
 import type { LocalContext } from "@/lib/storage/local";
+import { getSetting } from "@/lib/services/settings";
+import { getEmbeddingProfile } from "@/lib/services/embedding-profiles";
+import { indexNotebookChunks } from "@/lib/services/vector-index";
+
+async function maybeIndexNotebook(ctx: LocalContext, notebookId: string): Promise<void> {
+  const profileId = await getSetting<string>(ctx.db, "retrieval.activeProfile");
+  if (!profileId) return;
+  const profile = await getEmbeddingProfile(ctx.db, profileId);
+  if (!profile) return;
+  const { resolveCapabilities } = await import("./capabilities");
+  const caps = await resolveCapabilities();
+  if (!caps.embed) return; // no embedder configured → textual only
+  const run = await indexNotebookChunks(ctx.db, {
+    profileId: profile._id,
+    dimension: profile.dimension,
+    notebookId,
+    batchSize: 16,
+    embed: caps.embed,
+  });
+  if (run.indexed > 0) console.log(`[PROCESS] auto-indexed ${run.indexed} chunks for profile ${profile._id.slice(0, 8)}`);
+}
 
 /** Errors no retry can fix (bad input) — everything else is transient. */
 export class PermanentProcessingError extends Error {}
@@ -116,6 +137,13 @@ export async function runProcessingJob(
       await ctx.store.delete(previousTranscriptId);
     }
     log("DONE", `${chunks.length} Chunks, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+
+    // chain: completed source → embedding index when a profile is active
+    // (phase 2). Failures never fail the processing job — indexing retries
+    // on the next run/demand.
+    void maybeIndexNotebook(ctx, source.notebookId).catch((err) =>
+      console.error(`[PROCESS] auto-index failed: ${err instanceof Error ? err.message : err}`)
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const permanent = err instanceof PermanentProcessingError;

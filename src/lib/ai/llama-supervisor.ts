@@ -13,6 +13,7 @@ export interface LlamaHandle {
   baseUrl: string;
   token: string;
   embed(input: string): Promise<number[]>;
+  chat(messages: Array<{ role: string; content: string }>): Promise<string>;
   stop(): Promise<void>;
 }
 
@@ -73,8 +74,36 @@ export async function startLlama(opts: {
     baseUrl,
     token,
     embed: (input: string) => llamaEmbed(baseUrl, token, input),
+    chat: (messages) => llamaChat(baseUrl, token, messages),
     stop: () => stopTree(child),
   };
+}
+
+/** One chat completion via /v1/chat/completions with the session token. */
+export async function llamaChat(
+  baseUrl: string,
+  token: string,
+  messages: Array<{ role: string; content: string }>
+): Promise<string> {
+  const res = await fetch(`${baseUrl}/v1/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ messages }),
+    signal: AbortSignal.timeout(300_000),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`llama chat failed: ${res.status} ${text.slice(0, 200)}`);
+  }
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const content = data.choices?.[0]?.message?.content;
+  if (typeof content !== "string") throw new Error("llama chat: unexpected response shape");
+  return content;
 }
 
 function stopTree(child: ChildProcess): Promise<void> {
