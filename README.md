@@ -4,77 +4,90 @@
 
 https://github.com/user-attachments/assets/7b56ec72-e581-4f1f-a4a9-20279eae64e2
 
-**A self-hosted research notebook: drop in sources (PDFs, videos, pages), let a background pipeline transcribe and index them, then chat with citations across everything — on your own infrastructure.** NotebookLM's workflow, your server, your keys.
+**A local-first research notebook: drop in sources (PDFs, videos, pages), let a background pipeline transcribe and index them, then chat with citations across everything — everything stored on your machine.** NotebookLM's workflow, your disk, your keys.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Next.js 15](https://img.shields.io/badge/Next.js%2015-App%20Router-black)
-![Convex](https://img.shields.io/badge/Convex-self--hosted-36173C)
-![PostgreSQL](https://img.shields.io/badge/Auth-PostgreSQL%20·%20Drizzle-blue)
+![SQLite](https://img.shields.io/badge/Data-SQLite%20·%20Drizzle-003B57)
 
 ## Why this exists
 
 The cloud versions of this workflow route your research material and your
-questions through someone else's servers. I wanted the same loop — ingest,
-transcribe, index, ask with citations — with the data staying on
-infrastructure I control, and with an auth-data/product-data split strict
-enough that the notebook can be exposed to the internet safely.
+questions through someone else's servers. This is the same loop — ingest,
+transcribe, index, ask with citations — as a single-user local application:
+one SQLite database, files on disk, no account, no deployment. AI features
+(chat, transcription, learning materials) are optional per-capability
+configuration; without any key, notebooks, imports, notes and local search
+still work.
 
 ## What's inside
 
-- **Source ingestion** — file upload with a Convex-backed background pipeline; ffmpeg (bundled in the Docker image) handles audio/video; URL imports (pages, direct PDF/audio/video files, YouTube videos) run as persistent Convex jobs through a dedicated Node worker (`npm run worker`); web pages via a SearXNG instance.
-- **Chat over all sources** — retrieval includes context from every matching source, not just top keyword hits; answers cite the sources they used.
-- **Strict data split** — Better Auth (email/password + Google OAuth) lives in PostgreSQL via Drizzle; product data lives in self-hosted Convex. Sessions never mix stores.
-- **Shippable** — Dockerfile with ffmpeg preinstalled, vitest suite, structured e2e script.
+- **Local persistence** — SQLite (better-sqlite3 + Drizzle, WAL) in a
+  configurable data dir; originals, transcripts and generated audio live in
+  `files/` and are served by a range-capable `/api/files/:id`.
+- **Source ingestion** — manual uploads and URL imports (pages, direct
+  PDF/audio/video files, YouTube videos) run as persistent, lease-fenced
+  jobs through a dedicated Node worker (`npm run worker`); ffmpeg handles
+  audio/video; PDFs extract locally via PDF.js, scanned PDFs optionally via
+  Azure OCR.
+- **Chat over all sources** — retrieval uses SQLite FTS5/BM25 scoped to the
+  notebook; answers cite the sources they used.
+- **No auth stack** — a single local profile; the app listens on loopback
+  only, an HttpOnly session cookie gates `/app`, and mutating routes verify
+  Origin.
+- **Shippable** — `npm run start:local` launcher (server + worker + browser),
+  vitest suite, e2e suite that spawns the real worker against real SQLite.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    U[User] --> AUTH[Better Auth<br/>PostgreSQL · Drizzle]
-    U --> APP[Next.js 15 App Router]
-    APP --> CVX[Convex · self-hosted<br/>sources · chunks · jobs]
-    APP --> BG[background pipeline<br/>ffmpeg · transcription]
-    BG --> CVX
-    APP --> LLM[OpenAI-compatible API<br/>gpt-4o-mini]
-    APP --> SEAR[SearXNG instance<br/>web + YouTube discovery]
-    CVX --> CHAT[chat with citations<br/>across all sources]
+    U[User<br/>browser] --> APP[Next.js 15 · loopback only]
+    LAU[start-local launcher] --> APP
+    LAU --> W[local worker<br/>tsx]
+    APP --> DB[(SQLite · Drizzle<br/>notebooks · sources · chunks · jobs)]
+    W --> DB
+    APP --> FS[files on disk<br/>originals · transcripts · audio]
+    W --> FS
+    W --> NET[URL imports<br/>ffmpeg · transcription]
+    APP --> LLM[optional AI provider<br/>chat · TTS]
+    APP --> FTS[FTS5 · BM25<br/>notebook search]
 ```
 
-Decisions worth reading: `docs/specs/` (product spec), `convex/` (data model
-and functions), `src/app/api/` (pipeline entrypoints).
+Decisions worth reading: `docs/specs/local-app-plan.md` (the conversion
+plan), `src/db/local/` (schema + migrations), `src/lib/services/`
+(business logic), `src/app/api/` (HTTP surface), `workers/ingestion.ts`
+(job queues).
 
-## Run locally (partial — see note)
+## Run locally
 
 ```bash
-npm install
-npx drizzle-kit push          # auth schema → your PostgreSQL
-npx convex dev                # schema+functions → your Convex deployment
-npx convex env set WORKER_KEY <random-secret>   # worker credential (Convex side)
-npm run dev
-npm run worker                # ingestion worker (URL/PDF/audio/YouTube imports)
+npm ci
+npm run setup:local   # verifies runtime, prepares the data dir
+npm run build
+npm run start:local   # starts server + worker on 127.0.0.1 and opens the app
 ```
 
-Environment (names only): `DATABASE_URL`, Convex deployment URL + internal
-key, OpenAI API key, SearXNG endpoint, `WORKER_KEY` (same value for the
-worker process and Convex env). Importer tuning (optional):
-`INGEST_DISABLE_YOUTUBE=1`, `INGEST_MAX_{HTML,DOC,AUDIO,VIDEO}_MB`.
-**Honest status:** the pipeline runs against *your* Convex deployment and
-search instance — this export has not been re-verified end-to-end against a
-fresh stack. `npm run test` (vitest, standalone) covers units + components;
-`npm run test:e2e` runs the ingestion-worker E2E suite (spawns the real
-worker against a local resource server + in-memory fake Convex; uses
-`INGEST_ALLOW_PRIVATE=1`, never enable that in production).
+Data lives in `%APPDATA%/note-lm` (or `NOTELM_DATA_DIR`). Optional
+configuration (AI keys, SearXNG web search, importer limits): see
+`.env.example`. Tests: `npm run test` (units/components against real
+SQLite), `npm run test:e2e` (spawns the real worker against real SQLite and
+a local resource server; uses `INGEST_ALLOW_PRIVATE=1` for loopback test
+servers only).
+
+Docker remains an alternative packaging (`Dockerfile`).
 
 ## What I'd do differently
 
 1. **Background jobs out of the request path earlier.** Processing began as
-   part of upload handling; moving it behind Convex actions fixed timeouts
-   but a dedicated worker would isolate retries better.
-2. **One vector store decision up front.** Chunk retrieval evolved from
-   ad-hoc filters to structured scoring; an explicit index strategy would
+   part of upload handling; the persistent queue with lease fencing is the
+   design that should have been there from day one.
+2. **One retrieval decision up front.** Chunk retrieval evolved from ad-hoc
+   filters to keyword scoring to FTS5/BM25; an explicit index strategy would
    have saved a rewrite.
-3. **E2E with ephemeral backends.** The e2e script pointed at a live
-   deployment; dockerized throwaway backends would make it CI-usable.
+3. **E2E with ephemeral backends.** The e2e once pointed at a live
+   deployment; running it against a real SQLite file in a temp dir made it
+   hermetic.
 
 ## Author
 

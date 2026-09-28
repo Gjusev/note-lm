@@ -84,14 +84,14 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
           </Link>
         ))}
         <Link
-          href="/login"
+          href="/app"
           onClick={onClose}
           className="text-mono-label hover:text-accent transition-colors py-2"
         >
           ANMELDEN
         </Link>
         <Link
-          href="/register"
+          href="/app"
           onClick={onClose}
           className="bg-accent text-white px-5 py-3 text-mono-label font-bold text-center hover:bg-ink transition-colors"
         >
@@ -240,13 +240,13 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/login"
+            href="/app"
             className="hidden md:inline-block text-mono-label hover:text-accent transition-colors"
           >
             ANMELDEN
           </Link>
           <Link
-            href="/register"
+            href="/app"
             className="hidden md:inline-block bg-accent text-white px-5 py-2 text-mono-label font-bold hover:bg-ink transition-colors"
           >
             KOSTENLOS STARTEN
@@ -285,7 +285,7 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 data-animate="hero-cta"
-                href="/register"
+                href="/app"
                 className="inline-block bg-ink text-white px-6 py-3 text-mono-label font-bold hover:bg-accent transition-colors"
               >
                 KOSTENLOS STARTEN →
@@ -411,7 +411,7 @@ export default function LandingPage() {
             Starte jetzt kostenlos und erlebe, wie KI deine Quellen versteht.
           </p>
           <Link
-            href="/register"
+            href="/app"
             className="inline-block bg-accent text-white px-9 py-4 md:px-12 md:py-5 text-mono-label font-bold hover:bg-ink transition-colors"
           >
             KOSTENLOS STARTEN →
@@ -430,7 +430,7 @@ export default function LandingPage() {
             <Link href="/architektur" className="text-mono-label hover:text-accent transition-colors">
               ARCHITEKTUR
             </Link>
-            <Link href="/login" className="text-mono-label hover:text-accent transition-colors">
+            <Link href="/app" className="text-mono-label hover:text-accent transition-colors">
               ANMELDEN
             </Link>
           </div>

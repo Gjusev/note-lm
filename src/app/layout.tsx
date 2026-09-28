@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import { ConvexClientProvider } from "@/components/convex-provider";
+import { QueryProvider } from "@/components/query-provider";
 import { ToastProvider } from "@/components/ui/toaster";
 import "./globals.css";
 
@@ -35,9 +35,9 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body className={`${inter.variable} ${jetbrains.variable} font-sans antialiased`}>
-        <ConvexClientProvider>
+        <QueryProvider>
           <ToastProvider>{children}</ToastProvider>
-        </ConvexClientProvider>
+        </QueryProvider>
       </body>
     </html>
   );

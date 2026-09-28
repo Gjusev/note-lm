@@ -7,7 +7,7 @@ interface UploadDialogProps {
   open: boolean;
   onClose: () => void;
   notebookId: string;
-  ownerId: string;
+  onUploaded?: () => void;
 }
 
 const ACCEPTED_TYPES: Record<string, string[]> = {
@@ -20,7 +20,7 @@ const ALL_EXTENSIONS = Object.values(ACCEPTED_TYPES).flat().join(",");
 
 type UploadState = "idle" | "dragging" | "uploading" | "processing" | "success" | "error";
 
-export function UploadDialog({ open, onClose, notebookId, ownerId }: UploadDialogProps) {
+export function UploadDialog({ open, onClose, notebookId, onUploaded }: UploadDialogProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<UploadState>("idle");
@@ -48,7 +48,6 @@ export function UploadDialog({ open, onClose, notebookId, ownerId }: UploadDialo
     const formData = new FormData();
     formData.append("file", file);
     formData.append("notebookId", notebookId);
-    formData.append("ownerId", ownerId);
 
     try {
       // Simulate progress for upload phase
@@ -73,11 +72,13 @@ export function UploadDialog({ open, onClose, notebookId, ownerId }: UploadDialo
       setProgress(100);
       setState("processing");
 
-      // Wait for processing to complete (show processing state briefly)
-      await new Promise((r) => setTimeout(r, 1500));
+      // Extraction/transcription runs in the worker queue; the sources list
+      // shows live status. The dialog just confirms the hand-off.
+      await new Promise((r) => setTimeout(r, 1200));
 
       setState("success");
-      toast(`"${file.name}" erfolgreich hinzugefügt`, "success");
+      toast(`"${file.name}" hinzugefügt — Verarbeitung läuft`, "success");
+      onUploaded?.();
 
       // Auto-close after success
       setTimeout(() => {
@@ -87,7 +88,7 @@ export function UploadDialog({ open, onClose, notebookId, ownerId }: UploadDialo
       setState("error");
       toast("Upload fehlgeschlagen", "error");
     }
-  }, [notebookId, ownerId, toast, handleClose]);
+  }, [notebookId, toast, handleClose, onUploaded]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

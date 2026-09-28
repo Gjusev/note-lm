@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "worker": "tsx workers/ingestion.ts",
+    "setup:local": "node scripts/setup-local.mjs",
+    "start:local": "node scripts/start-local.mjs",
     "test:e2e": "vitest run --config vitest.e2e.config.ts"
   },
   "dependencies": {
@@ -18,7 +20,9 @@
     "@better-auth/drizzle-adapter": "^1.6.11",
     "@gsap/react": "^2.1.2",
     "@radix-ui/react-slot": "^1.2.4",
+    "@tanstack/react-query": "^5.104.0",
     "better-auth": "^1.6.11",
+    "better-sqlite3": "^12.11.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "convex": "^1.39.1",
@@ -45,6 +49,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/fluent-ffmpeg": "^2.1.28",
     "@types/node": "^22.15.0",
     "@types/nodemailer": "^8.0.0",

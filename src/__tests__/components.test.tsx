@@ -11,32 +11,27 @@ const store = {
   materials: [] as unknown[],
 };
 
-// Global call index — reset before each test
-let callIdx = 0;
-
-function mockUseQuery() {
-  const order = [
-    store.notebook,
-    store.sources,
-    store.messages,
-    store.notes,
-    store.materials,
-    store.materials,
-  ];
-  const val = order[callIdx % order.length];
-  callIdx++;
-  return val;
+function dataForKey(key: unknown) {
+  switch (key) {
+    case "notebook": return store.notebook;
+    case "sources": return store.sources;
+    case "messages": return store.messages;
+    case "notes": return store.notes;
+    case "materials": return store.materials;
+    default: return undefined;
+  }
 }
 
 // ── Mocks ──
 
-vi.mock("convex/react", () => ({
-  useQuery: vi.fn(() => mockUseQuery()),
-  useMutation: vi.fn(() => vi.fn()),
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: vi.fn(({ queryKey }: { queryKey: unknown[] }) => ({ data: dataForKey(queryKey[0]) })),
+  useMutation: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn(async () => ({})), isPending: false })),
+  useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
 }));
 
-vi.mock("@/lib/auth-client", () => ({
-  useSession: vi.fn(() => ({ data: { user: { id: "user1", name: "Test" } } })),
+vi.mock("@/lib/use-local-profile", () => ({
+  useLocalProfile: vi.fn(() => ({ data: { user: { id: "user1", name: "Test" } } })),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -59,7 +54,6 @@ vi.mock("@/components/notebook/upload-dialog", () => ({
 // ── Tests ──
 
 function reset() {
-  callIdx = 0;
   store.notebook = { _id: "nb1", title: "Test Notebook", ownerId: "user1" };
   store.sources = [];
   store.messages = [];
