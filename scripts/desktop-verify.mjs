@@ -60,6 +60,7 @@ run("dev smoke (clean PATH)", () => {
 });
 
 // 4) installer
+run("desktop UI (vite)", () => sh("npm", ["run", "build:desktop"]));
 run("tauri build (NSIS installer)", () => sh("npx", ["tauri", "build"]));
 const installer = fs
   .readdirSync(path.join(repo, "src-tauri/target/release/bundle/nsis"))

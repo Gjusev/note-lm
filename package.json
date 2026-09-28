@@ -20,7 +20,8 @@
     "fetch:ffmpeg": "node scripts/fetch-ffmpeg.mjs",
     "verify:desktop": "node scripts/desktop-verify.mjs",
     "eval:retrieval": "tsx scripts/eval-retrieval.ts",
-    "fetch:llama": "node scripts/fetch-llama.mjs"
+    "fetch:llama": "node scripts/fetch-llama.mjs",
+    "build:desktop": "vite build --config src/desktop/vite.config.ts"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
@@ -75,6 +76,7 @@
     "tailwindcss": "^4.1.0",
     "tsx": "^4.23.15",
     "typescript": "^5.8.3",
+    "vite": "^7.3.6",
     "vitest": "^3.2.4"
   }
 }

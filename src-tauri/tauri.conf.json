@@ -4,19 +4,20 @@
   "version": "0.1.0",
   "identifier": "com.notelm.spike",
   "build": {
-    "frontendDist": "ui"
+    "frontendDist": "../src/desktop/dist"
   },
   "app": {
     "windows": [
       {
-        "title": "note-lm — packaging spike",
+        "title": "note-lm \u2014 packaging spike",
         "width": 720,
         "height": 480
       }
     ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
-    }
+    },
+    "withGlobalTauri": true
   },
   "bundle": {
     "active": true,

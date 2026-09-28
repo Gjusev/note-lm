@@ -15,12 +15,20 @@ fn engine_handshake(state: tauri::State<EngineState>) -> Result<serde_json::Valu
     engine.request("handshake-1", "protocol.version", serde_json::json!({}))
 }
 
-/// UI command: list notebooks through the engine (proves SQLite works packaged).
+/// UI command: one engine op from the React adapter (phase 4). The engine
+/// validates op + args; the window never touches SQL, shells or paths.
 #[tauri::command]
-fn engine_notebooks(state: tauri::State<EngineState>) -> Result<serde_json::Value, String> {
+fn engine_op(
+    state: tauri::State<EngineState>,
+    op: String,
+    args_json: String,
+) -> Result<serde_json::Value, String> {
+    let args: serde_json::Value =
+        serde_json::from_str(&args_json).map_err(|e| format!("bad args: {e}"))?;
+    // request ids are internal; the reply carries the engine's own id anyway
     let mut guard = state.0.lock().unwrap();
     let engine = guard.as_mut().ok_or_else(|| "engine not running".to_string())?;
-    engine.request("handshake-2", "notebooks.list", serde_json::json!({}))
+    engine.request(&format!("ui-{op}"), &op, args)
 }
 
 /// Locate the resources dir without a running tauri app: dev builds get
@@ -132,7 +140,8 @@ fn main() {
             }
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![engine_handshake, engine_notebooks])
+        .invoke_handler(tauri::generate_handler![engine_handshake, engine_op])
+        .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

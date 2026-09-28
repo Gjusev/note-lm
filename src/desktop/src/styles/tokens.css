@@ -1,0 +1,76 @@
+/* Design tokens (product-blueprint §Marca): paper / ink / subtle grid /
+   red accent. Light, dark and system themes from day one. */
+:root {
+  --paper: #fafafa;
+  --paper-muted: #f1efe9;
+  --ink: #202020;
+  --ink-60: rgba(32, 32, 32, 0.6);
+  --ink-40: rgba(32, 32, 32, 0.4);
+  --rule: rgba(32, 32, 32, 0.14);
+  --accent: #b4473d;
+  --accent-soft: rgba(180, 71, 61, 0.08);
+  --ok: #2f6b46;
+  --warn: #9a6b0f;
+  --surface: #ffffff;
+  --focus-ring: 2px solid var(--accent);
+  --radius: 6px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --font-ui: "Geist Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #1c1b19;
+    --paper-muted: #242220;
+    --ink: #ece9e2;
+    --ink-60: rgba(236, 233, 226, 0.62);
+    --ink-40: rgba(236, 233, 226, 0.4);
+    --rule: rgba(236, 233, 226, 0.16);
+    --accent: #d2705f;
+    --accent-soft: rgba(210, 112, 95, 0.12);
+    --ok: #6fbf8e;
+    --warn: #d9a441;
+    --surface: #242220;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 15px/1.55 var(--font-ui);
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button {
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+}
+button:hover { border-color: var(--ink-40); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 1px;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary:hover { filter: brightness(1.08); }
+input, textarea {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+}
+.mono { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-60); }
+.muted { color: var(--ink-60); }
+.rule-top { border-top: 1px solid var(--rule); }

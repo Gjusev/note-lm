@@ -49,3 +49,4 @@ src-tauri/binaries/
 .probe-downloads/
 src-tauri/resources/ffmpeg/
 src-tauri/resources/llama/
+src/desktop/dist/

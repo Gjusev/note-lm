@@ -1,0 +1,44 @@
+/** Desktop API client: engine ops over the transport adapter, shaped like
+ *  src/lib/api.ts (same wire contracts, `_id` fields) so screens stay
+ *  portable between the web and desktop frontends. */
+import { engineOp, errorMessage, type EngineReply } from "./transport";
+
+async function call<T>(op: string, args: unknown = {}): Promise<T> {
+  const reply = await engineOp(op, args) as EngineReply<T>;
+  if (!reply.ok) throw new Error(errorMessage(reply));
+  return reply.result as T;
+}
+
+export interface Notebook { _id: string; title: string; description?: string | null; updatedAt: number }
+export interface Source { _id: string; fileName: string; fileType: string; fileSize: number; status: string; url?: string | null; errorMessage?: string | null }
+export interface Chunk { _id: string; content: string; chunkIndex: number }
+export interface Message { _id: string; role: "user" | "assistant"; content: string; citations?: Array<{ sourceId: string; chunkIndex: number; text: string; fileName?: string }> | null; createdAt: number }
+export interface Note { _id: string; title: string; content: string; updatedAt: number }
+
+export const desktopApi = {
+  listNotebooks: () => call<Notebook[]>("notebooks.list"),
+  createNotebook: (title: string) => call<{ id: string }>("notebooks.create", { title }),
+  listSources: (notebookId: string) => call<Source[]>("sources.list", { notebookId }),
+  importFile: (path: string, notebookId: string, fileName: string, fileType: string) =>
+    call<{ sourceId: string }>("sources.importFile", { path, notebookId, fileName, fileType }),
+  listMessages: (notebookId: string) => call<Message[]>("messages.list", { notebookId }),
+  sendChat: (notebookId: string, message: string) =>
+    call<{ response: string; citations: Message["citations"]; mode: string; vectorStatus: string; provider: string }>("chat.send", { notebookId, message }),
+  listNotes: (notebookId: string) => call<Note[]>("notes.list", { notebookId }),
+  createNote: (notebookId: string, title: string, content: string) =>
+    call<{ id: string }>("notes.create", { notebookId, title, content }),
+  deleteNote: (noteId: string) => call<{}>("notes.delete", { noteId }),
+  activeProfile: () => call<{ profile: { _id: string; model: string; dimension: number } | null }>("retrieval.profile.active"),
+  diagnostics: () => call<{ vecVersion: string | null; localChatConfigured: boolean; localEmbedConfigured: boolean }>("diagnostics.capabilities"),
+};
+
+/** Native file dialog via the Tauri plugin; null in browser dev. */
+export async function pickFile(): Promise<{ path: string; name: string } | null> {
+  if (typeof window === "undefined" || !("__TAURI__" in window)) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dialog = (window as any).__TAURI__.dialog;
+  const path = await dialog.open({ multiple: false, directory: false });
+  if (!path || typeof path !== "string") return null;
+  const name = path.split(/[\\/]/).pop() || "datei";
+  return { path, name };
+}
