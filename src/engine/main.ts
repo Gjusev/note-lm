@@ -1,0 +1,32 @@
+/**
+ * Engine entrypoint: the process Tauri spawns (issue #9/#10). Speaks the
+ * NDJSON protocol over stdio — stdout is protocol only, stderr is logs.
+ * stdin is read in binary-safe chunks; the decoder tolerates split reads.
+ */
+import { createDecoder, encodeError, encodeResponse } from "./protocol";
+import { handleEngineRequest } from "./dispatch";
+
+const decoder = createDecoder({
+  onMessage: async (message) => {
+    if (typeof message.id !== "string" || typeof message.op !== "string") {
+      // a frame without id cannot be answered — log to stderr and drop it
+      console.error("[engine] malformed request:", JSON.stringify(message).slice(0, 200));
+      return;
+    }
+    const outcome = await handleEngineRequest(message.op, message.args ?? {});
+    if (outcome.ok) {
+      process.stdout.write(encodeResponse({ id: message.id, result: outcome.result }));
+    } else {
+      process.stdout.write(
+        encodeError({ id: message.id, code: outcome.error.code, message: outcome.error.message })
+      );
+    }
+  },
+  onError: (error) => {
+    console.error(`[engine] protocol error ${error.code}: ${error.message}`);
+  },
+});
+
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", (chunk: string) => decoder.push(chunk));
+process.stdin.on("end", () => process.exit(0));
