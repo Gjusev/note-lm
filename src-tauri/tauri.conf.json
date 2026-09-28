@@ -33,6 +33,9 @@
     },
     "icon": [
       "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/node"
     ]
   }
 }

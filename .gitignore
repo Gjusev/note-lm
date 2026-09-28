@@ -45,3 +45,4 @@ brag-output/
 src-tauri/target/
 src-tauri/resources/engine/
 src-tauri/gen/
+src-tauri/binaries/

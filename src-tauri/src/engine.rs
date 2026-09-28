@@ -18,7 +18,7 @@ impl Engine {
         if !script.exists() {
             return Err(format!("engine bundle not found at {} — run npm run build:engine", script.display()));
         }
-        let node = std::env::var("NOTELM_NODE_BIN").unwrap_or_else(|_| "node".into());
+        let node = resolve_node();
         let child = Command::new(node)
             .arg(&script)
             .env("NODE_ENV", "production")
@@ -58,4 +58,22 @@ impl Drop for Engine {
         let _ = self.child.kill();
         let _ = self.child.wait();
     }
+}
+
+/// Prefer the runtime bundled next to the app exe (clean machines have no
+/// Node on PATH); fall back to NOTELM_NODE_BIN and then to PATH (dev).
+fn resolve_node() -> String {
+    if let Ok(from_env) = std::env::var("NOTELM_NODE_BIN") {
+        return from_env;
+    }
+    if let Ok(exe) = std::env::current_exe() {
+        let sibling = exe
+            .parent()
+            .map(|dir| dir.join("node.exe"))
+            .filter(|p| p.exists());
+        if let Some(sibling) = sibling {
+            return sibling.to_string_lossy().into_owned();
+        }
+    }
+    "node".into()
 }
