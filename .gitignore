@@ -40,3 +40,8 @@ node_modules
 
 # brag video workspace
 brag-output/
+
+# Tauri
+src-tauri/target/
+src-tauri/resources/engine/
+src-tauri/gen/

@@ -13,7 +13,9 @@
     "worker": "tsx workers/ingestion.ts",
     "setup:local": "node scripts/setup-local.mjs",
     "start:local": "node scripts/start-local.mjs",
-    "test:e2e": "vitest run --config vitest.e2e.config.ts"
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
+    "build:engine": "node scripts/build-engine.mjs",
+    "spike:desktop": "npm run build:engine && cd src-tauri && cargo run"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",
@@ -46,6 +48,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@tailwindcss/postcss": "^4.1.0",
+    "@tauri-apps/cli": "^2.12.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -58,6 +61,7 @@
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.7.0",
     "drizzle-kit": "^0.31.10",
+    "esbuild": "^0.28.2",
     "eslint": "^9.28.0",
     "eslint-config-next": "^15.3.2",
     "jsdom": "^26.1.0",

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>note-lm — packaging spike</title>
+    <style>
+      :root { color-scheme: light dark; font: 14px/1.5 system-ui, sans-serif; }
+      body { margin: 2rem; }
+      pre { background: rgba(127, 127, 127, 0.12); padding: 1rem; border-radius: 8px; overflow: auto; }
+      button { font: inherit; padding: 0.5rem 1rem; margin-right: 0.5rem; }
+    </style>
+  </head>
+  <body>
+    <h1>note-lm packaging spike</h1>
+    <p>Window → Tauri command → local Node engine (stdio NDJSON) → SQLite.</p>
+    <button id="hello">Protocol handshake</button>
+    <button id="list">List notebooks</button>
+    <pre id="out">waiting…</pre>
+    <script type="module">
+      const out = document.getElementById("out");
+      const show = (label, promise) =>
+        promise
+          .then((v) => (out.textContent = `${label}:\n${JSON.stringify(v, null, 2)}`))
+          .catch((e) => (out.textContent = `${label} failed:\n${e}`));
+      document.getElementById("hello").onclick = () =>
+        show("protocol.version", window.__TAURI__.core.invoke("engine_handshake"));
+      document.getElementById("list").onclick = () =>
+        show("notebooks.list", window.__TAURI__.core.invoke("engine_notebooks"));
+    </script>
+  </body>
+</html>
