@@ -9,6 +9,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ["./src/__tests__/setup.ts"],
     include: ["src/__tests__/**/*.test.{ts,tsx}"],
+    // CI runners import pdfjs-dist cold inside route tests — 5s flakes
+    testTimeout: 30_000,
   },
   resolve: {
     alias: {
