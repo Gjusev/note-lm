@@ -169,14 +169,25 @@ Jede Quelle zeigt einen farbigen Statusindikator:
 | Rot | Fehler bei der Verarbeitung |
 | Grau | Ausstehend |
 
-### 5.3 URL als Quelle hinzufuegen
+### 5.3 URL als Quelle hinzufuegen (Import)
 
 1. Wechseln Sie zum Tab **URL** in der linken Seitenleiste
-2. Geben Sie eine Web-URL ein (z.B. `https://example.com/artikel`)
-3. Klicken Sie auf **"HINZUFUEGEN"** oder druecken Sie Enter
-4. Die Anwendung laedt die Webseite, extrahiert den Textinhalt und fuegt ihn als Quelle hinzu
+2. Geben Sie eine URL ein — unterstuetzt werden Webseiten, direkte Dateien
+   (PDF, Text, Markdown, Audio, Video) und einzelne YouTube-Videos
+   (auch Shorts und youtu.be-Links)
+3. Klicken Sie auf **"IMPORT STARTEN"** oder druecken Sie Enter
+4. Der Import laeuft als Hintergrundauftrag: Unter dem Formular erscheint
+   die Liste **IMPORTS** mit Anbieter, Titel und aktueller Phase
+   (in Warteschlange → wird geprüft → wird geladen → wird verarbeitet → fertig)
+5. Bei Fehlern erscheint eine verstaendliche Meldung mit **WIEDERHOLEN**-Button;
+   laufende Imports koennen Sie mit **ABBRECHEN** stoppen
 
-> **Hinweis**: Der Text wird automatisch bereinigt — Navigation, Footer, Skripte und Styles werden entfernt.
+> **Hinweise**:
+> - Der Fortschritt bleibt beim Neuladen der Seite erhalten.
+> - Webseiten-Text wird automatisch bereinigt — Navigation, Footer, Skripte und Styles werden entfernt.
+> - Audio und Video werden transkribiert; die Original-URL wird als Herkunftsnachweis gespeichert.
+> - Dieselbe Quelle erneut zu importieren erzeugt keine Duplikate: die vorhandene Quelle wird aktualisiert.
+> - Ergebnisse der Web-Suche (Tab **SUCHE**) nutzen denselben Import-Ablauf.
 
 ### 5.4 Quelldetails ansehen
 

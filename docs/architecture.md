@@ -13,8 +13,10 @@ flowchart LR
     USER["Researcher"] --> APP["Next.js 15 · App Router"]
     APP --> AUTH["Better Auth · Drizzle"]
     AUTH --> PG[("PostgreSQL")]
-    APP --> CVX["Self-hosted Convex · sources, chunks, jobs"]
-    APP --> PIPE["Background pipeline · FFmpeg, extraction, transcription"]
+    APP --> CVX["Self-hosted Convex · sources, chunks, importJobs"]
+    APP --> WORKER["Ingestion worker · leases, downloads, FFmpeg, transcription"]
+    WORKER --> CVX
+    APP --> PIPE["Upload pipeline · FFmpeg, extraction, transcription"]
     PIPE --> CVX
     APP --> SEARCH["SearXNG · web and YouTube discovery"]
     APP --> LLM["OpenAI-compatible API"]
@@ -24,8 +26,15 @@ flowchart LR
 ## Boundaries
 
 - Better Auth owns accounts and sessions; notebook content stays in Convex.
-- Upload, URL-fetch and search routes authenticate server-to-Convex calls with
-  `INTERNAL_API_KEY`.
+- Upload, URL-import and search routes authenticate via the Better Auth
+  session and verify notebook ownership server-side; server-to-Convex calls
+  use `INTERNAL_API_KEY`, and worker mutations additionally require
+  `WORKER_KEY` (set in the Convex environment).
+- URL imports (web pages, direct PDF/text/audio/video files, YouTube videos)
+  run as persistent `importJobs`: the worker claims a job with a lease
+  token, heartbeats while downloading/processing, and completes atomically
+  (source reuse + chunk replacement). Crashed workers are recovered after
+  lease expiry; transient failures retry with backoff.
 - FFmpeg handles audio/video preparation; transcription, embeddings and chat
   use the configured OpenAI-compatible client.
 - SearXNG supplies discovery results; retrieved source content is stored and
@@ -40,6 +49,7 @@ flowchart LR
 | :--- | :--- | :--- |
 | PostgreSQL for auth, Convex for product data | Keeps session records separate from notebook documents and jobs | Two data systems must be configured and backed up |
 | Background processing through Convex | Upload requests do not own long transcription work | Local development still needs a reachable Convex deployment |
+| Dedicated ingestion worker with leases | Imports survive worker restarts; retries never duplicate sources | One more process to run (`npm run worker`) and a worker credential to configure |
 | OpenAI-compatible provider boundary | One client path for transcription, embeddings, chat and TTS | Provider availability and model limits remain external |
 | SearXNG for discovery | Search can run on infrastructure you control | Search quality depends on a separate service |
 | German static UI with question-language answers | Product copy stays consistent while chat can follow the user's question | Translation and answer-language behavior need separate testing |

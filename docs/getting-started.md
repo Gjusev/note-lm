@@ -29,7 +29,11 @@ for your deployment using the names read by the application:
 | `SEAR_ENDPOINT` | SearXNG search endpoint |
 | `AZURE_OCR_ENDPOINT` / `AZURE_OCR_KEY` | Optional OCR for scanned documents |
 | `FFMPEG_PATH` | Optional FFmpeg executable override |
+| `WORKER_KEY` | Credential for ingestion-worker mutations; the same value must be set in the Convex environment (`npx convex env set WORKER_KEY …`) |
 | `MAX_PDF_MB` / `MAX_TEXT_MB` / `MAX_AUDIO_MB` / `MAX_VIDEO_MB` | Upload limits |
+| `INGEST_DISABLE_YOUTUBE` | Set to `1` to disable the YouTube import provider |
+| `INGEST_MAX_HTML_MB` / `INGEST_MAX_DOC_MB` / `INGEST_MAX_AUDIO_MB` / `INGEST_MAX_VIDEO_MB` | Import download limits |
+| `INGEST_POLL_MS` | Worker job-poll interval (default 3000 ms) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Optional Google OAuth sign-in |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | SMTP transport for email flows |
 
@@ -41,7 +45,9 @@ Use placeholders locally. Never commit values for these variables.
 npm install
 npx drizzle-kit push
 npx convex dev
+npx convex env set WORKER_KEY <random-secret>   # same value as in the app environment
 npm run dev
+npm run worker        # ingestion worker for URL imports (pages, files, YouTube)
 ```
 
 The commands assume PostgreSQL and Convex are already reachable. Open
@@ -55,6 +61,7 @@ environment template.
 npm run lint
 npm run typecheck
 npm run test
+npm run test:e2e
 npm run build
 ```
 
