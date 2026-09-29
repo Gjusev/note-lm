@@ -27,7 +27,7 @@ function Section(props: {
           aria-expanded={props.open}
           aria-controls={"nav-section-" + props.id}
           onClick={props.onToggle}
-          style={{ border: "none", padding: "var(--space-1) 0", fontWeight: 600, fontSize: "0.8rem", flex: 1, textAlign: "left" }}
+          style={{ border: "none", padding: "var(--space-1) 0", fontWeight: 600, fontSize: "0.8rem", flex: 1, textAlign: "left", background: "transparent", color: "inherit" }}
         >
           {props.open ? "▾" : "▸"} {props.title}
         </button>
@@ -137,7 +137,8 @@ export function SourceNavigator(props: {
                 <button onClick={() => props.openNote(n._id)} title={n.title}
                   aria-current={props.ui.selectedNoteId === n._id ? "true" : undefined}
                   style={{ width: "100%", textAlign: "left", fontSize: "0.85rem",
-                    border: props.ui.selectedNoteId === n._id ? "1px solid var(--accent)" : undefined }}>
+                    background: "transparent", color: "inherit",
+                    border: `1px solid ${props.ui.selectedNoteId === n._id ? "var(--accent)" : "var(--rule)"}` }}>
                   <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.title}</span>
                 </button>
               </li>
@@ -158,7 +159,8 @@ export function SourceNavigator(props: {
                 <button onClick={() => props.selectClaim(c._id)} title={c.text}
                   aria-current={props.ui.selectedClaimId === c._id ? "true" : undefined}
                   style={{ width: "100%", textAlign: "left", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "var(--space-1)",
-                    border: props.ui.selectedClaimId === c._id ? "1px solid var(--accent)" : undefined }}>
+                    background: "transparent", color: "inherit",
+                    border: `1px solid ${props.ui.selectedClaimId === c._id ? "var(--accent)" : "var(--rule)"}` }}>
                   <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.text}</span>
                   <ClaimChips claim={c} />
                 </button>
@@ -212,11 +214,11 @@ export function SourceNavigator(props: {
  *  opens the source in the center reader. */
 function SourceRow({ source, selected, notebookId, onOpen }: { source: Source; selected: boolean; notebookId: string; onOpen: () => void }) {
   return (
-    <li style={{ border: `1px solid ${selected ? "var(--accent)" : "var(--rule)"}`, borderRadius: "var(--radius)" }}>
+    <li style={{ border: `1px solid ${selected ? "var(--accent)" : "var(--rule)"}` }}>
       <button
         onClick={onOpen}
         aria-current={selected ? "true" : undefined}
-        style={{ width: "100%", textAlign: "left", border: "none", display: "flex", flexDirection: "column", gap: "var(--space-1)", alignItems: "stretch" }}
+        style={{ width: "100%", textAlign: "left", border: "none", display: "flex", flexDirection: "column", gap: "var(--space-1)", alignItems: "stretch", background: "transparent", color: "inherit" }}
       >
         <span style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", fontSize: "0.85rem" }}>
           <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
@@ -297,17 +299,22 @@ function SourceRowActions({ source, notebookId }: { source: Source; notebookId: 
   );
 }
 
-/** Status/origin chips of one claim (non-color: the words are the state). */
+/** Status/origin chips of one claim (non-color: the words are the state).
+ *  Status = SOLID chip from the contrast-verified pairs; neutral states
+ *  stay outline chips (hairline + secondary ink). */
 function ClaimChips({ claim }: { claim: ClaimView }) {
   return (
     <span style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", alignItems: "center" }}>
-      <span className="mono" style={{ fontSize: "0.65rem", border: "1px solid var(--rule)", borderRadius: "var(--radius)", padding: "0 var(--space-1)",
-        color: claim.status === "reviewed" ? "var(--ok)" : claim.status === "withdrawn" ? "var(--warn)" : "var(--ink-60)" }}>
-        {claim.status === "reviewed" ? "Überprüft" : claim.status === "withdrawn" ? "Zurückgezogen" : "Aktiv"}
-      </span>
+      {claim.status === "reviewed" ? (
+        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>Überprüft</span>
+      ) : claim.status === "withdrawn" ? (
+        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>Zurückgezogen</span>
+      ) : (
+        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>Aktiv</span>
+      )}
       <span className="muted" style={{ fontSize: "0.7rem" }}>{claim.origin === "chat" ? "Chat" : "Manuell"}</span>
       {claim.pendingReviews > 0 && (
-        <span className="mono" style={{ fontSize: "0.65rem", border: "1px solid var(--warn)", borderRadius: "var(--radius)", padding: "0 var(--space-1)" }}>
+        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>
           {claim.pendingReviews} offen
         </span>
       )}

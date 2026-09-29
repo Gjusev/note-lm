@@ -39,12 +39,12 @@ export function App() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "var(--space-2) var(--space-4)",
-          borderBottom: "1px solid var(--rule)",
+          borderBottom: "var(--rule-structural)",
         }}
       >
         <button
           onClick={() => (window.location.hash = "")}
-          style={{ border: "none", padding: 0, fontWeight: 700, letterSpacing: "0.04em" }}
+          style={{ border: "none", padding: 0, fontWeight: 700, letterSpacing: "0.04em", background: "transparent", color: "inherit" }}
           aria-label="Zur Bibliothek"
         >
           note-lm
@@ -124,7 +124,8 @@ function StatusBadge() {
       .catch(() => setState("Motor nicht erreichbar"));
   }, []);
   return (
-    <span className="mono" title="Wo wird verarbeitet">
+    <span className="chip" title="Wo wird verarbeitet"
+      style={{ background: "var(--chip-neutral-bg)", color: "var(--chip-neutral-fg)" }}>
       ◉ {state}
     </span>
   );

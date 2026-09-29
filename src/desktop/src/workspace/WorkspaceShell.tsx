@@ -126,8 +126,10 @@ function OverlayPanel({ title, labelledBy, onClose, children, width, side }: {
           position: "absolute", top: 0, bottom: 0, [side]: 0,
           width, maxWidth: "100%", overflowY: "auto",
           background: "var(--paper)",
-          borderLeft: side === "right" ? "1px solid var(--rule)" : undefined,
-          borderRight: side === "left" ? "1px solid var(--rule)" : undefined,
+          // a genuinely floating surface gets the hard structural edge
+          // (border, not blur) on its facing side
+          borderLeft: side === "right" ? "var(--rule-structural)" : undefined,
+          borderRight: side === "left" ? "var(--rule-structural)" : undefined,
           display: "flex", flexDirection: "column",
         }}
       >

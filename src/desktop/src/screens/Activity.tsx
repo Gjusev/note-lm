@@ -149,8 +149,8 @@ export function Activity() {
           style={{
             marginTop: "var(--space-3)",
             padding: "var(--space-2) var(--space-3)",
-            border: "1px solid var(--warn)",
-            borderRadius: "var(--radius)",
+            border: "1px solid var(--rule)",
+            borderLeft: "2px solid var(--warn)",
             fontSize: "0.9rem",
           }}
         >
@@ -180,7 +180,6 @@ export function Activity() {
                   gap: "var(--space-2)",
                   padding: "var(--space-2) var(--space-3)",
                   border: "1px solid var(--rule)",
-                  borderRadius: "var(--radius)",
                   fontSize: "0.9rem",
                 }}
               >

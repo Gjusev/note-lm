@@ -395,15 +395,17 @@ export function SourceReader(props: {
         )}
       </div>
       {chooser && (
-        <div role="group" aria-label="Zitat übernehmen" className="rule-top"
-          style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", padding: "var(--space-2) var(--space-4)", flexWrap: "wrap", background: "var(--accent-soft)" }}>
+        <div role="group" aria-label="Zitat übernehmen"
+          style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", padding: "var(--space-2) var(--space-4)", flexWrap: "wrap", background: "var(--surface)", borderTop: "var(--rule-structural)" }}>
           <span title={chooser.sel.quote}
             style={{ flex: 1, minWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.85rem" }}>
             „{chooser.sel.quote}“
           </span>
           <button ref={chooserFirst} className="primary" onClick={() => runChooser(props.onSaveClaim)}>Als Beleg speichern</button>
           <button onClick={() => runChooser(props.onInsertNote)}>In Notiz einfügen</button>
-          <button onClick={() => { const back = chooser.anchorEl; setChooser(null); back?.focus(); }}>Abbrechen (Esc)</button>
+          <button onClick={() => { const back = chooser.anchorEl; setChooser(null); back?.focus(); }}>
+            Abbrechen (<kbd>Esc</kbd>)
+          </button>
         </div>
       )}
     </div>

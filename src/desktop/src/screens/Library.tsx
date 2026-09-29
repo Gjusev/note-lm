@@ -92,7 +92,6 @@ export function Library() {
             padding: "var(--space-6)",
             textAlign: "center",
             border: "1px dashed var(--rule)",
-            borderRadius: "var(--radius)",
           }}
         >
           <p className="mono" style={{ color: "var(--accent)" }}>[ LEER ]</p>
@@ -111,13 +110,12 @@ export function Library() {
                   display: "block",
                   padding: "var(--space-3) var(--space-4)",
                   border: "1px solid var(--rule)",
-                  borderRadius: "var(--radius)",
                   textDecoration: "none",
                   color: "inherit",
                 }}
               >
                 <strong>{nb.title}</strong>
-                <span className="muted" style={{ display: "block", fontSize: "0.8rem" }}>
+                <span className="meta" style={{ display: "block", fontSize: "0.7rem" }}>
                   {new Date(nb.updatedAt).toLocaleDateString("de-DE")}
                 </span>
               </a>

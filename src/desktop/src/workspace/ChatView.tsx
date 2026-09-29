@@ -23,6 +23,10 @@ export function ChatView(props: {
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [providerLabel, setProviderLabel] = useState<string | null>(null);
+  /** chat.send reports the retrieval state it actually used: vectorStatus
+   *  "indexing" means the embedding index is still being built, so the
+   *  answer came from text search only - surfaced, never silent. */
+  const [indexingHint, setIndexingHint] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -39,6 +43,7 @@ export function ChatView(props: {
     onSuccess: (data) => {
       setError(null);
       setProviderLabel(data.provider?.label ?? null);
+      setIndexingHint(data.vectorStatus === "indexing");
       queryClient.invalidateQueries({ queryKey: ["messages", props.notebookId] });
     },
     onError: (e) => setError(e.message),
@@ -91,9 +96,14 @@ export function ChatView(props: {
           ))
         )}
         {providerLabel && (messages?.length ?? 0) > 0 && (
-          <span className="mono muted" style={{ alignSelf: "flex-start", fontSize: "0.75rem", border: "1px solid var(--rule)", borderRadius: "var(--radius)", padding: "0 var(--space-1)" }}>
+          <span className="meta" style={{ alignSelf: "flex-start", fontSize: "0.7rem", border: "1px solid var(--rule)", borderRadius: "var(--radius-sharp)", padding: "0 var(--space-1)" }}>
             {providerLabel}
           </span>
+        )}
+        {indexingHint && (
+          <p className="meta" role="status" style={{ alignSelf: "flex-start", margin: 0, fontSize: "0.7rem", textTransform: "none", letterSpacing: "0.04em" }}>
+            Semantische Suche wird aufgebaut — nur Textsuche
+          </p>
         )}
         {send.isPending && <p className="muted">Denkt nach…</p>}
         {error && <p role="alert" style={{ color: "var(--accent)", margin: 0 }}>{error}</p>}
@@ -135,7 +145,7 @@ function CitationList(props: {
             <summary style={{ cursor: "pointer", color: "var(--accent)" }}>
               [{i + 1}] {name} · Abschnitt {c.chunkIndex + 1}
             </summary>
-            <blockquote style={{ margin: "var(--space-1) 0 0", padding: "0 0 0 var(--space-2)", borderLeft: "2px solid var(--accent-soft)", color: "var(--ink-60)" }}>
+            <blockquote style={{ margin: "var(--space-1) 0 0", padding: "0 0 0 var(--space-2)", borderLeft: "2px solid var(--accent)", color: "var(--ink-60)" }}>
               {c.text}
             </blockquote>
             <button style={{ fontSize: "0.8rem", margin: "var(--space-1) 0 0", display: "inline-block" }} onClick={() => props.onOpenCitation(c.sourceId)}>

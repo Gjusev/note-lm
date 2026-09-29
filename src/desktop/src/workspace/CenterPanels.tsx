@@ -134,7 +134,7 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
 
           {run.data && (
             <div className="rule-top" style={{ paddingTop: "var(--space-2)" }}>
-              <div style={{ fontSize: "1.6rem", fontWeight: 700 }}>{run.data.result}</div>
+              <div style={{ fontSize: "1.6rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>{run.data.result}</div>
               <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>
                 {activeVersion ? `v${activeVersion.version}` : activeVersionId || "neueste Version"} · {OP_LABELS[run.data.operation] ?? run.data.operation} · Spalte {String(JSON.parse(run.data.argsJson).column)}
                 {(() => {
@@ -213,14 +213,18 @@ export function MaterialsPanel(props: { notebookId: string }) {
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           {(materials ?? []).map((m) => (
-            <div key={m._id} style={{ padding: "var(--space-2)", border: "1px solid var(--rule)", borderRadius: "var(--radius)", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+            <div key={m._id} style={{ padding: "var(--space-2)", border: "1px solid var(--rule)", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
               <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "baseline" }}>
                 <strong>{MATERIAL_TYPES.find((t) => t.id === m.type)?.label ?? m.type}</strong>
-                <span className="mono" style={{ fontSize: "0.7rem", color: m.status === "error" ? "var(--accent)" : "var(--ink-40)" }}>
-                  {m.status === "completed" ? new Date(m.updatedAt).toLocaleDateString("de-DE") : m.status === "error" ? "Fehler" : "wird erstellt…"}
-                </span>
+                {m.status === "completed" ? (
+                  <span className="meta" style={{ fontSize: "0.7rem" }}>{new Date(m.updatedAt).toLocaleDateString("de-DE")}</span>
+                ) : m.status === "error" ? (
+                  <span className="chip" style={{ background: "var(--status-error)", color: "var(--status-error-fg)" }}>Fehler</span>
+                ) : (
+                  <span className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)" }}>wird erstellt…</span>
+                )}
                 {m.needsReview === 1 && (
-                  <span className="mono" style={{ fontSize: "0.7rem", color: "var(--warn)" }} title="Eine versionierte Quelle, aus der dieses Material erstellt wurde, wurde geändert.">
+                  <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }} title="Eine versionierte Quelle, aus der dieses Material erstellt wurde, wurde geändert.">
                     Quelle geändert - Inhalt prüfen
                   </span>
                 )}

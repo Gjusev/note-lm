@@ -47,10 +47,18 @@ export interface MatrixProposalView {
   proposalId: string; reason: "quote_moved" | "quote_missing"; fromVersion: number; toVersion: number;
   status: "pending" | "accepted" | "rejected"; detail: string | null; note: string | null; resolvedAt: number | null;
 }
+/** The performed search behind a not_found_in_search cell (search.run
+ *  provenance, migration 0014): what was queried, when, with which recipe.
+ *  Null on every other status. */
+export interface MatrixSearchProvenance {
+  runId: string; query: string; searchedAt: number;
+  profileId: string | null; fusionPolicy: string | null;
+}
 export interface MatrixCellView {
   claimId: string; sourceId: string;
   status: "evidence" | "pending_review" | "not_reviewed" | "not_found_in_search";
   evidence: MatrixAnchorView[]; pendingProposals: MatrixProposalView[]; resolvedProposals: MatrixProposalView[];
+  searchProvenance: MatrixSearchProvenance | null;
 }
 export interface MatrixViewData {
   notebookId: string;
@@ -109,16 +117,42 @@ export const PROVIDER_CAPABILITIES = [
   { id: "tts", label: "Sprachausgabe" },
 ] as const;
 
-/** Curated catalog entry (I0), as served by the models.catalog op. */
+/** Embedding recipe of a catalog-known embed model (P3): profile identity =
+ *  provider + model + revision + dimension + pooling. Only catalog-known
+ *  recipes can stage/activate a profile automatically on models.select. */
+export interface EmbeddingRecipeView {
+  provider: string; model: string; revision: string; dimension: number; pooling: string;
+  queryPrefix?: string; docPrefix?: string;
+}
+
+/** Curated catalog entry (I0), as served by the models.catalog op. The wire
+ *  also carries "transcribe" entries (whisper) — they download through the
+ *  settings-tracked "transcriptions" capability, no models-table row. */
 export interface CatalogModelView {
   id: string;
   label: string;
-  capability: "chat" | "embed";
+  capability: "chat" | "embed" | "transcribe";
   sizeBytes: number;
   license: string;
   sha256: string;
   url: string | null;
   notes: string;
+  embeddingRecipe?: EmbeddingRecipeView;
+}
+
+/** One hybrid search hit as returned by search.run (searchHybrid hits). */
+export interface SearchHitView {
+  chunkId: string; sourceId: string; chunkIndex: number; content: string;
+  sourceVersionId?: string | null; score: number; branches: Array<"fts" | "vector">;
+}
+export interface SearchRunResult {
+  runId: string;
+  /** Scope actually searched (the caller's selection, confined to the
+   *  notebook, or every notebook source when unscoped). */
+  sourceIds: string[];
+  mode: string;
+  vectorStatus: string;
+  hits: SearchHitView[];
 }
 
 /** One learning material row (materials.list = full learning_materials row
@@ -160,10 +194,26 @@ export const desktopApi = {
   ) =>
     call<{ model: { _id: string } }>("models.download", {
       url: entry.url,
-      capability: entry.capability === "embed" ? "embeddings" : "chat",
+      capability: entry.capability === "embed"
+        ? "embeddings"
+        : entry.capability === "transcribe" ? "transcriptions" : "chat",
       fileName: entry.url!.split("/").pop(),
       sha256: entry.sha256,
     }),
+  /** Performed search WITH provenance (search.run): runs hybrid search
+   *  scoped to the caller's source selection and records the run — the
+   *  evidence matrix's not_found_in_search cells name THIS run. */
+  runSearch: (notebookId: string, query: string, sourceIds?: string[]) =>
+    call<SearchRunResult>("search.run", {
+      notebookId, query, ...(sourceIds ? { sourceIds } : {}),
+    }),
+  /** Staged-activation companion (P3): resolve the profile for a recipe and
+   *  report how many chunks still need vectors — poll while pendingCount > 0
+   *  to know when retrieval.profile.activate will pass. */
+  profileStatus: (recipe: EmbeddingRecipeView) =>
+    call<{ profileId: string; pendingCount: number; dimension: number }>(
+      "retrieval.profile.status", recipe
+    ),
   listMaterials: (notebookId: string) => call<MaterialView[]>("materials.list", { notebookId }),
   requestMaterial: (notebookId: string, type: string) =>
     call<{ id: string }>("materials.request", { notebookId, type }),

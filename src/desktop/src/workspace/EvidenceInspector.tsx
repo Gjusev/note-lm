@@ -80,11 +80,11 @@ export function EvidenceInspector(props: {
       <h2 id="inspector-heading" style={{ margin: 0, fontSize: "1rem" }}>Beleg &amp; Details</h2>
 
       {sel && (
-        <section aria-label="Auswahl im Dokument" style={{ border: "1px solid var(--accent)", borderRadius: "var(--radius)", padding: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+        <section aria-label="Auswahl im Dokument" style={{ border: "1px solid var(--rule)", borderLeft: "2px solid var(--accent)", padding: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           <span className="mono" style={{ fontSize: "0.7rem" }}>
             Auswahl · {props.reader?.fileName} · {sel.version != null ? `v${sel.version}` : "Version offen"} · S. {sel.page}
           </span>
-          <blockquote style={{ margin: 0, padding: "0 0 0 var(--space-2)", borderLeft: "3px solid var(--accent-soft)", fontSize: "0.9rem", whiteSpace: "pre-wrap" }}>
+          <blockquote style={{ margin: 0, padding: "0 0 0 var(--space-2)", borderLeft: "2px solid var(--accent)", fontSize: "0.9rem", whiteSpace: "pre-wrap" }}>
             {sel.quote}
           </blockquote>
           <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>
@@ -114,7 +114,7 @@ export function EvidenceInspector(props: {
           )}
           {proposals.map((p) =>
             p.status === "pending" ? (
-              <div key={p.id} style={{ border: "1px solid var(--warn)", borderRadius: "var(--radius)", padding: "var(--space-1) var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+              <div key={p.id} style={{ border: "1px solid var(--rule)", borderLeft: "2px solid var(--warn)", padding: "var(--space-1) var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
                 <span style={{ fontSize: "0.75rem" }}>
                   Überarbeitung vorgeschlagen · v{p.fromVersion} → v{p.toVersion} — {p.detail ?? p.reason}
                 </span>
@@ -130,7 +130,7 @@ export function EvidenceInspector(props: {
                 </div>
               </div>
             ) : (
-              <div key={p.id} style={{ border: "1px solid var(--rule)", borderRadius: "var(--radius)", padding: "var(--space-1) var(--space-2)", fontSize: "0.75rem" }}>
+              <div key={p.id} style={{ border: "1px solid var(--rule)", padding: "var(--space-1) var(--space-2)", fontSize: "0.75rem" }}>
                 <span className="muted">
                   {p.status === "accepted" ? "Übernommen" : "Abgelehnt"} · v{p.fromVersion} → v{p.toVersion} — {p.detail ?? p.reason}
                 </span>
@@ -162,7 +162,8 @@ function AnchorChip({ anchor, onOpen }: { anchor: ClaimAnchorView; onOpen: (a: C
       : `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ohne Ort`;
   return (
     <button title={anchor.quote} onClick={() => onOpen(anchor)}
-      style={{ fontSize: "0.8rem", padding: "0 var(--space-1)", alignSelf: "flex-start", textAlign: "left" }}>
+      style={{ fontSize: "0.8rem", padding: 0, alignSelf: "flex-start", textAlign: "left",
+        background: "transparent", color: "inherit", border: "none", textDecoration: "underline" }}>
       <span style={{ display: "inline-block", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "bottom" }}>
         {locator} — {anchor.quote.length > 60 ? `${anchor.quote.slice(0, 59)}…` : anchor.quote}
       </span>
@@ -173,10 +174,13 @@ function AnchorChip({ anchor, onOpen }: { anchor: ClaimAnchorView; onOpen: (a: C
 function ClaimStatusChips({ claim }: { claim: ClaimView }) {
   return (
     <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" }}>
-      <span className="mono" style={{ fontSize: "0.7rem", border: "1px solid var(--rule)", borderRadius: "var(--radius)", padding: "0 var(--space-1)",
-        color: claim.status === "reviewed" ? "var(--ok)" : claim.status === "withdrawn" ? "var(--warn)" : "var(--ink-60)" }}>
-        {claim.status === "reviewed" ? "Überprüft" : claim.status === "withdrawn" ? "Zurückgezogen" : "Aktiv"}
-      </span>
+      {claim.status === "reviewed" ? (
+        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>Überprüft</span>
+      ) : claim.status === "withdrawn" ? (
+        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>Zurückgezogen</span>
+      ) : (
+        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>Aktiv</span>
+      )}
       <span className="muted" style={{ fontSize: "0.75rem" }}>{claim.origin === "chat" ? "Chat" : "Manuell"}</span>
     </div>
   );

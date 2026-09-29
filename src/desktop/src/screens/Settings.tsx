@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { desktopApi, pickFile } from "../lib/api";
+import { desktopApi, pickFile, type EmbeddingRecipeView } from "../lib/api";
 import { ProviderSettings } from "./ProviderSettings";
 
 interface ManagedModel {
@@ -51,6 +51,24 @@ export function Settings() {
     onError: (e) => setError(e.message),
   });
 
+  // Staged-activation progress (P3): the ACTIVE embed model's catalog recipe
+  // tells us how many chunks still lack vectors. Poll while pendingCount > 0
+  // ("Index wird aufgebaut"); at 0 the profile is complete. Imported GGUFs
+  // without a catalog recipe keep the manual activate contract - no poll.
+  const activeEmbedModel = (data?.models ?? []).find(
+    (m: ManagedModel) => m.capability === "embeddings" && m._id === data?.activeEmbedModelId
+  ) ?? null;
+  const activeRecipe: EmbeddingRecipeView | null = activeEmbedModel
+    ? (catalog.data?.entries ?? []).find((e) => e.sha256 === activeEmbedModel.sha256)?.embeddingRecipe ?? null
+    : null;
+  const profileStatus = useQuery({
+    queryKey: ["profile-status", activeRecipe?.provider, activeRecipe?.model, activeRecipe?.revision],
+    queryFn: () => desktopApi.profileStatus(activeRecipe!),
+    enabled: activeRecipe != null,
+    refetchInterval: (q) => ((q.state.data?.pendingCount ?? 0) > 0 ? 3000 : false),
+  });
+  const pendingChunks = profileStatus.data?.pendingCount ?? 0;
+
   return (
     <section style={{ maxWidth: "760px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
       <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>Einstellungen · IA</h1>
@@ -80,9 +98,12 @@ export function Settings() {
           <tbody>
             {(catalog.data?.entries ?? []).map((entry) => {
               const managed = (data?.models ?? []).find((m: ManagedModel) => m.sha256 === entry.sha256);
+              // whisper entries are settings-tracked, never models rows
               const verified = entry.url !== null && managed !== undefined;
-              const activeId = entry.capability === "chat" ? data?.activeChatModelId : data?.activeEmbedModelId;
-              const active = verified && activeId === managed!._id;
+              const activeId = entry.capability === "chat"
+                ? data?.activeChatModelId
+                : entry.capability === "embed" ? data?.activeEmbedModelId : undefined;
+              const active = verified && managed != null && activeId === managed._id;
               const downloading = download.isPending && download.variables?.sha256 === entry.sha256;
               return (
                 <tr key={entry.id}>
@@ -92,14 +113,14 @@ export function Settings() {
                       <div className="muted" style={{ fontSize: "0.8rem" }}>{entry.notes}</div>
                     )}
                     {downloading && (
-                      <div className="mono" style={{ fontSize: "0.8rem", color: "var(--accent)" }}>Wird geladen…</div>
+                      <div className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)", marginTop: "var(--space-1)" }}>Wird geladen…</div>
                     )}
                     {verified && (
-                      <div className="mono" style={{ color: "var(--ok)", fontSize: "0.8rem" }}>Verifiziert</div>
+                      <div className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)", marginTop: "var(--space-1)" }}>Verifiziert</div>
                     )}
                   </td>
                   <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
-                    {entry.capability === "chat" ? "Chat" : "Embeddings"}
+                    {entry.capability === "chat" ? "Chat" : entry.capability === "embed" ? "Embeddings" : "Transkription"}
                   </td>
                   <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
                     {(entry.sizeBytes / 1048576).toFixed(0)} MB
@@ -108,7 +129,7 @@ export function Settings() {
                   <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
                     {verified ? (
                       active ? (
-                        <span className="mono" style={{ color: "var(--ok)" }}>aktiv</span>
+                        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>aktiv</span>
                       ) : (
                         <button
                           onClick={() =>
@@ -173,7 +194,6 @@ export function Settings() {
                       gap: "var(--space-2)",
                       padding: "var(--space-2) var(--space-3)",
                       border: `1px solid ${activeId === m._id ? "var(--accent)" : "var(--rule)"}`,
-                      borderRadius: "var(--radius)",
                       fontSize: "0.9rem",
                     }}
                   >
@@ -182,7 +202,7 @@ export function Settings() {
                     </span>
                     <span className="mono">{(m.sizeBytes / 1048576).toFixed(0)} MB</span>
                     {activeId === m._id ? (
-                      <span className="mono" style={{ color: "var(--ok)" }}>aktiv</span>
+                      <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>aktiv</span>
                     ) : (
                       <button onClick={() => select.mutate(m)} disabled={select.isPending}>
                         Aktivieren
@@ -191,6 +211,14 @@ export function Settings() {
                   </li>
                 ))}
               </ul>
+            )}
+            {/* Index build progress of the active embed profile (P3): the
+                sweep builds the ACTIVE profile; while chunks are pending the
+                semantic search reports "indexing". */}
+            {cap === "embeddings" && pendingChunks > 0 && (
+              <p className="meta" role="status" style={{ margin: "var(--space-2) 0 0", fontSize: "0.72rem", textTransform: "none", letterSpacing: "0.04em" }}>
+                Index wird aufgebaut: {pendingChunks} Chunks
+              </p>
             )}
           </div>
         );

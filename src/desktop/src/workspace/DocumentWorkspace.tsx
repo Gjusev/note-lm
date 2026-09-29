@@ -77,8 +77,8 @@ export function DocumentWorkspace(props: {
               style={{
                 border: "none", fontSize: "0.85rem", padding: "var(--space-1) var(--space-2)",
                 fontWeight: view === t ? 700 : 400,
-                color: view === t ? "var(--accent)" : "inherit",
-                borderBottom: view === t ? "2px solid var(--accent)" : "2px solid transparent",
+                background: "transparent", color: "inherit",
+                borderBottom: view === t ? "2px solid var(--ink)" : "2px solid transparent",
                 borderRadius: 0,
               }}>
               {VIEW_LABELS[t]}

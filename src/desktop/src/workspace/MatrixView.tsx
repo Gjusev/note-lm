@@ -14,9 +14,14 @@
  * "Zielversion öffnen" button - v1 is never silently swapped for v2
  * (correction 4). Deciding happens in the inspector (existing
  * review.resolve seam); the matrix only reads.
+ *
+ * "In Auswahl suchen" (search.run): runs the hybrid search scoped to the
+ * selected columns and records the run - a source the search did NOT
+ * surface then shows not_found_in_search naming that exact run (query +
+ * time), never a claim about the source itself.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CircleDashed,
   Link2,
@@ -28,7 +33,8 @@ import { desktopApi, matrixCellKey, type MatrixCellView, type Source } from "../
 import { formatTimeRange } from "../components/EvidencePanel";
 
 /** Status text + icon (never color alone); the renderer covers all four
- *  contract statuses even though not_found_in_search is unreachable today. */
+ *  contract statuses. not_found_in_search names its covering run via
+ *  cell.searchProvenance (migration 0014). */
 const STATUS: Record<MatrixCellView["status"], { icon: LucideIcon; label: string }> = {
   evidence: { icon: Link2, label: "Beleg verknüpft" },
   pending_review: { icon: TriangleAlert, label: "Prüfung offen" },
@@ -52,6 +58,7 @@ export function MatrixView(props: {
   /** Select a claim into the inspector (fragments, decisions, resolve UI). */
   onSelectClaim: (claimId: string) => void;
 }) {
+  const queryClient = useQueryClient();
   // null = the engine default (sources with recorded relations); once the
   // user toggles a chip the selection is explicit and survives refetches.
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null);
@@ -59,10 +66,24 @@ export function MatrixView(props: {
   const cellRefs = useRef(new Map<string, HTMLTableCellElement>());
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hScrollable, setHScrollable] = useState(false);
+  const [query, setQuery] = useState("");
 
   const { data } = useQuery({
     queryKey: ["matrix", props.notebookId, selectedIds],
     queryFn: () => desktopApi.getMatrix(props.notebookId, undefined, selectedIds ?? undefined),
+  });
+
+  /** Performed search over the CURRENT column selection (search.run): the
+   *  recorded run is what a later not_found_in_search cell names, so the
+   *  matrix must refetch after every run. */
+  const search = useMutation({
+    mutationFn: (q: string) =>
+      desktopApi.runSearch(props.notebookId, q, (selectedIds ?? columns.map((c) => c.id))),
+    onSuccess: () => {
+      // the miss/provenance derivation reads the recorded runs: refresh
+      // every matrix query of this notebook (any column selection)
+      void queryClient.invalidateQueries({ queryKey: ["matrix", props.notebookId] });
+    },
   });
 
   const claims = data?.claims ?? [];
@@ -135,7 +156,9 @@ export function MatrixView(props: {
               title={s.fileName}
               style={{
                 fontSize: "0.75rem", padding: "0 var(--space-2)",
-                border: `1px solid ${isPressed(s._id) ? "var(--accent)" : "var(--rule)"}`,
+                background: isPressed(s._id) ? "var(--ink)" : "transparent",
+                color: isPressed(s._id) ? "var(--paper)" : "var(--ink)",
+                border: `1px solid ${isPressed(s._id) ? "var(--ink)" : "var(--rule)"}`,
                 fontWeight: isPressed(s._id) ? 600 : 400,
                 maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}>
@@ -146,6 +169,38 @@ export function MatrixView(props: {
             <span className="muted" style={{ fontSize: "0.8rem" }}>Noch keine Quellen.</span>
           )}
         </div>
+        {/* Scoped search (search.run): records the performed search whose
+            misses the cells then name. Scope = the column selection above. */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (query.trim() && !search.isPending && columns.length > 0) search.mutate(query.trim());
+          }}
+          style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", flexWrap: "wrap" }}
+        >
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="In Auswahl suchen…"
+            aria-label="In Auswahl suchen"
+            disabled={search.isPending || columns.length === 0}
+            style={{ maxWidth: 260, fontSize: "0.8rem", padding: "0 var(--space-2)" }}
+          />
+          <button type="submit" style={{ fontSize: "0.75rem", padding: "0 var(--space-2)" }}
+            disabled={!query.trim() || search.isPending || columns.length === 0}>
+            {search.isPending ? "Suche läuft…" : "Suchen"}
+          </button>
+          {search.data && (
+            <span className="meta" style={{ fontSize: "0.65rem" }} role="status">
+              {search.data.hits.length} Treffer · {search.data.sourceIds.length} Quelle(n) durchsucht
+            </span>
+          )}
+          {search.isError && (
+            <span role="alert" style={{ color: "var(--status-error)", fontSize: "0.75rem" }}>
+              {search.error instanceof Error ? search.error.message : String(search.error)}
+            </span>
+          )}
+        </form>
         {/* Legend line is part of the contract, not a tooltip (§5): the
             empty-sounding statuses are worded distinctly and honestly. */}
         <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>
@@ -233,7 +288,9 @@ export function MatrixView(props: {
 
 /** Everything inside one cell: status line, evidence chips (each opens ITS
  *  anchored version), pending proposal lines (origin version + explicit
- *  destination button), collapsed decision history. */
+ *  destination button), collapsed decision history. A not_found_in_search
+ *  cell names its covering run (query + time) - the provenance store makes
+ *  the miss verifiable, not a vague "not found". */
 function CellBody(props: {
   cell: MatrixCellView | undefined;
   sourceId: string;
@@ -254,11 +311,18 @@ function CellBody(props: {
         )}
       </span>
 
+      {cell.status === "not_found_in_search" && cell.searchProvenance && (
+        <span className="meta" style={{ fontSize: "0.65rem", textTransform: "none", letterSpacing: "0.04em" }}>
+          — „{cell.searchProvenance.query}“ · {new Date(cell.searchProvenance.searchedAt).toLocaleString("de-DE")}
+        </span>
+      )}
+
       {cell.evidence.map((a) => (
         <button key={a.anchorId}
           title={a.quote}
           onClick={(e) => { e.stopPropagation(); props.openAtVersion(props.sourceId, a.version, a.page); }}
-          style={{ fontSize: "0.75rem", padding: "0 var(--space-1)", textAlign: "left", alignSelf: "flex-start", maxWidth: "100%" }}
+          style={{ fontSize: "0.75rem", padding: 0, textAlign: "left", alignSelf: "flex-start", maxWidth: "100%",
+            background: "transparent", color: "inherit", border: "none", textDecoration: "underline" }}
         >
           <span style={{ display: "inline-block", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "bottom" }}>
             {RELATION_LABEL[a.relation] ?? a.relation} · v{a.version} ·{" "}
@@ -268,7 +332,7 @@ function CellBody(props: {
       ))}
 
       {cell.pendingProposals.map((p) => (
-        <div key={p.proposalId} style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", borderLeft: "3px solid var(--warn)", paddingLeft: "var(--space-2)" }}>
+        <div key={p.proposalId} style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", borderLeft: "2px solid var(--warn)", paddingLeft: "var(--space-2)" }}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -278,7 +342,8 @@ function CellBody(props: {
               props.openAtVersion(props.sourceId, p.fromVersion);
             }}
             title={p.detail ?? p.reason}
-            style={{ fontSize: "0.75rem", padding: 0, border: "none", textAlign: "left", textDecoration: "underline" }}
+            style={{ fontSize: "0.75rem", padding: 0, textAlign: "left", textDecoration: "underline",
+              background: "transparent", color: "inherit", border: "none" }}
           >
             Überarbeitung v{p.fromVersion} → v{p.toVersion} ({p.reason === "quote_moved" ? "Zitat verschoben" : "Zitat fehlt"}) – Ursprungsversion öffnen
           </button>

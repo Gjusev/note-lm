@@ -109,7 +109,7 @@ function ClaimRefChip({ notebookId, claimId, onOpen }: { notebookId: string; cla
   const anchor = (claims ?? []).find((c) => c._id === claimId)?.anchors[0];
   if (!anchor && claims != null) {
     return (
-      <span className="muted" style={{ fontSize: "0.75rem", border: "1px dashed var(--rule)", borderRadius: "var(--radius)", padding: "0 var(--space-1)" }}>
+      <span className="muted" style={{ fontSize: "0.75rem", border: "1px dashed var(--rule)", padding: "0 var(--space-1)" }}>
         Unbekannter Verweis
       </span>
     );
@@ -117,7 +117,8 @@ function ClaimRefChip({ notebookId, claimId, onOpen }: { notebookId: string; cla
   if (!anchor) return null;
   return (
     <button title={anchor.quote} onClick={() => onOpen(claimId)}
-      style={{ fontSize: "0.75rem", padding: "0 var(--space-1)", textAlign: "left" }}>
+      style={{ fontSize: "0.75rem", padding: 0, textAlign: "left",
+        background: "transparent", color: "inherit", border: "none", textDecoration: "underline" }}>
       {anchor.fileName ?? "Quelle"} · v{anchor.version}{anchor.page != null ? ` · S. ${anchor.page}` : ""}
     </button>
   );

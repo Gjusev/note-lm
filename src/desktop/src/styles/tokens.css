@@ -1,68 +1,105 @@
-/* Design tokens (product-blueprint §Marca): paper / ink / subtle grid /
-   red accent. Theme selection is explicit (light/dark/system, persisted via
+/* Design tokens — neo-Swiss/brutalist system (docs/design/brand, merged from
+   tokens-proposal.css): paper/ink extremes, hairline + structural rules,
+   radius collapsed to 0/2px, SOLID status chips, hover by INVERSION.
+   Theme selection is explicit (light/dark/system, persisted via
    lib/uiState.ts): the resolved theme lands on <html data-theme>. "system"
    is resolved in JS (matchMedia listener) so the dark block exists once.
 
-   Contrast notes for the accent pair (WCAG relative luminance):
-   - light accent #b4473d  L=0.1454 vs #ffffff -> (1.05)/(0.1954) = 5.37:1
-   - dark accent  #d2705f  L=0.2612 vs #1c1b19 L=0.0110 -> 0.3112/0.0610 = 5.10:1
-   The old dark pair (#ffffff on #d2705f) measured ~3.37:1; action.primary.fg
-   fixes it with a dedicated per-theme token instead of a hardcoded #fff.
+   Contrast notes (WCAG relative luminance):
+   - light accent #b4473d  L=0.1454 vs #ffffff -> 5.37:1
+   - dark accent  #d2705f  L=0.2612 vs #1c1b19 -> 5.10:1; action.primary.fg
+     is the dedicated per-theme token, never a hardcoded #fff
+   - chip fills carry white text at (both themes, canvas-independent):
+     success #346538 ~6.8:1, error #9f2f2d ~7.8:1, info #1f6c9f ~5.9:1,
+     warning #956400 ~5.3:1
 
-   Fonts: "Geist Sans"/"JetBrains Mono" are named but NOT bundled (no
-   @font-face anywhere in this app). The fallback chain is what actually
-   renders - do not claim Geist offline until a bundled font file exists. */
+   Fonts: offline stacks only — nothing is bundled (no @font-face anywhere
+   in this app). --font-ui is the Helvetica-style grotesk whatever the OS
+   substitutes (Arial on Windows); JetBrains Mono is named but falls back
+   to the system mono. Do not claim bundled fonts offline. */
 :root {
-  /* semantic aliases (§6 token names) */
-  --surface-canvas: #fafafa;
+  /* semantic aliases (§6 token names) — brutalist values */
+  --surface-canvas: #f7f6f3;
   --surface-document: #ffffff;
   --text-primary: #202020;
-  --text-secondary: rgba(32, 32, 32, 0.6);
-  --border-default: rgba(32, 32, 32, 0.14);
-  --status-success: #2f6b46;
-  --status-warning: #9a6b0f;
-  --status-error: #b4473d;
+  --text-secondary: rgba(32, 32, 32, 0.62);
+  --border-default: #eaeaea; /* hairline COLOR (rows, grid columns) */
+  --status-success: #346538;
+  --status-warning: #956400;
+  --status-error: #9f2f2d; /* deeper than the accent so chip text passes */
+  --status-info: #1f6c9f;
   --action-primary-bg: #b4473d;
   --action-primary-fg: #ffffff;
   --focus: 2px solid #b4473d;
 
-  /* legacy names kept - every existing screen uses them */
+  /* solid chip fg partners — same fills in both themes (the fill carries
+     its own white text, so contrast holds on any canvas behind it) */
+  --status-success-fg: #ffffff;
+  --status-warning-fg: #ffffff;
+  --status-error-fg: #ffffff;
+  --status-info-fg: #ffffff;
+  --chip-neutral-bg: #202020;
+  --chip-neutral-fg: #f7f6f3;
+
+  /* border system: hairline separates list rows and grid columns; the 2px
+     structural rule bounds regions (app header, tab strip). The contrast
+     between the two IS the system — never the structural weight everywhere. */
+  --rule-hairline: 1px solid #eaeaea;
+  --rule-structural: 2px solid #202020;
+
+  /* radius collapsed: 0 for grid-aligned containers; 2px only where a fully
+     sharp corner clips glyphs (inputs, chips, dialogs). Nothing larger. */
+  --radius-none: 0;
+  --radius-sharp: 2px;
+
+  /* legacy names kept — every existing screen uses them */
   --paper: var(--surface-canvas);
-  --paper-muted: #f1efe9;
+  --paper-muted: #ffffff; /* raised surface on the canvas, hairline-separated */
   --ink: var(--text-primary);
   --ink-60: var(--text-secondary);
   --ink-40: rgba(32, 32, 32, 0.4);
   --rule: var(--border-default);
   --accent: var(--action-primary-bg);
   --accent-fg: var(--action-primary-fg);
-  --accent-soft: rgba(180, 71, 61, 0.08);
+  --accent-soft: rgba(180, 71, 61, 0.08); /* pdf text-layer focus only */
   --ok: var(--status-success);
   --warn: var(--status-warning);
   --surface: var(--surface-document);
   --focus-ring: var(--focus);
-  --radius: 6px;
+  --radius: var(--radius-sharp);
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
   --space-6: 24px;
-  --font-ui: "Geist Sans", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --font-ui: "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-meta: var(--font-mono);
 }
 [data-theme="dark"] {
   --surface-canvas: #1c1b19;
   --surface-document: #242220;
   --text-primary: #ece9e2;
   --text-secondary: rgba(236, 233, 226, 0.62);
-  --border-default: rgba(236, 233, 226, 0.16);
+  --border-default: #2e2c29;
+  /* text-safe status variants on the dark canvas; the solid chip fills +
+     white fg from :root stay untouched (chips bring their own contrast) */
   --status-success: #6fbf8e;
   --status-warning: #d9a441;
   --status-error: #d2705f;
+  --status-info: #85bddf;
   --action-primary-bg: #d2705f;
   --action-primary-fg: #1c1b19; /* 5.10:1 on #d2705f; white was 3.37:1 */
   --paper-muted: #242220;
   --ink-40: rgba(236, 233, 226, 0.4);
   --accent-soft: rgba(210, 112, 95, 0.12);
+  --rule-hairline: 1px solid #2e2c29;
+  --rule-structural: 2px solid #ece9e2;
+  --chip-neutral-bg: #ece9e2;
+  --chip-neutral-fg: #1c1b19;
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
@@ -77,31 +114,77 @@ body {
   font: 15px/1.55 var(--font-ui);
 }
 button, input, textarea, select { font: inherit; color: inherit; }
+/* Buttons are solid ink blocks; hover = ink/paper INVERSION (no scale
+   transforms, no shadows). Primary keeps the single hard accent red and
+   inverts to ink. Focus stays the 2px outline — the strongest non-color
+   focus indicator. */
 button {
   cursor: pointer;
-  background: none;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-none);
+  color: var(--paper);
   padding: var(--space-2) var(--space-3);
-  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
-button:hover { border-color: var(--ink-40); }
+button:not(:disabled):hover {
+  background: var(--paper); /* invert */
+  color: var(--ink);
+  border-color: var(--ink);
+}
+button:disabled { opacity: 0.45; cursor: default; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   outline: var(--focus-ring);
   outline-offset: 1px;
 }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-button.primary:hover { filter: brightness(1.08); }
+button.primary:not(:disabled):hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 input, textarea {
   background: var(--surface);
   border: 1px solid var(--rule);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sharp);
   padding: var(--space-2) var(--space-3);
   width: 100%;
 }
-.mono { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-60); }
+/* metadata / numerals as design elements: mono, tracked caps, secondary ink */
+.mono, .meta {
+  font-family: var(--font-meta);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
 .muted { color: var(--ink-60); }
 .rule-top { border-top: 1px solid var(--rule); }
+/* Solid status chip base (radius 2px, mono tracked caps label); colors come
+   from the status + chip fg/bg token pairs at the call site — never color
+   alone, chips carry their words. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-sharp);
+  padding: 0 var(--space-2);
+  font-family: var(--font-meta);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+/* kbd: sharp 2px radius, hairline ink border, paper fill, mono, tracked */
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+[data-theme="dark"] kbd { color: var(--ink); background: var(--surface-document); }
 
 /* pdf.js text layer (viewer redesign): transparent glyphs over the canvas so
    text is selectable/copyable; the reader captures the selection. Subset of

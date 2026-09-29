@@ -23,7 +23,6 @@ function emptyForm(presetId: string): ConnectionForm {
 
 const CARD = {
   border: "1px solid var(--rule)",
-  borderRadius: "var(--radius)",
   padding: "var(--space-2) var(--space-3)",
 } as const;
 
@@ -223,7 +222,7 @@ export function ProviderSettings() {
                 {testing === c.id ? "Teste…" : "Verbindung testen"}
               </button>
               {testResults[c.id] !== undefined && (
-                <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{testResults[c.id]}</span>
+                <span style={{ fontSize: "0.85rem", color: "var(--ink-60)" }}>{testResults[c.id]}</span>
               )}
             </div>
           ))}

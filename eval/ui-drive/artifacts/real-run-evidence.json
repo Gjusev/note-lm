@@ -27,16 +27,16 @@
     ]
   ],
   "engineChildren": [
-    36720
+    31864
   ],
   "screenshots": [
     {
       "file": "real-run-1-library.png",
-      "detail": "saved=C:\\Code Main\\note-lm\\eval\\ui-drive\\artifacts\\real-run-1-library.png size=1296x839 at=286,286"
+      "detail": "saved=C:\\Code Main\\note-lm\\eval\\ui-drive\\artifacts\\real-run-1-library.png size=1296x839 at=338,338"
     }
   ],
   "exe": "C:\\Code Main\\note-lm\\src-tauri\\target\\release\\notelm-spike.exe",
-  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uirun-XmEePo",
-  "pid": 5240,
+  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uirun-OvBcMQ",
+  "pid": 26212,
   "close": "closed"
 }

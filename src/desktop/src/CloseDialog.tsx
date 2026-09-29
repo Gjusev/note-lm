@@ -74,11 +74,10 @@ export function CloseDialog() {
       <div
         style={{
           background: "var(--surface)",
-          border: "1px solid var(--rule)",
-          borderRadius: "var(--radius)",
+          border: "var(--rule-structural)",
+          borderRadius: "var(--radius-sharp)",
           padding: "var(--space-6)",
           maxWidth: 440,
-          boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
         }}
       >
         <h2 id="close-dialog-title" style={{ margin: 0, fontSize: "1.05rem" }}>
