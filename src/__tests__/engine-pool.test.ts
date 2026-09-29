@@ -201,8 +201,9 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
 
     let embedCalls = 0;
     setCapabilitiesForTests({
-      chat: async () => "chat",
-      chatProvider: "remote",
+      chat: async () => ({ text: "chat", provider: "test", model: "test" }),
+      chatProvider: { kind: "remote", label: "Test" },
+      chatProviderKind: "remote",
       embed: async (texts) => {
         embedCalls += texts.length;
         return texts.map((_, i) => axis(8, i));

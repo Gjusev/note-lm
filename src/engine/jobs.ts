@@ -89,7 +89,11 @@ async function runMaterialGeneration(ctx: LocalContext): Promise<void> {
   console.log(`[MATERIAL][${job.materialId.slice(0, 8)}] GENERATE ${job.type}`);
   try {
     const caps = await resolveCapabilities();
-    const tts = caps.chatProvider === "local" && caps.embed
+    if (!caps.chat) {
+      console.error("[MATERIAL] generation skipped: no chat capability configured");
+      return;
+    }
+    const tts = caps.chatProviderKind === "local" && caps.embed
       ? null // local TTS not wired yet (phase 6); podcasts get text only
       : null;
     const outcome = await generateMaterial(ctx.db, ctx.store, {

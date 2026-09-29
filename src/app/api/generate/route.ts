@@ -94,10 +94,12 @@ export async function POST(req: NextRequest) {
 
     const sourceText = chunks.map((c) => c.content).join("\n\n").slice(0, 12000);
 
-    const content = await chatCompletion([
-      { role: "system", content: TYPE_PROMPTS[type] },
-      { role: "user", content: `Quellen:\n\n${sourceText}` },
-    ]);
+    const content = (
+      await chatCompletion([
+        { role: "system", content: TYPE_PROMPTS[type] },
+        { role: "user", content: `Quellen:\n\n${sourceText}` },
+      ])
+    ).text;
 
     let audioFileId: string | undefined;
     if (type === ("podcastSummary" as MaterialType)) {

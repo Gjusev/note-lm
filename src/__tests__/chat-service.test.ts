@@ -61,7 +61,7 @@ describe("chat service (phase 2 — transport independent)", () => {
       message: "Was sind Gammastrahlen?",
       chat: async (messages) => {
         seen.push(messages.map((m) => m.content).join("\n"));
-        return "Gammastrahlen sind elektromagnetische Strahlung [E1].";
+        return { text: "Gammastrahlen sind elektromagnetische Strahlung [E1].", provider: "test", model: "test" };
       },
       embedQuery,
     });
@@ -85,7 +85,7 @@ describe("chat service (phase 2 — transport independent)", () => {
       notebookId,
       ownerId: "local",
       message: "alpha particles",
-      chat: async () => "Alpha-Teilchen [E1].",
+      chat: async () => ({ text: "Alpha-Teilchen [E1].", provider: "test", model: "test" }),
       embedQuery: null,
     });
 

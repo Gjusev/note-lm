@@ -49,7 +49,8 @@ describe("chat evidence roundtrip", () => {
       expect(prompt).not.toContain("private other notebook");
       const data = messages[1].content.split("\n\n")[1].split("\n").map((line) => JSON.parse(line));
       const excerpt = data.find((item) => item.fileName === "0.pdf");
-      return `Result [${excerpt.reference}]. Repeated [${excerpt.reference}]. Unknown [E99].`;
+      const text = `Result [${excerpt.reference}]. Repeated [${excerpt.reference}]. Unknown [E99].`;
+      return { text, provider: "test", model: "test" };
     });
     const { POST } = await import("@/app/api/chat/route");
     const res = await POST(new NextRequest("http://localhost/api/chat", {

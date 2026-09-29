@@ -15,6 +15,11 @@ import { reconcileStartupArtifacts } from "@/lib/services/job-control";
 // NDJSON stream, so the global is redirected before anything runs.
 console.log = (...args: unknown[]) => console.error(...args);
 
+// Desktop marker: this bundle only runs as the Tauri-spawned engine process.
+// The provider layer uses it to guarantee that env vars never reactivate
+// remote providers in the installed app (see src/lib/ai/providers.ts).
+process.env.NOTELM_ENGINE = "1";
+
 const decoder = createDecoder({
   onMessage: async (message) => {
     if (typeof message.id !== "string" || typeof message.op !== "string") {

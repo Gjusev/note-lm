@@ -12,6 +12,7 @@ import { searchHybrid, type VectorStatus } from "./hybrid-search";
 import { getEmbeddingProfile } from "./embedding-profiles";
 import { getSetting } from "./settings";
 import { buildEvidenceContext, resolveEvidenceReferences } from "./evidence";
+import type { ChatFn } from "@/lib/ai/providers";
 
 const SYSTEM_PROMPT_WITH_SOURCES = `Du bist ein KI-Forschungsassistent. Du hast Kontext aus den Quellen des Nutzers erhalten.
 Beantworte die Frage ausschließlich anhand der bereitgestellten Auszüge.
@@ -46,7 +47,7 @@ export async function sendChatMessage(
     message: string;
     ownerId: string;
     /** Generation capability — local llama or remote provider, injected. */
-    chat: (messages: Array<{ role: string; content: string }>) => Promise<string>;
+    chat: ChatFn;
     /** Embedding capability for the query; null → textual retrieval. */
     embedQuery: ((query: string) => Buffer) | null;
     skipUserMessage?: boolean;
@@ -73,10 +74,10 @@ export async function sendChatMessage(
         ownerId: opts.ownerId, notebookId: opts.notebookId, role: "user", content: opts.message,
       });
     }
-    const response = await opts.chat([
+    const response = (await opts.chat([
       { role: "system", content: SYSTEM_PROMPT_NO_SOURCES },
       { role: "user", content: opts.message },
-    ]);
+    ])).text;
     await createMessage(db, {
       ownerId: opts.ownerId, notebookId: opts.notebookId, role: "assistant", content: response,
     });
@@ -92,11 +93,13 @@ export async function sendChatMessage(
     }))
   );
 
-  const completion = await opts.chat([
-    { role: "system", content: SYSTEM_PROMPT_WITH_SOURCES },
-    { role: "user", content: `Quellenauszüge (JSON-Zeilen):\n\n${evidence.context}` },
-    { role: "user", content: opts.message },
-  ]);
+  const completion = (
+    await opts.chat([
+      { role: "system", content: SYSTEM_PROMPT_WITH_SOURCES },
+      { role: "user", content: `Quellenauszüge (JSON-Zeilen):\n\n${evidence.context}` },
+      { role: "user", content: opts.message },
+    ])
+  ).text;
   const { response, citations } = resolveEvidenceReferences(completion, evidence);
 
   if (!opts.skipUserMessage) {

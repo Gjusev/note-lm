@@ -1,8 +1,13 @@
 /**
- * Engine capabilities (phase 2): resolve the chat/embedding providers from
- * the environment — local llama-server when configured, remote OpenAI as a
- * fallback for chat, and a typed error when nothing is available. No silent
- * remote substitution: if the user chose local and it fails, the error says so.
+ * Engine capabilities: resolve the chat/embed capabilities per capability
+ * from explicit config (settings rows `ai.connections`, `ai.capabilities`),
+ * with local llama.cpp as the default when no remote config exists.
+ * Resolution is config-driven, never env-inferred for remote:
+ *   - explicit connection config wins over env, always.
+ *   - no explicit config -> local llama.cpp when available (local-first);
+ *   - still nothing -> desktop: chat is null with a typed reason (env never
+ *     reactivates remote providers in the desktop app); dev/browser: today's
+ *     env fallback keeps the Next dev path working.
  *
  * Env (desktop: set by the launcher from resources; dev: .probe-downloads):
  *   NOTELM_LLAMA_DIR        — dir with llama-server.exe + DLLs
@@ -13,23 +18,39 @@
 import path from "node:path";
 import fs from "node:fs";
 import { startLlama, type LlamaHandle } from "@/lib/ai/llama-supervisor";
-import { chatCompletion } from "@/lib/openai";
 import { getLocalContext } from "@/lib/storage/local";
 import { getSetting } from "@/lib/services/settings";
 import { getModel } from "@/lib/services/models";
+import {
+  getPreset,
+  isDesktopEngine,
+  makeLocalChat,
+  makeEnvRemoteChat,
+  makeRemoteChat,
+  makeRemoteEmbed,
+  type CapabilityConfig,
+  type ChatFn,
+  type EmbedFn,
+  type ProviderConnection,
+  type ProviderLabel,
+} from "@/lib/ai/providers";
 
-export type ChatFn = (messages: Array<{ role: string; content: string }>) => Promise<string>;
-export type EmbedFn = (texts: string[]) => Promise<Buffer[]>;
+export type { ChatFn, ChatResult, EmbedFn, ProviderLabel } from "@/lib/ai/providers";
 
 interface Capabilities {
-  chat: ChatFn;
-  chatProvider: "local" | "remote";
+  chat: ChatFn | null;
+  /** What actually answers chat: kind + human label, or null. */
+  chatProvider: ProviderLabel | null;
+  /** String kind for existing consumers reading "local" | "remote". */
+  chatProviderKind: "local" | "remote" | null;
+  /** German reason when chat is null (typed, not parsed from a message). */
+  chatReason?: string;
   embed: EmbedFn | null;
 }
 
 let llamaChat: LlamaHandle | null = null;
 let llamaEmbed: LlamaHandle | null = null;
-/** Test seam: replaces env-based resolution. */
+/** Test seam: replaces config-based resolution. */
 let override: Capabilities | null = null;
 
 export function setCapabilitiesForTests(caps: Capabilities | null): void {
@@ -74,41 +95,92 @@ async function resolveModelPaths(): Promise<ResolvedModelPaths> {
   return { llamaDir, chatModel: chatModel ?? process.env.NOTELM_CHAT_MODEL, embedModel: embedModel ?? process.env.NOTELM_EMBED_MODEL };
 }
 
-export async function resolveCapabilities(): Promise<Capabilities> {
+/** Read the connections/capability selections from settings (JSON rows). */
+async function readProviderConfig(db: Parameters<typeof getSetting>[0]): Promise<{
+  connections: ProviderConnection[];
+  capCfg: Partial<Record<"chat" | "embed", CapabilityConfig | null>>;
+}> {
+  const connections = (await getSetting<ProviderConnection[]>(db, "ai.connections")) ?? [];
+  const capCfg =
+    (await getSetting<Partial<Record<"chat" | "embed", CapabilityConfig | null>>>(db, "ai.capabilities")) ?? {};
+  return { connections, capCfg };
+}
+
+/** Look up a configured remote capability; null (with reason for chat) when
+ *  the config does not name a usable chat/embed connection. */
+function resolveRemoteCapability(
+  capability: "chat" | "embed",
+  cfg: CapabilityConfig | null | undefined,
+  connections: ProviderConnection[]
+): { connection: ProviderConnection; preset: NonNullable<ReturnType<typeof getPreset>>; } | { error: string } {
+  const conn = cfg ? connections.find((c) => c.id === cfg.connectionId) : undefined;
+  if (!conn) {
+    return { error: `Kein KI-Anbieter konfiguriert: Für ${capability === "chat" ? "Chat" : "Einbettungen"} ist keine gültige Verbindung ausgewählt.` };
+  }
+  const preset = getPreset(conn.presetId);
+  if (!preset) return { error: `Kein KI-Anbieter konfiguriert: Unbekannter Verbindungstyp „${conn.presetId}".` };
+  if (!preset.capabilities.includes(capability)) {
+    return { error: `Kein KI-Anbieter konfiguriert: ${preset.label} unterstützt ${capability === "chat" ? "keinen Chat" : "keine Einbettungen"}.` };
+  }
+  return { connection: conn, preset };
+}
+
+export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0]): Promise<Capabilities> {
   if (override) return override;
 
-  const { llamaDir: dir, chatModel, embedModel } = await resolveModelPaths();
-  const wantLocal = !!dir && (!!chatModel || !!embedModel);
-  if (!wantLocal && !process.env.OPENAI_API_KEY) {
-    throw new Error(
-      "Kein KI-Anbieter konfiguriert. Lokale Modelle in den Einstellungen wählen oder OPENAI_API_KEY setzen."
-    );
-  }
+  const d = db ?? getLocalContext().db;
+  const { connections, capCfg } = await readProviderConfig(d);
 
-  // embeddings: local only in this phase (remote embeddings are phase 4+)
+  // Embeddings: explicit remote config, otherwise local llama.cpp as before
   let embed: EmbedFn | null = null;
-  if (dir && embedModel) {
-    if (!llamaEmbed) {
-      llamaEmbed = await startLlama({ exeDir: dir, modelPath: embedModel });
+  const embedRes = resolveRemoteCapability("embed", capCfg.embed, connections);
+  if ("connection" in embedRes) {
+    embed = makeRemoteEmbed(d, { ...embedRes, model: capCfg.embed!.model });
+  } else {
+    const { llamaDir: dir, embedModel } = await resolveModelPaths();
+    if (dir && embedModel) {
+      if (!llamaEmbed) llamaEmbed = await startLlama({ exeDir: dir, modelPath: embedModel });
+      const handle = llamaEmbed;
+      embed = async (texts) => {
+        const vectors: Buffer[] = [];
+        for (const t of texts) vectors.push(float32(await handle.embed(t)));
+        return vectors;
+      };
     }
-    const handle = llamaEmbed;
-    embed = async (texts) => {
-      const vectors: Buffer[] = [];
-      for (const t of texts) vectors.push(float32(await handle.embed(t)));
-      return vectors;
-    };
   }
 
-  // chat: local when a chat model exists; remote is an explicit fallback
-  if (dir && chatModel) {
-    if (!llamaChat) {
-      llamaChat = await startLlama({ exeDir: dir, modelPath: chatModel });
+  // Chat: explicit remote config wins; local llama.cpp is the default when
+  // nothing is configured (local-first); env remote only in dev/browser mode.
+  let chat: ChatFn | null = null;
+  let chatProvider: ProviderLabel | null = null;
+  let chatProviderKind: "local" | "remote" | null = null;
+  let chatReason: string | undefined;
+
+  const chatRes = resolveRemoteCapability("chat", capCfg.chat, connections);
+  if ("connection" in chatRes) {
+    chat = makeRemoteChat(d, { ...chatRes, model: capCfg.chat!.model });
+    chatProvider = { kind: "remote", label: `${chatRes.preset.label} · ${capCfg.chat!.model}` };
+    chatProviderKind = "remote";
+  } else {
+    const { llamaDir: dir, chatModel } = await resolveModelPaths();
+    if (dir && chatModel) {
+      if (!llamaChat) llamaChat = await startLlama({ exeDir: dir, modelPath: chatModel });
+      chat = makeLocalChat(llamaChat, path.basename(chatModel));
+      chatProvider = { kind: "local", label: "Auf diesem Computer" };
+      chatProviderKind = "local";
+    } else if (isDesktopEngine()) {
+      // Desktop: env NEVER reactivates remote here — typed null + reason.
+      chatReason = "Kein KI-Anbieter konfiguriert. Wähle in den Einstellungen lokale Modelle oder einen Cloud-Anbieter.";
+    } else if (process.env.OPENAI_API_KEY) {
+      chat = makeEnvRemoteChat(d);
+      chatProvider = { kind: "remote", label: "OpenAI" };
+      chatProviderKind = "remote";
+    } else {
+      chatReason = "Kein KI-Anbieter konfiguriert. Lokale Modelle in den Einstellungen wählen oder OPENAI_API_KEY setzen.";
     }
-    const handle = llamaChat;
-    return { chat: (messages) => handle.chat(messages), chatProvider: "local", embed };
   }
 
-  return { chat: (messages) => chatCompletion(messages), chatProvider: "remote", embed };
+  return { chat, chatProvider, chatProviderKind, embed, ...(chatReason ? { chatReason } : {}) };
 }
 
 export async function stopLlamaHelpers(): Promise<void> {

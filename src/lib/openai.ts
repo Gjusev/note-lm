@@ -1,29 +1,36 @@
 import OpenAI from "openai";
+import type { ChatResult } from "@/lib/ai/providers";
 
 /**
  * Lazy OpenAI access: the app (and the worker) must START without any key —
- * AI is an optional capability. Clients are created on first use, never at
- * module import. ponytail: per-capability provider registry (plan §4) can
- * replace `client()` when a second provider is actually added.
+ * AI is an optional capability. Clients are created on use, never at module
+ * import.
+ *
+ * Client cache fix (multi-provider plan, "Client caching"): the old single
+ * `cached` module-level client is deleted. Clients are built per call from a
+ * fully-read config — the OpenAI client is a stateless config holder, so
+ * building it is free and a changed apiKey/baseURL takes effect on the very
+ * next call, without a restart. Explicit config (connection settings) beats
+ * env; env is only consulted when no explicit config is given.
  */
 
-let cached: OpenAI | null = null;
+export interface AiClientConfig {
+  apiKey?: string;
+  baseURL?: string;
+}
 
 export function aiChatConfigured(): boolean {
   return !!process.env.OPENAI_API_KEY;
 }
 
-export function openaiClient(): OpenAI {
-  if (!cached) {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      throw new Error(
-        "Kein KI-Anbieter konfiguriert. OPENAI_API_KEY setzen oder KI-Funktionen ignorieren — Notizbücher, Quellen und Suche arbeiten ohne."
-      );
-    }
-    cached = new OpenAI({ apiKey });
+export function openaiClient(cfg?: AiClientConfig): OpenAI {
+  const apiKey = cfg?.apiKey ?? process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "Kein KI-Anbieter konfiguriert. OPENAI_API_KEY setzen oder KI-Funktionen ignorieren — Notizbücher, Quellen und Suche arbeiten ohne."
+    );
   }
-  return cached;
+  return new OpenAI({ apiKey, ...(cfg?.baseURL ? { baseURL: cfg.baseURL } : {}) });
 }
 
 export async function generateEmbedding(text: string): Promise<number[]> {
@@ -57,7 +64,10 @@ export async function transcribeAudio(audioBuffer: Buffer, fileName: string): Pr
   return typeof response === "string" ? response : (response as { text: string }).text;
 }
 
-export async function chatCompletion(messages: { role: string; content: string }[]): Promise<string> {
+/** Env-configured chat, normalized to ChatResult (dev path + legacy alias). */
+export async function chatCompletion(
+  messages: { role: string; content: string }[]
+): Promise<ChatResult> {
   const response = await openaiClient().chat.completions.create(
     {
       model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
@@ -66,7 +76,17 @@ export async function chatCompletion(messages: { role: string; content: string }
     },
     { signal: AbortSignal.timeout(120_000) }
   );
-  return response.choices[0]?.message?.content || "";
+  const choice = response.choices[0];
+  const usage = response.usage;
+  return {
+    text: choice?.message?.content || "",
+    provider: "openai",
+    model: process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini",
+    ...(usage && typeof usage.prompt_tokens === "number" && typeof usage.completion_tokens === "number"
+      ? { usage: { promptTokens: usage.prompt_tokens, completionTokens: usage.completion_tokens } }
+      : {}),
+    ...(choice?.finish_reason ? { finishReason: choice.finish_reason } : {}),
+  };
 }
 
 export async function textToSpeech(

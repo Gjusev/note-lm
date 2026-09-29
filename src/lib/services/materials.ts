@@ -14,6 +14,7 @@ import {
   updateMaterial,
 } from "./learning-materials";
 import type { LocalStore } from "@/lib/storage/local";
+import type { ChatFn } from "@/lib/ai/providers";
 
 export type MaterialType =
   | "summary" | "flashcards" | "quiz" | "studyGuide"
@@ -38,7 +39,7 @@ export async function generateMaterial(
     materialId: string;
     notebookId: string;
     type: MaterialType;
-    chat: (messages: Array<{ role: string; content: string }>) => Promise<string>;
+    chat: ChatFn;
     tts?: ((script: string) => Promise<Buffer>) | null;
   }
 ): Promise<{ ok: boolean; error?: string }> {
@@ -67,10 +68,12 @@ export async function generateMaterial(
       .map((c) => c.content)
       .join("\n\n");
 
-    const content = await opts.chat([
-      { role: "system", content: prompt },
-      { role: "user", content: `Quellen:\n\n${sourceText}` },
-    ]);
+    const content = (
+      await opts.chat([
+        { role: "system", content: prompt },
+        { role: "user", content: `Quellen:\n\n${sourceText}` },
+      ])
+    ).text;
 
     let audioFileId: string | undefined;
     if (opts.type === "podcastSummary" && opts.tts) {
