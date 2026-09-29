@@ -42,6 +42,12 @@ import {
   resolveReview,
 } from "@/lib/services/claims";
 import { listPendingReviews } from "@/lib/services/change-review";
+import {
+  CalculationError,
+  runCalculation,
+  listCalculations,
+  type CalcOp,
+} from "@/lib/services/calculations";
 import { evidenceAnchors, sourceVersions, sources as sourcesTable } from "@/db/local/schema";
 import {
   generateMaterial,
@@ -760,6 +766,52 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             absolutePath,
           },
         };
+      }
+
+      case "calculations.run": {
+        const { notebookId, sourceId, sourceVersionId, op, column, filter } = args as {
+          notebookId?: string; sourceId?: string; sourceVersionId?: string;
+          op?: string; column?: string | number;
+          filter?: { column: string | number; equals: string };
+        };
+        if (!notebookId || !op || column === undefined || column === null) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId, op and column are required" } };
+        }
+        if (!sourceId && !sourceVersionId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId or sourceVersionId is required" } };
+        }
+        const CALC_OPS: CalcOp[] = ["sum", "avg", "min", "max", "count"];
+        if (!CALC_OPS.includes(op as CalcOp)) {
+          return { ok: false, error: { code: "bad_args", message: `op must be one of ${CALC_OPS.join("|")}` } };
+        }
+        const { db, store } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        try {
+          const doc = await runCalculation(db, store, {
+            ownerId: profile.id,
+            notebookId,
+            ...(sourceId ? { sourceId } : {}),
+            ...(sourceVersionId ? { sourceVersionId } : {}),
+            op: op as CalcOp,
+            column,
+            ...(filter ? { filter } : {}),
+          });
+          return { ok: true, result: doc };
+        } catch (err) {
+          if (err instanceof CalculationError) {
+            return { ok: false, error: { code: err.code, message: err.message } };
+          }
+          throw err;
+        }
+      }
+
+      case "calculations.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: listCalculations(db, notebookId) };
       }
 
       case "providers.list": {

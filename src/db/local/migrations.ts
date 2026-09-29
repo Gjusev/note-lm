@@ -383,6 +383,27 @@ CREATE TABLE provider_runs (
 );
 CREATE INDEX idx_provider_runs_created ON provider_runs(created_at);
 `,
+  // 0010 — inspectable calculations (open-source-innovation-strategy 5C): one
+  // row per deterministic op over one immutable source_version sidecar. Input
+  // version + query + result + timestamp together are the reproducibility
+  // record — no LLM ever computes the number. Blocked ops (ambiguous cells,
+  // E4 "bloquear o marcar ambigüedad", v1 blocks) never produce a row.
+  `
+CREATE TABLE calculations (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL,
+  notebook_id TEXT NOT NULL REFERENCES notebooks (id) ON DELETE CASCADE,
+  source_version_id TEXT NOT NULL REFERENCES source_versions (id) ON DELETE CASCADE,
+  operation TEXT NOT NULL,
+  args_json TEXT NOT NULL,
+  result TEXT,
+  unit TEXT,
+  status TEXT NOT NULL DEFAULT 'ok',
+  error TEXT,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX calculations_by_notebook ON calculations (notebook_id);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

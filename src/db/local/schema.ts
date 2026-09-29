@@ -366,6 +366,35 @@ export const reviewProposals = sqliteTable(
   (t) => [index("proposals_by_claim").on(t.claimId), index("proposals_by_status").on(t.status)]
 );
 
+// ── Inspectable calculations (open-source-innovation-strategy 5C, migration 0010)
+
+/** The reproducibility record: one deterministic op over one immutable
+ * source_version sheet sidecar (input version + query + result + timestamp).
+ * No LLM computes the number; blocked ops (ambiguous cells, E4) never
+ * produce a row. unit stays null in v1 (units in headers are a later
+ * refinement). */
+export const calculations = sqliteTable(
+  "calculations",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    notebookId: text("notebook_id")
+      .notNull()
+      .references(() => notebooks.id, { onDelete: "cascade" }),
+    sourceVersionId: text("source_version_id")
+      .notNull()
+      .references(() => sourceVersions.id, { onDelete: "cascade" }),
+    operation: text("operation").notNull(),
+    argsJson: text("args_json").notNull(),
+    result: text("result"),
+    unit: text("unit"),
+    status: text("status").notNull().default("ok"),
+    error: text("error"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("calculations_by_notebook").on(t.notebookId)]
+);
+
 /** How embeddings were produced — vectors from different profiles never mix. */
 export const embeddingProfiles = sqliteTable(
   "embedding_profiles",

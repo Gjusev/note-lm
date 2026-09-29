@@ -31,6 +31,12 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
   flags changed inputs, it never proves a conclusion false; accepting or
   rejecting keeps the full history in the proposal row and human notes are
   never overwritten.
+- **Calculation** — one deterministic op (`sum` | `avg` | `min` | `max` |
+  `count`) over the rows of an IMMUTABLE source version's sheet sidecar.
+  Never an LLM: the calculation row (input version + query + result +
+  timestamp) IS the reproducibility record. Ambiguity blocks (E4, v1): a
+  non-numeric cell fails the op naming row+column; an empty cell is
+  ambiguous — `count` skips it, the numeric ops block.
 - **AI provider** — three separate entities: a **preset** (code: how to talk),
   a **connection** (settings instance: preset + own instance id + endpoint +
   secret reference), and a **capability** (what is used: resolved per
@@ -66,6 +72,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | provider secret channel | engine-side `requestSecretViaHost` / `resolveSecretResponse` demux over the NDJSON `secret_request`/`secret_response` frames against a fake host | `src/__tests__/providers-protocol.test.ts` |
 | provider connection test | `handleEngineRequest("providers.test")` side-effect-free probes over pending config (SDK + fetch mocked) | `src/__tests__/providers-protocol.test.ts` |
 | provider run telemetry | `recordProviderRun` / `pruneProviderRuns` over a real temp SQLite (rows carry honest nulls, never prompt text) | `src/__tests__/provider-runs.test.ts` |
+| inspectable calculations | `runCalculation` / `listCalculations` + `calculations.run` / `calculations.list` over a real temp SQLite + LocalStore | `src/__tests__/calculations.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

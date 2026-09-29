@@ -49,6 +49,58 @@ async function extractPdfPages(buffer: Buffer): Promise<VersionPage[]> {
   }
 }
 
+/** RFC4180-ish CSV split: quoted fields with "" escapes and embedded
+ * newlines; CRLF and LF both end a record. Trailing blank lines are dropped.
+ * ponytail: single delimiter (comma) — semicolon/Excel dialects are a real
+ * pilot file away. */
+export function parseCsvRows(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += ch;
+      }
+    } else if (ch === '"' && field === "") {
+      inQuotes = true;
+    } else if (ch === ",") {
+      row.push(field);
+      field = "";
+    } else if (ch === "\n" || ch === "\r") {
+      row.push(field);
+      field = "";
+      rows.push(row);
+      row = [];
+      if (ch === "\r" && text[i + 1] === "\n") i++; // CRLF as one record end
+    } else {
+      field += ch;
+    }
+  }
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  return rows.filter((r) => r.length > 1 || (r[0] ?? "").trim() !== "");
+}
+
+/** Is this import a CSV table (sheet sidecar instead of page texts)? */
+function isCsv(fileName?: string, contentType?: string): boolean {
+  return (
+    contentType === "text/csv" ||
+    (fileName?.toLowerCase().endsWith(".csv") ?? false)
+  );
+}
+
 function toDoc(row: typeof sourceVersions.$inferSelect): VersionDoc {
   return {
     id: row.id,
@@ -96,7 +148,13 @@ export async function recordVersion(
   }
 
   let pages: VersionPage[] | null = null;
-  if (args.buffer && args.contentType === "application/pdf") {
+  let sheetRows: string[][] | null = null;
+  if (args.buffer && isCsv(args.fileName, args.contentType)) {
+    // 5C: a csv import's sidecar is a sheet ({kind:'sheet', rows}) — the
+    // calculations slice runs deterministic ops over these rows instead of
+    // pretending the table was a document with page texts
+    sheetRows = parseCsvRows(args.buffer.toString("utf-8"));
+  } else if (args.buffer && args.contentType === "application/pdf") {
     pages = await extractPdfPages(args.buffer);
   } else if (args.pageTexts) {
     pages = args.pageTexts.map((text, i) => ({ page: i + 1, text }));
@@ -115,7 +173,11 @@ export async function recordVersion(
   const version = (maxRows[0]?.maxV ?? 0) + 1;
 
   let pageCount: number | null = null;
-  if (pages) {
+  if (sheetRows) {
+    const target = sidecarPath(store, id);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, JSON.stringify({ kind: "sheet", rows: sheetRows }));
+  } else if (pages) {
     pageCount = pages.length;
     const target = sidecarPath(store, id);
     await fs.mkdir(path.dirname(target), { recursive: true });
@@ -186,6 +248,22 @@ export async function readVersionPages(
     const raw = await fs.readFile(sidecarPath(store, versionId), "utf-8");
     const parsed = JSON.parse(raw) as { pages?: VersionPage[] };
     return Array.isArray(parsed.pages) ? parsed.pages : null;
+  } catch {
+    return null;
+  }
+}
+
+/** CSV rows of one version from its sheet sidecar; null when the sidecar is
+ * missing, corrupt or a pages sidecar (callers surface this as "not a
+ * table", never as an empty table). */
+export async function readVersionSheet(
+  store: LocalStore,
+  versionId: string
+): Promise<string[][] | null> {
+  try {
+    const raw = await fs.readFile(sidecarPath(store, versionId), "utf-8");
+    const parsed = JSON.parse(raw) as { rows?: string[][] };
+    return Array.isArray(parsed.rows) ? parsed.rows : null;
   } catch {
     return null;
   }
