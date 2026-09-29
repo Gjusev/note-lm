@@ -40,6 +40,10 @@ export interface MessageCitation {
   chunkIndex: number;
   text: string;
   fileName?: string;
+  /** Media time range (strategy 5A) when the cited chunk is a transcript
+   * segment: carried through evidence context into the persisted citation. */
+  startSec?: number;
+  endSec?: number | null;
 }
 
 export const notebooks = sqliteTable(
@@ -308,6 +312,28 @@ export const claims = sqliteTable(
   (t) => [index("claims_by_notebook").on(t.notebookId), index("claims_by_owner").on(t.ownerId)]
 );
 
+/** Locators beyond pages (migration 0011): a time_range anchor carries
+ * {startSec, endSec} - endSec null is an honest open end ("until the audio
+ * ends"). Never invented: present only when the segmenter truly provided
+ * the times. */
+export type AnchorKind = "pdf_page" | "time_range";
+export interface TimeRangeLocator {
+  startSec: number;
+  endSec: number | null;
+}
+
+/** Tolerant sidecar/locator reader: corrupt JSON or wrong shape stays null,
+ * callers show "unresolvable" honestly instead of inventing times. */
+export function parseTimeLocator(raw: string | null): TimeRangeLocator | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Partial<TimeRangeLocator> | null;
+    return typeof parsed?.startSec === "number" ? { startSec: parsed.startSec, endSec: parsed.endSec ?? null } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** A citation made durable: IMMUTABLE version + locator (page only when
  * truly known - a page is never invented) + the quoted text. */
 export const evidenceAnchors = sqliteTable(
@@ -319,8 +345,9 @@ export const evidenceAnchors = sqliteTable(
       .notNull()
       .references(() => sourceVersions.id, { onDelete: "cascade" }),
     page: integer("page"),
+    locator: text("locator"),
     quote: text("quote").notNull(),
-    kind: text("kind").notNull().default("pdf_page"),
+    kind: text("kind").$type<AnchorKind>().notNull().default("pdf_page"),
     createdAt: integer("created_at").notNull(),
   },
   (t) => [index("anchors_by_version").on(t.sourceVersionId)]

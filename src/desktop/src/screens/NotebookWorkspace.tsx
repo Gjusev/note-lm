@@ -513,13 +513,24 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
   );
 }
 
+/** German mm:ss for a time-range locator; minutes may exceed 59 - honest,
+ * no hour rollover. Lives here because only the chip renders media anchors. */
+function formatTimeRange(locator: { startSec: number; endSec: number | null }): string {
+  const mmss = (sec: number) => {
+    const whole = Math.max(0, Math.floor(sec));
+    return `${String(Math.floor(whole / 60)).padStart(2, "0")}:${String(whole % 60).padStart(2, "0")}`;
+  };
+  return `${mmss(locator.startSec)}-${locator.endSec == null ? "?" : mmss(locator.endSec)}`;
+}
+
 /** One evidence anchor: locator chip + quote snippet + Öffnen (evidence.open,
  *  then the Rust open_external_file guard when a path exists). An original
  *  without stored bytes says so, honestly. */
 function AnchorChip({ anchor, onOpenError }: { anchor: ClaimAnchorView; onOpenError: (m: string | null) => void }) {
   const [state, setState] = useState<"idle" | "opening" | "unavailable">("idle");
-  const locator =
-    anchor.page != null
+  const locator = anchor.locator
+    ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ${formatTimeRange(anchor.locator)}`
+    : anchor.page != null
       ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · S.${anchor.page}`
       : `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ohne Seite`;
   const open = async () => {

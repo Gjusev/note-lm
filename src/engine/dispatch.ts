@@ -51,7 +51,7 @@ import {
   listCalculations,
   type CalcOp,
 } from "@/lib/services/calculations";
-import { evidenceAnchors, sourceVersions, sources as sourcesTable } from "@/db/local/schema";
+import { evidenceAnchors, parseTimeLocator, sourceVersions, sources as sourcesTable } from "@/db/local/schema";
 import {
   generateMaterial,
   listMaterialsByNotebook,
@@ -678,7 +678,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         if (!notebookId || !message) {
           return { ok: false, error: { code: "bad_args", message: "notebookId and message are required" } };
         }
-        const { db } = getLocalContext();
+        const { db, store } = getLocalContext();
         const profile = await getOrCreateProfile(db);
         const caps = await resolveCapabilities();
         const embedQuery = await preEmbedQuery(message, caps.embed ?? null);
@@ -695,6 +695,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             message,
             chat: caps.chat,
             embedQuery,
+            store,
           });
           return {
             ok: true,
@@ -724,7 +725,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
       case "claims.create": {
         const { notebookId, text, anchors } = args as {
           notebookId?: string; text?: string;
-          anchors?: { sourceId?: string; page?: number; quote?: string }[];
+          anchors?: { sourceId?: string; page?: number; quote?: string; locator?: { startSec?: number; endSec?: number | null } }[];
         };
         if (!notebookId || !text) {
           return { ok: false, error: { code: "bad_args", message: "notebookId and text are required" } };
@@ -734,8 +735,15 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         // optional anchors: bind the claim to a source's latest version
         // without a chat model (same input the claims service accepts)
         const validAnchors = (Array.isArray(anchors) ? anchors : []).filter(
-          (a): a is { sourceId: string; page?: number; quote?: string } => typeof a?.sourceId === "string"
-        );
+          (a): a is { sourceId: string; page?: number; quote?: string; locator?: { startSec: number; endSec: number | null } } =>
+            typeof a?.sourceId === "string"
+        ).map((a) => ({
+          ...a,
+          // a locator is kept only when it carries a real start time
+          ...(typeof a.locator?.startSec === "number" && {
+            locator: { startSec: a.locator.startSec, endSec: a.locator.endSec ?? null },
+          }),
+        }));
         const outcome = await createClaim(db, {
           notebookId,
           ownerId: profile.id,
@@ -825,6 +833,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           result: {
             fileName: source?.fileName ?? null,
             page: anchor.page,
+            locator: parseTimeLocator(anchor.locator),
             quote: anchor.quote,
             storageId: version.storageId,
             absolutePath,

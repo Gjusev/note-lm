@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { chunkText, extractTextFromFile } from "@/lib/text-extraction";
 import { extractAudioFromVideo } from "@/lib/ffmpeg";
-import { transcribeMedia } from "@/lib/ingestion/process";
+import { transcribeMedia, type MediaSegment } from "@/lib/ingestion/process";
 import type { TranscribeFn } from "@/lib/ai/providers";
 import { getSource, replaceChunks, updateSourceStatus } from "@/lib/services/sources";
 import {
@@ -108,6 +108,8 @@ export async function runProcessingJob(
     if (extractGate) return extractGate;
 
     let text: string;
+    // strategy 5A: per-segment timing when the media path segmented
+    let mediaSegments: MediaSegment[] = [];
     let transcriptFileId: string | undefined;
     // versioned evidence: the original bytes whose hash the version snapshots
     let originalBuffer: Buffer | undefined;
@@ -155,7 +157,7 @@ export async function runProcessingJob(
       // job loop); a media upload without one fails typed instead of reaching
       // for a hardcoded provider.
       if (!opts?.transcribe) throw new PermanentProcessingError("Kein KI-Anbieter für die Transkription konfiguriert. Wähle in den Einstellungen einen Transkriptionsanbieter.");
-      text = await transcribeMedia(audioBuffer, source.fileName, opts.transcribe, {
+      const transcription = await transcribeMedia(audioBuffer, source.fileName, opts.transcribe, {
         segDir,
         ...(resume && {
           resumeFrom: resume.resumeFrom,
@@ -174,6 +176,8 @@ export async function runProcessingJob(
           return true;
         },
       });
+      text = transcription.text;
+      mediaSegments = transcription.segments;
       if (stopObservation) {
         // same terminal bookkeeping as the stage gates: cancel fails the job
         // and errors the source, pause released the lease back to pending
@@ -220,7 +224,9 @@ export async function runProcessingJob(
     }
 
     const previousTranscriptId = source.transcriptStorageId ?? undefined;
-    const chunks = chunkText(text);
+    // strategy 5A: one chunk per transcript segment - chunkIndex IS the
+    // segment index, so citations resolve to a time range directly
+    const chunks = mediaSegments.length ? mediaSegments.map((s) => s.text) : chunkText(text);
     replaceChunks(ctx.db, { ownerId: source.ownerId, sourceId, notebookId: source.notebookId }, chunks);
     updateSourceStatus(ctx.db, sourceId, {
       status: "completed",
@@ -249,7 +255,11 @@ export async function runProcessingJob(
         fileName: source.fileName,
         contentType: resolvedType,
         ...(originalBuffer ? { buffer: originalBuffer } : {}),
-        ...(isMedia ? { pageTexts: [text] } : {}),
+        ...(isMedia
+          ? mediaSegments.length
+            ? { mediaSegments } // real per-segment times from the segmenter
+            : { pageTexts: [text] } // direct single-call transcription: no times knowable, honest page fallback
+          : {}),
       });
     } catch (err) {
       console.error("[PROCESS] version not recorded:", err);

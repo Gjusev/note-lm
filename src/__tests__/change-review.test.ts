@@ -417,6 +417,8 @@ describe("E1 anchor safety (fixture corpus version-pairs-v1)", () => {
       result: {
         fileName: `${movedPair.pairId}.pdf`,
         page: movedPair.claims[2].v1Page,
+        locator: null, // time-range anchors only
+
         quote: movedPair.claims[2].quote,
         storageId: v1StoredId,
         absolutePath: expect.stringContaining(v1StoredId),

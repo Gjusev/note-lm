@@ -138,6 +138,7 @@ describe("claims & evidence anchors (open-source-innovation-strategy 5A/5B)", ()
       result: {
         fileName: "vertrag.txt",
         page: null,
+        locator: null, // time-range anchors only - a text anchor has none
         quote: "Originalfassung mit dem Kernsatz",
         storageId: storedV1.id,
         absolutePath: expect.stringContaining(storedV1.id),

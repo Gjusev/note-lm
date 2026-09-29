@@ -246,6 +246,8 @@ export async function runImportJob(
       if (processGate) return finish(processGate);
 
       let text: string;
+      // strategy 5A: per-segment timing for media processed in segments
+      let mediaSegments: import("@/lib/ingestion/process").MediaSegment[] = [];
       let title: string | undefined;
       if (download.contentType === "text/html" || download.contentType === "application/xhtml+xml") {
         const page = processHtmlPage(download.buffer.toString("utf-8"), resource.canonicalUrl);
@@ -302,6 +304,7 @@ export async function runImportJob(
         }, opts?.transcribe);
         if (stopObservation) return finish(stopObservation);
         text = result.text;
+        mediaSegments = result.segments ?? [];
         title = meta.title || plan.fileNameHint;
       }
       if (!text.trim()) {
@@ -313,7 +316,11 @@ export async function runImportJob(
       const preCommitGate = await enterPhase("processing");
       if (preCommitGate) return finish(preCommitGate);
 
-      const chunks = chunkText(text).map((content, chunkIndex) => ({ content, chunkIndex }));
+      // strategy 5A: one chunk per transcript segment (chunkIndex IS the
+      // segment index); regular chunking for every other kind
+      const chunks = (mediaSegments.length ? mediaSegments.map((s) => s.text) : chunkText(text)).map(
+        (content, chunkIndex) => ({ content, chunkIndex })
+      );
       const hostname = (() => { try { return new URL(resource.originalUrl).hostname; } catch { return resource.provider; } })();
       const fileName = title || hostname;
 
@@ -364,6 +371,7 @@ export async function runImportJob(
           ...(storageId !== undefined && { storageId }),
           fileName,
           contentType: download.contentType,
+          ...(mediaSegments.length && { mediaSegments }),
           ...(storageId !== undefined && { buffer: download.buffer }),
         });
       } catch (err) {

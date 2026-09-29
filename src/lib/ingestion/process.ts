@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { extractTextFromPDF } from "@/lib/text-extraction";
 import type { TranscribeFn } from "@/lib/ai/providers";
-import { toMp3Segments } from "./segments";
+import { mp3SegmentDurationsSec, toMp3Segments } from "./segments";
 import { ImportError } from "./types";
 
 // OpenAI audio upload limit is 25 MB per request.
@@ -12,6 +12,25 @@ const DIRECT_AUDIO_EXTS = ["mp3", "wav", "m4a", "mp4", "webm", "ogg", "flac"];
 export interface ProcessResult {
   text: string;
   processedAs: "document" | "audio" | "html";
+  /** Per-segment timing (strategy 5A) for media processed in segments;
+   * undefined when no time information is knowable (documents, direct
+   * single-call transcription). chunkIndex == segment index downstream. */
+  segments?: MediaSegment[];
+}
+
+/** One transcript segment with its REAL time range in the media file.
+ * startSec of segment i is the sum of the previous segments' durations. */
+export interface MediaSegment {
+  startSec: number;
+  endSec: number;
+  text: string;
+}
+
+export interface MediaTranscription {
+  text: string;
+  /** Empty when no per-segment times are knowable (direct single-call
+   * transcription of a small file): no times are invented. */
+  segments: MediaSegment[];
 }
 
 /**
@@ -24,10 +43,10 @@ export async function transcribeMedia(
   fileNameHint: string,
   transcribe: TranscribeFn,
   media?: MediaTranscribeOptions
-): Promise<string> {
+): Promise<MediaTranscription> {
   const ext = fileNameHint.split(".").pop()?.toLowerCase() || "";
   if (buffer.length <= DIRECT_TRANSCRIBE_LIMIT && DIRECT_AUDIO_EXTS.includes(ext)) {
-    return (await transcribe(buffer, fileNameHint)).text;
+    return { text: (await transcribe(buffer, fileNameHint)).text, segments: [] };
   }
   // Without a caller-owned segDir the mux dir is private and removed with the
   // transcription; the engine passes <dataDir>/tmp/jobs/<jobId> so segments
@@ -58,7 +77,16 @@ export async function transcribeMedia(
       texts[i] = part.text;
       media?.onSegmentDone?.(i + 1, segments.length, texts.filter((t): t is string => !!t));
     }
-    return texts.filter((t): t is string => !!t).join("\n");
+    // strategy 5A: real per-segment seconds from the muxed CBR bytes -
+    // startSec accumulates the true durations; no times are invented
+    const durations = mp3SegmentDurationsSec(segments);
+    let startSec = 0;
+    const segmentsOut = segments.map((file, i) => {
+      const seg = { startSec, endSec: startSec + durations[i], text: texts[i] ?? "" };
+      startSec = seg.endSec;
+      return seg;
+    });
+    return { text: texts.filter((t): t is string => !!t).join("\n"), segments: segmentsOut };
   } finally {
     if (ownedDir) await fs.rm(path.dirname(segments[0]), { recursive: true }).catch(() => {});
   }
@@ -106,7 +134,12 @@ export async function processContent(
     if (!transcribe) {
       throw new ImportError("bad_content", "Kein KI-Anbieter für die Transkription konfiguriert. Wähle in den Einstellungen einen Transkriptionsanbieter.");
     }
-    return { text: await transcribeMedia(buffer, fileNameHint, transcribe, media), processedAs: "audio" };
+    const transcription = await transcribeMedia(buffer, fileNameHint, transcribe, media);
+    return {
+      text: transcription.text,
+      processedAs: "audio",
+      ...(transcription.segments.length > 0 && { segments: transcription.segments }),
+    };
   }
   // audio/mp4 & video/mp4 share "mp4"; direct-file hints disambiguate, default to media path
   if (base === "application/octet-stream") {

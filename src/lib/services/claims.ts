@@ -12,6 +12,7 @@ import type { LocalDb } from "@/db/local";
 import {
   claims,
   evidenceAnchors,
+  parseTimeLocator,
   evidenceLinks,
   messages,
   reviewProposals,
@@ -21,6 +22,7 @@ import {
   type ClaimOrigin,
   type ClaimStatus,
   type MessageCitation,
+  type TimeRangeLocator,
 } from "@/db/local/schema";
 import { getLatestVersion, readVersionPages } from "./source-versions";
 import { findQuotePage } from "./change-review";
@@ -29,6 +31,9 @@ import type { LocalStore } from "@/lib/storage/local";
 export interface ClaimAnchorInput {
   sourceId: string;
   page?: number | null;
+  /** Time-range locator (strategy 5A) for media evidence: only stored when
+   * truly provided - page and locator are never both required. */
+  locator?: TimeRangeLocator | null;
   quote?: string;
   relation?: AnchorRelation;
 }
@@ -65,6 +70,8 @@ async function insertAnchoredToLatest(
       ownerId,
       sourceVersionId: latest.id,
       page: anchor.page ?? null,
+      locator: anchor.locator ? JSON.stringify(anchor.locator) : null,
+      kind: anchor.locator ? "time_range" : "pdf_page",
       quote: anchor.quote ?? "",
       createdAt: Date.now(),
     })
@@ -136,6 +143,10 @@ export async function saveClaimFromMessage(
   const anchors: ClaimAnchorInput[] = (message.citations ?? []).map((citation: MessageCitation) => ({
     sourceId: citation.sourceId,
     quote: citation.text,
+    // a media citation carries its real segment range; a text one stays null
+    ...(citation.startSec !== undefined && {
+      locator: { startSec: citation.startSec, endSec: citation.endSec ?? null },
+    }),
   }));
   return createClaim(db, {
     notebookId: args.notebookId,
@@ -155,6 +166,8 @@ export interface ClaimAnchorView {
   fileName: string | null;
   version: number;
   page: number | null;
+  /** Parsed time-range locator of a time_range anchor; null otherwise. */
+  locator: TimeRangeLocator | null;
   quote: string;
   sourceVersionId: string;
 }
@@ -194,6 +207,7 @@ export function listClaims(db: LocalDb, notebookId: string): ClaimView[] {
         fileName: sources.fileName,
         version: sourceVersions.version,
         page: evidenceAnchors.page,
+        locator: evidenceAnchors.locator,
         quote: evidenceAnchors.quote,
         sourceVersionId: evidenceAnchors.sourceVersionId,
       })
@@ -215,7 +229,7 @@ export function listClaims(db: LocalDb, notebookId: string): ClaimView[] {
       originMessageId: row.originMessageId,
       status: row.status,
       createdAt: row.createdAt,
-      anchors,
+      anchors: anchors.map((a) => ({ ...a, locator: parseTimeLocator(a.locator) })),
       pendingReviews: proposals.length,
       reviewReasons: proposals.map((p) => p.reason),
     };

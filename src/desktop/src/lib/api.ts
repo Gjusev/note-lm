@@ -15,7 +15,9 @@ export interface Chunk { _id: string; content: string; chunkIndex: number }
 export interface Message { _id: string; role: "user" | "assistant"; content: string; citations?: Array<{ sourceId: string; chunkIndex: number; text: string; fileName?: string }> | null; createdAt: number }
 export interface Note { _id: string; title: string; content: string; updatedAt: number }
 export interface ClaimAnchorView {
-  id: string; relation: string; fileName: string | null; version: number; page: number | null; quote: string;
+  id: string; relation: string; fileName: string | null; version: number; page: number | null;
+  /** Time-range locator of a media anchor (mm:ss in the UI); null otherwise. */
+  locator: { startSec: number; endSec: number | null } | null; quote: string;
 }
 export interface ClaimView {
   _id: string; text: string; origin: "chat" | "user"; status: "active" | "reviewed" | "withdrawn";
@@ -25,7 +27,10 @@ export interface ReviewProposalView {
   id: string; claimId: string; reason: string; detail: string | null; createdAt: number;
 }
 export interface EvidenceRef {
-  fileName: string | null; page: number | null; quote: string; storageId: string | null; absolutePath: string | null;
+  fileName: string | null; page: number | null;
+  /** Time-range locator of a time_range anchor; null otherwise. */
+  locator: { startSec: number; endSec: number | null } | null;
+  quote: string; storageId: string | null; absolutePath: string | null;
 }
 
 export interface ProviderPresetView {

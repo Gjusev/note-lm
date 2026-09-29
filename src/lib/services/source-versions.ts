@@ -17,6 +17,7 @@ import type { LocalDb } from "@/db/local";
 import { sourceVersions } from "@/db/local/schema";
 import { PDFParse } from "pdf-parse";
 import type { LocalStore } from "@/lib/storage/local";
+import type { MediaSegment } from "@/lib/ingestion/process";
 
 export interface VersionPage {
   page: number; // 1-based
@@ -137,6 +138,10 @@ export async function recordVersion(
     contentType?: string;
     buffer?: Buffer;
     pageTexts?: string[];
+    /** strategy 5A: media transcript segments with REAL times (from the
+     * segmenter) - the sidecar becomes {kind:'media', segments} instead of
+     * pretending the transcript was document pages. */
+    mediaSegments?: MediaSegment[];
   }
 ): Promise<VersionDoc> {
   const fileHash = args.buffer ? sha256hex(args.buffer) : null;
@@ -148,6 +153,7 @@ export async function recordVersion(
   }
 
   let pages: VersionPage[] | null = null;
+  let media: MediaSegment[] | null = null;
   let sheetRows: string[][] | null = null;
   if (args.buffer && isCsv(args.fileName, args.contentType)) {
     // 5C: a csv import's sidecar is a sheet ({kind:'sheet', rows}) — the
@@ -156,6 +162,8 @@ export async function recordVersion(
     sheetRows = parseCsvRows(args.buffer.toString("utf-8"));
   } else if (args.buffer && args.contentType === "application/pdf") {
     pages = await extractPdfPages(args.buffer);
+  } else if (args.mediaSegments?.length) {
+    media = args.mediaSegments;
   } else if (args.pageTexts) {
     pages = args.pageTexts.map((text, i) => ({ page: i + 1, text }));
   } else if (args.buffer) {
@@ -177,6 +185,10 @@ export async function recordVersion(
     const target = sidecarPath(store, id);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, JSON.stringify({ kind: "sheet", rows: sheetRows }));
+  } else if (media) {
+    const target = sidecarPath(store, id);
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, JSON.stringify({ kind: "media", segments: media }));
   } else if (pages) {
     pageCount = pages.length;
     const target = sidecarPath(store, id);
@@ -248,6 +260,22 @@ export async function readVersionPages(
     const raw = await fs.readFile(sidecarPath(store, versionId), "utf-8");
     const parsed = JSON.parse(raw) as { pages?: VersionPage[] };
     return Array.isArray(parsed.pages) ? parsed.pages : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Transcript segments (strategy 5A) of one version from its media sidecar;
+ * null when the sidecar is missing, corrupt or not a media sidecar (callers
+ * show "no time information" honestly - never invented times). */
+export async function readVersionMediaSegments(
+  store: LocalStore,
+  versionId: string
+): Promise<MediaSegment[] | null> {
+  try {
+    const raw = await fs.readFile(sidecarPath(store, versionId), "utf-8");
+    const parsed = JSON.parse(raw) as { kind?: string; segments?: MediaSegment[] };
+    return parsed.kind === "media" && Array.isArray(parsed.segments) ? parsed.segments : null;
   } catch {
     return null;
   }

@@ -61,11 +61,13 @@ function segmentingTranscribe(): TranscribeFn {
 
 // segmentation seam (slice 3c): deterministic fake muxer — three tiny segment
 // files in the requested dir, no ffmpeg
-vi.mock("@/lib/ingestion/segments", async () => {
+vi.mock("@/lib/ingestion/segments", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/ingestion/segments")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
   const os = await import("node:os");
   return {
+    ...actual,
     toMp3Segments: vi.fn(async (_buffer: Buffer, outDir?: string) => {
       const target = outDir ?? (await fs.promises.mkdtemp(path.join(os.tmpdir(), "nolm-seg-fake-")));
       const files = [0, 1, 2].map((i) => path.join(target, `seg00${i}.mp3`));
@@ -415,6 +417,30 @@ describe("resumable transcription segments (desktop-workers-plan slice 3c)", () 
     expect(text).toContain("text2");
     // terminal state discards media checkpoint + seg files
     expect(getJobCheckpoints(db, "import", jobId)).toHaveLength(0);
+
+    // strategy 5A: the version sidecar carries the segment list and chunks
+    // map 1:1 onto segments (chunkIndex IS the segment index)
+    const sourceRow = rawClient(db)
+      .prepare(`SELECT id FROM sources WHERE notebook_id = ?`)
+      .get(notebookId) as { id: string };
+    const { getLatestVersion, readVersionMediaSegments } = await import("@/lib/services/source-versions");
+    const version = getLatestVersion(db, sourceRow.id);
+    const segments = await readVersionMediaSegments(ctx.store, version!.id);
+    expect(segments?.map((seg) => seg.text)).toEqual(["segment-0-text", "text1", "text2"]);
+    // byte-size-derived durations of the 3-byte fake segments: tiny but real
+    // (no fabricated times), start at zero and strictly increase
+    expect(segments![0].startSec).toBe(0);
+    // contiguous: each segment starts where the previous one ended
+    expect(segments![1].startSec).toBe(segments![0].endSec);
+    expect(segments![2].startSec).toBeGreaterThan(segments![1].startSec);
+    const chunkRows = rawClient(db)
+      .prepare(`SELECT chunk_index AS i, content FROM chunks WHERE source_id = ? ORDER BY chunk_index`)
+      .all(sourceRow.id) as Array<{ i: number; content: string }>;
+    expect(chunkRows).toEqual([
+      { i: 0, content: "segment-0-text" },
+      { i: 1, content: "text1" },
+      { i: 2, content: "text2" },
+    ]);
   });
 
   it("a pause clicked mid-transcription keeps the confirmed segment and resumes without duplicating work", async () => {

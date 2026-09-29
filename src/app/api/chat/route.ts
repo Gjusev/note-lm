@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
 
-  const { db } = getLocalContext();
+  const { db, store } = getLocalContext();
   if (!(await userOwnsNotebook(db, user.id, notebookId))) {
     return NextResponse.json({ error: "Notizbuch nicht gefunden" }, { status: 404 });
   }
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       message,
       chat: (messages) => chatCompletion(messages),
       embedQuery: null,
+      store,
       ...(skipUserMessage && { skipUserMessage }),
     });
     return NextResponse.json({

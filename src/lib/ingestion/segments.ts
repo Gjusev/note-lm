@@ -4,13 +4,25 @@
  * engine can place segments in the job's resume dir and tests can fake the
  * seam the same way they fake the transcriber.
  */
-import { promises as fs } from "fs";
+import { promises as fs, statSync } from "fs";
 import path from "path";
 import os from "os";
 import { isFfmpegAvailable } from "@/lib/ffmpeg";
 import { ImportError } from "./types";
 
 const SEGMENT_SECONDS = 600;
+
+/** Constant bitrate of the muxer's MP3 output (set alongside libmp3lame
+ * below). The byte size of a CBR stream is a deterministic property of the
+ * segment we produced: duration = size * 8 / bitrate, accurate to one MP3
+ * frame (~26 ms) - real times from the muxer output, none invented. */
+export const MP3_SEGMENT_BITRATE_BPS = 96_000;
+
+/** Real per-segment seconds of the muxer's CBR output, derived from each
+ * segment file's byte size (see MP3_SEGMENT_BITRATE_BPS). */
+export function mp3SegmentDurationsSec(files: string[]): number[] {
+  return files.map((file) => (statSync(file).size * 8) / MP3_SEGMENT_BITRATE_BPS);
+}
 
 /** Convert any media buffer into ordered MP3 segment files (ffmpeg segment muxer). */
 export async function toMp3Segments(buffer: Buffer, outDir?: string): Promise<string[]> {

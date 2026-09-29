@@ -404,6 +404,13 @@ CREATE TABLE calculations (
 );
 CREATE INDEX calculations_by_notebook ON calculations (notebook_id);
 `,
+  // 0011 — media time-range anchors (open-source-innovation-strategy 5A):
+  // evidence anchors gain a JSON locator for locators beyond pages. A
+  // time_range anchor stores {startSec, endSec} (endSec null = open end) and
+  // page stays null - page and locator are never both required.
+  `
+ALTER TABLE evidence_anchors ADD COLUMN locator TEXT;
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

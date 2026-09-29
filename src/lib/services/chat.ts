@@ -12,6 +12,8 @@ import { searchHybrid, type VectorStatus } from "./hybrid-search";
 import { getEmbeddingProfile } from "./embedding-profiles";
 import { getSetting } from "./settings";
 import { buildEvidenceContext, resolveEvidenceReferences } from "./evidence";
+import { getLatestVersion, readVersionMediaSegments } from "./source-versions";
+import type { LocalStore } from "@/lib/storage/local";
 import type { ChatFn } from "@/lib/ai/providers";
 
 const SYSTEM_PROMPT_WITH_SOURCES = `Du bist ein KI-Forschungsassistent. Du hast Kontext aus den Quellen des Nutzers erhalten.
@@ -31,6 +33,8 @@ export interface ChatCitation {
   chunkIndex: number;
   text: string;
   fileName: string;
+  startSec?: number;
+  endSec?: number | null;
 }
 
 export interface ChatReply {
@@ -50,6 +54,9 @@ export async function sendChatMessage(
     chat: ChatFn;
     /** Embedding capability for the query; null → textual retrieval. */
     embedQuery: ((query: string) => Buffer) | null;
+    /** Storage layer - present when the caller can read version sidecars,
+     * so media chunks carry their mm:ss time range into the evidence context. */
+    store?: LocalStore;
     skipUserMessage?: boolean;
   }
 ): Promise<ChatReply> {
@@ -84,13 +91,29 @@ export async function sendChatMessage(
     return { response, citations: [], mode: retrieval.mode, vectorStatus: retrieval.vectorStatus };
   }
 
+  // strategy 5A: media transcript segments give cited chunks a real time
+  // range (chunkIndex == segment index by construction); sources without a
+  // media sidecar contribute no range - none is invented.
+  const mediaSegmentsBySource = new Map<string, Awaited<ReturnType<typeof readVersionMediaSegments>>>();
+  if (opts.store) {
+    for (const sourceId of new Set(retrieval.hits.map((hit) => hit.sourceId))) {
+      const version = getLatestVersion(db, sourceId);
+      const segments = version ? await readVersionMediaSegments(opts.store, version.id) : null;
+      if (segments?.length) mediaSegmentsBySource.set(sourceId, segments);
+    }
+  }
+
   const evidence = buildEvidenceContext(
-    retrieval.hits.map((hit) => ({
-      sourceId: hit.sourceId,
-      chunkIndex: hit.chunkIndex,
-      content: hit.content,
-      fileName: sourceMap.get(hit.sourceId)?.fileName || "Quelle",
-    }))
+    retrieval.hits.map((hit) => {
+      const segment = mediaSegmentsBySource.get(hit.sourceId)?.[hit.chunkIndex];
+      return {
+        sourceId: hit.sourceId,
+        chunkIndex: hit.chunkIndex,
+        content: hit.content,
+        fileName: sourceMap.get(hit.sourceId)?.fileName || "Quelle",
+        ...(segment && { timeRange: { startSec: segment.startSec, endSec: segment.endSec } }),
+      };
+    })
   );
 
   const completion = (
