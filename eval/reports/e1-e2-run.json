@@ -1,0 +1,268 @@
+{
+  "corpus": "version-pairs-v1",
+  "graded": "claims",
+  "totals": {
+    "pairs": 20,
+    "claims": 60,
+    "expectedProposals": 15
+  },
+  "confusion": {
+    "tp": 15,
+    "fp": 0,
+    "fn": 0,
+    "tn": 45
+  },
+  "precision": 1,
+  "recall": 1,
+  "criteria": {
+    "precisionMin": 0.9,
+    "recallMin": 0.8,
+    "met": true
+  },
+  "deterministicPropagation": {
+    "expectedExactPairs": 20,
+    "ok": 20
+  },
+  "perPair": [
+    {
+      "pairId": "vp01-material-change",
+      "category": "material-change",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp02-material-change",
+      "category": "material-change",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp03-material-change",
+      "category": "material-change",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp04-material-change",
+      "category": "material-change",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp05-material-change",
+      "category": "material-change",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp06-moved",
+      "category": "moved",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_moved"
+      ],
+      "gotReasons": [
+        "quote_moved"
+      ]
+    },
+    {
+      "pairId": "vp07-moved",
+      "category": "moved",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_moved"
+      ],
+      "gotReasons": [
+        "quote_moved"
+      ]
+    },
+    {
+      "pairId": "vp08-moved",
+      "category": "moved",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_moved"
+      ],
+      "gotReasons": [
+        "quote_moved"
+      ]
+    },
+    {
+      "pairId": "vp09-moved",
+      "category": "moved",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_moved"
+      ],
+      "gotReasons": [
+        "quote_moved"
+      ]
+    },
+    {
+      "pairId": "vp10-moved",
+      "category": "moved",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_moved"
+      ],
+      "gotReasons": [
+        "quote_moved"
+      ]
+    },
+    {
+      "pairId": "vp11-deleted",
+      "category": "deleted",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp12-deleted",
+      "category": "deleted",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp13-deleted",
+      "category": "deleted",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp14-deleted",
+      "category": "deleted",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp15-deleted",
+      "category": "deleted",
+      "expected": 1,
+      "got": 1,
+      "ok": true,
+      "expectedReasons": [
+        "quote_missing"
+      ],
+      "gotReasons": [
+        "quote_missing"
+      ]
+    },
+    {
+      "pairId": "vp16-format-only",
+      "category": "format-only",
+      "expected": 0,
+      "got": 0,
+      "ok": true,
+      "expectedReasons": [],
+      "gotReasons": []
+    },
+    {
+      "pairId": "vp17-format-only",
+      "category": "format-only",
+      "expected": 0,
+      "got": 0,
+      "ok": true,
+      "expectedReasons": [],
+      "gotReasons": []
+    },
+    {
+      "pairId": "vp18-format-only",
+      "category": "format-only",
+      "expected": 0,
+      "got": 0,
+      "ok": true,
+      "expectedReasons": [],
+      "gotReasons": []
+    },
+    {
+      "pairId": "vp19-format-only",
+      "category": "format-only",
+      "expected": 0,
+      "got": 0,
+      "ok": true,
+      "expectedReasons": [],
+      "gotReasons": []
+    },
+    {
+      "pairId": "vp20-format-only",
+      "category": "format-only",
+      "expected": 0,
+      "got": 0,
+      "ok": true,
+      "expectedReasons": [],
+      "gotReasons": []
+    }
+  ]
+}

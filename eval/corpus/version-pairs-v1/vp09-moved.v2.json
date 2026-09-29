@@ -1,0 +1,34 @@
+{
+  "pairId": "vp09-moved",
+  "version": 2,
+  "pages": [
+    {
+      "page": 1,
+      "text": "Forest Damage Inventory\nWaldschadensstelle\nversion-pairs-v1 synthetic corpus"
+    },
+    {
+      "page": 2,
+      "text": "Measurement Programme\nThis report summarises the 2020 measurement programme for the forest damage inventory.\nThe main survey documents a peak value of 9.75 at the Steinach station in 2020. Every raw value is\narchived with its instrument identifier so that the series can be reconstructed.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 3,
+      "text": "Quality Assessment\nThe quality assessment compares all monitored sites against the agreed thresholds.\nThe review board confirmed that 88 of the monitored sites met the quality threshold during 2020.\nFollow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nComparability with earlier editions is ensured by the unchanged station layout and the stable calibration\nchain."
+    },
+    {
+      "page": 4,
+      "text": "Follow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nEvery raw value is archived with its instrument identifier so that the series can be reconstructed."
+    },
+    {
+      "page": 5,
+      "text": "Inserted Annex\nThis annex collects additional context that arrived after the first edition went to print.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors.\nAll figures in this section refer to the reporting period and use the calibrated reference instruments."
+    },
+    {
+      "page": 6,
+      "text": "Field Verification\nField verification completes the annual cycle and confirms the reported figures.\nField teams verified 88 reference points along Steinach before the final report was signed. The\nmethodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 7,
+      "text": "Data gaps shorter than one week were interpolated with the approved procedure and marked in the\nappendix.\nAll figures in this section refer to the reporting period and use the calibrated reference instruments."
+    }
+  ]
+}

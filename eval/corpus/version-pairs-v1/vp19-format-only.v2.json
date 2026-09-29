@@ -1,0 +1,30 @@
+{
+  "pairId": "vp19-format-only",
+  "version": 2,
+  "pages": [
+    {
+      "page": 1,
+      "text": "Vineyard Climate Log\nRebenklima Verein\nversion-pairs-v1 synthetic corpus"
+    },
+    {
+      "page": 2,
+      "text": "MEASUREMENT PROGRAMME\nThis report summarises the 2018 measurement programme for the vineyard climate network!\nThe main survey documents a peak value of 9.75 at the Steinach station in 2018. Every raw value is\narchived with its instrument identifier so that the series can be reconstructed.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 3,
+      "text": "QUALITY ASSESSMENT\nThe quality assessment compares all monitored sites against the agreed thresholds!\nThe review board confirmed that 88 of the monitored sites met the quality threshold during 2018.\nFollow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nComparability with earlier editions is ensured by the unchanged station layout and the stable calibration\nchain."
+    },
+    {
+      "page": 4,
+      "text": "Follow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nEvery raw value is archived with its instrument identifier so that the series can be reconstructed."
+    },
+    {
+      "page": 5,
+      "text": "FIELD VERIFICATION\nField verification completes the annual cycle and confirms the reported figures!\nField teams verified 88 reference points along Steinach before the final report was signed. The\nmethodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 6,
+      "text": "Data gaps shorter than one week were interpolated with the approved procedure and marked in the\nappendix.\nAll figures in this section refer to the reporting period and use the calibrated reference instruments."
+    }
+  ]
+}

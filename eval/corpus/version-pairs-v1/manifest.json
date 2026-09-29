@@ -1,0 +1,708 @@
+{
+  "version": 1,
+  "corpus": "version-pairs-v1",
+  "generator": "generate-version-pairs.mjs",
+  "pdfLib": "1.17.1",
+  "deterministic": true,
+  "normalization": "whitespace collapsed + lowercase (findQuotePage)",
+  "claimsSchema": "v2Expected: page number (still found there) | 'moved' (reflowed, see v2Page) | 'missing' (quote absent in v2); null reserved, unused",
+  "totals": {
+    "pairs": 20,
+    "claims": 60,
+    "expectedProposals": 15
+  },
+  "categoryCounts": {
+    "material-change": 5,
+    "moved": 5,
+    "deleted": 5,
+    "format-only": 5
+  },
+  "roundtripPairs": [
+    "vp01-material-change",
+    "vp06-moved",
+    "vp11-deleted",
+    "vp16-format-only"
+  ],
+  "pairs": [
+    {
+      "pairId": "vp01-material-change",
+      "category": "material-change",
+      "topic": "River Gauge Annual Report",
+      "v1File": "vp01-material-change.v1.pdf",
+      "v2File": "vp01-material-change.v2.pdf",
+      "v1Pages": 4,
+      "v2Pages": 4,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2012.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 14 of the monitored sites met the quality threshold during 2012.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 14 reference points along Elbingen before the final report was signed.",
+          "v1Page": 4,
+          "section": "Field Verification",
+          "v2Expected": 4
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2012.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp02-material-change",
+      "category": "material-change",
+      "topic": "Karst Spring Monitoring",
+      "v1File": "vp02-material-change.v1.pdf",
+      "v2File": "vp02-material-change.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2013.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 6 of the monitored sites met the quality threshold during 2013.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 6 reference points along Bärenbach before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2013.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp03-material-change",
+      "category": "material-change",
+      "topic": "Harbour Sediment Survey",
+      "v1File": "vp03-material-change.v1.pdf",
+      "v2File": "vp03-material-change.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2014.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 31 of the monitored sites met the quality threshold during 2014.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 31 reference points along Altmoor before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2014.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp04-material-change",
+      "category": "material-change",
+      "topic": "Orchard Frost Report",
+      "v1File": "vp04-material-change.v1.pdf",
+      "v2File": "vp04-material-change.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2015.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 88 of the monitored sites met the quality threshold during 2015.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 88 reference points along Steinach before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2015.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp05-material-change",
+      "category": "material-change",
+      "topic": "Fish Ladder Census",
+      "v1File": "vp05-material-change.v1.pdf",
+      "v2File": "vp05-material-change.v2.pdf",
+      "v1Pages": 7,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2016.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 12 of the monitored sites met the quality threshold during 2016.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 12 reference points along Kaltbrunn before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2016.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp06-moved",
+      "category": "moved",
+      "topic": "Peatland Carbon Audit",
+      "v1File": "vp06-moved.v1.pdf",
+      "v2File": "vp06-moved.v2.pdf",
+      "v1Pages": 4,
+      "v2Pages": 5,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2017.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 14 of the monitored sites met the quality threshold during 2017.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 14 reference points along Elbingen before the final report was signed.",
+          "v1Page": 4,
+          "section": "Field Verification",
+          "v2Expected": "moved",
+          "v2Page": 5
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "Field teams verified 14 reference points along Elbingen before the final report was signed.",
+          "reason": "quote_moved"
+        }
+      ]
+    },
+    {
+      "pairId": "vp07-moved",
+      "category": "moved",
+      "topic": "Wind Farm Yield Review",
+      "v1File": "vp07-moved.v1.pdf",
+      "v2File": "vp07-moved.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2018.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 6 of the monitored sites met the quality threshold during 2018.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 6 reference points along Bärenbach before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": "moved",
+          "v2Page": 7
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "Field teams verified 6 reference points along Bärenbach before the final report was signed.",
+          "reason": "quote_moved"
+        }
+      ]
+    },
+    {
+      "pairId": "vp08-moved",
+      "category": "moved",
+      "topic": "Tunnel Seepage Log",
+      "v1File": "vp08-moved.v1.pdf",
+      "v2File": "vp08-moved.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2019.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 31 of the monitored sites met the quality threshold during 2019.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 31 reference points along Altmoor before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": "moved",
+          "v2Page": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "Field teams verified 31 reference points along Altmoor before the final report was signed.",
+          "reason": "quote_moved"
+        }
+      ]
+    },
+    {
+      "pairId": "vp09-moved",
+      "category": "moved",
+      "topic": "Forest Damage Inventory",
+      "v1File": "vp09-moved.v1.pdf",
+      "v2File": "vp09-moved.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2020.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 88 of the monitored sites met the quality threshold during 2020.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 88 reference points along Steinach before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": "moved",
+          "v2Page": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "Field teams verified 88 reference points along Steinach before the final report was signed.",
+          "reason": "quote_moved"
+        }
+      ]
+    },
+    {
+      "pairId": "vp10-moved",
+      "category": "moved",
+      "topic": "Canal Lock Registry",
+      "v1File": "vp10-moved.v1.pdf",
+      "v2File": "vp10-moved.v2.pdf",
+      "v1Pages": 7,
+      "v2Pages": 8,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2021.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 12 of the monitored sites met the quality threshold during 2021.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 12 reference points along Kaltbrunn before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": "moved",
+          "v2Page": 7
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "Field teams verified 12 reference points along Kaltbrunn before the final report was signed.",
+          "reason": "quote_moved"
+        }
+      ]
+    },
+    {
+      "pairId": "vp11-deleted",
+      "category": "deleted",
+      "topic": "Glacier Mass Balance",
+      "v1File": "vp11-deleted.v1.pdf",
+      "v2File": "vp11-deleted.v2.pdf",
+      "v1Pages": 4,
+      "v2Pages": 4,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2022.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 14 of the monitored sites met the quality threshold during 2022.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 14 reference points along Elbingen before the final report was signed.",
+          "v1Page": 4,
+          "section": "Field Verification",
+          "v2Expected": 4
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2022.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp12-deleted",
+      "category": "deleted",
+      "topic": "Heating Systems Census",
+      "v1File": "vp12-deleted.v1.pdf",
+      "v2File": "vp12-deleted.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2023.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 6 of the monitored sites met the quality threshold during 2023.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 6 reference points along Bärenbach before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2023.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp13-deleted",
+      "category": "deleted",
+      "topic": "Tram Ridership Study",
+      "v1File": "vp13-deleted.v1.pdf",
+      "v2File": "vp13-deleted.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2012.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 31 of the monitored sites met the quality threshold during 2012.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 31 reference points along Altmoor before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2012.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp14-deleted",
+      "category": "deleted",
+      "topic": "Alpine Hut Usage",
+      "v1File": "vp14-deleted.v1.pdf",
+      "v2File": "vp14-deleted.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2013.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 88 of the monitored sites met the quality threshold during 2013.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 88 reference points along Steinach before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2013.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp15-deleted",
+      "category": "deleted",
+      "topic": "Beekeeping Survey",
+      "v1File": "vp15-deleted.v1.pdf",
+      "v2File": "vp15-deleted.v2.pdf",
+      "v1Pages": 7,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2014.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": "missing"
+        },
+        {
+          "quote": "The review board confirmed that 12 of the monitored sites met the quality threshold during 2014.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 12 reference points along Kaltbrunn before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2014.",
+          "reason": "quote_missing"
+        }
+      ]
+    },
+    {
+      "pairId": "vp16-format-only",
+      "category": "format-only",
+      "topic": "Museum Visitor Count",
+      "v1File": "vp16-format-only.v1.pdf",
+      "v2File": "vp16-format-only.v2.pdf",
+      "v1Pages": 4,
+      "v2Pages": 4,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 42 at the Elbingen station in 2015.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 14 of the monitored sites met the quality threshold during 2015.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 14 reference points along Elbingen before the final report was signed.",
+          "v1Page": 4,
+          "section": "Field Verification",
+          "v2Expected": 4
+        }
+      ],
+      "expectedProposals": []
+    },
+    {
+      "pairId": "vp17-format-only",
+      "category": "format-only",
+      "topic": "Lighthouse Staffing Log",
+      "v1File": "vp17-format-only.v1.pdf",
+      "v2File": "vp17-format-only.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 13.5 at the Bärenbach station in 2016.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 6 of the monitored sites met the quality threshold during 2016.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 6 reference points along Bärenbach before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": []
+    },
+    {
+      "pairId": "vp18-format-only",
+      "category": "format-only",
+      "topic": "School Pool Usage",
+      "v1File": "vp18-format-only.v1.pdf",
+      "v2File": "vp18-format-only.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 128 at the Altmoor station in 2017.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 31 of the monitored sites met the quality threshold during 2017.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 31 reference points along Altmoor before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": []
+    },
+    {
+      "pairId": "vp19-format-only",
+      "category": "format-only",
+      "topic": "Vineyard Climate Log",
+      "v1File": "vp19-format-only.v1.pdf",
+      "v2File": "vp19-format-only.v2.pdf",
+      "v1Pages": 6,
+      "v2Pages": 6,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 9.75 at the Steinach station in 2018.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 88 of the monitored sites met the quality threshold during 2018.",
+          "v1Page": 3,
+          "section": "Quality Assessment",
+          "v2Expected": 3
+        },
+        {
+          "quote": "Field teams verified 88 reference points along Steinach before the final report was signed.",
+          "v1Page": 5,
+          "section": "Field Verification",
+          "v2Expected": 5
+        }
+      ],
+      "expectedProposals": []
+    },
+    {
+      "pairId": "vp20-format-only",
+      "category": "format-only",
+      "topic": "Brown Coal Reserve Note",
+      "v1File": "vp20-format-only.v1.pdf",
+      "v2File": "vp20-format-only.v2.pdf",
+      "v1Pages": 7,
+      "v2Pages": 7,
+      "claims": [
+        {
+          "quote": "The main survey documents a peak value of 203 at the Kaltbrunn station in 2019.",
+          "v1Page": 2,
+          "section": "Measurement Programme",
+          "v2Expected": 2
+        },
+        {
+          "quote": "The review board confirmed that 12 of the monitored sites met the quality threshold during 2019.",
+          "v1Page": 4,
+          "section": "Quality Assessment",
+          "v2Expected": 4
+        },
+        {
+          "quote": "Field teams verified 12 reference points along Kaltbrunn before the final report was signed.",
+          "v1Page": 6,
+          "section": "Field Verification",
+          "v2Expected": 6
+        }
+      ],
+      "expectedProposals": []
+    }
+  ]
+}

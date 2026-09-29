@@ -1,0 +1,26 @@
+{
+  "pairId": "vp06-moved",
+  "version": 2,
+  "pages": [
+    {
+      "page": 1,
+      "text": "Peatland Carbon Audit\nMoorland Institut\nversion-pairs-v1 synthetic corpus"
+    },
+    {
+      "page": 2,
+      "text": "Measurement Programme\nThis report summarises the 2017 measurement programme for the peatland carbon audit.\nThe main survey documents a peak value of 42 at the Elbingen station in 2017. Every raw value is\narchived with its instrument identifier so that the series can be reconstructed.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 3,
+      "text": "Quality Assessment\nThe quality assessment compares all monitored sites against the agreed thresholds.\nThe review board confirmed that 14 of the monitored sites met the quality threshold during 2017.\nFollow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nComparability with earlier editions is ensured by the unchanged station layout and the stable calibration\nchain."
+    },
+    {
+      "page": 4,
+      "text": "Inserted Annex\nThis annex collects additional context that arrived after the first edition went to print.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors.\nAll figures in this section refer to the reporting period and use the calibrated reference instruments."
+    },
+    {
+      "page": 5,
+      "text": "Field Verification\nField verification completes the annual cycle and confirms the reported figures.\nField teams verified 14 reference points along Elbingen before the final report was signed. The\nmethodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    }
+  ]
+}

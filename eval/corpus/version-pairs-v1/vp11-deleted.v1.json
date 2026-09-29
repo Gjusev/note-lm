@@ -1,0 +1,22 @@
+{
+  "pairId": "vp11-deleted",
+  "version": 1,
+  "pages": [
+    {
+      "page": 1,
+      "text": "Glacier Mass Balance\nGletscherdienst\nversion-pairs-v1 synthetic corpus"
+    },
+    {
+      "page": 2,
+      "text": "Measurement Programme\nThis report summarises the 2022 measurement programme for the glacier mass balance series.\nThe main survey documents a peak value of 42 at the Elbingen station in 2022. Every raw value is\narchived with its instrument identifier so that the series can be reconstructed.\nThe methodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    },
+    {
+      "page": 3,
+      "text": "Quality Assessment\nThe quality assessment compares all monitored sites against the agreed thresholds.\nThe review board confirmed that 14 of the monitored sites met the quality threshold during 2022.\nFollow-up measurements are scheduled for the next reporting period and will be appended to this\nseries.\nComparability with earlier editions is ensured by the unchanged station layout and the stable calibration\nchain."
+    },
+    {
+      "page": 4,
+      "text": "Field Verification\nField verification completes the annual cycle and confirms the reported figures.\nField teams verified 14 reference points along Elbingen before the final report was signed. The\nmethodology follows the standard protocol of the institute and was reviewed by two independent\nauditors."
+    }
+  ]
+}
