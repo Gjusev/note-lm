@@ -76,7 +76,10 @@ function mapProbeError(err: unknown): ProbeError {
   if (e?.status === 401 || e?.status === 403) {
     return new ProbeError("auth_failed", "Zugangsdaten wurden vom Anbieter abgelehnt (401/403).");
   }
-  if (e?.name === "TypeError" || e?.name === "APIConnectionError") {
+  // the real OpenAI SDK throws APIConnectionError with name "Error"; only the
+  // constructor name identifies it (fetch-level TypeError stays the other path)
+  const ctorName = (e as { constructor?: { name?: string } } | null)?.constructor?.name;
+  if (e?.name === "TypeError" || e?.name === "APIConnectionError" || ctorName === "APIConnectionError") {
     return new ProbeError("bad_base_url", "Serveradresse nicht erreichbar — bitte URL und Port prüfen.");
   }
   const detail = e?.message ?? String(err);

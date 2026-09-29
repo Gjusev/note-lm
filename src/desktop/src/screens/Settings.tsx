@@ -24,6 +24,17 @@ export function Settings() {
     queryFn: desktopApi.listModels,
   });
 
+  const catalog = useQuery({
+    queryKey: ["catalog"],
+    queryFn: desktopApi.listCatalogModels,
+  });
+
+  const download = useMutation({
+    mutationFn: desktopApi.downloadCatalogModel,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["models"] }),
+    onError: (e) => setError(e.message),
+  });
+
   const importModel = useMutation({
     mutationFn: async (capability: "chat" | "embeddings") => {
       const picked = await pickFile();
@@ -50,6 +61,84 @@ export function Settings() {
 
       <ProviderSettings />
 
+      <h2 style={{ fontSize: "1.05rem", marginBottom: "var(--space-2)" }}>Modellkatalog</h2>
+      <p className="muted" style={{ marginTop: 0, fontSize: "0.85rem" }}>
+        Vorgeprüfte Modelle. Herunterladen bezieht die Datei von Hugging Face und prüft die
+        SHA-256-Prüfsumme, bevor sie freigegeben wird.
+      </p>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
+          <thead>
+            <tr>
+              {["Modell", "Typ", "Größe", "Lizenz", "Aktion"].map((h) => (
+                <th key={h} style={{ textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(catalog.data?.entries ?? []).map((entry) => {
+              const managed = (data?.models ?? []).find((m: ManagedModel) => m.sha256 === entry.sha256);
+              const verified = entry.url !== null && managed !== undefined;
+              const activeId = entry.capability === "chat" ? data?.activeChatModelId : data?.activeEmbedModelId;
+              const active = verified && activeId === managed!._id;
+              const downloading = download.isPending && download.variables?.sha256 === entry.sha256;
+              return (
+                <tr key={entry.id}>
+                  <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
+                    <div>{entry.label}</div>
+                    {entry.notes && (
+                      <div className="muted" style={{ fontSize: "0.8rem" }}>{entry.notes}</div>
+                    )}
+                    {downloading && (
+                      <div className="mono" style={{ fontSize: "0.8rem", color: "var(--accent)" }}>Wird geladen…</div>
+                    )}
+                    {verified && (
+                      <div className="mono" style={{ color: "var(--ok)", fontSize: "0.8rem" }}>Verifiziert</div>
+                    )}
+                  </td>
+                  <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
+                    {entry.capability === "chat" ? "Chat" : "Embeddings"}
+                  </td>
+                  <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
+                    {(entry.sizeBytes / 1048576).toFixed(0)} MB
+                  </td>
+                  <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>{entry.license}</td>
+                  <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
+                    {verified ? (
+                      active ? (
+                        <span className="mono" style={{ color: "var(--ok)" }}>aktiv</span>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            select.mutate({
+                              ...managed!,
+                              capability: entry.capability === "embed" ? "embeddings" : "chat",
+                            })
+                          }
+                          disabled={select.isPending}
+                        >
+                          Aktivieren
+                        </button>
+                      )
+                    ) : entry.url ? (
+                      <button onClick={() => download.mutate(entry)} disabled={download.isPending}>
+                        Herunterladen
+                      </button>
+                    ) : (
+                      <span className="muted">—</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {catalog.error && (
+        <p style={{ color: "var(--accent)", margin: 0 }}>{catalog.error.message}</p>
+      )}
 
       <div style={{ display: "flex", gap: "var(--space-2)", margin: "var(--space-4) 0" }}>
         <button className="primary" onClick={() => importModel.mutate("chat")} disabled={importModel.isPending}>

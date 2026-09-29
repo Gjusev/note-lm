@@ -50,6 +50,18 @@ export const PROVIDER_CAPABILITIES = [
   { id: "tts", label: "Sprachausgabe" },
 ] as const;
 
+/** Curated catalog entry (I0), as served by the models.catalog op. */
+export interface CatalogModelView {
+  id: string;
+  label: string;
+  capability: "chat" | "embed";
+  sizeBytes: number;
+  license: string;
+  sha256: string;
+  url: string | null;
+  notes: string;
+}
+
 export const desktopApi = {
   listNotebooks: () => call<Notebook[]>("notebooks.list"),
   createNotebook: (title: string) => call<{ id: string }>("notebooks.create", { title }),
@@ -71,6 +83,17 @@ export const desktopApi = {
     call<{ model: { _id: string }; deduped: boolean }>("models.importFile", { path, capability }),
   selectModel: (modelId: string, capability: "chat" | "embeddings") =>
     call<{}>("models.select", { modelId, capability }),
+  /** Curated catalog (I0) + user-initiated download of one entry. */
+  listCatalogModels: () => call<{ entries: CatalogModelView[] }>("models.catalog"),
+  downloadCatalogModel: (
+    entry: Pick<CatalogModelView, "url" | "capability" | "sha256">
+  ) =>
+    call<{ model: { _id: string } }>("models.download", {
+      url: entry.url,
+      capability: entry.capability === "embed" ? "embeddings" : "chat",
+      fileName: entry.url!.split("/").pop(),
+      sha256: entry.sha256,
+    }),
   listMaterials: (notebookId: string) =>
     call<Array<{ _id: string; type: string; status: string; content?: string | null; errorMessage?: string | null }>>("materials.list", { notebookId }),
   requestMaterial: (notebookId: string, type: string) =>

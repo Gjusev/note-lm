@@ -54,6 +54,7 @@ import {
   getModel,
   modelAbsolutePath,
 } from "@/lib/services/models";
+import { MODEL_CATALOG } from "@/lib/ai/model-catalog";
 import { resolveCapabilities } from "./capabilities";
 import {
   getPreset,
@@ -399,6 +400,11 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         };
       }
 
+      case "models.catalog": {
+        // curated download catalog (I0): static data, no DB involved
+        return { ok: true, result: { entries: MODEL_CATALOG } };
+      }
+
       case "models.list": {
         const { db } = getLocalContext();
         const rows = listModels(db);
@@ -619,7 +625,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const { db } = getLocalContext();
         const profile = await getOrCreateProfile(db);
         const caps = await resolveCapabilities();
-        const embedQuery = await preEmbedQuery(message, caps.embed);
+        const embedQuery = await preEmbedQuery(message, caps.embed ?? null);
         if (!caps.chat) {
           return {
             ok: false,

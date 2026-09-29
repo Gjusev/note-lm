@@ -248,6 +248,17 @@ describe("providers.test op (side-effect-free probes)", () => {
     expect((res as { error: { code: string } }).error.code).toBe("bad_base_url");
   });
 
+  it("maps a real SDK APIConnectionError (name stays \"Error\") to bad_base_url", async () => {
+    // the openai SDK's connection failures carry the class name only on the
+    // constructor, not on error.name — the installed smoke hit exactly that
+    class APIConnectionError extends Error {}
+    remote.chat = async () => {
+      throw new APIConnectionError("Connection error.");
+    };
+    const res = await handleEngineRequest("providers.test", pendingChat);
+    expect((res as { error: { code: string } }).error.code).toBe("bad_base_url");
+  });
+
   it("maps a probe timeout to the timeout code", async () => {
     remote.chat = async () => {
       const err = new Error("This operation was aborted");

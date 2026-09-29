@@ -366,10 +366,62 @@ fn smoke() -> Result<(), String> {
         failed = failed || !pass;
     }
 
+    // Provider/model flow (I0): the curated catalog ships in the bundle,
+    // providers.list exposes the presets, and the offline gate answers typed
+    // errors with no real network I/O — the probe URL is loopback-only
+    // (http://127.0.0.1:1/, connection refused), keeping the gate hermetic.
+    let models = eng.request("smoke-models-list", "models.list", serde_json::json!({}))?;
+    let models_ok = models["result"]["models"].as_array().is_some();
+    let catalog = eng.request("smoke-models-catalog", "models.catalog", serde_json::json!({}))?;
+    let catalog_ok = catalog["result"]["entries"].as_array().is_some_and(|a| {
+        a.len() >= 3
+            && a.iter().all(|e| {
+                !e["license"].as_str().unwrap_or_default().is_empty()
+                    && !e["sha256"].as_str().unwrap_or_default().is_empty()
+            })
+    });
+    let providers = eng.request("smoke-providers-list", "providers.list", serde_json::json!({}))?;
+    let providers_ok = providers["result"]["presets"]
+        .as_array()
+        .is_some_and(|a| !a.is_empty());
+
+    let fake = serde_json::json!({
+        "capability": "chat",
+        "connection": { "presetId": "custom", "baseUrl": "http://127.0.0.1:1/" },
+    });
+    eng.request(
+        "smoke-offline-on",
+        "settings.offline",
+        serde_json::json!({ "on": true }),
+    )?;
+    let blocked = eng.request("smoke-probe-blocked", "providers.test", fake.clone())?;
+    let blocked_ok = !blocked["ok"].as_bool().unwrap_or(true)
+        && blocked["error"]["code"] == "offline_blocked";
+    eng.request(
+        "smoke-offline-off",
+        "settings.offline",
+        serde_json::json!({ "on": false }),
+    )?;
+    // offline OFF: the refused loopback connection maps to bad_base_url
+    let refused = eng.request("smoke-probe-refused", "providers.test", fake)?;
+    let refused_ok = !refused["ok"].as_bool().unwrap_or(true)
+        && refused["error"]["code"] == "bad_base_url";
+
+    for (name, pass) in [
+        ("models.list returns shape", models_ok),
+        ("models.catalog ships curated entries", catalog_ok),
+        ("providers.list exposes presets", providers_ok),
+        ("providers.test offline -> offline_blocked", blocked_ok),
+        ("providers.test refused loopback -> bad_base_url", refused_ok),
+    ] {
+        println!("{} provider/model flow: {}", if pass { "ok" } else { "FAIL" }, name);
+        failed = failed || !pass;
+    }
+
     if failed {
         return Err("smoke checks failed".into());
     }
-    println!("smoke: engine, SQLite, typed errors and claims flow all verified");
+    println!("smoke: engine, SQLite, typed errors, claims flow and provider/model flow all verified");
     Ok(())
 }
 

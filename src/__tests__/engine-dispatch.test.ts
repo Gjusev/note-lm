@@ -307,4 +307,32 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     const after = await handleEngineRequest("review.list", { notebookId });
     expect((after as { result: unknown[] }).result).toHaveLength(0);
   });
+
+  it("serves the curated model catalog with visible licenses and hashes (I0)", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const res = await handleEngineRequest("models.catalog", {});
+    expect(res.ok).toBe(true);
+    const entries = (res as { result: { entries: Array<Record<string, unknown>> } }).result.entries;
+    expect(entries.length).toBeGreaterThanOrEqual(3);
+
+    // every entry: visible license + real 64-hex sha256 (Hugging Face LFS oid)
+    for (const e of entries) {
+      expect(typeof e.license).toBe("string");
+      expect((e.license as string).length).toBeGreaterThan(0);
+      expect(e.sha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(typeof e.sizeBytes).toBe("number");
+      expect(typeof e.notes).toBe("string");
+    }
+
+    // the project-validated chat model ships with the hash we verified on disk
+    const qwen = entries.find((e) => e.id === "qwen2.5-0.5b-instruct-q4-k-m");
+    expect(qwen).toBeDefined();
+    expect(qwen!.sha256).toBe("74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db");
+    expect(qwen!.url).toContain("huggingface.co");
+
+    // the split-GGUF 7B entry is honest about the pipeline ceiling: no URL
+    const split = entries.find((e) => e.id === "qwen2.5-7b-instruct-q4-k-m");
+    expect(split).toBeDefined();
+    expect(split!.url).toBeNull();
+  });
 });
