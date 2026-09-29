@@ -234,7 +234,7 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
     release!();
     await waitUntil(() => indexedForNotebook(bulk, profile._id) === 5, "Index aufgeholt");
     expect(embedCalls).toBeGreaterThanOrEqual(5);
-    stop();
+    await stop();
   });
 
   it("the loop runs two uploads concurrently but never two ffmpeg extractions (injected transcriber)", async () => {
@@ -287,7 +287,7 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
       "alle Uploads abgeschlossen"
     );
     expect(transcribe.maxActive).toBe(1);
-    stop();
+    await stop();
   });
 
   it("a crashed lane job (throw) does not stall the sibling lanes on later ticks", async () => {
@@ -309,7 +309,30 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
     await waitUntil(() => seen.length >= 2, "zweiter Job nach dem Absturz uebernommen");
     expect(seen[0]).toBe(j1);
     expect(seen).toContain(j2);
-    stop();
+    await stop();
+  });
+
+  it("stop waits for in-flight lane work before resolving", async () => {
+    // Regression: stop() only cleared the timer, so a mid-run lane kept making
+    // DB writes after the caller moved on — afterEach's closeLocalDb raced
+    // them and the suite logged "The database connection is not open." The
+    // returned stop must drain: in-flight jobs COMPLETE (leases protect them;
+    // killing mid-job is the crash path) and stop() resolves only afterwards.
+    const { jobId } = await createTextJobWithStorage("Abgewarteter Upload.");
+    let release: (() => void) | null = null;
+    const gated = new Promise<void>((r) => {
+      release = r;
+    });
+    const stop = startProcessingLoop(ctx, 40, {
+      processingOpts: (id) => (id === jobId ? { beforeStage: async () => { await gated; } } : undefined),
+    });
+
+    await waitUntil(() => jobRow(jobId).status === "running", "Upload mid-run");
+    const drained = stop(); // called while the lane is still in flight
+    expect(jobRow(jobId).status).toBe("running"); // draining never kills a running job
+    release!();
+    await drained; // must NOT resolve before the lane reached its terminal state
+    expect(jobRow(jobId).status).toBe("completed");
   });
 
   it("global pause (scheduler.paused) stops all claims and survives an engine restart", async () => {
@@ -319,18 +342,18 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
     const stop1 = startProcessingLoop(ctx, 40);
     await new Promise((r) => setTimeout(r, 200));
     expect(jobRow(jobId).status).toBe("pending");
-    stop1();
+    await stop1();
 
     // simulated restart: a fresh loop instance over the same data dir - the
     // pause is a settings row, so the fresh instance must still honor it
     const stop2 = startProcessingLoop(ctx, 40);
     await new Promise((r) => setTimeout(r, 200));
     expect(jobRow(jobId).status).toBe("pending");
-    stop2();
+    await stop2();
 
     await setSetting(db, "scheduler.paused", false);
     const stop3 = startProcessingLoop(ctx, 40);
     await waitUntil(() => jobRow(jobId).status === "completed", "Arbeit laeuft nach Aufhebung weiter");
-    stop3();
+    await stop3();
   });
 });

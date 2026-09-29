@@ -186,7 +186,7 @@ describe("URL imports run inside the engine (desktop-workers-plan slice 2)", () 
       await new Promise((r) => setTimeout(r, 100));
       status = jobStatus(jobId);
     }
-    stop();
+    await stop();
 
     expect(status).toBe("completed");
     const source = rawClient(db)

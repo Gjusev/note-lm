@@ -65,14 +65,31 @@ const materialQueue: Array<{ materialId: string; notebookId: string; type: Mater
 
 /**
  * Lane counters are module-level on purpose (mirrors the slice 2 import lane):
- * stop() leaves in-flight work running - the leases protect it - and a NEW
- * loop instance must see the occupied lanes instead of double-claiming.
+ * stop() lets in-flight work COMPLETE (the drain awaits it) - the leases
+ * protect it - and a NEW loop instance must see the occupied lanes instead of
+ * double-claiming.
  */
 let uploadRunning = 0;
 let mediaRunning = 0;
 let importRunning = 0;
 let materialRunning = 0;
 let indexRunning = 0;
+
+/**
+ * Per-loop drain registry: every detached unit of work (the tick itself and
+ * each lane body) is tracked here so stop() can await it. Without this, a
+ * late lane write (lease release, "finished" event, checkpoint) lands on an
+ * already-closed SQLite connection — the suite-wide "database connection is
+ * not open" noise and lost writes in the app.
+ */
+const inFlight = new Set<Promise<unknown>>();
+
+/** Track a detached promise for the drain; the tracked clone never rejects
+ *  (lanes log their own errors), so Promise.allSettled sees only settlements. */
+const track = (p: Promise<unknown>): void => {
+  const tracked = p.catch(() => {}).finally(() => inFlight.delete(tracked));
+  inFlight.add(tracked);
+};
 
 /** Queue a material generation; executed between processing jobs. */
 export function enqueueMaterialGeneration(
@@ -168,11 +185,19 @@ async function runIndexSweep(ctx: LocalContext, profileId: string): Promise<void
   }
 }
 
+/**
+ * Start the four-lane scheduler. Returns a stop function that now DRAINS:
+ * it stops the timer, stops claiming new work, and resolves only once every
+ * in-flight lane promise has settled — so callers can tear down the SQLite
+ * connection (tests: afterEach closeLocalDb; app: process shutdown) without
+ * late lane writes racing the close. In-flight jobs are allowed to COMPLETE:
+ * leases protect them, killing mid-job is the crash path, not this path.
+ */
 export function startProcessingLoop(
   ctx: LocalContext,
   pollMs = 3000,
   hooks?: ProcessingLoopHooks
-): () => void {
+): () => Promise<void> {
   let stopped = false;
 
   const tick = async () => {
@@ -180,6 +205,8 @@ export function startProcessingLoop(
     try {
       // global pause: the tick stays scheduled but claims nothing
       if (await getSetting<boolean>(ctx.db, SCHEDULER_PAUSED_KEY)) return;
+      // stop() may have fired while the pause read was in flight
+      if (stopped) return;
 
       let foundWork = false;
 
@@ -198,7 +225,7 @@ export function startProcessingLoop(
         const media = isMediaSource(ctx.db, job.sourceId);
         if (media) mediaRunning += 1;
         uploadRunning += 1;
-        void (async () => {
+        track((async () => {
           const intent = getJobIntent(ctx.db, "processing", job.id);
           if (intent === "pause" || intent === "cancel") {
             // belt-and-braces: the claim SQL already filters paused/cancelled
@@ -232,7 +259,7 @@ export function startProcessingLoop(
           .finally(() => {
             uploadRunning -= 1;
             if (media) mediaRunning -= 1;
-          });
+          }));
       }
 
       // import lane (cap 1): unchanged slice 2 semantics, now a detached lane
@@ -259,14 +286,19 @@ export function startProcessingLoop(
             importRunning += 1;
             const media = /video|audio/.test(importJob.kind ?? "");
             if (media) mediaRunning += 1;
-            void runImportJob(ctx, importJob, { transcribe: (await capsForRun())?.transcribe ?? undefined })
-              .then((outcome) => {
-                if (outcome === "completed") {
-                  emitJobEvent(ctx.db, "import", importJob._id, "finished");
-                } else if (outcome === "failed") {
-                  emitJobEvent(ctx.db, "import", importJob._id, "failed");
-                }
-              })
+            const transcribe = (await capsForRun())?.transcribe ?? undefined;
+            // stop() may have fired while the caps read was in flight; the
+            // claim above is tracked and completes, later lanes never start
+            if (stopped) return;
+            track(
+              runImportJob(ctx, importJob, { transcribe })
+                .then((outcome) => {
+                  if (outcome === "completed") {
+                    emitJobEvent(ctx.db, "import", importJob._id, "finished");
+                  } else if (outcome === "failed") {
+                    emitJobEvent(ctx.db, "import", importJob._id, "failed");
+                  }
+                })
               // lanes are detached: a late continuation (e.g. its durable-event
               // write racing a host-initiated close) or a genuine runner failure
               // must not surface as an unhandled rejection — in Node that kills
@@ -277,7 +309,8 @@ export function startProcessingLoop(
               .finally(() => {
                 importRunning -= 1;
                 if (media) mediaRunning -= 1;
-              });
+              })
+            );
           }
         }
       }
@@ -298,9 +331,11 @@ export function startProcessingLoop(
         } else {
           materialRunning += 1;
           foundWork = true;
-          void runMaterialGeneration(ctx).finally(() => {
-            materialRunning -= 1;
-          });
+          track(
+            runMaterialGeneration(ctx).finally(() => {
+              materialRunning -= 1;
+            })
+          );
         }
       }
 
@@ -312,11 +347,13 @@ export function startProcessingLoop(
           const targets = sweepTargets(ctx.db, profileId);
           if (targets.length > 0) {
             indexRunning += 1;
-            void runIndexSweep(ctx, profileId)
-              .catch((err) => console.error("[INDEX] sweep error:", err))
-              .finally(() => {
-                indexRunning -= 1;
-              });
+            track(
+              runIndexSweep(ctx, profileId)
+                .catch((err) => console.error("[INDEX] sweep error:", err))
+                .finally(() => {
+                  indexRunning -= 1;
+                })
+            );
           }
         }
       }
@@ -325,10 +362,16 @@ export function startProcessingLoop(
     }
   };
 
-  void tick();
-  const timer = setInterval(() => void tick(), pollMs);
-  return () => {
+  track(tick());
+  const timer = setInterval(() => track(tick()), pollMs);
+  return async () => {
     stopped = true;
     clearInterval(timer);
+    // Drain: in-flight lane jobs are allowed to COMPLETE — the leases protect
+    // them, and killing mid-job is the crash path, not the shutdown path. This
+    // is the fix for the suite-wide "database connection is not open": every
+    // late lane write (event emission, lease release, checkpoint) lands while
+    // the connection is still open, before afterEach closeLocalDb / app exit.
+    await Promise.allSettled([...inFlight]);
   };
 }

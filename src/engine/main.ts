@@ -66,13 +66,6 @@ const decoder = createDecoder({
 
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk: string) => decoder.push(chunk));
-// stdin end = the host closed us: pending secret requests can never be
-// answered (fail fast), helper processes (llama-server) are stopped so
-// nothing orphans, THEN exit. Findling 8 of agent-execution-plan.
-process.stdin.on("end", () => {
-  failPendingSecretRequests();
-  void stopLlamaHelpers().finally(() => process.exit(0));
-});
 
 // uploads (extract/transcribe -> chunk) run inside the engine process
 const bootCtx = getLocalContext();
@@ -87,4 +80,29 @@ void reconcileReviewScans(bootCtx.db, bootCtx.store).catch((err) =>
 );
 // provider telemetry (S3): opportunistic retention pruning on engine start
 pruneProviderRuns(bootCtx.db);
-startProcessingLoop(bootCtx);
+const stopProcessingLoop = startProcessingLoop(bootCtx);
+
+// Ordered shutdown (reliability problem A): pending secret requests can never
+// be answered once the host is gone (fail fast), the job pool DRAINS in-flight
+// lanes (bounded - leases make any job we still abandon recoverable on the
+// next start) so late DB writes land on an open SQLite connection, helper
+// processes (llama-server) are stopped so nothing orphans, THEN exit.
+// Findling 8 of agent-execution-plan.
+const DRAIN_TIMEOUT_MS = 10_000;
+
+function shutdown(): void {
+  failPendingSecretRequests();
+  void Promise.race([
+    stopProcessingLoop(),
+    new Promise<void>((resolve) => setTimeout(resolve, DRAIN_TIMEOUT_MS)),
+  ])
+    .then(() => stopLlamaHelpers())
+    .finally(() => process.exit(0));
+}
+
+// stdin end = the host closed us (the engine is Tauri-spawned); SIGINT/SIGTERM
+// cover manual kills - all take the same ordered teardown instead of dying
+// mid-write.
+process.stdin.on("end", shutdown);
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
