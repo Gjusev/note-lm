@@ -15,6 +15,7 @@ import {
 } from "./learning-materials";
 import type { LocalStore } from "@/lib/storage/local";
 import type { ChatFn } from "@/lib/ai/providers";
+import { getLatestVersion } from "./source-versions";
 
 export type MaterialType =
   | "summary" | "flashcards" | "quiz" | "studyGuide"
@@ -63,6 +64,12 @@ export async function generateMaterial(
     }
 
     let used = 0;
+    // provenance: which source versions fed this material - lets the change
+    // review flag it when one of them is superseded (keys are source ids)
+    const provenance: Record<string, string | null> = {};
+    for (const sourceId of new Set(chunks.map((c) => c.sourceId))) {
+      provenance[sourceId] = getLatestVersion(db, sourceId)?.id ?? null;
+    }
     const sourceText = chunks
       .filter((c) => (used += c.content.length) <= CONTEXT_CHAR_BUDGET || used - c.content.length === 0)
       .map((c) => c.content)
@@ -91,6 +98,7 @@ export async function generateMaterial(
     await updateMaterial(db, opts.materialId, {
       status: "completed",
       content,
+      provenance: JSON.stringify(provenance),
       ...(audioFileId ? { audioFileId } : {}),
     });
     return { ok: true };

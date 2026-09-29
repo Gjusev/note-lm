@@ -52,6 +52,7 @@ export async function updateMaterial(
     content?: string;
     errorMessage?: string;
     audioFileId?: string;
+    provenance?: string | null;
   }
 ): Promise<void> {
   await db
@@ -60,6 +61,7 @@ export async function updateMaterial(
       status: patch.status,
       ...(patch.content !== undefined && { content: patch.content }),
       ...(patch.errorMessage !== undefined && { errorMessage: patch.errorMessage }),
+      ...(patch.provenance !== undefined && { provenance: patch.provenance }),
       ...(patch.audioFileId !== undefined && { audioFileId: patch.audioFileId }),
       updatedAt: Date.now(),
     })
