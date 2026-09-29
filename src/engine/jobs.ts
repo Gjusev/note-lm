@@ -107,7 +107,13 @@ async function runMaterialGeneration(ctx: LocalContext): Promise<void> {
   try {
     const caps = await resolveCapabilities();
     if (!caps.chat) {
-      console.error("[MATERIAL] generation skipped: no chat capability configured");
+      // Honest terminal state - the row must not sit in 'generating' forever.
+      console.error("[MATERIAL] generation failed: no chat capability configured");
+      const { updateMaterial } = await import("@/lib/services/learning-materials");
+      await updateMaterial(ctx.db, job.materialId, {
+        status: "error",
+        errorMessage: "Kein KI-Anbieter konfiguriert – Einstellungen öffnen und ein Modell aktivieren.",
+      });
       return;
     }
     const tts = caps.chatProviderKind === "local" && caps.embed

@@ -675,7 +675,12 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            let resources = app.path().resource_dir()?;
+            // The bundle and the NSIS install both place resources under
+            // <exe>/resources/** - tauri's resource_dir() resolves differently
+            // per layout, which left every packaged GUI with a dead engine.
+            // The smoke-mode candidates already know every real layout.
+            let resources = smoke_resource_dir()
+                .map_err(|e| Box::<dyn std::error::Error>::from(e))?;
             let engine_dir = resources.join("engine");
             // The engine resolves FFmpeg via FFMPEG_PATH (cached at first use,
             // so it must be set before any media op).

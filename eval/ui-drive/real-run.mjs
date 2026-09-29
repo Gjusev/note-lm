@@ -39,23 +39,11 @@ if (!fs.existsSync(exe)) {
   process.exit(1);
 }
 
-// WORKAROUND for a real packaging bug (REPORTED, src-tauri not owned here):
-// main.rs setup() spawns resource_dir()/engine/engine.cjs, but both the
-// bundle layout and the NSIS install place it at <exe>/resources/engine —
-// so the packaged GUI never spawns an engine (only --smoke resolves it, via
-// smoke_resource_dir). To drive the real window WITH a live engine, junction
-// the resource dirs into the exe dir the way resource_dir() expects.
+// The packaging bug this harness exposed is FIXED in main.rs: setup() now
+// resolves resources through smoke_resource_dir(), so the GUI spawns the
+// engine from <exe>/resources/engine like every real install. No junctions.
 const releaseDir = path.join(repo, "src-tauri", "target", "release");
-const resourcesSrc = path.join(repo, "src-tauri", "resources");
-for (const name of ["engine", "ffmpeg", "llama", "samples"]) {
-  const link = path.join(releaseDir, name);
-  const target = path.join(resourcesSrc, name);
-  if (!fs.existsSync(link) && fs.existsSync(target)) {
-    execFileSync("cmd", ["/c", "mklink", "/J", link, target], { stdio: "ignore" });
-    log(`junctioned ${link} -> ${target} (packaging bug workaround, see report)`);
-  }
-}
-const ENGINE_MARKER = path.join(releaseDir, "engine", "engine.cjs");
+const ENGINE_MARKER = path.join(releaseDir, "resources", "engine", "engine.cjs");
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-uirun-"));
 evidence.exe = exe;
 evidence.dataDir = dataDir;
