@@ -18,6 +18,10 @@ export interface ClaimAnchorView {
   id: string; relation: string; fileName: string | null; version: number; page: number | null;
   /** Time-range locator of a media anchor (mm:ss in the UI); null otherwise. */
   locator: { startSec: number; endSec: number | null } | null; quote: string;
+  /** Immutable version row the anchor is pinned to (engine wire field). The
+   *  version belongs to exactly one source - the reliable anchor -> source
+   *  mapping when the source's fileName has since changed (reimport). */
+  sourceVersionId: string;
 }
 export interface ClaimView {
   _id: string; text: string; origin: "chat" | "user"; status: "active" | "reviewed" | "withdrawn";
@@ -236,29 +240,89 @@ export async function pickFile(): Promise<{ path: string; name: string } | null>
   return { path, name };
 }
 
-/** Tauri asset-protocol URL for a stored file path (asset:// on macOS/Linux,
- *  http://asset.localhost on Windows). Null in browser dev: no Rust host, no
- *  asset protocol - callers keep the quote-only view instead of a broken src. */
+/** URL a reader/media element can load a stored original from. Tauri window:
+ *  the asset protocol (asset:// on macOS/Linux, http://asset.localhost on
+ *  Windows). Browser dev: the Next server's /api/files/<storageId> route
+ *  serves the SAME LocalStore the engine writes through — the storage id is
+ *  the file name under <dataDir>/files minus its extension, UUID-validated
+ *  so a non-store path stays quote-only instead of a broken src. */
 export function assetUrl(path: string): string | null {
-  if (typeof window === "undefined" || !("__TAURI__" in window)) return null;
+  if (typeof window === "undefined" || !("__TAURI__" in window)) {
+    const id = path.split(/[\\/]/).pop()?.replace(/\.[^.]+$/, "") ?? "";
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+      ? `/api/files/${id}`
+      : null;
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const convert = (window as any).__TAURI__.core?.convertFileSrc as ((p: string) => string) | undefined;
   return typeof convert === "function" ? convert(path) : null;
 }
 
-/** Onboarding sample (strategy §9): the Rust command composes the engine ops
- *  (notebook + v1 sample import + claim) and polls until the sample source
- *  has finished processing. Browser dev has no Rust host for it. */
+/** Onboarding sample (strategy §9): in the desktop window the Rust command
+ *  composes the engine ops (notebook + v1 sample import + claim + v2
+ *  re-import) and polls until the sample source has finished processing.
+ *  Browser dev has no Rust host — it composes the SAME ops through the HTTP
+ *  transport instead, pointed at the redistributable sample PDFs via
+ *  window.__NOTELM_DEV_SAMPLES_DIR__ (set by the dev harness / ui-drive;
+ *  without it the honest desktop-only error stays). */
 export async function createSampleNotebook(): Promise<{
   notebookId: string;
   sourceId: string;
   claimId: string;
 }> {
-  if (typeof window === "undefined" || !("__TAURI__" in window)) {
-    throw new Error("Beispiel-Notizbuch ist nur in der Desktop-App verfügbar");
+  if (typeof window !== "undefined" && "__TAURI__" in window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return await (window as any).__TAURI__.core.invoke("create_sample_notebook");
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return await (window as any).__TAURI__.core.invoke("create_sample_notebook");
+  const samplesDir = (window as any).__NOTELM_DEV_SAMPLES_DIR__;
+  if (typeof samplesDir !== "string" || !samplesDir.trim()) {
+    throw new Error("Beispiel-Notizbuch ist nur in der Desktop-App verfügbar");
+  }
+  const sample = (name: string) => `${samplesDir.replace(/[\\/]+$/, "")}/${name}`;
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const nb = await desktopApi.createNotebook("Beispiel: Kaffeestudie");
+  const { sourceId } = await desktopApi.importFile(
+    sample("kaffee-studie-v1.pdf"), nb.id, "kaffee-studie-v1.pdf", "application/pdf"
+  );
+  // processing is async in the engine scheduler: poll sources.list like the
+  // Rust command does (500 ms steps, 30 s cap)
+  let v1Done = false;
+  for (let i = 0; i < 60 && !v1Done; i++) {
+    await sleep(500);
+    const s = (await desktopApi.listSources(nb.id)).find((x) => x._id === sourceId);
+    if (s?.status === "error") throw new Error("Beispielquelle konnte nicht verarbeitet werden");
+    v1Done = s?.status === "completed";
+  }
+  if (!v1Done) throw new Error("Zeitüberschreitung: Beispielquelle wurde nicht rechtzeitig verarbeitet");
+
+  const claim = await desktopApi.createClaim(
+    nb.id,
+    "Die Kaffeestudie 2026 berichtet, Filterkaffee verlängere die durchschnittliche Konzentrationsdauer um 14 Minuten.",
+    [{ sourceId, page: 3, quote: "Filterkaffee verlängerte die durchschnittliche Konzentrationsdauer um 14 Minuten." }]
+  );
+  // v2 as a NEW immutable version of the same source: the staleness scan
+  // raises a pending proposal for the changed fact (14 -> 9 minutes)
+  const reimported = await desktopApi.reimportVersion(
+    sourceId, sample("kaffee-studie-v2.pdf"), "kaffee-studie-v2.pdf"
+  );
+  if (reimported.jobId) {
+    let terminal = false;
+    for (let i = 0; i < 60 && !terminal; i++) {
+      await sleep(500);
+      const j = (await desktopApi.listJobs()).jobs.find((x) => x.id === reimported.jobId);
+      if (j?.status === "failed" || j?.status === "cancelled") {
+        throw new Error("Beispielquelle (Version 2) konnte nicht verarbeitet werden");
+      }
+      terminal = j?.status === "completed";
+    }
+    if (!terminal) throw new Error("Zeitüberschreitung: Beispielquelle (Version 2) wurde nicht rechtzeitig verarbeitet");
+  }
+  if ((await desktopApi.listReviews(nb.id)).length === 0) {
+    throw new Error("Keine Überarbeitungsvorschläge nach dem Beispiel-Update");
+  }
+  return { notebookId: nb.id, sourceId, claimId: claim.id };
 }
 
 /** Open a stored evidence file with its platform default app. The Rust side

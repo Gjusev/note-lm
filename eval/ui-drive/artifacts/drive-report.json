@@ -1,0 +1,107 @@
+{
+  "steps": [
+    {
+      "name": "engine server up (3128, fresh data dir, real engine.cjs)",
+      "ok": true,
+      "ms": 520
+    },
+    {
+      "name": "vite dev server up (5180)",
+      "ok": true,
+      "ms": 19
+    },
+    {
+      "name": "1a Bibliothek lädt (Engine über HTTP erreichbar)",
+      "ok": true,
+      "ms": 447
+    },
+    {
+      "name": "1b Beispiel laden -> Notizbuch + Navigation",
+      "ok": true,
+      "ms": 5257
+    },
+    {
+      "name": "2 Workspace: Nav-Sektionen, Mitte, Inspector",
+      "ok": true,
+      "ms": 28
+    },
+    {
+      "name": "3 Quelle öffnen: Reader, PDF-Canvas, Versionsdropdown",
+      "ok": true,
+      "ms": 889
+    },
+    {
+      "name": "4 Aussage mit offenem Vorschlag im Inspector",
+      "ok": true,
+      "ms": 54
+    },
+    {
+      "name": "5a Matrix öffnen: Raster mit Aussage-Zeile + Quellen-Spalte",
+      "ok": true,
+      "ms": 75
+    },
+    {
+      "name": "5b Matrix-Tastatur: Zelle fokussieren, Enter öffnet v1",
+      "ok": true,
+      "ms": 27
+    },
+    {
+      "name": "6a Materialien: Anfrage steuert, Reihe erscheint (Engine-Stall gemeldet)",
+      "ok": true,
+      "ms": 116
+    },
+    {
+      "name": "6b Berechnungen: Formular + typisierter Engine-Fehler (PDF ist kein CSV)",
+      "ok": true,
+      "ms": 113
+    },
+    {
+      "name": "7 Anker-Chip öffnet den Reader an der Ankerversion",
+      "ok": true,
+      "ms": 95
+    },
+    {
+      "name": "8 Design-Umschalter (data-theme)",
+      "ok": true,
+      "ms": 79
+    },
+    {
+      "name": "9a 800px: Inspector wird Overlay-Dialog",
+      "ok": true,
+      "ms": 32
+    },
+    {
+      "name": "9b Escape schließt das Overlay",
+      "ok": true,
+      "ms": 8
+    },
+    {
+      "name": "9c 640px: Nav wird Drawer",
+      "ok": true,
+      "ms": 72
+    },
+    {
+      "name": "10 keine Console-Fehler",
+      "ok": true,
+      "ms": 0
+    }
+  ],
+  "engineIssuesFound": [
+    "materials: no chat capability -> row stuck in 'generating' forever (runMaterialGeneration returns without erroring the row)"
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "networkServerLogs": [],
+  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uidrive-2XERcY",
+  "screenshots": [
+    "01-library.png",
+    "02-workspace.png",
+    "03-reader-pdf.png",
+    "04-inspector-claim.png",
+    "05-matrix.png",
+    "06-materials.png",
+    "07-dark-theme.png",
+    "08-narrow-inspector.png",
+    "09-narrow-nav.png"
+  ]
+}

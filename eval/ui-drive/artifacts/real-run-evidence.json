@@ -1,0 +1,42 @@
+{
+  "steps": [
+    [
+      "process alive after 5 s",
+      "ok",
+      ""
+    ],
+    [
+      "engine child node process spawned",
+      "ok",
+      ""
+    ],
+    [
+      "screenshot: library window",
+      "ok",
+      ""
+    ],
+    [
+      "app process gone",
+      "ok",
+      ""
+    ],
+    [
+      "no orphan engine node.exe (our install path)",
+      "ok",
+      ""
+    ]
+  ],
+  "engineChildren": [
+    36720
+  ],
+  "screenshots": [
+    {
+      "file": "real-run-1-library.png",
+      "detail": "saved=C:\\Code Main\\note-lm\\eval\\ui-drive\\artifacts\\real-run-1-library.png size=1296x839 at=286,286"
+    }
+  ],
+  "exe": "C:\\Code Main\\note-lm\\src-tauri\\target\\release\\notelm-spike.exe",
+  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uirun-XmEePo",
+  "pid": 5240,
+  "close": "closed"
+}

@@ -139,13 +139,29 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   };
 
   /** Follow a reference: open the stored original in the center at the
-   *  anchor's version and page (D1 "Verweis folgen"). Anchors carry the
-   *  version NUMBER, the reader needs the immutable row id - resolved via
-   *  the shared versions query. */
+   *  anchor's version and page (D1 "Verweis folgen"). The anchor pins an
+   *  immutable VERSION row - sourceVersionId maps it to its one source
+   *  reliably even after a reimport renamed the source row (a fileName match
+   *  alone goes stale: "kaffee-studie-v1.pdf" becomes "-v2.pdf" while the
+   *  chip still cites v1). */
   const openAnchor = (a: ClaimAnchorView) => {
-    const source = (sources ?? []).find((s) => s.fileName === a.fileName);
-    if (!source) return;
-    openAtVersion(source._id, a.version, a.page);
+    void (async () => {
+      let source = (sources ?? []).find((s) => s.fileName === a.fileName) ?? null;
+      if (!source && a.sourceVersionId) {
+        for (const s of sources ?? []) {
+          const vs = await queryClient.fetchQuery({
+            queryKey: ["versions", s._id],
+            queryFn: () => desktopApi.listVersions(s._id),
+          });
+          if (vs.some((v) => v.id === a.sourceVersionId)) {
+            source = s;
+            break;
+          }
+        }
+      }
+      if (!source) return;
+      openAtVersion(source._id, a.version, a.page);
+    })();
   };
 
   /** Version-pinned open by NUMBER (matrix cells, anchor chips, proposal
