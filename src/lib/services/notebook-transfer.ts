@@ -19,9 +19,24 @@
  * rows, ai.connections/capabilities (credentials never travel with a
  * package), provider_runs (machine-local telemetry), model library rows and
  * files, and derived indexes (chunks_fts / vector — rebuilt locally).
+ *
+ * Import hardening (reliability B): manifest relPaths are confined lexically
+ * to the package dir (separators normalized first, absolute paths, drive
+ * letters and `..` escapes rejected with a typed NotebookImportError) BEFORE
+ * any hash is verified. Files are copied into a staging dir, then placed into
+ * the data dir and all rows written inside ONE BEGIN IMMEDIATE transaction —
+ * a mid-restore failure rolls the rows back atomically and removes every file
+ * the import already placed (plus the dirs it created), so a package either
+ * restores fully or leaves the data dir untouched. Imported import_jobs rows
+ * are restored only as historical records: status 'cancelled' with a German
+ * note, unclaimable by the worker loop (provenance story keeps the history).
+ * processing_jobs are not part of the transfer format (v1 or v2) — the
+ * manifest cannot carry them and the restore inserts none, so no imported
+ * package can enqueue processing work.
  */
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import type { LocalDb } from "@/db/local";
 import { rawClient } from "@/db/local";
@@ -236,6 +251,81 @@ function storeDirOf(store: LocalStore): string {
   return (store as any).dataDir as string;
 }
 
+/** Typed failure for a rejected package: a manifest relPath that is not a
+ *  safe relative path inside the package dir. The UI can distinguish it from
+ *  generic I/O errors; the message names the offending entry (German). */
+export class NotebookImportError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotebookImportError";
+  }
+}
+
+/**
+ * Lexical path confinement for a manifest relPath. Separators are normalized
+ * FIRST (a backslash trick must fail on every OS), absolute paths and drive
+ * letters are rejected outright, and the result must resolve INSIDE
+ * packageDir — no `..` escape survives. Lexical only: the package tree is
+ * copied byte-wise, never followed through symlinks, so no realpath is
+ * needed. Returns the confined absolute path plus the normalized relative
+ * form for filesystem targets.
+ */
+function confineRelPath(packageDir: string, relPath: string): { abs: string; rel: string } {
+  const fail = (reason: string): never => {
+    throw new NotebookImportError(`Unsicheres Paket: der Pfad "${relPath}" ${reason}`);
+  };
+  if (typeof relPath !== "string" || relPath.trim() === "") fail("ist kein gültiger Dateipfad.");
+  // backslashes are separators in every package (Windows round-trip)
+  const unified = relPath.replace(/[\\/]+/g, path.sep);
+  if (path.isAbsolute(unified) || /^[A-Za-z]:/.test(unified)) {
+    fail("ist kein relativer Pfad (absolut oder mit Laufwerksbuchstaben).");
+  }
+  const abs = path.normalize(path.join(packageDir, unified));
+  // strictly inside: "." or "files/.." resolving to the package dir itself is
+  // also rejected
+  if (!abs.startsWith(packageDir + path.sep)) fail("verlässt das Paketverzeichnis.");
+  return { abs, rel: unified };
+}
+
+/** Imported URL-import jobs are historical records only: cancelled so no
+ *  worker loop can ever claim them, with a German note for the user. */
+const IMPORTED_JOB_NOTE = "Importiert – nicht ausführen";
+
+function neutralizeImportedJob(job: Row): Row {
+  return {
+    ...job,
+    status: "cancelled",
+    error_code: "imported",
+    error_message: IMPORTED_JOB_NOTE,
+    lease_token: null,
+    lease_expires_at: null,
+  };
+}
+
+/**
+ * Best-effort removal of everything this import already placed in the data
+ * dir (called after the row-restore transaction rolled back). Files go first
+ * (reverse order), then the dirs the import created — rmdir fails on a
+ * non-empty dir, so we can never delete data we did not create ourselves.
+ */
+function rollbackFiles(written: string[], createdDirs: string[]): void {
+  for (const abs of [...written].reverse()) {
+    try {
+      fs.rmSync(abs, { force: true });
+    } catch {
+      // rows are rolled back already; a leftover orphan file beats masking
+      // the original error
+    }
+  }
+  for (const dir of [...createdDirs].reverse()) {
+    try {
+      fs.rmdirSync(dir); // fails on non-empty: only ever removes empty dirs
+    } catch {
+      // non-empty or already gone — leave it, rows are rolled back anyway
+    }
+  }
+}
+
 export async function importNotebook(
   db: LocalDb,
   store: LocalStore,
@@ -253,12 +343,21 @@ export async function importNotebook(
   const exists = sqlite.prepare(`SELECT 1 FROM notebooks WHERE id = ?`).get(notebookId);
   if (exists) throw new Error("Notizbuch existiert bereits — Zusammenführen ist nicht erlaubt");
 
-  // 1. verify every packaged file BEFORE restoring anything (strategy 8:
+  const packageDir = path.resolve(sourceDir);
+
+  // 1. path confinement BEFORE hashing: a hostile relPath must not even be
+  //    read. Order: manifest schema -> paths -> hashes -> restore.
+  for (const f of payload.files) {
+    if (!f.relPath) continue; // legacy format-1 entries carry ids only
+    confineRelPath(packageDir, f.relPath);
+  }
+
+  // 2. verify every packaged file BEFORE restoring anything (strategy 8:
   //    hash check at import). A missing or mismatched file fails loudly with
   //    NOTHING written. Legacy entries (no sha256) cannot be verified.
   for (const f of payload.files) {
     if (!f.sha256 || !f.relPath) continue; // legacy format-1 entry
-    const abs = path.join(sourceDir, f.relPath);
+    const abs = confineRelPath(packageDir, f.relPath).abs;
     if (!fs.existsSync(abs)) {
       throw new Error(`Paket unvollständig: Datei "${f.relPath}" fehlt.`);
     }
@@ -268,55 +367,109 @@ export async function importNotebook(
     }
   }
 
-  // 2. restore file bytes (rows keep their ids). Sidecars (files/versions/)
-  //    are copied as-is; blobs are written to the same relative path and get
-  //    their files row back.
+  // 3. stage every packaged file in a temp dir first (os-independent), so the
+  //    data dir is only touched inside the restore transaction below.
   const dataDir = storeDirOf(store);
-  for (const f of payload.files) {
-    if (!f.relPath) {
-      // legacy format-1 package: match by id prefix, as before
-      const match = fs
-        .readdirSync(path.join(sourceDir, "files"))
-        .find((n) => n.startsWith(f.id!));
-      if (!match) continue;
-      const bytes = fs.readFileSync(path.join(sourceDir, "files", match));
-      const ext = path.extname(match);
-      const rel = `files/${f.id}${ext}`;
-      fs.mkdirSync(path.join(dataDir, "files"), { recursive: true });
-      fs.writeFileSync(path.join(dataDir, rel), bytes);
-      insertFileRow(sqlite, f.id!, rel, f.fileName!, f.contentType!, bytes.length);
-      continue;
+  const stagingDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-import-"));
+  // tracked for rollback: every path written into the data dir
+  const written: string[] = [];
+  const createdDirs: string[] = [];
+  /** mkdir that remembers what IT created (rollback only removes those) */
+  const ensureDir = (abs: string): void => {
+    if (!fs.existsSync(abs)) {
+      fs.mkdirSync(abs, { recursive: true });
+      createdDirs.push(abs);
     }
-    const srcAbs = path.join(sourceDir, f.relPath);
-    if (f.relPath.startsWith("files/versions/")) {
-      fs.mkdirSync(path.dirname(path.join(dataDir, f.relPath)), { recursive: true });
-      fs.copyFileSync(srcAbs, path.join(dataDir, f.relPath));
-      continue; // sidecar: no files row
-    }
-    const bytes = fs.readFileSync(srcAbs);
-    fs.mkdirSync(path.dirname(path.join(dataDir, f.relPath)), { recursive: true });
-    fs.writeFileSync(path.join(dataDir, f.relPath), bytes);
-    insertFileRow(sqlite, f.id!, f.relPath, f.fileName!, f.contentType!, bytes.length);
-  }
-
-  // 3. rows in foreign-key order (import dbs run with foreign_keys = ON)
-  const dropFlag = (entry: Row): Row => {
-    const { originalsIncluded: _flag, ...row } = entry;
-    return row;
   };
-  insertRows(sqlite, "notebooks", [payload.notebook]);
-  insertRows(sqlite, "sources", payload.sources);
-  insertRows(sqlite, "source_versions", (payload.sourceVersions ?? []).map(dropFlag));
-  insertRows(sqlite, "chunks", payload.chunks);
-  insertRows(sqlite, "messages", payload.messages);
-  insertRows(sqlite, "notes", payload.notes);
-  insertRows(sqlite, "learning_materials", payload.learningMaterials);
-  insertRows(sqlite, "import_jobs", payload.importJobs);
-  insertRows(sqlite, "claims", payload.claims ?? []);
-  insertRows(sqlite, "evidence_anchors", payload.anchors ?? []);
-  insertRows(sqlite, "evidence_links", payload.links ?? []);
-  insertRows(sqlite, "review_proposals", payload.reviews ?? []);
-  insertRows(sqlite, "calculations", payload.calculations ?? []);
+
+  try {
+    const stagedFiles: Array<{
+      rel: string; // normalized relative form (fs targets)
+      rowPath: string; // manifest relPath, byte-exact for the files row
+      stagingAbs: string;
+      sidecar: boolean;
+      entry: ExportedFileEntry;
+    }> = [];
+    for (const f of payload.files) {
+      if (!f.relPath) continue; // legacy format-1: handled inside the txn
+      const confined = confineRelPath(packageDir, f.relPath);
+      const stagingAbs = path.join(stagingDir, confined.rel);
+      fs.mkdirSync(path.dirname(stagingAbs), { recursive: true });
+      fs.copyFileSync(confined.abs, stagingAbs);
+      stagedFiles.push({
+        rel: confined.rel,
+        rowPath: f.relPath,
+        stagingAbs,
+        sidecar: confined.rel.replace(/\\/g, "/").startsWith("files/versions/"),
+        entry: f,
+      });
+    }
+
+    // 4. atomic restore: ONE BEGIN IMMEDIATE transaction wraps file placement
+    //    AND every row insert (sync callbacks, better-sqlite3). Files are not
+    //    transactional — they are tracked and removed if anything throws.
+    const restoreAll = sqlite.transaction((): void => {
+      for (const s of stagedFiles) {
+        const dataAbs = path.join(dataDir, s.rel);
+        ensureDir(path.dirname(dataAbs));
+        fs.copyFileSync(s.stagingAbs, dataAbs);
+        written.push(dataAbs);
+        if (!s.sidecar) {
+          insertFileRow(sqlite, s.entry.id!, s.rowPath, s.entry.fileName!, s.entry.contentType!, s.entry.bytes);
+        }
+      }
+
+      // legacy format-1 packages: files match by id prefix, as before — same
+      // tracking, same transaction
+      for (const f of payload.files) {
+        if (f.relPath) continue;
+        const match = fs
+          .readdirSync(path.join(packageDir, "files"))
+          .find((n) => n.startsWith(f.id!));
+        if (!match) continue;
+        const bytes = fs.readFileSync(path.join(packageDir, "files", match));
+        const ext = path.extname(match);
+        const rel = `files/${f.id}${ext}`;
+        const dataAbs = path.join(dataDir, "files", `${f.id}${ext}`);
+        ensureDir(path.dirname(dataAbs));
+        fs.writeFileSync(dataAbs, bytes);
+        written.push(dataAbs);
+        insertFileRow(sqlite, f.id!, rel, f.fileName!, f.contentType!, bytes.length);
+      }
+
+      // rows in foreign-key order (import dbs run with foreign_keys = ON);
+      // a throw anywhere in here rolls the WHOLE phase back
+      const dropFlag = (entry: Row): Row => {
+        const { originalsIncluded: _flag, ...row } = entry;
+        return row;
+      };
+      insertRows(sqlite, "notebooks", [payload.notebook]);
+      insertRows(sqlite, "sources", payload.sources);
+      insertRows(sqlite, "source_versions", (payload.sourceVersions ?? []).map(dropFlag));
+      insertRows(sqlite, "chunks", payload.chunks);
+      insertRows(sqlite, "messages", payload.messages);
+      insertRows(sqlite, "notes", payload.notes);
+      insertRows(sqlite, "learning_materials", payload.learningMaterials);
+      // imported jobs ride along ONLY as history: cancelled, never claimable
+      insertRows(sqlite, "import_jobs", payload.importJobs.map(neutralizeImportedJob));
+      insertRows(sqlite, "claims", payload.claims ?? []);
+      insertRows(sqlite, "evidence_anchors", payload.anchors ?? []);
+      insertRows(sqlite, "evidence_links", payload.links ?? []);
+      insertRows(sqlite, "review_proposals", payload.reviews ?? []);
+      insertRows(sqlite, "calculations", payload.calculations ?? []);
+    });
+
+    try {
+      restoreAll.immediate();
+    } catch (err) {
+      // DB rolled back atomically; now remove what the file phase placed
+      rollbackFiles(written, createdDirs);
+      throw err;
+    }
+  } finally {
+    // staging is garbage either way (success: copied, failure: partial)
+    fs.rmSync(stagingDir, { recursive: true, force: true });
+  }
 
   return {
     notebookId,

@@ -9,7 +9,8 @@ import { createNotebook } from "@/lib/services/notebooks";
 import { createSource, replaceChunks, updateSourceStatus, updateSourceStorage } from "@/lib/services/sources";
 import { createMessage } from "@/lib/services/messages";
 import { createNote } from "@/lib/services/notes";
-import { exportNotebook, importNotebook } from "@/lib/services/notebook-transfer";
+import { exportNotebook, importNotebook, NotebookImportError } from "@/lib/services/notebook-transfer";
+import { createImportJob, claimImportJob } from "@/lib/services/import-jobs";
 import { recordVersion, readVersionPages, readVersionSheet, listVersions } from "@/lib/services/source-versions";
 import { createClaim, listClaims, resolveReview } from "@/lib/services/claims";
 import { listPendingReviews } from "@/lib/services/change-review";
@@ -330,5 +331,104 @@ describe("notebook transfer via dispatch ops (I4)", () => {
       fs.rmSync(importDir, { recursive: true, force: true });
       fs.rmSync(targetDir, { recursive: true, force: true });
     }
+  });
+});
+
+// ── package import hardening (reliability B) ────────────────────────────────
+
+function readManifest(): { files: Array<{ relPath?: string; sha256: string; bytes: number }> } {
+  return JSON.parse(fs.readFileSync(path.join(exportDir, "notebook.json"), "utf8"));
+}
+
+describe("package import hardening (reliability B)", () => {
+  it("a relPath escaping the package dir fails the import before anything is written", async () => {
+    await seedResearchNotebook();
+    await exportNotebook(db, store, notebookId, exportDir);
+    const manifest = readManifest();
+    manifest.files.push({ relPath: "..\\..\\evil.bin", sha256: manifest.files[0].sha256, bytes: 4 });
+    fs.writeFileSync(path.join(exportDir, "notebook.json"), JSON.stringify(manifest));
+
+    const db2 = openLocalDb(restoreDir);
+    const store2 = new LocalStore(db2, restoreDir);
+    const err = await importNotebook(db2, store2, exportDir).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(NotebookImportError);
+    expect((err as Error).message).toContain("evil.bin");
+    expect((err as Error).message).toMatch(/Paketverzeichnis/);
+    // data dir untouched: no new files, no rows anywhere
+    expect(fs.readdirSync(path.join(restoreDir, "files"))).toEqual([]);
+    const counts = rawClient(db2).prepare(
+      "SELECT (SELECT COUNT(*) FROM notebooks) AS n, (SELECT COUNT(*) FROM sources) AS s, (SELECT COUNT(*) FROM claims) AS c"
+    ).get() as { n: number; s: number; c: number };
+    expect(counts).toEqual({ n: 0, s: 0, c: 0 });
+    closeLocalDb(db2);
+  });
+
+  it("an absolute or drive-letter relPath is rejected", async () => {
+    await seedResearchNotebook();
+    await exportNotebook(db, store, notebookId, exportDir);
+    const db2 = openLocalDb(restoreDir);
+    const store2 = new LocalStore(db2, restoreDir);
+    for (const bad of ["/etc/passwd", "C:\\Windows\\evil.txt"]) {
+      const manifest = readManifest();
+      manifest.files.push({ relPath: bad, sha256: manifest.files[0].sha256, bytes: 1 });
+      fs.writeFileSync(path.join(exportDir, "notebook.json"), JSON.stringify(manifest));
+      const err = await importNotebook(db2, store2, exportDir).catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(NotebookImportError);
+      expect((err as Error).message).toContain(bad);
+      manifest.files.pop();
+      fs.writeFileSync(path.join(exportDir, "notebook.json"), JSON.stringify(manifest));
+    }
+    expect(fs.readdirSync(path.join(restoreDir, "files"))).toEqual([]);
+    closeLocalDb(db2);
+  });
+
+  it("a mid-restore DB failure rolls back files and rows", async () => {
+    await seedResearchNotebook();
+    await exportNotebook(db, store, notebookId, exportDir);
+
+    const db2 = openLocalDb(restoreDir);
+    const store2 = new LocalStore(db2, restoreDir);
+    // deterministic injection: the claims INSERT explodes mid-restore — after
+    // files were already placed and most rows were written
+    const sqlite = rawClient(db2);
+    const origPrepare = sqlite.prepare.bind(sqlite);
+    (sqlite as unknown as { prepare?: unknown }).prepare = (sql: string) => {
+      if (sql.includes("INSERT INTO claims")) throw new Error("Injektion: Einfügen fehlgeschlagen");
+      return origPrepare(sql);
+    };
+    await expect(importNotebook(db2, store2, exportDir)).rejects.toThrow(/Injektion/);
+    delete (sqlite as unknown as { prepare?: unknown }).prepare;
+
+    // nothing landed: no rows ...
+    const counts = rawClient(db2).prepare(
+      "SELECT (SELECT COUNT(*) FROM notebooks) AS n, (SELECT COUNT(*) from sources) AS s, (SELECT COUNT(*) FROM claims) AS c, (SELECT COUNT(*) FROM source_versions) AS v"
+    ).get() as Record<string, number>;
+    expect(counts).toEqual({ n: 0, s: 0, c: 0, v: 0 });
+    // ... and no files left in the data dir
+    expect(fs.readdirSync(path.join(restoreDir, "files"))).toEqual([]);
+    closeLocalDb(db2);
+  });
+
+  it("imported jobs are restored as cancelled and never execute", async () => {
+    await createImportJob(db, {
+      ownerId: "local", notebookId,
+      url: "https://example.org/artikel", provider: "url", kind: "webpage",
+      resourceKey: "example.org/artikel",
+    });
+    await exportNotebook(db, store, notebookId, exportDir);
+
+    const db2 = openLocalDb(restoreDir);
+    const store2 = new LocalStore(db2, restoreDir);
+    await importNotebook(db2, store2, exportDir);
+    const job = rawClient(db2).prepare(
+      "SELECT status, error_code, error_message, lease_token, lease_expires_at FROM import_jobs"
+    ).get() as { status: string; error_code: string; error_message: string; lease_token: string | null };
+    expect(job.status).toBe("cancelled");
+    expect(job.error_code).toBe("imported");
+    expect(job.error_message).toMatch(/nicht ausführen/);
+    expect(job.lease_token).toBeNull();
+    // the worker loop can never claim it
+    expect(claimImportJob(db2)).toBeNull();
+    closeLocalDb(db2);
   });
 });
