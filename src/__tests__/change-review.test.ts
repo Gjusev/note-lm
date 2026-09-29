@@ -663,6 +663,47 @@ describe("persistent idempotent review (priority-1 fix WPB)", () => {
     expect(ctx.db.select().from(proposalsTable).all()).toHaveLength(2);
   });
 
+  it("review.list history: default pending only, 'resolved'/'all' carry the decision fields", async () => {
+    const ctx = getLocalContext();
+    const { sourceId, anchorId } = await seedStaleClaim("Der Kernsatz steht auf dieser Seite.");
+    await recordVersion(ctx.db, ctx.store, {
+      sourceId,
+      pageTexts: ["Andere erste Seite ohne den Kernsatz.", "Der Kernsatz steht auf dieser Seite."],
+    });
+    const pending = listPendingReviews(ctx.db, notebookId);
+    expect(pending).toHaveLength(1);
+
+    // two decided rows from history, seeded directly (decided rows bypass the
+    // pending-only unique index)
+    const now = Date.now();
+    ctx.db.insert(proposalsTable).values({
+      id: "hist-accepted", claimId: pending[0].claimId, sourceId, fromVersion: 1, toVersion: 3,
+      reason: "quote_moved", detail: "a", anchorId, status: "accepted",
+      note: "geprueft und übernommen", resolvedAt: now - 60_000, createdAt: now - 120_000,
+    }).run();
+    ctx.db.insert(proposalsTable).values({
+      id: "hist-rejected", claimId: pending[0].claimId, sourceId, fromVersion: 1, toVersion: 4,
+      reason: "quote_missing", detail: "b", anchorId, status: "rejected",
+      note: "So gewollt.", resolvedAt: now - 30_000, createdAt: now - 60_000,
+    }).run();
+
+    // default unchanged: pending only
+    expect(listPendingReviews(ctx.db, notebookId)).toHaveLength(1);
+
+    const resolved = listPendingReviews(ctx.db, notebookId, "resolved");
+    expect(resolved.map((r) => [r.id, r.status])).toEqual([
+      ["hist-accepted", "accepted"], // created_at ASC: oldest first
+      ["hist-rejected", "rejected"],
+    ]);
+    expect(resolved[0]).toMatchObject({ resolvedAt: now - 60_000, note: "geprueft und übernommen" });
+
+    const all = listPendingReviews(ctx.db, notebookId, "all");
+    expect(all).toHaveLength(3);
+    expect(all.map((r) => r.status)).toEqual(["accepted", "rejected", "pending"]); // created_at ASC
+    const decided = all.find((r) => r.id === "hist-rejected")!;
+    expect(decided).toMatchObject({ resolvedAt: expect.any(Number), note: "So gewollt." });
+  });
+
   it("concurrent reimports do not mix files/chunks/versions", async () => {
     const ctx = getLocalContext();
     const sourceId = await createSource(ctx.db, {

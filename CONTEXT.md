@@ -67,7 +67,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | job event stream | `emitJobEvent`/`emitProgress` writer coalescing + `setProgressClock` test hook, `eventsSince` paging, over a real temp SQLite | `src/__tests__/job-control.test.ts` |
 | source versioning | `recordVersion` / `listVersions` / `getLatestVersion` / `readVersionPages` over a real temp SQLite + LocalStore | `src/__tests__/source-versions.test.ts` |
 | claims & evidence anchors | `createClaim` / `saveClaimFromMessage` / `listClaims` + `evidence.open` over a real temp SQLite + LocalStore | `src/__tests__/claims.test.ts` |
-| change review | `scanForStaleness` (hooked into `recordVersion`) / `resolveReview` / `listPendingReviews` over a real temp SQLite + LocalStore | `src/__tests__/change-review.test.ts` |
+| change review | `scanForStaleness` (hooked into `recordVersion`) / `resolveReview` / `listPendingReviews(db, notebookId, status?)` — `status` `pending` (default) / `resolved` / `all`, decided rows carry `resolvedAt` + `note` — over a real temp SQLite + LocalStore | `src/__tests__/change-review.test.ts` |
 | ai providers | `PRESETS` / `ProviderConnection` / `resolveCapabilities` per-capability resolution + `setOfflineMode` call-time blocking over a real temp SQLite, SDK mocked | `src/__tests__/providers.test.ts` |
 | provider secret channel | engine-side `requestSecretViaHost` / `resolveSecretResponse` demux over the NDJSON `secret_request`/`secret_response` frames against a fake host | `src/__tests__/providers-protocol.test.ts` |
 | provider connection test | `handleEngineRequest("providers.test")` side-effect-free probes over pending config (SDK + fetch mocked) | `src/__tests__/providers-protocol.test.ts` |

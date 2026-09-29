@@ -317,6 +317,16 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
 
     const after = await handleEngineRequest("review.list", { notebookId });
     expect((after as { result: unknown[] }).result).toHaveLength(0);
+
+    // review history via the status filter: the decided row carries its
+    // decision (status), resolvedAt and note; an unknown status is bad_args
+    const history = await handleEngineRequest("review.list", { notebookId, status: "all" });
+    const rows = (history as { result: Array<{ status: string; resolvedAt: number | null; note: string | null }> }).result;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ status: "accepted", resolvedAt: expect.any(Number) });
+
+    const badStatus = await handleEngineRequest("review.list", { notebookId, status: "nope" });
+    expect(badStatus).toEqual({ ok: false, error: { code: "bad_args", message: expect.any(String) } });
   });
 
   it("serves the curated model catalog with visible licenses and hashes (I0)", async () => {

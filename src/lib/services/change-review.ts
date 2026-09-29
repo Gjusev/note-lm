@@ -12,7 +12,7 @@
  * needs_review=1; legacy rows without provenance are skipped, honest.
  */
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, like, lt, or } from "drizzle-orm";
+import { and, asc, eq, inArray, like, lt, or } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import {
   claims,
@@ -187,9 +187,27 @@ export interface ReviewProposalView {
   detail: string | null;
   status: string;
   createdAt: number;
+  /** History of a decided proposal; null while pending. `status` (accepted |
+   * rejected) IS the decision - there is no separate decision field. */
+  resolvedAt: number | null;
+  note: string | null;
 }
 
-export function listPendingReviews(db: LocalDb, notebookId: string): ReviewProposalView[] {
+/** Which rows `listPendingReviews` serves: pending only (the default,
+ * unchanged UI behavior), the decided ones, or everything. */
+export type ReviewListStatus = "pending" | "resolved" | "all";
+
+export function listPendingReviews(
+  db: LocalDb,
+  notebookId: string,
+  status: ReviewListStatus = "pending"
+): ReviewProposalView[] {
+  const statusCond =
+    status === "pending"
+      ? eq(reviewProposals.status, "pending")
+      : status === "resolved"
+        ? inArray(reviewProposals.status, ["accepted", "rejected"])
+        : undefined;
   return db
     .select({
       id: reviewProposals.id,
@@ -202,11 +220,16 @@ export function listPendingReviews(db: LocalDb, notebookId: string): ReviewPropo
       detail: reviewProposals.detail,
       status: reviewProposals.status,
       createdAt: reviewProposals.createdAt,
+      resolvedAt: reviewProposals.resolvedAt,
+      note: reviewProposals.note,
     })
     .from(reviewProposals)
     .innerJoin(claims, eq(claims.id, reviewProposals.claimId))
-    .where(and(eq(claims.notebookId, notebookId), eq(reviewProposals.status, "pending")))
-    .orderBy(desc(reviewProposals.createdAt))
+    .where(
+      statusCond ? and(eq(claims.notebookId, notebookId), statusCond) : eq(claims.notebookId, notebookId)
+    )
+    // oldest first: the review history is read in the order it happened
+    .orderBy(asc(reviewProposals.createdAt))
     .all();
 }
 

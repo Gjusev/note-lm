@@ -161,8 +161,12 @@ await run("installed recovery (kill + restart)", async () => {
     }
     const chunks = await e2.request("sources.chunks", { sourceId: sources[0]._id });
     if (!chunks.length) throw new Error("recovered source has no chunks");
-    // reconcile: the terminal job's partial is consumed/cleaned
-    if (fs.existsSync(partialDir)) throw new Error("tmp/jobs partial survived completion (not reconciled)");
+    // reconcile: the terminal job's partial is consumed/cleaned. The rm runs
+    // AFTER the completed status is visible and is best-effort on Windows (a
+    // fresh download can be file-locked for a moment) — wait for it instead
+    // of asserting it in the same instant; a never-cleaned partial still
+    // fails the gate.
+    await waitFor("tmp/jobs partial cleaned after completion", () => !fs.existsSync(partialDir), 10_000);
 
     await e2.stop();
     assertNoInstalledEngineLeft();
@@ -235,6 +239,163 @@ await run("installed pause survives restart", async () => {
   }
 });
 
+// 6c) installed walkthrough: the full user flow end to end against the
+// INSTALLED engine — URL import → anchored claim → changed re-import of the
+// SAME url (version appended + staleness proposal) → typed not_a_sheet over
+// the page source plus a real CSV sum → crash mid-walkthrough and restart →
+// export/import round trip into a fresh data dir → honest no_provider chat.
+// SHUTDOWN-during-processing is NOT duplicated here; the recovery gates own
+// that scenario — this gate only proves the whole flow survives a crash
+// mid-walkthrough (engine killed during the v2 download, resumed on reboot).
+await run("installed walkthrough", async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-walkthrough-"));
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-walkthrough-export-"));
+  const importDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-walkthrough-import-"));
+  const { server, articleUrl, csvUrl, serveVersion2 } = await startWalkthroughServer();
+  const QUOTE = "Der Zinssatz betraegt 3,5 Prozent seit dem Beschluss.";
+  let e1, e2, e3;
+  try {
+    e1 = startInstalledEngine(dataDir);
+    await e1.request("protocol.version", {});
+    const nb = await e1.request("notebooks.create", { title: "Durchlauf" });
+
+    // 1) URL import: page lands as a source with chunks + an immutable v1
+    const created = await e1.request("imports.create", { notebookId: nb.id, url: articleUrl });
+    await waitFor("v1 import completed", async () => {
+      const { jobs } = await e1.request("jobs.list", { notebookId: nb.id });
+      return jobs.find((j) => j.id === created.jobId)?.status === "completed";
+    }, 30_000);
+    const sources = await e1.request("sources.list", { notebookId: nb.id });
+    if (sources.length !== 1 || sources[0].status !== "completed") {
+      throw new Error(`expected 1 completed source, got ${JSON.stringify(sources.map((s) => [s.id, s.status]))}`);
+    }
+    const sourceId = sources[0]._id;
+    if (!(await e1.request("sources.chunks", { sourceId })).length) {
+      throw new Error("imported source has no chunks");
+    }
+    const versions1 = await e1.request("sources.listVersions", { sourceId });
+    if (versions1.map((v) => v.version).join() !== "1") {
+      throw new Error(`expected exactly version 1, got ${JSON.stringify(versions1.map((v) => v.version))}`);
+    }
+
+    // 2) an anchored claim quoting a stable v1 sentence (page unknown: null
+    // page is honest — the scan derives the reference page from the sidecar)
+    const claim = await e1.request("claims.create", {
+      notebookId: nb.id,
+      text: "Der Zinssatz betraegt 3,5 Prozent.",
+      anchors: [{ sourceId, quote: QUOTE }],
+    });
+    if (claim.unresolved.length) throw new Error(`anchor unresolved: ${JSON.stringify(claim.unresolved)}`);
+    const claims1 = await e1.request("claims.list", { notebookId: nb.id });
+    if (claims1.length !== 1 || !claims1[0].anchors.length) {
+      throw new Error(`expected 1 anchored claim, got ${JSON.stringify(claims1.map((c) => [c._id, c.anchors.length]))}`);
+    }
+
+    // 3) the SAME url is imported again after the server content changed:
+    // URL dedupe reuses the SOURCE row and the changed bytes append v2. The
+    // download is slow enough to hard-kill the engine mid-flow first — the
+    // restarted engine resumes the partial and completes the same import.
+    serveVersion2();
+    const upd = await e1.request("imports.create", { notebookId: nb.id, url: articleUrl });
+    await waitFor("v2 import downloading", async () => {
+      const { jobs } = await e1.request("jobs.list", { notebookId: nb.id });
+      return jobs.find((j) => j.id === upd.jobId)?.status === "downloading";
+    }, 25_000);
+    killTree(e1.proc.pid);
+    await e1.exited;
+    // crashed job keeps its 10-min lease: expire it exactly like the
+    // recovery gate does (fastForwardForTests equivalent on a 2nd connection)
+    expireImportLeases(dataDir);
+    e2 = startInstalledEngine(dataDir);
+    await e2.request("protocol.version", {});
+    await waitFor("v2 import completed after restart", async () => {
+      const { jobs } = await e2.request("jobs.list", { notebookId: nb.id });
+      return jobs.find((j) => j.id === upd.jobId)?.status === "completed";
+    }, 60_000);
+    const versions2 = await e2.request("sources.listVersions", { sourceId });
+    if (versions2.map((v) => v.version).join() !== "1,2") {
+      throw new Error(`expected versions 1,2 after re-import, got ${JSON.stringify(versions2.map((v) => v.version))}`);
+    }
+    const pending = await e2.request("review.list", { notebookId: nb.id });
+    if (pending.length < 1 || pending[0].reason !== "quote_missing") {
+      throw new Error(`expected >=1 quote_missing proposal, got ${JSON.stringify(pending.map((p) => p.reason))}`);
+    }
+
+    // 4a) calculations over the page source: typed not_a_sheet (honest error
+    // path from the installer — no fabricated number)
+    try {
+      await e2.request("calculations.run", { notebookId: nb.id, sourceId, op: "sum", column: 0 });
+      throw new Error("calculations.run over a page source unexpectedly succeeded");
+    } catch (err) {
+      if (!String(err.message).includes("not_a_sheet")) {
+        if (String(err.message).includes("unexpectedly succeeded")) throw err;
+        throw new Error(`expected not_a_sheet, got: ${err.message}`);
+      }
+    }
+
+    // 4b) a CSV URL import (sheet sidecar) then a real sum
+    const csvCreated = await e2.request("imports.create", { notebookId: nb.id, url: csvUrl });
+    await waitFor("csv import completed", async () => {
+      const { jobs } = await e2.request("jobs.list", { notebookId: nb.id });
+      return jobs.find((j) => j.id === csvCreated.jobId)?.status === "completed";
+    }, 30_000);
+    const csvSource = (await e2.request("sources.list", { notebookId: nb.id }))
+      .find((s) => String(s.fileType || "").startsWith("text/csv"));
+    if (!csvSource) throw new Error("csv source not found after import");
+    const sum = await e2.request("calculations.run", {
+      notebookId: nb.id, sourceId: csvSource._id, op: "sum", column: "Menge",
+    });
+    if (sum.result !== "8") throw new Error(`expected sum 8, got ${JSON.stringify(sum)}`);
+
+    // 5) export from the restarted engine, import into a SECOND engine on a
+    // fresh data dir: claims/versions/proposals/calculation ride along
+    await e2.request("notebook.export", { notebookId: nb.id, targetDir: exportDir });
+    e3 = startInstalledEngine(importDataDir);
+    await e3.request("protocol.version", {});
+    const imported = await e3.request("notebook.import", { sourceDir: exportDir });
+    const iClaims = await e3.request("claims.list", { notebookId: imported.notebookId });
+    if (iClaims.length !== 1 || !iClaims[0].anchors.length) {
+      throw new Error(`imported notebook lost the claim: ${JSON.stringify(iClaims.map((c) => [c._id, c.anchors.length]))}`);
+    }
+    const iSource = (await e3.request("sources.list", { notebookId: imported.notebookId }))
+      .find((s) => String(s.fileType || "").startsWith("text/html"));
+    if (!iSource) throw new Error("imported notebook lost the html source");
+    if ((await e3.request("sources.listVersions", { sourceId: iSource._id })).length !== 2) {
+      throw new Error("imported notebook lost the version history");
+    }
+    if ((await e3.request("review.list", { notebookId: imported.notebookId })).length !== 1) {
+      throw new Error("imported notebook lost the pending review proposal");
+    }
+    const iCalcs = await e3.request("calculations.list", { notebookId: imported.notebookId });
+    if (iCalcs.length !== 1 || iCalcs[0].result !== "8") {
+      throw new Error(`imported notebook lost the calculation: ${JSON.stringify(iCalcs)}`);
+    }
+
+    // 6) chat.send without any configured provider: the typed no_provider
+    // error, honest from the installer (a clean install has no models)
+    try {
+      await e3.request("chat.send", { notebookId: imported.notebookId, message: "Fasse den Beitrag zusammen" });
+      throw new Error("chat.send without a provider unexpectedly succeeded");
+    } catch (err) {
+      if (!String(err.message).includes("no_provider")) {
+        if (String(err.message).includes("unexpectedly succeeded")) throw err;
+        throw new Error(`expected no_provider, got: ${err.message}`);
+      }
+    }
+
+    await e2.stop();
+    await e3.stop();
+    assertNoInstalledEngineLeft();
+  } finally {
+    for (const e of [e1, e2, e3]) if (e) killTree(e.proc.pid); // failure path: no orphans
+    await closeServer(server);
+    // best effort on Windows: the engine may still hold file handles briefly
+    for (const dir of [dataDir, exportDir, importDataDir]) {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* temp cleaner */ }
+    }
+  }
+});
+
 await run("uninstall + process teardown", () => {
   const uninstaller = path.join(installDir, "uninstall.exe");
   if (fs.existsSync(uninstaller)) execFileSync(uninstaller, ["/S"], { stdio: "ignore" });
@@ -288,6 +449,60 @@ async function startSlowHtmlServer() {
   return { server, url: `http://127.0.0.1:${port}/artikel` };
 }
 
+/** Local drip server for the walkthrough gate: one URL serves an HTML
+ *  article whose content can be switched v1 -> v2 mid-gate (the SAME url
+ *  re-imported must reuse the source row and append a version), a second
+ *  serves a tiny CSV (content-type text/csv -> sheet sidecar). Range
+ *  requests are answered so a killed download resumes from its partial. */
+async function startWalkthroughServer() {
+  const QUOTE = "Der Zinssatz betraegt 3,5 Prozent seit dem Beschluss.";
+  let version = 1;
+  const article = () =>
+    version === 1
+      ? Buffer.from(
+          `<html><head><title>Beitrag</title></head><body><p>${QUOTE}</p><p>${"Erste Fassung mit Einleitung. ".repeat(120)}</p></body></html>`
+        )
+      : Buffer.from(
+          `<html><head><title>Beitrag</title></head><body><p>Zweite Fassung ohne den alten Satz.</p><p>${"Zweite Fassung mit neuem Inhalt. ".repeat(50_000)}</p></body></html>`
+        );
+  const csv = Buffer.from("Produkt,Menge\nApfel,3\nBirne,5\n", "utf8");
+  const send = (req, res, buf, contentType, etag) => {
+    const start = Number(/^bytes=(\d+)-$/.exec(req.headers.range ?? "")?.[1] ?? 0);
+    const ranged = Number.isInteger(start) && start > 0 && start < buf.length;
+    const slice = ranged ? buf.subarray(start) : buf;
+    res.writeHead(ranged ? 206 : 200, {
+      "content-type": contentType,
+      etag,
+      "accept-ranges": "bytes",
+      "content-length": String(slice.length),
+      ...(ranged && { "content-range": `bytes ${start}-${buf.length - 1}/${buf.length}` }),
+    });
+    let off = 0;
+    const drip = () => {
+      if (res.writableEnded || res.destroyed) return;
+      if (off >= slice.length) {
+        res.end();
+        return;
+      }
+      res.write(slice.subarray(off, Math.min((off += 65536), slice.length)));
+      setTimeout(drip, 150);
+    };
+    drip();
+  };
+  const server = http.createServer((req, res) => {
+    const p = req.url.split("?")[0];
+    if (p.endsWith(".csv")) return send(req, res, csv, "text/csv", '"walkthrough-csv"');
+    return send(req, res, article(), "text/html; charset=utf-8", version === 1 ? '"walkthrough-v1"' : '"walkthrough-v2"');
+  });
+  const port = await new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(server.address().port)));
+  return {
+    server,
+    articleUrl: `http://127.0.0.1:${port}/beitrag`,
+    csvUrl: `http://127.0.0.1:${port}/zahlen.csv`,
+    serveVersion2: () => { version = 2; },
+  };
+}
+
 async function closeServer(server) {
   server.closeAllConnections();
   await new Promise((resolve) => server.close(() => resolve()));
@@ -304,15 +519,20 @@ function startInstalledEngine(dataDir) {
   for (const p of [nodeBin, engineScript]) {
     if (!fs.existsSync(p)) throw new Error(`installed engine missing: ${p}`);
   }
+  const env = {
+    ...process.env,
+    PATH: STRIPPED_PATH, // the bundled runtime must not lean on the repo PATH
+    NOTELM_DATA_DIR: dataDir,
+    NODE_ENV: "production",
+    INGEST_ALLOW_PRIVATE: "1", // the corpus URL server is on 127.0.0.1
+  };
+  // a clean install has no local-model env overrides: strip them so the
+  // installed engine's capability resolution matches a fresh machine (the
+  // walkthrough gate depends on chat.send honestly answering no_provider)
+  for (const k of ["NOTELM_LLAMA_DIR", "NOTELM_CHAT_MODEL", "NOTELM_EMBED_MODEL"]) delete env[k];
   const proc = spawn(nodeBin, [engineScript], {
     stdio: ["pipe", "pipe", "inherit"],
-    env: {
-      ...process.env,
-      PATH: STRIPPED_PATH, // the bundled runtime must not lean on the repo PATH
-      NOTELM_DATA_DIR: dataDir,
-      NODE_ENV: "production",
-      INGEST_ALLOW_PRIVATE: "1", // the corpus URL server is on 127.0.0.1
-    },
+    env,
   });
   let buffer = "";
   const pending = new Map();

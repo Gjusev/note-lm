@@ -796,12 +796,20 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
       }
 
       case "review.list": {
-        const { notebookId } = args as { notebookId?: string };
+        // status filters the history: pending (default = today's UI behavior),
+        // resolved (accepted|rejected) or all; decided rows carry resolvedAt
+        // + note, `status` is the decision
+        const { notebookId, status } = args as {
+          notebookId?: string; status?: "pending" | "resolved" | "all";
+        };
         if (!notebookId) {
           return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
         }
+        if (status !== undefined && !["pending", "resolved", "all"].includes(status)) {
+          return { ok: false, error: { code: "bad_args", message: "status must be pending|resolved|all" } };
+        }
         const { db } = getLocalContext();
-        return { ok: true, result: listPendingReviews(db, notebookId) };
+        return { ok: true, result: listPendingReviews(db, notebookId, status ?? "pending") };
       }
 
       case "review.resolve": {
