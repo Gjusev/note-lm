@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /**
  * Local SQLite schema — 1:1 port of convex/schema.ts.
@@ -28,6 +28,12 @@ export type MaterialType =
   | "podcastSummary"
   | "slides";
 export type MaterialStatus = "pending" | "generating" | "completed" | "error";
+
+export type ClaimOrigin = "user" | "chat";
+export type ClaimStatus = "active" | "reviewed" | "retired";
+export type AnchorRelation = "supports" | "questions";
+export type ReviewReason = "quote_missing" | "quote_moved";
+export type ReviewStatus = "pending" | "accepted" | "rejected";
 
 export interface MessageCitation {
   sourceId: string;
@@ -229,6 +235,11 @@ export const learningMaterials = sqliteTable(
     content: text("content"),
     audioFileId: text("audio_file_id"), // -> files.id
     errorMessage: text("error_message"),
+    // change review (S2): flagged when a versioned source the material was
+    // built from re-imports with changed bytes; provenance is a later slice's
+    // snapshot of {sourceId: versionId} (legacy rows stay null, honest)
+    needsReview: integer("needs_review").notNull().default(0),
+    provenance: text("provenance"),
     createdAt: integer("created_at").notNull(),
     updatedAt: integer("updated_at").notNull(),
   },
@@ -273,6 +284,86 @@ export const sourceVersions = sqliteTable(
     createdAt: integer("created_at").notNull(),
   },
   (t) => [uniqueIndex("source_versions_unique").on(t.sourceId, t.version)]
+);
+
+// ── Claims & evidence anchors (open-source-innovation-strategy 5A, migration 0008)
+
+/** A human-saved or chat-saved statement. Statuses stay honest: never a
+ * model-granted "verified" label. */
+export const claims = sqliteTable(
+  "claims",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    notebookId: text("notebook_id")
+      .notNull()
+      .references(() => notebooks.id, { onDelete: "cascade" }),
+    text: text("text").notNull(),
+    origin: text("origin").$type<ClaimOrigin>().notNull(),
+    originMessageId: text("origin_message_id"),
+    status: text("status").$type<ClaimStatus>().notNull().default("active"),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (t) => [index("claims_by_notebook").on(t.notebookId), index("claims_by_owner").on(t.ownerId)]
+);
+
+/** A citation made durable: IMMUTABLE version + locator (page only when
+ * truly known - a page is never invented) + the quoted text. */
+export const evidenceAnchors = sqliteTable(
+  "evidence_anchors",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    sourceVersionId: text("source_version_id")
+      .notNull()
+      .references(() => sourceVersions.id, { onDelete: "cascade" }),
+    page: integer("page"),
+    quote: text("quote").notNull(),
+    kind: text("kind").notNull().default("pdf_page"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("anchors_by_version").on(t.sourceVersionId)]
+);
+
+/** supports/questions relation between a claim and an anchor. */
+export const evidenceLinks = sqliteTable(
+  "evidence_links",
+  {
+    claimId: text("claim_id")
+      .notNull()
+      .references(() => claims.id, { onDelete: "cascade" }),
+    anchorId: text("anchor_id")
+      .notNull()
+      .references(() => evidenceAnchors.id, { onDelete: "cascade" }),
+    relation: text("relation").$type<AnchorRelation>().notNull().default("supports"),
+  },
+  (t) => [primaryKey({ columns: [t.claimId, t.anchorId] })]
+);
+
+/** Deterministic staleness finding of change review (5B). Flags changed
+ * inputs, never a falsified conclusion; decisions keep the history. */
+export const reviewProposals = sqliteTable(
+  "review_proposals",
+  {
+    id: text("id").primaryKey(),
+    claimId: text("claim_id")
+      .notNull()
+      .references(() => claims.id, { onDelete: "cascade" }),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => sources.id, { onDelete: "cascade" }),
+    fromVersion: integer("from_version").notNull(),
+    toVersion: integer("to_version").notNull(),
+    reason: text("reason").$type<ReviewReason>().notNull(),
+    detail: text("detail"),
+    anchorId: text("anchor_id"),
+    note: text("note"), // human note, recorded verbatim, never overwritten
+    status: text("status").$type<ReviewStatus>().notNull().default("pending"),
+    resolvedAt: integer("resolved_at"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("proposals_by_claim").on(t.claimId), index("proposals_by_status").on(t.status)]
 );
 
 /** How embeddings were produced — vectors from different profiles never mix. */

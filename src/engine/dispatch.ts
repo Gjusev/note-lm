@@ -4,6 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { eq } from "drizzle-orm";
 import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { createNotebook, listNotebooks } from "@/lib/services/notebooks";
@@ -34,6 +35,14 @@ import {
 } from "@/lib/services/embedding-profiles";
 import { sendChatMessage } from "@/lib/services/chat";
 import { exportNotebook, importNotebook } from "@/lib/services/notebook-transfer";
+import {
+  createClaim,
+  saveClaimFromMessage,
+  listClaims,
+  resolveReview,
+} from "@/lib/services/claims";
+import { listPendingReviews } from "@/lib/services/change-review";
+import { evidenceAnchors, sourceVersions, sources as sourcesTable } from "@/db/local/schema";
 import {
   generateMaterial,
   listMaterialsByNotebook,
@@ -602,6 +611,12 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const profile = await getOrCreateProfile(db);
         const caps = await resolveCapabilities();
         const embedQuery = await preEmbedQuery(message, caps.embed);
+        if (!caps.chat) {
+          return {
+            ok: false,
+            error: { code: "no_provider", message: caps.chatReason ?? "Kein KI-Anbieter konfiguriert." },
+          };
+        }
         try {
           const reply = await sendChatMessage(db, {
             notebookId,
@@ -629,6 +644,103 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             },
           };
         }
+      }
+
+      case "claims.create": {
+        const { notebookId, text } = args as { notebookId?: string; text?: string };
+        if (!notebookId || !text) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId and text are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        const outcome = await createClaim(db, { notebookId, ownerId: profile.id, text, origin: "user" });
+        return { ok: true, result: outcome };
+      }
+
+      case "claims.createFromMessage": {
+        const { notebookId, messageId, text } = args as {
+          notebookId?: string; messageId?: string; text?: string;
+        };
+        if (!notebookId || !messageId || !text) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId, messageId and text are required" } };
+        }
+        const { db } = getLocalContext();
+        const outcome = await saveClaimFromMessage(db, { notebookId, messageId, text });
+        return { ok: true, result: outcome };
+      }
+
+      case "claims.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: listClaims(db, notebookId) };
+      }
+
+      case "review.list": {
+        const { notebookId } = args as { notebookId?: string };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const { db } = getLocalContext();
+        return { ok: true, result: listPendingReviews(db, notebookId) };
+      }
+
+      case "review.resolve": {
+        const { proposalId, decision, note } = args as {
+          proposalId?: string; decision?: string; note?: string;
+        };
+        if (!proposalId || (decision !== "accepted" && decision !== "rejected")) {
+          return { ok: false, error: { code: "bad_args", message: "proposalId and decision accepted|rejected are required" } };
+        }
+        const { db, store } = getLocalContext();
+        try {
+          await resolveReview(db, store, {
+            proposalId,
+            decision,
+            ...(note !== undefined && { note }),
+          });
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "not_found", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
+        return { ok: true, result: {} };
+      }
+
+      case "evidence.open": {
+        const { anchorId } = args as { anchorId?: string };
+        if (!anchorId) {
+          return { ok: false, error: { code: "bad_args", message: "anchorId is required" } };
+        }
+        const { db, store, dataDir } = getLocalContext();
+        const anchor = db.select().from(evidenceAnchors).where(eq(evidenceAnchors.id, anchorId)).get();
+        if (!anchor) return { ok: false, error: { code: "not_found", message: "Anker nicht gefunden." } };
+        const version = db.select().from(sourceVersions).where(eq(sourceVersions.id, anchor.sourceVersionId)).get();
+        if (!version) return { ok: false, error: { code: "not_found", message: "Version des Ankers nicht gefunden." } };
+        const source = db.select({ fileName: sourcesTable.fileName }).from(sourcesTable).where(eq(sourcesTable.id, version.sourceId)).get();
+        let absolutePath: string | null = null;
+        if (version.storageId) {
+          // resolved through the files row (the extension lives in the stored
+          // path); only an existing file is reported - never a fabricated path
+          const stored = await store.get(version.storageId);
+          const candidate = stored
+            ? path.join(dataDir, stored.path)
+            : path.join(dataDir, "files", version.storageId);
+          absolutePath = fs.existsSync(candidate) ? candidate : null;
+        }
+        return {
+          ok: true,
+          result: {
+            fileName: source?.fileName ?? null,
+            page: anchor.page,
+            quote: anchor.quote,
+            storageId: version.storageId,
+            absolutePath,
+          },
+        };
       }
 
       default:

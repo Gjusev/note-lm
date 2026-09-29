@@ -304,6 +304,66 @@ CREATE TABLE source_versions (
   UNIQUE (source_id, version)
 );
 `,
+  // 0008 — claims & evidence anchors (open-source-innovation-strategy 5A/5B,
+  // slice S2). Claims anchor to immutable versions; anchors carry the page
+  // only when truly known (never invented). review_proposals records the
+  // deterministic staleness findings of change review; acceptance/rejection
+  // keeps the history (from/to versions + human note). provenance on
+  // learning_materials is a snapshot of {sourceId: versionId} written by a
+  // later slice - the migration lands the column now.
+  `
+CREATE TABLE claims (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL,
+  notebook_id TEXT NOT NULL REFERENCES notebooks (id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
+  origin TEXT NOT NULL CHECK (origin IN ('user', 'chat')),
+  origin_message_id TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'reviewed', 'retired')),
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL
+);
+CREATE INDEX claims_by_notebook ON claims (notebook_id);
+CREATE INDEX claims_by_owner ON claims (owner_id);
+
+CREATE TABLE evidence_anchors (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL,
+  source_version_id TEXT NOT NULL REFERENCES source_versions (id) ON DELETE CASCADE,
+  page INTEGER,
+  quote TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'pdf_page',
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX anchors_by_version ON evidence_anchors (source_version_id);
+
+CREATE TABLE evidence_links (
+  claim_id TEXT NOT NULL REFERENCES claims (id) ON DELETE CASCADE,
+  anchor_id TEXT NOT NULL REFERENCES evidence_anchors (id) ON DELETE CASCADE,
+  relation TEXT NOT NULL DEFAULT 'supports' CHECK (relation IN ('supports', 'questions')),
+  PRIMARY KEY (claim_id, anchor_id)
+);
+
+CREATE TABLE review_proposals (
+  id TEXT PRIMARY KEY,
+  claim_id TEXT NOT NULL REFERENCES claims (id) ON DELETE CASCADE,
+  source_id TEXT NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+  from_version INTEGER NOT NULL,
+  to_version INTEGER NOT NULL,
+  reason TEXT NOT NULL CHECK (reason IN ('quote_missing', 'quote_moved')),
+  detail TEXT,
+  anchor_id TEXT,
+  note TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
+  resolved_at INTEGER,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX proposals_by_claim ON review_proposals (claim_id);
+CREATE INDEX proposals_by_status ON review_proposals (status);
+
+ALTER TABLE learning_materials ADD COLUMN needs_review INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE learning_materials ADD COLUMN provenance TEXT;
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

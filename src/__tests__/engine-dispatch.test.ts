@@ -251,4 +251,60 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect(typeof result.localChatConfigured).toBe("boolean");
     expect(typeof result.localEmbedConfigured).toBe("boolean");
   });
+
+  it("claims and review roundtrip through the engine ops", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { createSource } = await import("@/lib/services/sources");
+    const { createMessage } = await import("@/lib/services/messages");
+    const { recordVersion } = await import("@/lib/services/source-versions");
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "Claims Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const { db, store } = getLocalContext();
+
+    // validation: text is required
+    const bad = await handleEngineRequest("claims.create", { notebookId });
+    expect(bad).toEqual({ ok: false, error: { code: "bad_args", message: expect.any(String) } });
+
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "fundstelle.txt", fileType: "text/plain", fileSize: 50,
+    });
+    await recordVersion(db, store, { sourceId, pageTexts: ["Fundstelle auf der ersten Seite."] });
+
+    const messageId = await createMessage(db, {
+      ownerId: "local", notebookId, role: "assistant", content: "Antwort [1]",
+      citations: [{ sourceId, chunkIndex: 0, text: "Fundstelle auf der ersten Seite." }],
+    });
+    const created = await handleEngineRequest("claims.createFromMessage", {
+      notebookId, messageId, text: "Die Fundstelle steht auf Seite eins.",
+    });
+    expect(created.ok).toBe(true);
+
+    // changing the source fires the deterministic staleness scan
+    await recordVersion(db, store, {
+      sourceId, pageTexts: ["Neue erste Seite.", "Fundstelle auf der ersten Seite."],
+    });
+
+    const reviews = await handleEngineRequest("review.list", { notebookId });
+    const proposals = (reviews as { result: Array<{ id: string; reason: string }> }).result;
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0].reason).toBe("quote_moved");
+
+    const resolved = await handleEngineRequest("review.resolve", {
+      proposalId: proposals[0].id, decision: "accepted",
+    });
+    expect(resolved.ok).toBe(true);
+
+    const claims = await handleEngineRequest("claims.list", { notebookId });
+    const [claim] = (claims as { result: Array<{ status: string; anchors: Array<{ id: string; version: number; page: number | null }> }> }).result;
+    expect(claim.status).toBe("reviewed");
+    expect(claim.anchors[0]).toMatchObject({ version: 2, page: 2 });
+
+    const opened = await handleEngineRequest("evidence.open", { anchorId: claim.anchors[0].id });
+    expect((opened as { result: { page: number | null } }).result.page).toBe(2);
+
+    const after = await handleEngineRequest("review.list", { notebookId });
+    expect((after as { result: unknown[] }).result).toHaveLength(0);
+  });
 });

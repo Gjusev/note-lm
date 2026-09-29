@@ -20,6 +20,25 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
   appends a new version; the original bytes and older versions are never
   destroyed. Claims (later slices) anchor to versions, never to the mutable
   source row — the source row is overwritten on re-import, a version is not.
+- **Claim** — a statement saved by a human or kept from a chat answer; it
+  carries text, origin (`user` | `chat`) and an honest status, never a
+  model-granted "verified" label.
+- **Evidence anchor** — a citation made durable: it points to an IMMUTABLE
+  `source_versions` row plus a locator (the page when truly known, `null`
+  otherwise — a page is never invented) and the quoted text.
+- **Review proposal** — the deterministic staleness finding a source change
+  raises against dependent claims (`quote_moved` / `quote_missing`). It
+  flags changed inputs, it never proves a conclusion false; accepting or
+  rejecting keeps the full history in the proposal row and human notes are
+  never overwritten.
+- **AI provider** — three separate entities: a **preset** (code: how to talk),
+  a **connection** (settings instance: preset + own instance id + endpoint +
+  secret reference), and a **capability** (what is used: resolved per
+  capability from explicit config `{connectionId, model}`, never inferred).
+  Local llama.cpp stays the default when no explicit remote config exists.
+  Offline blocks at **call time**: resolved remote functions re-check the
+  `ai.offline` flag on every call; new requests and retries are refused and
+  in-flight remote calls are aborted. Local calls are never blocked.
 
 ## Seams
 
@@ -41,6 +60,9 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | engine job pool | `runProcessingJob` / `runImportJob` stage gates + job-control checkpoint fns over a real temp SQLite (driven like `engine-imports`) | `src/__tests__/engine-pool.test.ts` |
 | job event stream | `emitJobEvent`/`emitProgress` writer coalescing + `setProgressClock` test hook, `eventsSince` paging, over a real temp SQLite | `src/__tests__/job-control.test.ts` |
 | source versioning | `recordVersion` / `listVersions` / `getLatestVersion` / `readVersionPages` over a real temp SQLite + LocalStore | `src/__tests__/source-versions.test.ts` |
+| claims & evidence anchors | `createClaim` / `saveClaimFromMessage` / `listClaims` + `evidence.open` over a real temp SQLite + LocalStore | `src/__tests__/claims.test.ts` |
+| change review | `scanForStaleness` (hooked into `recordVersion`) / `resolveReview` / `listPendingReviews` over a real temp SQLite + LocalStore | `src/__tests__/change-review.test.ts` |
+| ai providers | `PRESETS` / `ProviderConnection` / `resolveCapabilities` per-capability resolution + `setOfflineMode` call-time blocking over a real temp SQLite, SDK mocked | `src/__tests__/providers.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

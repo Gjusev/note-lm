@@ -134,6 +134,24 @@ export async function recordVersion(
     })
     .run();
 
+  // 5B hook: a newly appended version is a deterministic trigger for change
+  // review. Dynamic import breaks the module cycle (change-review reads
+  // versions back); non-fatal by design - a failed scan must never fail the
+  // import that just landed.
+  try {
+    const { scanForStaleness } = await import("./change-review");
+    await scanForStaleness(db, store, {
+      sourceId: args.sourceId,
+      fromVersion: version - 1,
+      toVersionId: id,
+    });
+  } catch (err) {
+    console.warn(
+      "[source-versions] change review skipped:",
+      err instanceof Error ? err.message : err
+    );
+  }
+
   return { id, sourceId: args.sourceId, version, storageId: args.storageId ?? null, fileHash, pageCount, createdAt: now };
 }
 
