@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" role="img" aria-label="note-lm gestapelte Wortbildmarke">
+  <!-- Stacked lockup: mark, 2px structural rule, wordmark, mono metadata line.
+       Same type rules as logo-wordmark.svg (heavy caps, Helvetica-style
+       offline stack, Inter/Roboto/OpenSans banned). The metadata line uses
+       the mono stack - numerals and metadata are design elements in this
+       direction. -->
+  <g transform="translate(68,0) scale(2)">
+    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
+    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
+    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+  </g>
+  <!-- rule inset to the wordmark width; wordmark + subline centered under
+       the mark (single anchor: everything centered on x=100) -->
+  <line x1="17" y1="76" x2="183" y2="76" stroke="#202020" stroke-width="2"/>
+  <text x="100" y="116" text-anchor="middle" font-family="'Helvetica Neue', Arial, system-ui, sans-serif" font-size="34" font-weight="700" letter-spacing="-0.5" fill="#202020">NOTE-LM</text>
+  <text x="100" y="138" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="11" letter-spacing="1.5" fill="#202020" opacity="0.62">FORSCHUNGSNOTIZBUCH</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="note-lm App-Symbol">
+  <!-- App icon, neo-brutalist: flat paper tile, sharp corners (radius 0),
+       a 4px structural ink frame, and the solid-geometry mark centered.
+       No gradients, no shadows, no rounded corners. Rasterized by
+       scripts/generate-brand-assets.mjs into src-tauri/icons
+       (512/256/128/32 PNG + multi-size ICO). This file is the source of
+       truth; PNGs are derived artifacts. -->
+  <rect width="512" height="512" fill="#F7F6F3"/>
+  <!-- structural frame: 24px at 512 = 0.75px at 16, still reads as a solid
+       dark edge in the taskbar instead of anti-aliasing away -->
+  <rect x="12" y="12" width="488" height="488" fill="none" stroke="#202020" stroke-width="24"/>
+  <g transform="translate(64,64) scale(12)">
+    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
+    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
+    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+  </g>
+</svg>

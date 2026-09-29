@@ -1,0 +1,143 @@
+/* ============================================================================
+   PROPOSAL - NOT APPLIED. src/desktop is frozen while another slice is in
+   flight; this file is the ready-to-review source for the next desktop
+   slice. Do not import it anywhere yet.
+   ============================================================================
+   note-lm visual system, neo-Swiss/brutalist direction (supersedes the
+   earlier pastel-status proposal). Maps onto the semantic token names of
+   src/desktop/src/styles/tokens.css, which stays the incumbent source of
+   truth until this is merged there.
+
+   Direction:
+   - strict grid, visible hairline rules alongside 2px structural rules
+   - extreme contrast: ink #202020 on paper #F7F6F3 / #FFFFFF
+   - SHARP corners: radius collapsed to 0 / 2px (no 6-12px rounds)
+   - status = SOLID high-contrast chips, no pastel washes
+   - red #b4473d is the single hard accent (dark theme: #d2705f)
+   - numerals and metadata as design elements (mono, tracked caps)
+   BANNED: gradients, soft shadows, pastels, pills-as-containers,
+   Inter/Roboto/OpenSans. Nothing is bundled - offline stacks only.
+   ========================================================================== */
+
+:root {
+  /* --- grid rhythm (4px base) -------------------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* --- border system: hairline + structural -------------------------------
+     Hairlines separate list rows and grid columns; structural 2px rules
+     bound regions (headers, footers, panels). Never use the structural
+     weight for every separator - contrast between the two IS the system. */
+  --rule-hairline: 1px solid #EAEAEA;
+  --rule-structural: 2px solid #202020;
+
+  /* --- radius: collapsed ---------------------------------------------------
+     0 for containers aligned to the grid; 2px only where a fully sharp
+     corner clips glyphs (inputs with mono content). Nothing larger. */
+  --radius-none: 0;
+  --radius-sharp: 2px;
+
+  /* --- status: SOLID chips --------------------------------------------------
+     Each state is a solid fill + white/ink text meeting 4.5:1 (values
+     verified against white below; dark-theme row follows). A chip is a
+     small flat rectangle (radius 2px, mono or tracked caps label) with an
+     icon + text - never color alone (accessibility requirement).
+       success #346538 vs #fff = ~6.8:1
+       error   #9F2F2D vs #fff = ~7.8:1  (deeper than the #b4473d accent so
+                                          text passes; the accent itself is
+                                          reserved for actions/citations)
+       info    #1F6C9F vs #fff = ~5.9:1
+       warning #956400 vs #fff = ~5.3:1                                              */
+  --status-success:      #346538;
+  --status-success-fg:   #FFFFFF;
+  --status-error:        #9F2F2D;
+  --status-error-fg:     #FFFFFF;
+  --status-info:         #1F6C9F;   /* new: tokens.css has no status-info */
+  --status-info-fg:      #FFFFFF;
+  --status-warning:      #956400;
+  --status-warning-fg:   #FFFFFF;
+
+  /* --- surfaces: two-level warm monochrome --------------------------------- */
+  --canvas:              #F7F6F3;
+  --surface-raised:      #FFFFFF;   /* document white; hairline-separated */
+  --ink:                 #202020;
+
+  /* --- typography: offline grotesk + mono, nothing bundled ------------------
+     Helvetica-style stack; Inter/Roboto/OpenSans banned by direction.
+     tokens.css already documents that "Geist Sans" is named but NOT shipped -
+     this proposal renames the UI stack honestly instead. */
+  --font-ui: "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+[data-theme="dark"] {
+  /* Dark counterpart: keep the accent pair from tokens.css (#d2705f) and
+     the existing dark canvas; chips stay solid with white text - the fills
+     above already clear 4.5:1 independent of the canvas behind them.
+     Hairlines invert to a dark rule. Exact values need a contrast pass
+     during the desktop slice - flagged, not claimed. */
+  --rule-hairline: 1px solid #2E2C29;
+  --rule-structural: 2px solid #ECE9E2;
+  --canvas: #1C1B19;
+  --surface-raised: #242220;
+  --ink: #ECE9E2;
+}
+
+/* --- kbd ----------------------------------------------------------------------
+   Fits brutalism: sharp 2px radius, hairline ink border, paper fill, mono,
+   tracked. */
+kbd {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78em;
+  line-height: 1;
+  color: #202020;
+  background: #F7F6F3;
+  border: 1px solid #202020;
+  border-radius: 2px;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+
+/* --- metadata / numerals as design elements -----------------------------------
+   Index numbers, version ticks, counts: mono, letter-spaced caps, secondary
+   ink. Used in section headers ("01 QUELLEN"), inspector rows, covers. */
+.meta {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(32, 32, 32, 0.62);
+}
+
+/* --- buttons: solid blocks, hover = ink/paper INVERT ---------------------------
+   No scale transforms, no shadows. A button is an ink block with paper
+   text; hover swaps the two values (invert). Primary keeps the single hard
+   accent red and inverts to ink. Focus stays the 2px offset outline -
+   already the strongest non-color focus indicator. */
+button {
+  background: #202020;
+  border: 2px solid #202020;
+  border-radius: 0;
+  color: #F7F6F3;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+button:hover {
+  background: #F7F6F3;   /* invert */
+  color: #202020;
+  border-color: #202020;
+}
+button.primary { background: #b4473d; border-color: #b4473d; color: #FFFFFF; }
+button.primary:hover { background: #202020; border-color: #202020; color: #F7F6F3; }
+
+/* --- containers -----------------------------------------------------------------
+   Cards are NOT rounded boxes: raised surfaces sit on the canvas separated
+   by the 1px hairline, bounded by 2px structural rules only when they head
+   a region. Lists and tables are ruled, never carded. Dialogs may use
+   radius 2px. No shadow stacks; at most a hard 2px offset ink edge
+   (border, not blur) where a surface genuinely floats (menus, palette). */

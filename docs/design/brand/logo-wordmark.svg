@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 204 64" role="img" aria-label="note-lm Wortbildmarke">
+  <!-- Horizontal lockup: mark + wordmark "NOTE-LM".
+       Wordmark: heavy caps, tracking tight, offline Helvetica-style stack
+       ("Helvetica Neue", Arial, system-ui). Inter/Roboto/OpenSans are banned
+       by the brand direction; nothing is bundled or downloaded - the stack
+       renders with the OS grotesk (Arial on Windows, where the rasterizer
+       runs). The mark (logo.svg) stays the fully deterministic asset.
+       Stacked variant: logo-wordmark-stacked.svg. -->
+  <g transform="translate(0,8) scale(1.5)">
+    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
+    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
+    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+  </g>
+  <text x="48" y="45" font-family="'Helvetica Neue', Arial, system-ui, sans-serif" font-size="30" font-weight="700" letter-spacing="-0.5" fill="#202020">NOTE-LM</text>
+</svg>
