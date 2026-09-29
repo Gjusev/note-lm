@@ -24,11 +24,39 @@ export interface ClaimView {
   createdAt: number; anchors: ClaimAnchorView[]; pendingReviews: number; reviewReasons: string[];
 }
 /** Wire shape of review.list (listPendingReviews): from/to versions and the
- *  status come with every proposal; today only pending rows are served, so
- *  decided rows have no wire source yet (noted gap, not fabricated here). */
+ *  status come with every proposal; sourceId rides along so version-pinned
+ *  opens (proposal comparison) never have to guess the column. */
 export interface ReviewProposalView {
-  id: string; claimId: string; reason: string; detail: string | null; createdAt: number;
+  id: string; claimId: string; sourceId: string; reason: string; detail: string | null; createdAt: number;
   fromVersion: number; toVersion: number; status: string;
+}
+
+/** Evidence matrix (matrix.get): claims x selected sources, every cell a
+ *  derived relationship. not_found_in_search is typed but never served
+ *  today (no performed-search provenance store) - honest absence, not a
+ *  faked miss. */
+export interface MatrixAnchorView {
+  anchorId: string; relation: "supports" | "questions"; sourceVersionId: string; version: number;
+  page: number | null; locator: { startSec: number; endSec: number | null } | null; quote: string;
+}
+export interface MatrixProposalView {
+  proposalId: string; reason: "quote_moved" | "quote_missing"; fromVersion: number; toVersion: number;
+  status: "pending" | "accepted" | "rejected"; detail: string | null; note: string | null; resolvedAt: number | null;
+}
+export interface MatrixCellView {
+  claimId: string; sourceId: string;
+  status: "evidence" | "pending_review" | "not_reviewed" | "not_found_in_search";
+  evidence: MatrixAnchorView[]; pendingProposals: MatrixProposalView[]; resolvedProposals: MatrixProposalView[];
+}
+export interface MatrixViewData {
+  notebookId: string;
+  claims: Array<{ id: string; text: string; status: string }>;
+  sources: Array<{ id: string; fileName: string; latestVersion: number | null }>;
+  cells: MatrixCellView[];
+}
+/** Stable cell index key (claim::source), mirrors the engine helper. */
+export function matrixCellKey(claimId: string, sourceId: string): string {
+  return `${claimId}::${sourceId}`;
 }
 
 /** One immutable version of a source (sources.listVersions), oldest first. */
@@ -159,6 +187,12 @@ export const desktopApi = {
     call<{ id: string; anchorCount: number }>("claims.createFromMessage", { notebookId, messageId, text }),
   listClaims: (notebookId: string) => call<ClaimView[]>("claims.list", { notebookId }),
   listReviews: (notebookId: string) => call<ReviewProposalView[]>("review.list", { notebookId }),
+  /** Evidence matrix: optional claim/source subsets; explicit sourceIds keep
+   *  zero-relation sources as not_reviewed columns (correction 1). */
+  getMatrix: (notebookId: string, claimIds?: string[], sourceIds?: string[]) =>
+    call<MatrixViewData>("matrix.get", {
+      notebookId, ...(claimIds ? { claimIds } : {}), ...(sourceIds ? { sourceIds } : {}),
+    }),
   resolveReview: (proposalId: string, decision: "accepted" | "rejected") =>
     call<{}>("review.resolve", { proposalId, decision }),
   listVersions: (sourceId: string) => call<SourceVersionView[]>("sources.listVersions", { sourceId }),

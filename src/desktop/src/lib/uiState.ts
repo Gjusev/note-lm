@@ -55,7 +55,7 @@ export function useTheme(): { setting: ThemeSetting; value: ThemeValue; set: (s:
 }
 
 /** One work view of the center column (§5: investigate / review / study). */
-export type CenterView = "source" | "note" | "chat" | "calculations" | "materials";
+export type CenterView = "source" | "note" | "chat" | "calculations" | "materials" | "matrix";
 
 /** Reader position of one source: version, page and scroll survive view
  *  switches and app restarts (mandate 3). */

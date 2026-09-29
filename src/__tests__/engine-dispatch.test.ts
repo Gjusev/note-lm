@@ -494,4 +494,70 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     const noArgs = await handleEngineRequest("sources.open", {});
     expect(noArgs).toEqual({ ok: false, error: { code: "bad_args", message: expect.any(String) } });
   });
+
+  it("matrix.get serves the derived view notebook-scoped, with typed bad_args", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { createSource } = await import("@/lib/services/sources");
+    const { createClaim } = await import("@/lib/services/claims");
+    const { recordVersion } = await import("@/lib/services/source-versions");
+
+    // validation: notebookId is required; claimIds/sourceIds must be id arrays
+    expect(await handleEngineRequest("matrix.get", {})).toEqual({
+      ok: false, error: { code: "bad_args", message: expect.any(String) },
+    });
+    const nb = await handleEngineRequest("notebooks.create", { title: "Matrix Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    expect(await handleEngineRequest("matrix.get", { notebookId, sourceIds: "kaffee-studie.txt" })).toEqual({
+      ok: false, error: { code: "bad_args", message: expect.any(String) },
+    });
+
+    const { db, store } = getLocalContext();
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "kaffee-studie.txt", fileType: "text/plain", fileSize: 60,
+    });
+    const v1 = await recordVersion(db, store, {
+      sourceId, pageTexts: ["Die Dosierung ist im untersuchten Bereich wirksam. Seite eins."],
+    });
+    const claim = await handleEngineRequest("claims.create", {
+      notebookId,
+      text: "Die Dosierung ist wirksam.",
+      anchors: [{ sourceId, versionId: v1.id, page: 1, quote: "Die Dosierung ist im untersuchten Bereich wirksam." }],
+    });
+    const claimId = (claim as { result: { id: string } }).result.id;
+
+    // happy path roundtrip: the anchor becomes one evidence cell
+    const res = await handleEngineRequest("matrix.get", { notebookId });
+    expect(res.ok).toBe(true);
+    const view = (res as {
+      result: {
+        claims: Array<{ id: string; text: string }>;
+        sources: Array<{ id: string; fileName: string; latestVersion: number | null }>;
+        cells: Array<{ claimId: string; sourceId: string; status: string; evidence: unknown[]; pendingProposals: unknown[]; resolvedProposals: unknown[] }>;
+      };
+    }).result;
+    expect(view.claims.map((c) => c.id)).toEqual([claimId]);
+    expect(view.sources).toEqual([{ id: sourceId, fileName: "kaffee-studie.txt", latestVersion: 1 }]);
+    expect(view.cells).toHaveLength(1);
+    expect(view.cells[0]).toMatchObject({
+      claimId, sourceId, status: "evidence", pendingProposals: [], resolvedProposals: [],
+    });
+    expect(view.cells[0].evidence).toHaveLength(1);
+
+    // scope validation: another notebook's source id is dropped, not resolved
+    const other = await handleEngineRequest("notebooks.create", { title: "Fremd Book" });
+    const otherId = (other as { result: { id: string } }).result.id;
+    const otherSource = await createSource(db, {
+      ownerId: "local", notebookId: otherId, fileName: "fremd.txt", fileType: "text/plain", fileSize: 10,
+    });
+    const scoped = await handleEngineRequest("matrix.get", { notebookId, sourceIds: [otherSource] });
+    expect(scoped.ok).toBe(true);
+    expect((scoped as { result: { sources: unknown[]; cells: unknown[] } }).result).toMatchObject({
+      sources: [], cells: [],
+    });
+
+    // claimIds subset narrows the rows
+    const narrowed = await handleEngineRequest("matrix.get", { notebookId, claimIds: [] });
+    expect((narrowed as { result: { claims: unknown[] } }).result.claims).toEqual([]);
+  });
 });

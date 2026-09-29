@@ -10,6 +10,7 @@ import { SourceReader, type ReaderSelection } from "./SourceReader";
 import { NoteEditor } from "./NoteEditor";
 import { ChatView } from "./ChatView";
 import { CalcPanel, MaterialsPanel } from "./CenterPanels";
+import { MatrixView } from "./MatrixView";
 import type { CenterView, NotebookUiState } from "../lib/uiState";
 
 const VIEW_LABELS: Record<CenterView, string> = {
@@ -18,6 +19,7 @@ const VIEW_LABELS: Record<CenterView, string> = {
   chat: "Chat",
   calculations: "Berechnungen",
   materials: "Materialien",
+  matrix: "Matrix",
 };
 
 /** What the composition root resolved for the open reader: the target
@@ -46,15 +48,22 @@ export function DocumentWorkspace(props: {
   onToggleInspector: () => void;
   onToggleNav: () => void;
   openSource: (sourceId: string) => void;
+  /** Version-pinned open for the evidence matrix (anchor and proposal
+   *  versions) - routes through the same reader path as everything else. */
+  openAtVersion: (sourceId: string, version: number, page?: number | null) => void;
+  /** Select a claim into the inspector (matrix cells: decision UI), without
+   *  opening anything in the reader. */
+  onSelectClaim: (claimId: string) => void;
 }) {
   const view = props.ui.activeView;
   const setView = (v: CenterView) => props.update({ activeView: v });
   const selectedSource = props.sources.find((s) => s._id === props.ui.selectedSourceId) ?? null;
   const sourceUi = props.ui.selectedSourceId ? props.ui.sources[props.ui.selectedSourceId] : undefined;
 
-  // Center tab strip: the three main views always; calculations/materials
-  // appear while their view is active (opened from the navigator).
-  const tabs: CenterView[] = view === "calculations" || view === "materials"
+  // Center tab strip: the three main views always; calculations/materials/
+  // matrix appear while their view is active (opened from the navigator).
+  const transient: CenterView[] = ["calculations", "materials", "matrix"];
+  const tabs: CenterView[] = transient.includes(view)
     ? ["source", "note", "chat", view]
     : ["source", "note", "chat"];
 
@@ -127,6 +136,14 @@ export function DocumentWorkspace(props: {
       )}
       {view === "calculations" && <CalcPanel notebookId={props.notebookId} sources={props.sources} />}
       {view === "materials" && <MaterialsPanel notebookId={props.notebookId} />}
+      {view === "matrix" && (
+        <MatrixView
+          notebookId={props.notebookId}
+          sources={props.sources}
+          openAtVersion={props.openAtVersion}
+          onSelectClaim={props.onSelectClaim}
+        />
+      )}
     </div>
   );
 }

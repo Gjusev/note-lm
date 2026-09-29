@@ -38,6 +38,10 @@ export function EvidenceInspector(props: {
   update: (patch: Partial<NotebookUiState> | ((prev: NotebookUiState) => Partial<NotebookUiState>)) => void;
   reader: ReaderContext | null;
   openAnchor: (a: ClaimAnchorView) => void;
+  /** Version-pinned open by (sourceId, version number) - used by the
+   *  proposal comparison ("Zielversion öffnen"): the destination version is
+   *  an EXPLICIT second open, never a silent swap for the origin. */
+  openVersion?: (sourceId: string, version: number) => void;
   /** Save paths owned by the composition root (shared with the reader's
    *  keyboard chooser); both take the frozen selection as-is. */
   onSaveClaim: (sel: ReaderSelection) => void;
@@ -61,6 +65,9 @@ export function EvidenceInspector(props: {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["claims", props.notebookId] });
       queryClient.invalidateQueries({ queryKey: ["reviews", props.notebookId] });
+      // the matrix derives from the same rows: resolved proposals must move
+      // from alert to history there too
+      queryClient.invalidateQueries({ queryKey: ["matrix", props.notebookId] });
     },
   });
 
@@ -111,9 +118,15 @@ export function EvidenceInspector(props: {
                 <span style={{ fontSize: "0.75rem" }}>
                   Überarbeitung vorgeschlagen · v{p.fromVersion} → v{p.toVersion} — {p.detail ?? p.reason}
                 </span>
-                <div style={{ display: "flex", gap: "var(--space-1)" }}>
+                <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
                   <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "accepted" })}>Übernehmen</button>
                   <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "rejected" })}>Ablehnen</button>
+                  {props.openVersion && (
+                    <button title="Die Zielversion des Vorschlags im Leser öffnen (die Ursprungsversion bleibt separat erreichbar)"
+                      onClick={() => props.openVersion!(p.sourceId, p.toVersion)}>
+                      Zielversion öffnen (v{p.toVersion})
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (

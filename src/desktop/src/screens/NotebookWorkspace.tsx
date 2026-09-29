@@ -145,16 +145,24 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const openAnchor = (a: ClaimAnchorView) => {
     const source = (sources ?? []).find((s) => s.fileName === a.fileName);
     if (!source) return;
+    openAtVersion(source._id, a.version, a.page);
+  };
+
+  /** Version-pinned open by NUMBER (matrix cells, anchor chips, proposal
+   *  comparison): resolves the immutable row id, then routes through the one
+   *  open path. A version that no longer resolves opens latest - pinned
+   *  opens never guess. */
+  const openAtVersion = (sourceId: string, version: number, page?: number | null) => {
     void (async () => {
       let versionId: string | null = null;
       try {
         const vs = await queryClient.fetchQuery({
-          queryKey: ["versions", source._id],
-          queryFn: () => desktopApi.listVersions(source._id),
+          queryKey: ["versions", sourceId],
+          queryFn: () => desktopApi.listVersions(sourceId),
         });
-        versionId = vs.find((v) => v.version === a.version)?.id ?? null;
+        versionId = vs.find((v) => v.version === version)?.id ?? null;
       } catch { /* version list unavailable -> open latest */ }
-      openAt(source._id, versionId, a.page ?? 1);
+      openAt(sourceId, versionId, page ?? 1);
     })();
   };
 
@@ -270,6 +278,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           openNote={openNote}
           openCalculations={() => update({ activeView: "calculations" })}
           openMaterials={() => update({ activeView: "materials" })}
+          openMatrix={() => update({ activeView: "matrix" })}
           selectClaim={selectClaim}
         />
       }
@@ -289,6 +298,8 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           onToggleInspector={() => update((prev) => ({ inspectorOpen: !prev.inspectorOpen }))}
           onToggleNav={() => update({ navDrawerOpen: true })}
           openSource={openSource}
+          openAtVersion={openAtVersion}
+          onSelectClaim={selectClaim}
         />
       }
       inspector={
@@ -299,6 +310,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           update={update}
           reader={readerContext}
           openAnchor={openAnchor}
+          openVersion={openAtVersion}
           onSaveClaim={onSaveClaim}
           onInsertNote={onInsertNote}
           actionError={actionError}

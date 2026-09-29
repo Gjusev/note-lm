@@ -62,6 +62,8 @@ export function SourceNavigator(props: {
   openNote: (noteId: string) => void;
   openCalculations: () => void;
   openMaterials: () => void;
+  /** Open the evidence matrix (claims x selected sources) in the center. */
+  openMatrix: () => void;
   selectClaim: (claimId: string) => void;
 }) {
   const queryClient = useQueryClient();
@@ -146,6 +148,7 @@ export function SourceNavigator(props: {
       <Section id="claims" title="Aussagen" count={(claims.data ?? []).length}
         open={sectionOpen("claims", true)} onToggle={() => toggle("claims", sectionOpen("claims", true))}>
         <ClaimCreateForm notebookId={props.notebookId} />
+        <button onClick={props.openMatrix} title="Aussagen mit ausgewählten Quellen gegenüberstellen">Matrix öffnen</button>
         {(claims.data ?? []).length === 0 ? (
           <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Aussagen.</p>
         ) : (
