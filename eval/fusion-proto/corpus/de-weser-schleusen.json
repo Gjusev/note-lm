@@ -1,0 +1,42 @@
+{
+  "docId": "de-weser-schleusen",
+  "fileName": "de-weser-schleusen.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Schleusenverband Weser"
+      ],
+      "firstWords": "Schleusenverband Weser"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Überblick"
+      ],
+      "firstWords": "Überblick"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Anlagen"
+      ],
+      "firstWords": "Anlagen"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Zahlen"
+      ],
+      "firstWords": "Zahlen"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Pläne"
+      ],
+      "firstWords": "Pläne"
+    }
+  ]
+}

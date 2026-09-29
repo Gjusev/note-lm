@@ -1,0 +1,553 @@
+{
+  "version": 1,
+  "corpus": "fusion-proto-v1",
+  "counts": {
+    "total": 30,
+    "dev": 12,
+    "eval": 18
+  },
+  "types": {
+    "mono-fact": 8,
+    "cross-fact": 5,
+    "cross-distractor": 3,
+    "cross-name": 4,
+    "cross-number": 4,
+    "unanswerable": 6
+  },
+  "pairCounts": {
+    "es-es": 3,
+    "es-de": 4,
+    "es-en": 2,
+    "none": 6,
+    "de-de": 3,
+    "de-es": 3,
+    "de-en": 1,
+    "en-en": 2,
+    "en-es": 3,
+    "en-de": 3
+  },
+  "questions": [
+    {
+      "id": "mono-es-faros-torre",
+      "subset": "dev",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántos metros mide la torre del faro principal de la costa norte?",
+      "docIds": [
+        "es-cantabrico-faros"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "62 metros de altura"
+        }
+      ]
+    },
+    {
+      "id": "mono-es-jarama-visitantes",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántos visitantes recibió el año pasado el tren histórico del valle?",
+      "docIds": [
+        "es-jarama-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-jarama-ferrocarril",
+          "page": 4,
+          "section": "Cifras",
+          "quoteSnippet": "41.000 visitantes"
+        }
+      ]
+    },
+    {
+      "id": "mono-es-queseria-ovejas",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántas ovejas ordeña cada día la quesería artesanal?",
+      "docIds": [
+        "es-betizu-queseria"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-betizu-queseria",
+          "page": 2,
+          "section": "Resumen general",
+          "quoteSnippet": "320 ovejas"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-schleusen-hub",
+      "subset": "dev",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Cuántos metros de desnivel salva la esclusa mayor del operador de vías de agua?",
+      "docIds": [
+        "de-weser-schleusen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "14 Meter Hub"
+        }
+      ]
+    },
+    {
+      "id": "x-es-en-quarry-toneladas",
+      "subset": "eval",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántas toneladas de piedra extrae al año la gran cantera de caliza?",
+      "docIds": [
+        "en-cotswold-quarry"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-cotswold-quarry",
+          "page": 4,
+          "section": "Figures",
+          "quoteSnippet": "94,000 tonnes"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-odenwald-stollen",
+      "subset": "dev",
+      "type": "cross-distractor",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿A qué profundidad llega el túnel de la mina visitable?",
+      "docIds": [
+        "de-odenwald-bergbau"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "4,8 Kilometer lang"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-porzellan-temperatura",
+      "subset": "eval",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿A qué temperatura cuece el horno la Porzellanmanufaktur Henneberg?",
+      "docIds": [
+        "de-thueringen-porzellan"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "1.280 Grad"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-porzellan-2010",
+      "subset": "dev",
+      "type": "cross-number",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Qué espacio abrió en 2010 la fábrica de porcelana?",
+      "docIds": [
+        "de-thueringen-porzellan"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "2010 eröffnet"
+        }
+      ]
+    },
+    {
+      "id": "x-es-en-fal-buques",
+      "subset": "eval",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántos buques faro mantiene la Fal Lightvessel Trust?",
+      "docIds": [
+        "en-fal-lightvessel"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-fal-lightvessel",
+          "page": 2,
+          "section": "Overview",
+          "quoteSnippet": "three lightvessels"
+        }
+      ]
+    },
+    {
+      "id": "ua-es-globo",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Cuánto dura el paseo en globo sobre el valle?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "globo"
+    },
+    {
+      "id": "ua-es-futbol",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Quién ganó la liga regional de fútbol?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "fútbol"
+    },
+    {
+      "id": "mono-de-schleusen-schiffe",
+      "subset": "dev",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Schiffe haben die Schleusen im letzten Jahr passiert?",
+      "docIds": [
+        "de-weser-schleusen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 4,
+          "section": "Zahlen",
+          "quoteSnippet": "11.400 Schiffe"
+        }
+      ]
+    },
+    {
+      "id": "mono-de-porzellan-mitarbeiter",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Mitarbeiter beschäftigt die Porzellanmanufaktur heute?",
+      "docIds": [
+        "de-thueringen-porzellan"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 2,
+          "section": "Überblick",
+          "quoteSnippet": "86 Mitarbeiter"
+        }
+      ]
+    },
+    {
+      "id": "mono-de-vogelwarte-arten",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Vogelarten hat die Station seit ihrer Gründung dokumentiert?",
+      "docIds": [
+        "de-helgoland-vogelwarte"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-helgoland-vogelwarte",
+          "page": 2,
+          "section": "Überblick",
+          "quoteSnippet": "340 Arten"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-faros-alcance",
+      "subset": "eval",
+      "type": "cross-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Seemeilen weit reicht das Licht der wichtigsten Leuchtfeuer?",
+      "docIds": [
+        "es-cantabrico-faros"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "24 millas"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-jarama-kilometros",
+      "subset": "dev",
+      "type": "cross-name",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Kilometer Strecke betreibt die Fundación Ferrocarril del Jarama?",
+      "docIds": [
+        "es-jarama-ferrocarril"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-jarama-ferrocarril",
+          "page": 2,
+          "section": "Resumen general",
+          "quoteSnippet": "22 kilómetros"
+        }
+      ]
+    },
+    {
+      "id": "x-de-en-kearsley-dampfmaschine",
+      "subset": "eval",
+      "type": "cross-number",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wo kann die Dampfmaschine von 1898 besichtigt werden?",
+      "docIds": [
+        "en-kearsley-brewery"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-kearsley-brewery",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "steam engine of 1898"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-faros-turm",
+      "subset": "dev",
+      "type": "cross-distractor",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie hoch ist der Turm des wichtigsten Leuchtturms?",
+      "docIds": [
+        "es-cantabrico-faros"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "62 metros de altura"
+        }
+      ]
+    },
+    {
+      "id": "ua-de-orchester",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie viele Musiker zählt das Kammerorchester der Stadt?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Kammerorchester"
+    },
+    {
+      "id": "ua-de-gletscher",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie schnell bewegt sich der Gletscher jedes Jahr?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Gletscher"
+    },
+    {
+      "id": "mono-en-woollen-looms",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How many looms run in the weaving shed of the tweed mill?",
+      "docIds": [
+        "en-caledonia-woollen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-caledonia-woollen",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "74 looms"
+        }
+      ]
+    },
+    {
+      "id": "mono-en-brewery-rebuild",
+      "subset": "eval",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much did the 2011 brewhouse rebuild cost the brewery?",
+      "docIds": [
+        "en-kearsley-brewery"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-kearsley-brewery",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "2.3 million pounds"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-solar-paneles",
+      "subset": "dev",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How many photovoltaic panels does the large inland solar plant operate?",
+      "docIds": [
+        "es-tajo-central-solar"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-tajo-central-solar",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "148.000 paneles"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-bergbau-tiefe",
+      "subset": "eval",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How deep does the show mine's gallery go?",
+      "docIds": [
+        "de-odenwald-bergbau"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "180 Meter tief"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-weser-schleusen",
+      "subset": "dev",
+      "type": "cross-name",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How many locks does the Schleusenverband Weser operate?",
+      "docIds": [
+        "de-weser-schleusen"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 2,
+          "section": "Überblick",
+          "quoteSnippet": "sechs Schleusen"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-betizu-2016",
+      "subset": "dev",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-es",
+      "question": "What did the mountain dairy complete in 2016?",
+      "docIds": [
+        "es-betizu-queseria"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-betizu-queseria",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "cava excavada en 2016"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-odenwald-1935",
+      "subset": "eval",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-de",
+      "question": "Which structure at the mine dates from 1935?",
+      "docIds": [
+        "de-odenwald-bergbau"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "Förderturm von 1935"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-tajo-robot",
+      "subset": "eval",
+      "type": "cross-distractor",
+      "language": "en",
+      "pair": "en-es",
+      "question": "Which robotic system keeps the panels of the large solar site clean?",
+      "docIds": [
+        "es-tajo-central-solar"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-tajo-central-solar",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "robots de limpieza"
+        }
+      ]
+    },
+    {
+      "id": "ua-en-submarine",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "How deep can the research submarine dive?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "submarine"
+    },
+    {
+      "id": "ua-en-panda",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "When were the pandas introduced at the city zoo?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "pandas"
+    }
+  ]
+}

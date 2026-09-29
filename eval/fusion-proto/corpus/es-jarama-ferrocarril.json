@@ -1,0 +1,42 @@
+{
+  "docId": "es-jarama-ferrocarril",
+  "fileName": "es-jarama-ferrocarril.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Fundación Ferrocarril del Jarama"
+      ],
+      "firstWords": "Fundación Ferrocarril del Jarama"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Resumen general"
+      ],
+      "firstWords": "Resumen general"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Instalaciones"
+      ],
+      "firstWords": "Instalaciones"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Cifras"
+      ],
+      "firstWords": "Cifras"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Planes"
+      ],
+      "firstWords": "Planes"
+    }
+  ]
+}

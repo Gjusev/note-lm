@@ -1,0 +1,1423 @@
+{
+  "meta": {
+    "timestamp": "2026-09-29T12:26:26.465Z",
+    "experiment": "P3-fusion-proto-v1",
+    "corpus": "fusion-proto-v1",
+    "corpusRole": "dev",
+    "subset": "dev",
+    "recipe": "qwen3",
+    "policy": "protected-vector",
+    "questionCount": 12,
+    "embedding": {
+      "provider": "llamacpp",
+      "model": "Qwen3-Embedding-0.6B",
+      "revision": "q8_0",
+      "dimension": 1024,
+      "pooling": "last"
+    },
+    "fusion": {
+      "policy": "protected-vector",
+      "protectedHead": 3,
+      "rrfK": 60
+    },
+    "chunking": {
+      "maxChunkSize": 50,
+      "overlap": 10,
+      "totalChunks": 61,
+      "totalDocs": 12
+    },
+    "runs": 4
+  },
+  "phases": {
+    "ingestMs": 460.4668999999999,
+    "indexMs": 3463.362,
+    "runsMs": 1103.5624000000007,
+    "gradeMs": 1.7341999999998734,
+    "totalMs": 5033.4141
+  },
+  "overall": {
+    "answerable": {
+      "count": 10,
+      "recallAt10": 0.8,
+      "mrr": 0.4961111111111111,
+      "ndcgAt10": 0.565170113362672,
+      "docIdRecallAt10": 0.8
+    },
+    "unanswerable": {
+      "count": 2,
+      "evidencePressure": 0,
+      "pressuredQuestionIds": [],
+      "threshold": 0.031746031746031744,
+      "thresholdRule": "10th percentile of top-1 score over this run's answerable questions (same arm)"
+    }
+  },
+  "byPair": {
+    "es-es": {
+      "count": 1,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "es-de": {
+      "count": 3,
+      "recallAt10": 0.6666666666666666,
+      "mrr": 0.12037037037037036,
+      "ndcgAt10": 0.24390218457912474
+    },
+    "de-de": {
+      "count": 1,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "de-es": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.5,
+      "ndcgAt10": 0.5
+    },
+    "en-es": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.3,
+      "ndcgAt10": 0.4599972899446727
+    },
+    "en-de": {
+      "count": 1,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    }
+  },
+  "byType": {
+    "mono-fact": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "cross-fact": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.05,
+      "ndcgAt10": 0.14453241315894394
+    },
+    "cross-distractor": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.05555555555555555,
+      "ndcgAt10": 0.1505149978319906
+    },
+    "cross-number": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.375,
+      "ndcgAt10": 0.5308031558224253
+    },
+    "cross-name": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    }
+  },
+  "crossLingualAggregate": {
+    "count": 8,
+    "recallAt10": 0.75,
+    "mrr": 0.3701388888888889,
+    "ndcgAt10": 0.45646264170333994
+  },
+  "monoAggregate": {
+    "count": 2,
+    "recallAt10": 1,
+    "mrr": 1,
+    "ndcgAt10": 1
+  },
+  "perf": {
+    "measuredRuns": 3,
+    "warmupRuns": 1,
+    "retrievalP50Ms": 4.861700000000383,
+    "retrievalP95Ms": 5.664500000000771,
+    "retrievalMeanMs": 4.750047222222217,
+    "queryEmbedP50Ms": 14.509799999999814,
+    "queryEmbedP95Ms": 16.12329999999929,
+    "endToEndP50Ms": 23.234699999999975,
+    "endToEndP95Ms": 25.6867000000002,
+    "metricDriftRuns": 0,
+    "note": "retrievalMs = searchHybrid call with pre-embedded query; endToEndMs = query-embedding HTTP + searchHybrid (the honest user-facing wall time); latency aggregates exclude the warmup run"
+  },
+  "perQuestion": [
+    {
+      "id": "mono-es-faros-torre",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-cantabrico-faros:p3",
+        "vectorRank": 1,
+        "ftsRank": 2
+      }
+    },
+    {
+      "id": "x-es-de-schleusen-hub",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "de-weser-schleusen:p3",
+        "vectorRank": 9,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-de-odenwald-stollen",
+      "type": "cross-distractor",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 1,
+      "mrr": 0.1111111111111111,
+      "ndcgAt10": 0.3010299956639812,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-odenwald-bergbau:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-de-porzellan-2010",
+      "type": "cross-number",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 1,
+      "mrr": 0.25,
+      "ndcgAt10": 0.43067655807339306,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-thueringen-porzellan:p3",
+        "vectorRank": 2,
+        "ftsRank": 3
+      }
+    },
+    {
+      "id": "mono-de-schleusen-schiffe",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-weser-schleusen:p4",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-de-es-jarama-kilometros",
+      "type": "cross-name",
+      "language": "de",
+      "pair": "de-es",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-jarama-ferrocarril:p2",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-de-es-faros-turm",
+      "type": "cross-distractor",
+      "language": "de",
+      "pair": "de-es",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "es-cantabrico-faros:p3",
+        "vectorRank": 4,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-en-es-solar-paneles",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-es",
+      "recallAt10": 1,
+      "mrr": 0.1,
+      "ndcgAt10": 0.2890648263178879,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-tajo-central-solar:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-en-de-weser-schleusen",
+      "type": "cross-name",
+      "language": "en",
+      "pair": "en-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-weser-schleusen:p2",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-en-es-betizu-2016",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-es",
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-betizu-queseria:p3",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "mono-es-faros-torre",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántos metros mide la torre del faro principal de la costa norte?",
+      "expected": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.067299999999705,
+        "retrievalMs": 4.861700000000383,
+        "endToEndMs": 25.6867000000002,
+        "hits": [
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.032266458495966696,
+            "rank": 1
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031754032258064516,
+            "rank": 2
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03131881575727918,
+            "rank": 3
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031024531024531024,
+            "rank": 4
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02919863597612958,
+            "rank": 5
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.028205128205128206,
+            "rank": 6
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027598020555767037,
+            "rank": 7
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027425373134328357,
+            "rank": 8
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.026875901875901876,
+            "rank": 9
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.016129032258064516,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-cantabrico-faros:p3",
+          "vectorRank": 1,
+          "ftsRank": 2
+        }
+      }
+    },
+    {
+      "id": "x-es-de-schleusen-hub",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Cuántos metros de desnivel salva la esclusa mayor del operador de vías de agua?",
+      "expected": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.226300000000265,
+        "retrievalMs": 4.197799999999916,
+        "endToEndMs": 23.98409999999967,
+        "hits": [
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029726775956284153,
+            "rank": 2
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02967032967032967,
+            "rank": 3
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029513888888888888,
+            "rank": 4
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02928692699490662,
+            "rank": 5
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028577260665441927,
+            "rank": 6
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027984344422700584,
+            "rank": 7
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027526395173453996,
+            "rank": 8
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027271052146674038,
+            "rank": 9
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015873015873015872,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-weser-schleusen:p3",
+          "vectorRank": 9,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-de-odenwald-stollen",
+      "type": "cross-distractor",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿A qué profundidad llega el túnel de la mina visitable?",
+      "expected": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.084799999999632,
+        "retrievalMs": 5.637499999999818,
+        "endToEndMs": 24.904700000000048,
+        "hits": [
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.031754032258064516,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031099324975891997,
+            "rank": 2
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031009615384615385,
+            "rank": 3
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029206349206349208,
+            "rank": 4
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02878726010616578,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02862400327131466,
+            "rank": 6
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.028594771241830064,
+            "rank": 7
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027799227799227798,
+            "rank": 8
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.01639344262295082,
+            "rank": 9
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.015873015873015872,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-odenwald-bergbau:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-de-porzellan-2010",
+      "type": "cross-number",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Qué espacio abrió en 2010 la fábrica de porcelana?",
+      "expected": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 14.988599999999678,
+        "retrievalMs": 4.938500000000204,
+        "endToEndMs": 24.429299999999785,
+        "hits": [
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.032018442622950824,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031024531024531024,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030834914611005692,
+            "rank": 3
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030798389007344232,
+            "rank": 4
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.030776515151515152,
+            "rank": 5
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02967032967032967,
+            "rank": 6
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.026856524873828405,
+            "rank": 7
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026687875574407917,
+            "rank": 8
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.01639344262295082,
+            "rank": 9
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.016129032258064516,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-thueringen-porzellan:p3",
+          "vectorRank": 2,
+          "ftsRank": 3
+        }
+      }
+    },
+    {
+      "id": "ua-es-globo",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Cuánto dura el paseo en globo sobre el valle?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 14.816200000000208,
+        "retrievalMs": 5.092799999999443,
+        "endToEndMs": 19.91229999999996,
+        "hits": [
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030886196246139225,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03076923076923077,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03057889822595705,
+            "rank": 3
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029910714285714284,
+            "rank": 4
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029051670471052088,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.028949545078577336,
+            "rank": 6
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028381642512077296,
+            "rank": 7
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02813852813852814,
+            "rank": 8
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.016129032258064516,
+            "rank": 9
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015873015873015872,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "mono-de-schleusen-schiffe",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Schiffe haben die Schleusen im letzten Jahr passiert?",
+      "expected": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 14.37840000000051,
+        "retrievalMs": 5.411799999999857,
+        "endToEndMs": 24.056000000000495,
+        "hits": [
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.0315136476426799,
+            "rank": 2
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02946236559139785,
+            "rank": 3
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028693528693528692,
+            "rank": 4
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028594771241830064,
+            "rank": 5
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02797067901234568,
+            "rank": 6
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02758751902587519,
+            "rank": 7
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027056277056277056,
+            "rank": 8
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.0259915611814346,
+            "rank": 9
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015873015873015872,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-weser-schleusen:p4",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-de-es-jarama-kilometros",
+      "type": "cross-name",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Kilometer Strecke betreibt die Fundación Ferrocarril del Jarama?",
+      "expected": [
+        {
+          "docId": "es-jarama-ferrocarril",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.385099999999511,
+        "retrievalMs": 5.266599999999926,
+        "endToEndMs": 25.059299999999894,
+        "hits": [
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03200204813108039,
+            "rank": 2
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03125,
+            "rank": 3
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030536130536130537,
+            "rank": 4
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.029857397504456328,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02761904761904762,
+            "rank": 6
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027479766610201392,
+            "rank": 7
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027046783625730993,
+            "rank": 8
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.026129032258064518,
+            "rank": 9
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015873015873015872,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-jarama-ferrocarril:p2",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-de-es-faros-turm",
+      "type": "cross-distractor",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie hoch ist der Turm des wichtigsten Leuchtturms?",
+      "expected": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 13.038000000000466,
+        "retrievalMs": 4.6395000000002256,
+        "endToEndMs": 22.5049999999992,
+        "hits": [
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031746031746031744,
+            "rank": 2
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031054405392392875,
+            "rank": 3
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.0304147465437788,
+            "rank": 4
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028782894736842105,
+            "rank": 5
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.02819138376017471,
+            "rank": 6
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027222222222222224,
+            "rank": 7
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.026547116736990152,
+            "rank": 8
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.025568181818181816,
+            "rank": 9
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.025362318840579712,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-cantabrico-faros:p3",
+          "vectorRank": 4,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "ua-de-orchester",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie viele Musiker zählt das Kammerorchester der Stadt?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 13.493999999999687,
+        "retrievalMs": 5.4155000000000655,
+        "endToEndMs": 18.914300000000367,
+        "hits": [
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.031099324975891997,
+            "rank": 1
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.03021353930031804,
+            "rank": 2
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029877369007803793,
+            "rank": 3
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.029571646010002173,
+            "rank": 4
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029513888888888888,
+            "rank": 5
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02946236559139785,
+            "rank": 6
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029437229437229435,
+            "rank": 7
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.028850145288501453,
+            "rank": 8
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.027799227799227798,
+            "rank": 9
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.01639344262295082,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "x-en-es-solar-paneles",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How many photovoltaic panels does the large inland solar plant operate?",
+      "expected": [
+        {
+          "docId": "es-tajo-central-solar",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 13.356899999999769,
+        "retrievalMs": 5.186099999999897,
+        "endToEndMs": 23.134500000000116,
+        "hits": [
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.031746031746031744,
+            "rank": 2
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031054405392392875,
+            "rank": 3
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029083245521601686,
+            "rank": 4
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028991596638655463,
+            "rank": 5
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027809742999616416,
+            "rank": 6
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02690501986276634,
+            "rank": 7
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026878868258178604,
+            "rank": 8
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026631393298059962,
+            "rank": 9
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.01639344262295082,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-tajo-central-solar:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-en-de-weser-schleusen",
+      "type": "cross-name",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How many locks does the Schleusenverband Weser operate?",
+      "expected": [
+        {
+          "docId": "de-weser-schleusen",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 12.98869999999988,
+        "retrievalMs": 5.057399999999689,
+        "endToEndMs": 22.41740000000027,
+        "hits": [
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031746031746031744,
+            "rank": 2
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.030776515151515152,
+            "rank": 3
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029211087420042643,
+            "rank": 4
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02871794871794872,
+            "rank": 5
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028594771241830064,
+            "rank": 6
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02804284323271665,
+            "rank": 7
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02758751902587519,
+            "rank": 8
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02712049508554787,
+            "rank": 9
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.016129032258064516,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-weser-schleusen:p2",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-en-es-betizu-2016",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-es",
+      "question": "What did the mountain dairy complete in 2016?",
+      "expected": [
+        {
+          "docId": "es-betizu-queseria",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 13.144600000000537,
+        "retrievalMs": 5.194499999999607,
+        "endToEndMs": 23.234699999999975,
+        "hits": [
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031746031746031744,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.0315136476426799,
+            "rank": 2
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030679156908665108,
+            "rank": 3
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029910714285714284,
+            "rank": 4
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02919863597612958,
+            "rank": 5
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029083245521601686,
+            "rank": 6
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02813852813852814,
+            "rank": 7
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02758751902587519,
+            "rank": 8
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.01639344262295082,
+            "rank": 9
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.016129032258064516,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-betizu-queseria:p3",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    }
+  ]
+}

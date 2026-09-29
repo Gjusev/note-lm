@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "corpus": "fusion-proto-v1",
+  "generator": "generate-corpus.mjs",
+  "pdfLib": "1.17.1",
+  "deterministic": true,
+  "docs": [
+    {
+      "docId": "en-caledonia-woollen",
+      "fileName": "en-caledonia-woollen.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-kearsley-brewery",
+      "fileName": "en-kearsley-brewery.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-cotswold-quarry",
+      "fileName": "en-cotswold-quarry.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-fal-lightvessel",
+      "fileName": "en-fal-lightvessel.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-cantabrico-faros",
+      "fileName": "es-cantabrico-faros.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-jarama-ferrocarril",
+      "fileName": "es-jarama-ferrocarril.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-tajo-central-solar",
+      "fileName": "es-tajo-central-solar.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-betizu-queseria",
+      "fileName": "es-betizu-queseria.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-weser-schleusen",
+      "fileName": "de-weser-schleusen.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-odenwald-bergbau",
+      "fileName": "de-odenwald-bergbau.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-thueringen-porzellan",
+      "fileName": "de-thueringen-porzellan.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-helgoland-vogelwarte",
+      "fileName": "de-helgoland-vogelwarte.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    }
+  ],
+  "totals": {
+    "docs": 12,
+    "pages": 60
+  },
+  "languageCounts": {
+    "en": 4,
+    "es": 4,
+    "de": 4
+  }
+}

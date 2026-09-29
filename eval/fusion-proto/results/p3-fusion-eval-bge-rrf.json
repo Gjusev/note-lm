@@ -1,0 +1,2055 @@
+{
+  "meta": {
+    "timestamp": "2026-09-29T12:29:45.943Z",
+    "experiment": "P3-fusion-proto-v1",
+    "corpus": "fusion-proto-v1",
+    "corpusRole": "RESERVED decision set",
+    "subset": "eval",
+    "recipe": "bge",
+    "policy": "rrf",
+    "questionCount": 18,
+    "embedding": {
+      "provider": "llamacpp",
+      "model": "bge-small-en-v1.5",
+      "revision": "q8_0",
+      "dimension": 384,
+      "pooling": "mean"
+    },
+    "fusion": {
+      "policy": "rrf",
+      "protectedHead": null,
+      "rrfK": 60
+    },
+    "chunking": {
+      "maxChunkSize": 50,
+      "overlap": 10,
+      "totalChunks": 61,
+      "totalDocs": 12
+    },
+    "runs": 1
+  },
+  "phases": {
+    "ingestMs": 1130.6548000000012,
+    "indexMs": 6744.6288,
+    "runsMs": 215.96490000000085,
+    "gradeMs": 0.9541000000008353,
+    "totalMs": 8095.8681
+  },
+  "overall": {
+    "answerable": {
+      "count": 14,
+      "recallAt10": 0.6428571428571429,
+      "mrr": 0.5446428571428571,
+      "ndcgAt10": 0.5675996164540847,
+      "docIdRecallAt10": 0.7142857142857143
+    },
+    "unanswerable": {
+      "count": 4,
+      "evidencePressure": 0.75,
+      "pressuredQuestionIds": [
+        "ua-de-gletscher",
+        "ua-en-submarine",
+        "ua-en-panda"
+      ],
+      "threshold": 0.03131881575727918,
+      "thresholdRule": "10th percentile of top-1 score over this run's answerable questions (same arm)"
+    }
+  },
+  "byPair": {
+    "es-es": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.75,
+      "ndcgAt10": 0.8154648767857288
+    },
+    "es-en": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.5,
+      "ndcgAt10": 0.5
+    },
+    "es-de": {
+      "count": 1,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "de-de": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "de-es": {
+      "count": 1,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "de-en": {
+      "count": 1,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "en-en": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "en-de": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.0625,
+      "ndcgAt10": 0.15773243839286438
+    },
+    "en-es": {
+      "count": 1,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    }
+  },
+  "byType": {
+    "mono-fact": {
+      "count": 6,
+      "recallAt10": 1,
+      "mrr": 0.9166666666666666,
+      "ndcgAt10": 0.9384882922619097
+    },
+    "cross-fact": {
+      "count": 3,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "cross-name": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "cross-number": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.0625,
+      "ndcgAt10": 0.15773243839286438
+    },
+    "cross-distractor": {
+      "count": 1,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    }
+  },
+  "crossLingualAggregate": {
+    "count": 8,
+    "recallAt10": 0.375,
+    "mrr": 0.265625,
+    "ndcgAt10": 0.2894331095982161
+  },
+  "monoAggregate": {
+    "count": 6,
+    "recallAt10": 1,
+    "mrr": 0.9166666666666666,
+    "ndcgAt10": 0.9384882922619097
+  },
+  "perf": {
+    "measuredRuns": 1,
+    "warmupRuns": 0,
+    "retrievalP50Ms": 2.161000000000058,
+    "retrievalP95Ms": 2.706000000000131,
+    "retrievalMeanMs": 6.483972222221989,
+    "queryEmbedP50Ms": 4.227700000001278,
+    "queryEmbedP95Ms": 4.522800000000643,
+    "endToEndP50Ms": 7.913800000000265,
+    "endToEndP95Ms": 8.706200000000536,
+    "metricDriftRuns": 0,
+    "note": "retrievalMs = searchHybrid call with pre-embedded query; endToEndMs = query-embedding HTTP + searchHybrid (the honest user-facing wall time); latency aggregates exclude the warmup run"
+  },
+  "perQuestion": [
+    {
+      "id": "mono-es-jarama-visitantes",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-jarama-ferrocarril:p4",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "mono-es-queseria-ovejas",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-betizu-queseria:p2",
+        "vectorRank": 2,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-es-en-quarry-toneladas",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-cotswold-quarry:p4",
+        "vectorRank": null,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-de-porzellan-temperatura",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-thueringen-porzellan:p3",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-es-en-fal-buques",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-en",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "en-fal-lightvessel:p2",
+        "vectorRank": 2,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "mono-de-porzellan-mitarbeiter",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-thueringen-porzellan:p2",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "mono-de-vogelwarte-arten",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-helgoland-vogelwarte:p2",
+        "vectorRank": 2,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-de-es-faros-alcance",
+      "type": "cross-fact",
+      "language": "de",
+      "pair": "de-es",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "es-cantabrico-faros:p3",
+        "vectorRank": 25,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-de-en-kearsley-dampfmaschine",
+      "type": "cross-number",
+      "language": "de",
+      "pair": "de-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-kearsley-brewery:p3",
+        "vectorRank": null,
+        "ftsRank": 5
+      }
+    },
+    {
+      "id": "mono-en-woollen-looms",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "en-caledonia-woollen:p3",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "mono-en-brewery-rebuild",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "en-kearsley-brewery:p3",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-en-de-bergbau-tiefe",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "de-odenwald-bergbau:p3",
+        "vectorRank": 15,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-en-de-odenwald-1935",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-de",
+      "recallAt10": 1,
+      "mrr": 0.125,
+      "ndcgAt10": 0.31546487678572877,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-odenwald-bergbau:p3",
+        "vectorRank": 14,
+        "ftsRank": 8
+      }
+    },
+    {
+      "id": "x-en-es-tajo-robot",
+      "type": "cross-distractor",
+      "language": "en",
+      "pair": "en-es",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-tajo-central-solar:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "mono-es-jarama-visitantes",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántos visitantes recibió el año pasado el tren histórico del valle?",
+      "expected": [
+        {
+          "docId": "es-jarama-ferrocarril",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.2872000000006665,
+        "retrievalMs": 79.25840000000062,
+        "endToEndMs": 85.33069999999861,
+        "hits": [
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03149801587301587,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.030834914611005692,
+            "rank": 3
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03007688828584351,
+            "rank": 4
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029513888888888888,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029116045245077504,
+            "rank": 6
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028985507246376812,
+            "rank": 7
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028484848484848488,
+            "rank": 8
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028205128205128206,
+            "rank": 9
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.028083267871170464,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-jarama-ferrocarril:p4",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "mono-es-queseria-ovejas",
+      "type": "mono-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántas ovejas ordeña cada día la quesería artesanal?",
+      "expected": [
+        {
+          "docId": "es-betizu-queseria",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.229800000000978,
+        "retrievalMs": 2.2721999999994296,
+        "endToEndMs": 7.913800000000265,
+        "hits": [
+          {
+            "docId": "es-betizu-queseria",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.032266458495966696,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.032018442622950824,
+            "rank": 2
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031754032258064516,
+            "rank": 3
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03125763125763126,
+            "rank": 4
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029850746268656716,
+            "rank": 5
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.029437229437229435,
+            "rank": 6
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029273504273504274,
+            "rank": 7
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02878726010616578,
+            "rank": 8
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028370221327967807,
+            "rank": 9
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028006267136701922,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-betizu-queseria:p2",
+          "vectorRank": 2,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-es-en-quarry-toneladas",
+      "type": "cross-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántas toneladas de piedra extrae al año la gran cantera de caliza?",
+      "expected": [
+        {
+          "docId": "en-cotswold-quarry",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.522800000000643,
+        "retrievalMs": 2.0340999999989435,
+        "endToEndMs": 8.13930000000073,
+        "hits": [
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.03225806451612903,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030776515151515152,
+            "rank": 3
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030158730158730156,
+            "rank": 4
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029418126757516764,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029386529386529386,
+            "rank": 6
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029236022193768675,
+            "rank": 7
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029083245521601686,
+            "rank": 8
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.028404512489927477,
+            "rank": 9
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027912386121341344,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-cotswold-quarry:p4",
+          "vectorRank": null,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-de-porzellan-temperatura",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿A qué temperatura cuece el horno la Porzellanmanufaktur Henneberg?",
+      "expected": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 3.9056000000000495,
+        "retrievalMs": 2.161000000000058,
+        "endToEndMs": 7.6313999999983935,
+        "hits": [
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.0315136476426799,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029910714285714284,
+            "rank": 3
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029631255487269532,
+            "rank": 4
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029571646010002173,
+            "rank": 5
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.028665028665028666,
+            "rank": 6
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028169014084507043,
+            "rank": 7
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026992753623188405,
+            "rank": 8
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026881720430107527,
+            "rank": 9
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026631393298059962,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-thueringen-porzellan:p3",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-es-en-fal-buques",
+      "type": "cross-name",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántos buques faro mantiene la Fal Lightvessel Trust?",
+      "expected": [
+        {
+          "docId": "en-fal-lightvessel",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 3.9891999999999825,
+        "retrievalMs": 2.0218999999997322,
+        "endToEndMs": 7.721999999999753,
+        "hits": [
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.032266458495966696,
+            "rank": 2
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.030536130536130537,
+            "rank": 3
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029386529386529386,
+            "rank": 4
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028949545078577336,
+            "rank": 5
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028404512489927477,
+            "rank": 6
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028309409888357256,
+            "rank": 7
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028258706467661692,
+            "rank": 8
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02797067901234568,
+            "rank": 9
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027425373134328357,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-fal-lightvessel:p2",
+          "vectorRank": 2,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "ua-es-futbol",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Quién ganó la liga regional de fútbol?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 3.8004000000000815,
+        "retrievalMs": 2.227499999999054,
+        "endToEndMs": 6.03440000000046,
+        "hits": [
+          {
+            "docId": "es-betizu-queseria",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.030798389007344232,
+            "rank": 1
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03021353930031804,
+            "rank": 2
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02964426877470356,
+            "rank": 3
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029513888888888888,
+            "rank": 4
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02938045560996381,
+            "rank": 5
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028588564574170333,
+            "rank": 6
+          },
+          {
+            "docId": "es-cantabrico-faros",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02844551282051282,
+            "rank": 7
+          },
+          {
+            "docId": "es-jarama-ferrocarril",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028083267871170464,
+            "rank": 8
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027799227799227798,
+            "rank": 9
+          },
+          {
+            "docId": "es-betizu-queseria",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.027579737335834898,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "mono-de-porzellan-mitarbeiter",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Mitarbeiter beschäftigt die Porzellanmanufaktur heute?",
+      "expected": [
+        {
+          "docId": "de-thueringen-porzellan",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 3.766299999999319,
+        "retrievalMs": 1.924300000000585,
+        "endToEndMs": 7.105600000000777,
+        "hits": [
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030621785881252923,
+            "rank": 2
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03055037313432836,
+            "rank": 3
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030117753623188408,
+            "rank": 4
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030090497737556562,
+            "rank": 5
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029437229437229435,
+            "rank": 6
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029437229437229435,
+            "rank": 7
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.02928692699490662,
+            "rank": 8
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.029273504273504274,
+            "rank": 9
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028531243721117136,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-thueringen-porzellan:p2",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "mono-de-vogelwarte-arten",
+      "type": "mono-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viele Vogelarten hat die Station seit ihrer Gründung dokumentiert?",
+      "expected": [
+        {
+          "docId": "de-helgoland-vogelwarte",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.331299999999828,
+        "retrievalMs": 2.2700000000004366,
+        "endToEndMs": 8.364500000001499,
+        "hits": [
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.032266458495966696,
+            "rank": 1
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03200204813108039,
+            "rank": 2
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031054405392392875,
+            "rank": 3
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030886196246139225,
+            "rank": 4
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030309988518943745,
+            "rank": 5
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029513888888888888,
+            "rank": 6
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.02919863597612958,
+            "rank": 7
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028991596638655463,
+            "rank": 8
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028665028665028666,
+            "rank": 9
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.02758751902587519,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-helgoland-vogelwarte:p2",
+          "vectorRank": 2,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-de-es-faros-alcance",
+      "type": "cross-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Seemeilen weit reicht das Licht der wichtigsten Leuchtfeuer?",
+      "expected": [
+        {
+          "docId": "es-cantabrico-faros",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.25840000000062,
+        "retrievalMs": 2.706000000000131,
+        "endToEndMs": 8.68289999999979,
+        "hits": [
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03131881575727918,
+            "rank": 1
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031054405392392875,
+            "rank": 2
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031009615384615385,
+            "rank": 3
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03057889822595705,
+            "rank": 4
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029827662395050816,
+            "rank": 5
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.02976190476190476,
+            "rank": 6
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.029709507042253523,
+            "rank": 7
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.02964426877470356,
+            "rank": 8
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02964426877470356,
+            "rank": 9
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.0288981288981289,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-cantabrico-faros:p3",
+          "vectorRank": 25,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-de-en-kearsley-dampfmaschine",
+      "type": "cross-number",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wo kann die Dampfmaschine von 1898 besichtigt werden?",
+      "expected": [
+        {
+          "docId": "en-kearsley-brewery",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.0468999999993684,
+        "retrievalMs": 2.397099999998318,
+        "endToEndMs": 8.116299999999683,
+        "hits": [
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031024531024531024,
+            "rank": 2
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03055037313432836,
+            "rank": 3
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03021353930031804,
+            "rank": 4
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02976190476190476,
+            "rank": 5
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02967032967032967,
+            "rank": 6
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029551337359792925,
+            "rank": 7
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028985507246376812,
+            "rank": 8
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028814262023217248,
+            "rank": 9
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.02803921568627451,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-kearsley-brewery:p3",
+          "vectorRank": null,
+          "ftsRank": 5
+        }
+      }
+    },
+    {
+      "id": "ua-de-gletscher",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie schnell bewegt sich der Gletscher jedes Jahr?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 4.003200000001016,
+        "retrievalMs": 2.186700000000201,
+        "endToEndMs": 6.203199999999924,
+        "hits": [
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03177805800756621,
+            "rank": 1
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031754032258064516,
+            "rank": 2
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 3,
+            "lastPage": 5,
+            "score": 0.03149801587301587,
+            "rank": 3
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.030621785881252923,
+            "rank": 4
+          },
+          {
+            "docId": "de-weser-schleusen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029437229437229435,
+            "rank": 5
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029386529386529386,
+            "rank": 6
+          },
+          {
+            "docId": "de-helgoland-vogelwarte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028790389395194696,
+            "rank": 7
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028381642512077296,
+            "rank": 8
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 1,
+            "lastPage": 3,
+            "score": 0.028371628371628373,
+            "rank": 9
+          },
+          {
+            "docId": "de-thueringen-porzellan",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028309409888357256,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "mono-en-woollen-looms",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How many looms run in the weaving shed of the tweed mill?",
+      "expected": [
+        {
+          "docId": "en-caledonia-woollen",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.210999999999331,
+        "retrievalMs": 2.1535000000003492,
+        "endToEndMs": 8.094700000001467,
+        "hits": [
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03225806451612903,
+            "rank": 2
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031746031746031744,
+            "rank": 3
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03125,
+            "rank": 4
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030536130536130537,
+            "rank": 5
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029857397504456328,
+            "rank": 6
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02900988017658188,
+            "rank": 7
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028814262023217248,
+            "rank": 8
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02877846790890269,
+            "rank": 9
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02871794871794872,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-caledonia-woollen:p3",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "mono-en-brewery-rebuild",
+      "type": "mono-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much did the 2011 brewhouse rebuild cost the brewery?",
+      "expected": [
+        {
+          "docId": "en-kearsley-brewery",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.433499999999185,
+        "retrievalMs": 2.3733999999985826,
+        "endToEndMs": 8.706200000000536,
+        "hits": [
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.032266458495966696,
+            "rank": 2
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.031754032258064516,
+            "rank": 3
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03149801587301587,
+            "rank": 4
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02964426877470356,
+            "rank": 5
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029211087420042643,
+            "rank": 6
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028991596638655463,
+            "rank": 7
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.0288981288981289,
+            "rank": 8
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028814262023217248,
+            "rank": 9
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02803921568627451,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-kearsley-brewery:p3",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-en-de-bergbau-tiefe",
+      "type": "cross-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How deep does the show mine's gallery go?",
+      "expected": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.025499999999738,
+        "retrievalMs": 1.951100000000224,
+        "endToEndMs": 7.459200000001147,
+        "hits": [
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03225806451612903,
+            "rank": 2
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03149801587301587,
+            "rank": 3
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029571646010002173,
+            "rank": 4
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029273504273504274,
+            "rank": 5
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028790389395194696,
+            "rank": 6
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02862400327131466,
+            "rank": 7
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02649122807017544,
+            "rank": 8
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.025934278350515462,
+            "rank": 9
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02548562548562549,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-odenwald-bergbau:p3",
+          "vectorRank": 15,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-en-de-odenwald-1935",
+      "type": "cross-number",
+      "language": "en",
+      "pair": "en-de",
+      "question": "Which structure at the mine dates from 1935?",
+      "expected": [
+        {
+          "docId": "de-odenwald-bergbau",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.666900000000169,
+        "retrievalMs": 2.034299999999348,
+        "endToEndMs": 8.581500000000233,
+        "hits": [
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031024531024531024,
+            "rank": 1
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030679156908665108,
+            "rank": 2
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02946236559139785,
+            "rank": 3
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029437229437229435,
+            "rank": 4
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029418126757516764,
+            "rank": 5
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029116045245077504,
+            "rank": 6
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028371628371628373,
+            "rank": 7
+          },
+          {
+            "docId": "de-odenwald-bergbau",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02821939586645469,
+            "rank": 8
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02804284323271665,
+            "rank": 9
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02797067901234568,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-odenwald-bergbau:p3",
+          "vectorRank": 14,
+          "ftsRank": 8
+        }
+      }
+    },
+    {
+      "id": "x-en-es-tajo-robot",
+      "type": "cross-distractor",
+      "language": "en",
+      "pair": "en-es",
+      "question": "Which robotic system keeps the panels of the large solar site clean?",
+      "expected": [
+        {
+          "docId": "es-tajo-central-solar",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 4.453199999999924,
+        "retrievalMs": 2.128500000000713,
+        "endToEndMs": 8.29910000000018,
+        "hits": [
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.031754032258064516,
+            "rank": 1
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03131881575727918,
+            "rank": 2
+          },
+          {
+            "docId": "es-tajo-central-solar",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.029827662395050816,
+            "rank": 3
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028258706467661692,
+            "rank": 4
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02797339593114241,
+            "rank": 5
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027529761904761904,
+            "rank": 6
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027071520029266508,
+            "rank": 7
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026387470207694927,
+            "rank": 8
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02625418060200669,
+            "rank": 9
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.025816993464052286,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-tajo-central-solar:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "ua-en-submarine",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "How deep can the research submarine dive?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 4.2775000000001455,
+        "retrievalMs": 2.593799999998737,
+        "endToEndMs": 6.877500000000509,
+        "hits": [
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031754032258064516,
+            "rank": 2
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030309988518943745,
+            "rank": 3
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03028233151183971,
+            "rank": 4
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029206349206349208,
+            "rank": 5
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027651515151515153,
+            "rank": 6
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027598020555767037,
+            "rank": 7
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027443609022556388,
+            "rank": 8
+          },
+          {
+            "docId": "en-cotswold-quarry",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02519288301054952,
+            "rank": 9
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02470238095238095,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "ua-en-panda",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "When were the pandas introduced at the city zoo?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 4.227700000001278,
+        "retrievalMs": 2.017700000000332,
+        "endToEndMs": 6.2476000000006024,
+        "hits": [
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.0315136476426799,
+            "rank": 2
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030798389007344232,
+            "rank": 3
+          },
+          {
+            "docId": "en-kearsley-brewery",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.0288981288981289,
+            "rank": 4
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02844163539403516,
+            "rank": 5
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028006267136701922,
+            "rank": 6
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027242401779095628,
+            "rank": 7
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026399331662489554,
+            "rank": 8
+          },
+          {
+            "docId": "en-fal-lightvessel",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026387470207694927,
+            "rank": 9
+          },
+          {
+            "docId": "en-caledonia-woollen",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026144907723855092,
+            "rank": 10
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "docId": "es-betizu-queseria",
+  "fileName": "es-betizu-queseria.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Quesería Betizu"
+      ],
+      "firstWords": "Quesería Betizu"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Resumen general"
+      ],
+      "firstWords": "Resumen general"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Instalaciones"
+      ],
+      "firstWords": "Instalaciones"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Cifras"
+      ],
+      "firstWords": "Cifras"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Planes"
+      ],
+      "firstWords": "Planes"
+    }
+  ]
+}

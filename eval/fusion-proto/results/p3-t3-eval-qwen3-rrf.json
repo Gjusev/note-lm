@@ -1,0 +1,2649 @@
+{
+  "meta": {
+    "timestamp": "2026-09-29T12:28:17.309Z",
+    "experiment": "P3-fusion-proto-v1",
+    "corpus": "multilingual-proto-v1",
+    "corpusRole": "REGRESSION ONLY (inspected during T3; not a decision source)",
+    "subset": "eval",
+    "recipe": "qwen3",
+    "policy": "rrf",
+    "questionCount": 24,
+    "embedding": {
+      "provider": "llamacpp",
+      "model": "Qwen3-Embedding-0.6B",
+      "revision": "q8_0",
+      "dimension": 1024,
+      "pooling": "last"
+    },
+    "fusion": {
+      "policy": "rrf",
+      "protectedHead": null,
+      "rrfK": 60
+    },
+    "chunking": {
+      "maxChunkSize": 50,
+      "overlap": 10,
+      "totalChunks": 79,
+      "totalDocs": 12
+    },
+    "runs": 1
+  },
+  "phases": {
+    "ingestMs": 493.73159999999996,
+    "indexMs": 12221.819899999999,
+    "runsMs": 868.6357000000007,
+    "gradeMs": 4.821799999999712,
+    "totalMs": 13760.1032
+  },
+  "overall": {
+    "answerable": {
+      "count": 18,
+      "recallAt10": 0.5,
+      "mrr": 0.2833333333333334,
+      "ndcgAt10": 0.33629709346766656,
+      "docIdRecallAt10": 0.6111111111111112
+    },
+    "unanswerable": {
+      "count": 6,
+      "evidencePressure": 0.8333333333333334,
+      "pressuredQuestionIds": [
+        "ua-es-zarza",
+        "ua-es-apnea",
+        "ua-de-schwarm",
+        "ua-en-jorvik",
+        "ua-en-reykjavik"
+      ],
+      "threshold": 0.02886002886002886,
+      "thresholdRule": "10th percentile of top-1 score over this run's answerable questions (same arm)"
+    }
+  },
+  "byPair": {
+    "es-es": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1
+    },
+    "es-de": {
+      "count": 2,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "es-en": {
+      "count": 2,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "de-de": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.75,
+      "ndcgAt10": 0.8154648767857288
+    },
+    "de-es": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.2,
+      "ndcgAt10": 0.38685280723454163
+    },
+    "de-en": {
+      "count": 2,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    },
+    "en-en": {
+      "count": 2,
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575
+    },
+    "en-es": {
+      "count": 2,
+      "recallAt10": 0.5,
+      "mrr": 0.1,
+      "ndcgAt10": 0.19342640361727081
+    },
+    "en-de": {
+      "count": 2,
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0
+    }
+  },
+  "byType": {
+    "exact-fact": {
+      "count": 6,
+      "recallAt10": 1,
+      "mrr": 0.75,
+      "ndcgAt10": 0.8154648767857289
+    },
+    "cross-lingual-fact": {
+      "count": 12,
+      "recallAt10": 0.25,
+      "mrr": 0.05000000000000001,
+      "ndcgAt10": 0.09671320180863541
+    }
+  },
+  "crossLingualAggregate": {
+    "count": 12,
+    "recallAt10": 0.25,
+    "mrr": 0.05000000000000001,
+    "ndcgAt10": 0.09671320180863541
+  },
+  "monoAggregate": {
+    "count": 6,
+    "recallAt10": 1,
+    "mrr": 0.75,
+    "ndcgAt10": 0.8154648767857289
+  },
+  "perf": {
+    "measuredRuns": 1,
+    "warmupRuns": 0,
+    "retrievalP50Ms": 3.7445000000006985,
+    "retrievalP95Ms": 6.117000000000189,
+    "retrievalMeanMs": 19.055866666666436,
+    "queryEmbedP50Ms": 14.819900000000416,
+    "queryEmbedP95Ms": 16.551499999999578,
+    "endToEndP50Ms": 21.42540000000008,
+    "endToEndP95Ms": 25.991299999999683,
+    "metricDriftRuns": 0,
+    "note": "retrievalMs = searchHybrid call with pre-embedded query; endToEndMs = query-embedding HTTP + searchHybrid (the honest user-facing wall time); latency aggregates exclude the warmup run"
+  },
+  "perQuestion": [
+    {
+      "id": "mono-es-azud-caudal",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-guadalquivir-azud:p4",
+        "vectorRank": 1,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "mono-es-almeria-cinta",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-almeria-granos:p3",
+        "vectorRank": 2,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-es-de-ruhr-poros",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "de-ruhr-filterwerk:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-de-havel-barcos",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "de-havel-trockendock:p4",
+        "vectorRank": 2,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-en-harrow-horno",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-harrow-glassworks:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-es-en-whitmore-empleados",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-whitmore-printworks:p2",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "mono-de-erzgebirge-saege",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-erzgebirge-holzmanufaktur:p3",
+        "vectorRank": 2,
+        "ftsRank": 2
+      }
+    },
+    {
+      "id": "mono-de-ruhr-abgabe",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "recallAt10": 1,
+      "mrr": 1,
+      "ndcgAt10": 1,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-ruhr-filterwerk:p4",
+        "vectorRank": 2,
+        "ftsRank": 1
+      }
+    },
+    {
+      "id": "x-de-es-almeria-schiffe",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "recallAt10": 1,
+      "mrr": 0.2,
+      "ndcgAt10": 0.38685280723454163,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-almeria-granos:p4",
+        "vectorRank": 2,
+        "ftsRank": 22
+      }
+    },
+    {
+      "id": "x-de-es-azud-reforestacion",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "recallAt10": 1,
+      "mrr": 0.2,
+      "ndcgAt10": 0.38685280723454163,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-guadalquivir-azud:p5",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-de-en-larkfield-akzessionen",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-larkfield-seedbank:p2",
+        "vectorRank": 2,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-de-en-whitmore-bogen",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "en-whitmore-printworks:p3",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "mono-en-harrow-output",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "en-harrow-glassworks:p3",
+        "vectorRank": 2,
+        "ftsRank": 2
+      }
+    },
+    {
+      "id": "mono-en-whitmore-paper",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "recallAt10": 1,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "en-whitmore-printworks:p4",
+        "vectorRank": 1,
+        "ftsRank": 2
+      }
+    },
+    {
+      "id": "x-en-es-valdepeluca-vendimia",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-valdepeluca-cavas:p4",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-en-es-almeria-calado",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "recallAt10": 1,
+      "mrr": 0.2,
+      "ndcgAt10": 0.38685280723454163,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "es-almeria-granos:p3",
+        "vectorRank": 1,
+        "ftsRank": 12
+      }
+    },
+    {
+      "id": "x-en-de-ruhr-rueckgewinnung",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 0,
+      "branchRanks": {
+        "evidence": "de-ruhr-filterwerk:p4",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    },
+    {
+      "id": "x-en-de-alpenstern-naechte",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "recallAt10": 0,
+      "mrr": 0,
+      "ndcgAt10": 0,
+      "docIdRecallAt10": 1,
+      "branchRanks": {
+        "evidence": "de-alpenstern-warte:p4",
+        "vectorRank": 1,
+        "ftsRank": null
+      }
+    }
+  ],
+  "questions": [
+    {
+      "id": "mono-es-azud-caudal",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuál fue el caudal medio durante la campaña de aforos de 2024?",
+      "expected": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 16.144899999999325,
+        "retrievalMs": 364.26980000000003,
+        "endToEndMs": 384.4838,
+        "hits": [
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.03225806451612903,
+            "rank": 2
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.031024531024531024,
+            "rank": 3
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.030330882352941176,
+            "rank": 4
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.030309988518943745,
+            "rank": 5
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029910714285714284,
+            "rank": 6
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02946912242686891,
+            "rank": 7
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029418126757516764,
+            "rank": 8
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02904040404040404,
+            "rank": 9
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027984344422700584,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-guadalquivir-azud:p4",
+          "vectorRank": 1,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "mono-es-almeria-cinta",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuál es la capacidad de la cinta transportadora principal de la terminal de granos de Almería?",
+      "expected": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.01169999999911,
+        "retrievalMs": 4.002800000000207,
+        "endToEndMs": 22.186900000000605,
+        "hits": [
+          {
+            "docId": "es-almeria-granos",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.032018442622950824,
+            "rank": 2
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.03200204813108039,
+            "rank": 3
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03149801587301587,
+            "rank": 4
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.030536130536130537,
+            "rank": 5
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030309988518943745,
+            "rank": 6
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.029631255487269532,
+            "rank": 7
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.027242401779095628,
+            "rank": 8
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.027046783625730993,
+            "rank": 9
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026785714285714288,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-almeria-granos:p3",
+          "vectorRank": 2,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-es-de-ruhr-poros",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿De qué tamaño son los poros de los filtros de la planta de agua potable?",
+      "expected": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 16.29910000000018,
+        "retrievalMs": 5.294799999999668,
+        "endToEndMs": 25.991299999999683,
+        "hits": [
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02964426877470356,
+            "rank": 1
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028790389395194696,
+            "rank": 2
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.027912386121341344,
+            "rank": 3
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.027777777777777776,
+            "rank": 4
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027432808155699723,
+            "rank": 5
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.027205882352941177,
+            "rank": 6
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02702702702702703,
+            "rank": 7
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026785714285714288,
+            "rank": 8
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.025978407557354925,
+            "rank": 9
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.025679012345679014,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-ruhr-filterwerk:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-de-havel-barcos",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Cuántos buques recibe al año el dique seco de la zona Este?",
+      "expected": [
+        {
+          "docId": "de-havel-trockendock",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 17.060099999998783,
+        "retrievalMs": 6.117000000000189,
+        "endToEndMs": 27.811100000000806,
+        "hits": [
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030117753623188408,
+            "rank": 2
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028790389395194696,
+            "rank": 3
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028484848484848488,
+            "rank": 4
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.028381642512077296,
+            "rank": 5
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028205128205128206,
+            "rank": 6
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027783137179239824,
+            "rank": 7
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027629397679130595,
+            "rank": 8
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.027583600982429624,
+            "rank": 9
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027106227106227107,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-havel-trockendock:p4",
+          "vectorRank": 2,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-en-harrow-horno",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuánto costó la reconstrucción del segundo horno de la fábrica de vidrio?",
+      "expected": [
+        {
+          "docId": "en-harrow-glassworks",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 14.739600000000792,
+        "retrievalMs": 3.9169999999994616,
+        "endToEndMs": 22.601800000000367,
+        "hits": [
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02886002886002886,
+            "rank": 1
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.026356857985087564,
+            "rank": 2
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.025448143405889884,
+            "rank": 3
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.025206087507926443,
+            "rank": 4
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02481203007518797,
+            "rank": 5
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.024501173708920188,
+            "rank": 6
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.024322344322344324,
+            "rank": 7
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02399425287356322,
+            "rank": 8
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02309836718438869,
+            "rank": 9
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.022132550745903645,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-harrow-glassworks:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-es-en-whitmore-empleados",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántas personas trabajan en la imprenta familiar?",
+      "expected": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 13.13340000000062,
+        "retrievalMs": 4.301000000001295,
+        "endToEndMs": 21.481599999999162,
+        "hits": [
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030117753623188408,
+            "rank": 1
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.027432808155699723,
+            "rank": 2
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026397515527950312,
+            "rank": 3
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.026182294223531334,
+            "rank": 4
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.025516795865633074,
+            "rank": 5
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.02458521870286576,
+            "rank": 6
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.024115296803652965,
+            "rank": 7
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.023369565217391305,
+            "rank": 8
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02319109461966605,
+            "rank": 9
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.022947810123262524,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-whitmore-printworks:p2",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "ua-es-zarza",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Qué coche eléctrico presenta la marca Zarza en 2027?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 16.20129999999881,
+        "retrievalMs": 6.590699999998833,
+        "endToEndMs": 22.80569999999898,
+        "hits": [
+          {
+            "docId": "es-almeria-granos",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03149801587301587,
+            "rank": 2
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02976190476190476,
+            "rank": 3
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02946912242686891,
+            "rank": 4
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02919863597612958,
+            "rank": 5
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028309409888357256,
+            "rank": 6
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026419626007891578,
+            "rank": 7
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026333789329685362,
+            "rank": 8
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02604430914933198,
+            "rank": 9
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02603648424543947,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "ua-es-apnea",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Cuál es el récord mundial de apnea estática en piscina?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 16.551499999999578,
+        "retrievalMs": 3.9681000000000495,
+        "endToEndMs": 20.528200000000652,
+        "hits": [
+          {
+            "docId": "es-montseny-reserva",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.029051670471052088,
+            "rank": 1
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02904040404040404,
+            "rank": 2
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028629032258064516,
+            "rank": 3
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02832415420928403,
+            "rank": 4
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027598020555767037,
+            "rank": 5
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.026553280111072546,
+            "rank": 6
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.026419626007891578,
+            "rank": 7
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.026397515527950312,
+            "rank": 8
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.0259915611814346,
+            "rank": 9
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.025098039215686277,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "mono-de-erzgebirge-saege",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viel Kubikmeter Fichtenholz verarbeitet das Sägewerk der Erzgebirge Holzmanufaktur pro Jahr?",
+      "expected": [
+        {
+          "docId": "de-erzgebirge-holzmanufaktur",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 17.21259999999893,
+        "retrievalMs": 4.956599999999526,
+        "endToEndMs": 25.96010000000024,
+        "hits": [
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03225806451612903,
+            "rank": 2
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.031746031746031744,
+            "rank": 3
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029236022193768675,
+            "rank": 4
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029211087420042643,
+            "rank": 5
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.029138513513513514,
+            "rank": 6
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02819138376017471,
+            "rank": 7
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027402402402402402,
+            "rank": 8
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026830135039090264,
+            "rank": 9
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02674825174825175,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-erzgebirge-holzmanufaktur:p3",
+          "vectorRank": 2,
+          "ftsRank": 2
+        }
+      }
+    },
+    {
+      "id": "mono-de-ruhr-abgabe",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viel Trinkwasser liefert das Ruhr-Filterwerk täglich ins Netz?",
+      "expected": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 14.895800000000236,
+        "retrievalMs": 3.9262999999991735,
+        "endToEndMs": 22.4359000000004,
+        "hits": [
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03252247488101534,
+            "rank": 2
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.031746031746031744,
+            "rank": 3
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.030776515151515152,
+            "rank": 4
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.028991596638655463,
+            "rank": 5
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027984344422700584,
+            "rank": 6
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02782608695652174,
+            "rank": 7
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027820121951219513,
+            "rank": 8
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027425373134328357,
+            "rank": 9
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027046783625730993,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-ruhr-filterwerk:p4",
+          "vectorRank": 2,
+          "ftsRank": 1
+        }
+      }
+    },
+    {
+      "id": "x-de-es-almeria-schiffe",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Schiffe hat der Getreidehafen im Jahr 2024 abgefertigt?",
+      "expected": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.871000000001004,
+        "retrievalMs": 3.4253000000007887,
+        "endToEndMs": 22.317799999998897,
+        "hits": [
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03149801587301587,
+            "rank": 2
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029877369007803793,
+            "rank": 3
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.029138513513513514,
+            "rank": 4
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02792120864410021,
+            "rank": 5
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027417840375586856,
+            "rank": 6
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02736498731424429,
+            "rank": 7
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027056277056277056,
+            "rank": 8
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02690100430416069,
+            "rank": 9
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.026875901875901876,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-almeria-granos:p4",
+          "vectorRank": 2,
+          "ftsRank": 22
+        }
+      }
+    },
+    {
+      "id": "x-de-es-azud-reforestacion",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Hektar Auwald sollen am Flusswehr aufgeforstet werden?",
+      "expected": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 5
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.493999999998778,
+        "retrievalMs": 3.5799000000006345,
+        "endToEndMs": 21.907200000001467,
+        "hits": [
+          {
+            "docId": "de-havel-trockendock",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.031544957774465976,
+            "rank": 1
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030330882352941176,
+            "rank": 2
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02871794871794872,
+            "rank": 3
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028373015873015873,
+            "rank": 4
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.01639344262295082,
+            "rank": 5
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.016129032258064516,
+            "rank": 6
+          },
+          {
+            "docId": "es-guadalquivir-azud",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.016129032258064516,
+            "rank": 7
+          },
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.015873015873015872,
+            "rank": 8
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015625,
+            "rank": 9
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015384615384615385,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-guadalquivir-azud:p5",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-de-en-larkfield-akzessionen",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wie viele Akzessionen umfasst die Sammlung der Saatgutbank?",
+      "expected": [
+        {
+          "docId": "en-larkfield-seedbank",
+          "page": 2
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.088700000000244,
+        "retrievalMs": 3.365799999999581,
+        "endToEndMs": 21.42540000000008,
+        "hits": [
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031099324975891997,
+            "rank": 1
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.031024531024531024,
+            "rank": 2
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.0264301860545992,
+            "rank": 3
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.026021080368906456,
+            "rank": 4
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.025833333333333333,
+            "rank": 5
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.025816993464052286,
+            "rank": 6
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02581612258494337,
+            "rank": 7
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.025448143405889884,
+            "rank": 8
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02454080096356519,
+            "rank": 9
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.023739701159056,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-larkfield-seedbank:p2",
+          "vectorRank": 2,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-de-en-whitmore-bogen",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wie viele Bogen pro Stunde schafft die größte Druckmaschine der Buchdruckerei?",
+      "expected": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 15.833300000000236,
+        "retrievalMs": 3.698099999999613,
+        "endToEndMs": 22.61449999999968,
+        "hits": [
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030309988518943745,
+            "rank": 1
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029957522915269395,
+            "rank": 2
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.0293236301369863,
+            "rank": 3
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028790389395194696,
+            "rank": 4
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027912386121341344,
+            "rank": 5
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02719970792259949,
+            "rank": 6
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027051561365286855,
+            "rank": 7
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.026984126984126985,
+            "rank": 8
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.026875901875901876,
+            "rank": 9
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026767330130404943,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-whitmore-printworks:p3",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "ua-de-schwarm",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Welches Startup baut Schwarmdrohnen in Rostock?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 13.471599999998944,
+        "retrievalMs": 3.716999999998734,
+        "endToEndMs": 17.194499999999607,
+        "hits": [
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03200204813108039,
+            "rank": 1
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.03028233151183971,
+            "rank": 2
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029910714285714284,
+            "rank": 3
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02967032967032967,
+            "rank": 4
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028782894736842105,
+            "rank": 5
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028258706467661692,
+            "rank": 6
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02797339593114241,
+            "rank": 7
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027650648360030512,
+            "rank": 8
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.026881720430107527,
+            "rank": 9
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.026754075124025514,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "ua-de-bitcoin",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie viele Bitcoin-Miner stehen im Harz?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 12.317199999999502,
+        "retrievalMs": 3.2770999999993364,
+        "endToEndMs": 15.596800000001167,
+        "hits": [
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027263007840342125,
+            "rank": 1
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.01639344262295082,
+            "rank": 2
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.016129032258064516,
+            "rank": 3
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.016129032258064516,
+            "rank": 4
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.015873015873015872,
+            "rank": 5
+          },
+          {
+            "docId": "es-montseny-reserva",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015873015873015872,
+            "rank": 6
+          },
+          {
+            "docId": "de-ruhr-filterwerk",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015625,
+            "rank": 7
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.015625,
+            "rank": 8
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015384615384615385,
+            "rank": 9
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.015151515151515152,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "mono-en-harrow-output",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much container glass does Harrow Glassworks deliver per year?",
+      "expected": [
+        {
+          "docId": "en-harrow-glassworks",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 12.428899999998976,
+        "retrievalMs": 3.8796999999995023,
+        "endToEndMs": 19.330399999998917,
+        "hits": [
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03278688524590164,
+            "rank": 1
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.03200204813108039,
+            "rank": 2
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03200204813108039,
+            "rank": 3
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02797067901234568,
+            "rank": 4
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02625745950554135,
+            "rank": 5
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02502638323533846,
+            "rank": 6
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015625,
+            "rank": 7
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015384615384615385,
+            "rank": 8
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.015384615384615385,
+            "rank": 9
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.015151515151515152,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-harrow-glassworks:p3",
+          "vectorRank": 2,
+          "ftsRank": 2
+        }
+      }
+    },
+    {
+      "id": "mono-en-whitmore-paper",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much paper did Whitmore Printworks consume in 2025?",
+      "expected": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 11.619599999999991,
+        "retrievalMs": 3.388699999999517,
+        "endToEndMs": 17.96349999999984,
+        "hits": [
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.03252247488101534,
+            "rank": 1
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.032266458495966696,
+            "rank": 2
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03200204813108039,
+            "rank": 3
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03125,
+            "rank": 4
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030536130536130537,
+            "rank": 5
+          },
+          {
+            "docId": "de-havel-trockendock",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029236022193768675,
+            "rank": 6
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.029083245521601686,
+            "rank": 7
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02857142857142857,
+            "rank": 8
+          },
+          {
+            "docId": "de-erzgebirge-holzmanufaktur",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028381642512077296,
+            "rank": 9
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028258706467661692,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "en-whitmore-printworks:p4",
+          "vectorRank": 1,
+          "ftsRank": 2
+        }
+      }
+    },
+    {
+      "id": "x-en-es-valdepeluca-vendimia",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How many tonnes of grapes were harvested at the Rioja winery in 2024?",
+      "expected": [
+        {
+          "docId": "es-valdepeluca-cavas",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 14.819900000000416,
+        "retrievalMs": 3.3989000000001397,
+        "endToEndMs": 21.30500000000029,
+        "hits": [
+          {
+            "docId": "es-valdepeluca-cavas",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.028169014084507043,
+            "rank": 1
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027425373134328357,
+            "rank": 2
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026988636363636364,
+            "rank": 3
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.026625704045058884,
+            "rank": 4
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.0264957264957265,
+            "rank": 5
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.025252525252525256,
+            "rank": 6
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.02523809523809524,
+            "rank": 7
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02501516070345664,
+            "rank": 8
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.024758454106280192,
+            "rank": 9
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02415181138585394,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-valdepeluca-cavas:p4",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-en-es-almeria-calado",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How deep is the berth at the grain terminal?",
+      "expected": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 3
+        }
+      ],
+      "perArm": {
+        "embedMs": 12.662099999999555,
+        "retrievalMs": 3.3328999999994267,
+        "endToEndMs": 19.019099999999526,
+        "hits": [
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.031054405392392875,
+            "rank": 1
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030776515151515152,
+            "rank": 2
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.03028233151183971,
+            "rank": 3
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.030158730158730156,
+            "rank": 4
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.03009207275993712,
+            "rank": 5
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.030017921146953404,
+            "rank": 6
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.028577260665441927,
+            "rank": 7
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.027637721755368813,
+            "rank": 8
+          },
+          {
+            "docId": "es-almeria-granos",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.027272727272727275,
+            "rank": 9
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.027242401779095628,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "es-almeria-granos:p3",
+          "vectorRank": 1,
+          "ftsRank": 12
+        }
+      }
+    },
+    {
+      "id": "x-en-de-ruhr-rueckgewinnung",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "What is the water recovery rate at the drinking water plant?",
+      "expected": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 12.441799999998693,
+        "retrievalMs": 3.7206999999998516,
+        "endToEndMs": 19.218300000000454,
+        "hits": [
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03177805800756621,
+            "rank": 1
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029910714285714284,
+            "rank": 2
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.028373015873015873,
+            "rank": 3
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02821939586645469,
+            "rank": 4
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.02817460317460317,
+            "rank": 5
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02803921568627451,
+            "rank": 6
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02803379416282642,
+            "rank": 7
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.026279628993473032,
+            "rank": 8
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.025856389986824768,
+            "rank": 9
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02574682290807064,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-ruhr-filterwerk:p4",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "x-en-de-alpenstern-naechte",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How many clear nights per year does the alpine observatory record?",
+      "expected": [
+        {
+          "docId": "de-alpenstern-warte",
+          "page": 4
+        }
+      ],
+      "perArm": {
+        "embedMs": 13.314300000000003,
+        "retrievalMs": 3.74829999999929,
+        "endToEndMs": 20.127599999999802,
+        "hits": [
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03028233151183971,
+            "rank": 1
+          },
+          {
+            "docId": "de-alpenstern-warte",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.029418126757516764,
+            "rank": 2
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028373015873015873,
+            "rank": 3
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028083267871170464,
+            "rank": 4
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.027443609022556388,
+            "rank": 5
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02651914295749912,
+            "rank": 6
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02574682290807064,
+            "rank": 7
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.025726010101010104,
+            "rank": 8
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02470238095238095,
+            "rank": 9
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.02420289855072464,
+            "rank": 10
+          }
+        ],
+        "branchRanks": {
+          "evidence": "de-alpenstern-warte:p4",
+          "vectorRank": 1,
+          "ftsRank": null
+        }
+      }
+    },
+    {
+      "id": "ua-en-jorvik",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "What is the ticket price for the Jorvik Viking festival?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 13.464799999999741,
+        "retrievalMs": 3.7197999999989406,
+        "endToEndMs": 17.187300000001414,
+        "hits": [
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.0315136476426799,
+            "rank": 1
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.030798389007344232,
+            "rank": 2
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.029910714285714284,
+            "rank": 3
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029877369007803793,
+            "rank": 4
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029206349206349208,
+            "rank": 5
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 4,
+            "lastPage": 4,
+            "score": 0.02813852813852814,
+            "rank": 6
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027799227799227798,
+            "rank": 7
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.02738245361196181,
+            "rank": 8
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.027222222222222224,
+            "rank": 9
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.027205882352941177,
+            "rank": 10
+          }
+        ]
+      }
+    },
+    {
+      "id": "ua-en-reykjavik",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "Which airline flies direct from Leeds to Reykjavik?",
+      "expected": [],
+      "perArm": {
+        "embedMs": 12.753399999999601,
+        "retrievalMs": 3.7445000000006985,
+        "endToEndMs": 16.501099999999497,
+        "hits": [
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.03131881575727918,
+            "rank": 1
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.03076923076923077,
+            "rank": 2
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.029709507042253523,
+            "rank": 3
+          },
+          {
+            "docId": "en-brightwater-marina",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.028594771241830064,
+            "rank": 4
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 4,
+            "lastPage": 5,
+            "score": 0.028474711270410194,
+            "rank": 5
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 5,
+            "lastPage": 5,
+            "score": 0.028438886647841874,
+            "rank": 6
+          },
+          {
+            "docId": "en-whitmore-printworks",
+            "page": 3,
+            "lastPage": 4,
+            "score": 0.02813852813852814,
+            "rank": 7
+          },
+          {
+            "docId": "en-larkfield-seedbank",
+            "page": 1,
+            "lastPage": 2,
+            "score": 0.027783137179239824,
+            "rank": 8
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 3,
+            "lastPage": 3,
+            "score": 0.027777777777777776,
+            "rank": 9
+          },
+          {
+            "docId": "en-harrow-glassworks",
+            "page": 2,
+            "lastPage": 3,
+            "score": 0.026171741361614778,
+            "rank": 10
+          }
+        ]
+      }
+    }
+  ]
+}
