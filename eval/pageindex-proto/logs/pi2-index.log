@@ -1,0 +1,22 @@
+[pi2-bridge 06:02:51] en-atlas-bicycles: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:51] en-orion-observatory: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] en-bluefin-fisheries: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] en-harbor-registry: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] en-quarry-heritage: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] en-maple-transit: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] en-meridian-clinic: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] es-ribera-vinedos: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] es-delta-citricos: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:52] es-cordillera-ferrocarril: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] es-valle-museo: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] es-sierra-senderismo: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] es-altiplano-energia: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] es-norte-textil: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-elbe-werft: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-alpen-bahnen: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-rhein-muehlen: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-ostsee-hafen: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-schwarzwald-kurhaus: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:53] de-mosel-weinberg: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:54] de-brandenburg-observatorium: FAILED PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract a structure from this PDF.
+[pi2-bridge 06:02:54] index report -> pi2-index-report.json

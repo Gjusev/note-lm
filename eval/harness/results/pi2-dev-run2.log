@@ -1,0 +1,22 @@
+[chat] llama-cuda server on :25683 pid 16392 (Qwen2.5-7B-Instruct)
+[bridge] ready, 21 docs in store
+[ingest] 21 docs, 72 chunks in 0.5s (db: C:\Users\ahmia\AppData\Local\Temp\notelm-pi2-eval-gtHX1F)
+[index] 72 chunks embedded via bge-small-en-v1.5 in 3.7s
+[run] 5/30 questions done
+[run] 10/30 questions done
+[run] 15/30 questions done
+[run] 20/30 questions done
+[run] 25/30 questions done
+[run] 30/30 questions done
+[grade] done in 0.0s; peak VRAM 5993 MiB, peak llama RAM 12781 MB
+
+==== pi2-eval: subset=dev questions=30 arms=fts,hybrid,pageindex,hybrid+tree ====
+phases: ingest 0.5s | embed-index 3.7s | run 878.7s | grade 0.0s
+
+arm          recall@10  docIdR@10  1stPgR@10  ok/timeout/error   e2e p50(ms)  e2e p95(ms)
+fts          0.909      0.932      0.523      30/0/0            3939        6691
+hybrid       0.955      0.955      0.568      30/0/0            3352        5793
+pageindex    0.818      0.955      0.818      30/0/0            8970        26125
+hybrid+tree  0.864      0.955      0.864      30/0/0            8721        14546
+results: C:\Code Main\note-lm\eval\harness\results\pi2-dev-fts_hybrid_pageindex_hybrid_tree-2026-09-29T05-05-43-231Z.json
+total wall: 885.7s

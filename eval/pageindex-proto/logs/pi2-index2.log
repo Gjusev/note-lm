@@ -1,0 +1,559 @@
+[pi2-bridge 06:07:38] en-atlas-bicycles: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:07:43,097 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 216 (char 215)
+2026-09-29 06:07:43,098 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:44,722 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 213 (char 212)
+2026-09-29 06:07:44,722 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:46,602 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 251 (char 250)
+2026-09-29 06:07:46,603 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:48,006 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 223 (char 222)
+2026-09-29 06:07:48,007 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:49,115 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 153 (char 152)
+2026-09-29 06:07:49,115 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:50,802 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 259 (char 258)
+2026-09-29 06:07:50,803 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:52,926 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 300 (char 299)
+2026-09-29 06:07:52,927 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:07:54,301 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 157 (char 156)
+2026-09-29 06:07:54,301 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:08:17] en-atlas-bicycles: standard indexed in 38.4s
+[pi2-bridge 06:08:17] en-orion-observatory: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:08:18,755 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 189 (char 188)
+2026-09-29 06:08:18,756 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:20,359 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 213 (char 212)
+2026-09-29 06:08:20,359 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:21,799 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 147 (char 146)
+2026-09-29 06:08:21,799 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:23,332 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 170 (char 169)
+2026-09-29 06:08:23,332 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:25,070 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 215 (char 214)
+2026-09-29 06:08:25,070 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:26,448 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 147 (char 146)
+2026-09-29 06:08:26,448 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:27,849 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 158 (char 157)
+2026-09-29 06:08:27,849 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:08:29,216 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 149 (char 148)
+2026-09-29 06:08:29,216 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:09:00] en-orion-observatory: standard indexed in 42.9s
+[pi2-bridge 06:09:00] en-bluefin-fisheries: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:09:01,294 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 130 (char 129)
+2026-09-29 06:09:01,294 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:02,936 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 197 (char 196)
+2026-09-29 06:09:02,936 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:04,357 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:09:04,357 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:05,946 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 177 (char 176)
+2026-09-29 06:09:05,947 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:07,975 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 214 (char 213)
+2026-09-29 06:09:07,976 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:09,452 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:09:09,453 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:10,929 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:09:10,930 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:12,641 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 226 (char 225)
+2026-09-29 06:09:12,642 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:09:41] en-bluefin-fisheries: standard indexed in 41.4s
+[pi2-bridge 06:09:41] en-harbor-registry: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:09:43,172 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 198 (char 197)
+2026-09-29 06:09:43,172 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:44,759 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 213 (char 212)
+2026-09-29 06:09:44,759 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:46,796 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 252 (char 251)
+2026-09-29 06:09:46,796 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:48,077 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:09:48,078 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:49,462 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:09:49,462 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:50,888 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:09:50,889 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:52,726 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 248 (char 247)
+2026-09-29 06:09:52,726 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:54,152 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:09:54,152 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:09:55,589 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 151 (char 150)
+2026-09-29 06:09:55,589 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:10:37] en-harbor-registry: standard indexed in 56.1s
+[pi2-bridge 06:10:37] en-quarry-heritage: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:10:39,254 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 175 (char 174)
+2026-09-29 06:10:39,254 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:40,808 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 206 (char 205)
+2026-09-29 06:10:40,808 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:42,235 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:10:42,236 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:43,887 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 183 (char 182)
+2026-09-29 06:10:43,887 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:45,313 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:10:45,314 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:46,762 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:10:46,762 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:48,222 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 151 (char 150)
+2026-09-29 06:10:48,223 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:10:49,827 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 184 (char 183)
+2026-09-29 06:10:49,827 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:11:18] en-quarry-heritage: standard indexed in 40.3s
+[pi2-bridge 06:11:18] en-maple-transit: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:11:19,327 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 133 (char 132)
+2026-09-29 06:11:19,327 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:20,864 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 202 (char 201)
+2026-09-29 06:11:20,864 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:22,261 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 149 (char 148)
+2026-09-29 06:11:22,261 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:24,440 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 221 (char 220)
+2026-09-29 06:11:24,441 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:26,407 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 244 (char 243)
+2026-09-29 06:11:26,408 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:27,793 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 156 (char 155)
+2026-09-29 06:11:27,793 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:29,167 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:11:29,168 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:11:31,030 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 262 (char 261)
+2026-09-29 06:11:31,030 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:12:01] en-maple-transit: standard indexed in 43.6s
+[pi2-bridge 06:12:01] en-meridian-clinic: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:12:03,390 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 200 (char 199)
+2026-09-29 06:12:03,391 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:04,838 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:12:04,838 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:06,241 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 147 (char 146)
+2026-09-29 06:12:06,241 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:07,726 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:12:07,727 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:09,636 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 264 (char 263)
+2026-09-29 06:12:09,636 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:11,066 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 147 (char 146)
+2026-09-29 06:12:11,066 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:12,956 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 263 (char 262)
+2026-09-29 06:12:12,956 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:14,137 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 115 (char 114)
+2026-09-29 06:12:14,137 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:12:51] en-meridian-clinic: standard indexed in 49.7s
+[pi2-bridge 06:12:51] es-ribera-vinedos: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:12:52,806 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 135 (char 134)
+2026-09-29 06:12:52,806 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:54,240 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 174 (char 173)
+2026-09-29 06:12:54,241 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:55,754 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:12:55,754 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:57,625 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 223 (char 222)
+2026-09-29 06:12:57,625 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:12:59,326 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 176 (char 175)
+2026-09-29 06:12:59,326 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:00,618 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 130 (char 129)
+2026-09-29 06:13:00,619 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:02,638 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 265 (char 264)
+2026-09-29 06:13:02,639 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:04,304 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 190 (char 189)
+2026-09-29 06:13:04,305 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:13,557 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 4 (char 3)
+2026-09-29 06:13:13,557 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:13:13] es-ribera-vinedos: standard FAILED -> index unavailable
+[pi2-bridge 06:13:13] es-delta-citricos: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:13:14,956 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 151 (char 150)
+2026-09-29 06:13:14,956 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:16,354 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 160 (char 159)
+2026-09-29 06:13:16,355 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:17,857 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 149 (char 148)
+2026-09-29 06:13:17,857 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:19,779 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 221 (char 220)
+2026-09-29 06:13:19,779 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:22,012 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 243 (char 242)
+2026-09-29 06:13:22,012 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:23,684 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 175 (char 174)
+2026-09-29 06:13:23,684 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:25,046 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:13:25,046 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:26,709 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 205 (char 204)
+2026-09-29 06:13:26,709 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:13:28,003 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 129 (char 128)
+2026-09-29 06:13:28,004 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:14:01] es-delta-citricos: standard indexed in 47.6s
+[pi2-bridge 06:14:01] es-cordillera-ferrocarril: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:14:02,680 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 144 (char 143)
+2026-09-29 06:14:02,680 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:04,497 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 220 (char 219)
+2026-09-29 06:14:04,498 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:05,929 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 157 (char 156)
+2026-09-29 06:14:05,930 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:07,252 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 133 (char 132)
+2026-09-29 06:14:07,252 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:09,250 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 251 (char 250)
+2026-09-29 06:14:09,250 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:10,641 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:14:10,641 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:12,216 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:14:12,216 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:14,182 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 260 (char 259)
+2026-09-29 06:14:14,183 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:14:47] es-cordillera-ferrocarril: standard indexed in 46.1s
+[pi2-bridge 06:14:47] es-valle-museo: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:14:49,102 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 193 (char 192)
+2026-09-29 06:14:49,102 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:50,648 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 147 (char 146)
+2026-09-29 06:14:50,649 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:52,759 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 248 (char 247)
+2026-09-29 06:14:52,760 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:54,871 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 276 (char 275)
+2026-09-29 06:14:54,872 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:56,765 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 265 (char 264)
+2026-09-29 06:14:56,765 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:14:58,652 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 267 (char 266)
+2026-09-29 06:14:58,653 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:15:00,098 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 154 (char 153)
+2026-09-29 06:15:00,098 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:15:01,612 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 163 (char 162)
+2026-09-29 06:15:01,612 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:16:43] es-valle-museo: standard indexed in 116.3s
+[pi2-bridge 06:16:43] es-sierra-senderismo: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:16:45,435 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 164 (char 163)
+2026-09-29 06:16:45,436 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:46,935 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 169 (char 168)
+2026-09-29 06:16:46,935 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:49,056 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 270 (char 269)
+2026-09-29 06:16:49,056 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:51,056 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 236 (char 235)
+2026-09-29 06:16:51,057 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:52,452 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 123 (char 122)
+2026-09-29 06:16:52,452 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:53,897 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 126 (char 125)
+2026-09-29 06:16:53,897 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:55,377 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 144 (char 143)
+2026-09-29 06:16:55,378 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:16:56,985 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 219 (char 218)
+2026-09-29 06:16:56,985 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:17:29] es-sierra-senderismo: standard indexed in 45.6s
+[pi2-bridge 06:17:29] es-altiplano-energia: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:17:30,906 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 145 (char 144)
+2026-09-29 06:17:30,907 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:32,539 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 219 (char 218)
+2026-09-29 06:17:32,539 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:34,206 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 198 (char 197)
+2026-09-29 06:17:34,206 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:36,455 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 253 (char 252)
+2026-09-29 06:17:36,455 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:37,741 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 130 (char 129)
+2026-09-29 06:17:37,742 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:39,731 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 263 (char 262)
+2026-09-29 06:17:39,731 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:41,605 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 261 (char 260)
+2026-09-29 06:17:41,605 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:17:42,882 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 131 (char 130)
+2026-09-29 06:17:42,882 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:18:15] es-altiplano-energia: standard indexed in 46.4s
+[pi2-bridge 06:18:16] es-norte-textil: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:18:17,492 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 170 (char 169)
+2026-09-29 06:18:17,492 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:19,060 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 166 (char 165)
+2026-09-29 06:18:19,060 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:21,688 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 248 (char 247)
+2026-09-29 06:18:21,688 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:22,894 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:18:22,894 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:24,473 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:18:24,473 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:26,023 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 151 (char 150)
+2026-09-29 06:18:26,023 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:27,959 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 239 (char 238)
+2026-09-29 06:18:27,959 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:29,660 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 179 (char 178)
+2026-09-29 06:18:29,660 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:18:31,699 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 252 (char 251)
+2026-09-29 06:18:31,700 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:21:42] es-norte-textil: standard indexed in 206.1s
+[pi2-bridge 06:21:42] de-elbe-werft: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:21:43,872 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 193 (char 192)
+2026-09-29 06:21:43,872 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:45,928 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 243 (char 242)
+2026-09-29 06:21:45,929 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:47,534 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 170 (char 169)
+2026-09-29 06:21:47,534 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:49,385 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 223 (char 222)
+2026-09-29 06:21:49,385 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:52,436 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 282 (char 281)
+2026-09-29 06:21:52,436 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:53,951 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 148 (char 147)
+2026-09-29 06:21:53,952 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:55,402 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:21:55,402 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:21:57,226 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 209 (char 208)
+2026-09-29 06:21:57,227 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:22:30] de-elbe-werft: standard indexed in 48.5s
+[pi2-bridge 06:22:30] de-alpen-bahnen: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:22:32,132 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 146 (char 145)
+2026-09-29 06:22:32,133 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:33,965 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 211 (char 210)
+2026-09-29 06:22:33,965 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:35,315 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 118 (char 117)
+2026-09-29 06:22:35,315 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:38,514 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 343 (char 342)
+2026-09-29 06:22:38,515 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:39,956 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 140 (char 139)
+2026-09-29 06:22:39,957 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:41,781 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 203 (char 202)
+2026-09-29 06:22:41,781 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:43,570 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 211 (char 210)
+2026-09-29 06:22:43,570 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:22:44,862 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 126 (char 125)
+2026-09-29 06:22:44,862 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:23:18] de-alpen-bahnen: standard indexed in 48.1s
+[pi2-bridge 06:23:18] de-rhein-muehlen: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:23:20,217 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 129 (char 128)
+2026-09-29 06:23:20,218 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:21,928 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 194 (char 193)
+2026-09-29 06:23:21,929 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:23,740 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 199 (char 198)
+2026-09-29 06:23:23,741 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:25,919 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 188 (char 187)
+2026-09-29 06:23:25,919 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:27,840 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 256 (char 255)
+2026-09-29 06:23:27,840 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:29,197 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 150 (char 149)
+2026-09-29 06:23:29,198 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:30,624 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 141 (char 140)
+2026-09-29 06:23:30,624 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:23:32,299 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 197 (char 196)
+2026-09-29 06:23:32,300 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:24:09] de-rhein-muehlen: standard indexed in 50.9s
+[pi2-bridge 06:24:09] de-ostsee-hafen: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:24:11,161 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 137 (char 136)
+2026-09-29 06:24:11,161 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:12,663 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 151 (char 150)
+2026-09-29 06:24:12,663 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:14,902 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 201 (char 200)
+2026-09-29 06:24:14,902 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:16,576 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 190 (char 189)
+2026-09-29 06:24:16,576 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:18,163 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 179 (char 178)
+2026-09-29 06:24:18,163 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:19,948 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 222 (char 221)
+2026-09-29 06:24:19,949 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:21,588 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 210 (char 209)
+2026-09-29 06:24:21,589 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:24:23,221 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 203 (char 202)
+2026-09-29 06:24:23,222 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:25:05] de-ostsee-hafen: standard indexed in 55.4s
+[pi2-bridge 06:25:05] de-schwarzwald-kurhaus: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:25:06,449 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 116 (char 115)
+2026-09-29 06:25:06,449 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:10,237 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 228 (char 227)
+2026-09-29 06:25:10,237 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:25:37] de-schwarzwald-kurhaus: standard FAILED -> index unavailable
+[pi2-bridge 06:25:37] de-mosel-weinberg: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:25:39,428 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 181 (char 180)
+2026-09-29 06:25:39,429 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:41,465 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 247 (char 246)
+2026-09-29 06:25:41,466 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:43,026 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 170 (char 169)
+2026-09-29 06:25:43,027 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:44,989 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 260 (char 259)
+2026-09-29 06:25:44,989 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:46,295 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 134 (char 133)
+2026-09-29 06:25:46,296 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:47,647 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 130 (char 129)
+2026-09-29 06:25:47,648 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:50,027 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 273 (char 272)
+2026-09-29 06:25:50,027 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:25:52,056 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 288 (char 287)
+2026-09-29 06:25:52,056 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:26:27] de-mosel-weinberg: standard indexed in 49.4s
+[pi2-bridge 06:26:27] de-brandenburg-observatorium: flash FAILED (PageIndexAPIError: Failed to submit document: PageIndex Flash could not extract ...); falling back to standard
+2026-09-29 06:26:28,772 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 154 (char 153)
+2026-09-29 06:26:28,773 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:30,293 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 149 (char 148)
+2026-09-29 06:26:30,293 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:32,099 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 210 (char 209)
+2026-09-29 06:26:32,100 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:33,539 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 137 (char 136)
+2026-09-29 06:26:33,540 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:35,722 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 263 (char 262)
+2026-09-29 06:26:35,723 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:37,094 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 146 (char 145)
+2026-09-29 06:26:37,095 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:39,024 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 254 (char 253)
+2026-09-29 06:26:39,024 root ERROR Failed to parse JSON even after cleanup
+2026-09-29 06:26:40,830 root ERROR Failed to extract JSON: Expecting property name enclosed in double quotes: line 1 column 210 (char 209)
+2026-09-29 06:26:40,831 root ERROR Failed to parse JSON even after cleanup
+[pi2-bridge 06:27:19] de-brandenburg-observatorium: standard indexed in 51.7s
+[pi2-bridge 06:27:19] index report -> pi2-index-report.json
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 9 pages, max allowed index: 9
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+start verify_toc
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 9 pages, max allowed index: 9
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 9 pages, max allowed index: 9
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+toc found
+start detect_page_index
+index found
+process_toc_with_page_numbers
+start_index: 1
+start toc_transformer
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%
+start find_toc_pages
+no toc found
+process_no_toc
+start_index: 1
+start generate_toc_init
+Document validation: 8 pages, max allowed index: 8
+start verify_toc
+check all items
+accuracy: 100.00%

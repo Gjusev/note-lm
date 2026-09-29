@@ -1,0 +1,28 @@
+[chat] llama-cuda server on :40154 pid 39764 (Qwen2.5-7B-Instruct)
+[bridge] ready, 21 docs in store
+[ingest] 21 docs, 72 chunks in 0.5s (db: C:\Users\ahmia\AppData\Local\Temp\notelm-pi2-eval-xpHFGY)
+[index] 72 chunks embedded via bge-small-en-v1.5 in 3.5s
+[run] 5/50 questions done
+[run] 10/50 questions done
+[run] 15/50 questions done
+[run] 20/50 questions done
+[run] 25/50 questions done
+[run] 30/50 questions done
+[bridge] unparsable line: [1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+[bridge] unparsable line: LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
+[run] 35/50 questions done
+[run] 40/50 questions done
+[run] 45/50 questions done
+[run] 50/50 questions done
+[grade] done in 0.0s; peak VRAM 5992 MiB, peak llama RAM 12787 MB
+
+==== pi2-eval: subset=eval questions=50 arms=fts,hybrid,pageindex,hybrid+tree ====
+phases: ingest 0.5s | embed-index 3.5s | run 1481.0s | grade 0.0s
+
+arm          recall@10  docIdR@10  1stPgR@10  ok/timeout/error   e2e p50(ms)  e2e p95(ms)
+fts          0.947      0.961      0.368      50/0/0            4529        6171
+hybrid       0.974      0.974      0.342      50/0/0            3479        6002
+pageindex    0.816      0.934      0.816      50/0/0            9240        22499
+hybrid+tree  0.803      0.895      0.803      49/0/1            9423        20417
+results: C:\Code Main\note-lm\eval\harness\results\pi2-eval-fts_hybrid_pageindex_hybrid_tree-2026-09-29T05-32-52-386Z.json
+total wall: 1487.7s

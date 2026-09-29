@@ -1,0 +1,384 @@
+{
+  "mode": "flash-then-standard (per-doc modes recorded)",
+  "model": "Qwen2.5-7B-Instruct",
+  "docs": [
+    {
+      "docId": "en-atlas-bicycles",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-08fa2a07ee13476389db7e258f8c7422",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Company Overview",
+        "Manufacturing Sites",
+        "Model Lineup 2025",
+        "Quality and Recalls",
+        "Financial Summary"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-orion-observatory",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-27da020cbe7d4d32a3712b0436dcccbd",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Orion Hills Observatory Research Report 2025",
+        "Institution Overview",
+        "Instrumentation",
+        "Survey Programs",
+        "Variable Star Monitoring",
+        "Publications and Funding"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-bluefin-fisheries",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-dcef010bcc644a29b4a97c0b3d60f598",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Cooperative Overview",
+        "Fleet Composition",
+        "Catch Quotas 2025",
+        "Sustainability Measures",
+        "Processing and Markets"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-harbor-registry",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-441bc391b9d5444488918885e4df8221",
+      "nodes": 9,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Port of Grey Harbor",
+        "Registry Overview",
+        "Commercial Fleet Register",
+        "Heron Point",
+        "Berth Allocation",
+        "Pilotage and Towage"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-quarry-heritage",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-f39c3f9970494d17aa1f34c0733bdb28",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 1,
+      "firstTitles": [
+        "Preface",
+        "Trust and Mission",
+        "Financial Outlook",
+        "Archive and Collections",
+        "Membership Benefits",
+        "Site Interpretation"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-maple-transit",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-f614ede63d3b4a5bb0effbca8e35542b",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Authority Overview",
+        "Route Network",
+        "Ridership and Fares",
+        "Fleet Electrification",
+        "Accessibility"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "en-meridian-clinic",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-f08870a36a174292a9f9e6809bfc934e",
+      "nodes": 9,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Meridian Community Clinic",
+        "Quality and Activity Report 2025",
+        "Clinic Overview",
+        "Patient Volumes",
+        "Chronic Disease Program",
+        "Vaccination Campaigns"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-ribera-vinedos",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-4ed4a89235274116a621f57147d8cb53",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Bodegas Ribera del Alba",
+        "Presentación de la bodega",
+        "Viñedos y variedades",
+        "Vendimia 2025",
+        "Elaboración y crianza",
+        "Ventas y mercados"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-delta-citricos",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-8e6bb90b04144b7d86616a217f2a793d",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "La empresa",
+        "Producción de campaña",
+        "Exportaciones por destino",
+        "Logística y cadena de frío",
+        "Certificaciones"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-cordillera-ferrocarril",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-2dfcb35b408044bc9c734c02583c9423",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Ferrocarril de la Cordillera",
+        "Historia y concesión",
+        "Infraestructura",
+        "Tráfico de viajeros",
+        "Tráfico de mercancías",
+        "Ingresos y subvención"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-valle-museo",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-e5d902ead7754001accb22b9c3323168",
+      "nodes": 17,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Museo del Valle",
+        "Memoria de Actividades 2025",
+        "Museo del Valle - Casa del Molino",
+        "El museo",
+        "El Museo del Valle se fundó en 1985 y ocupa el antiguo molino harinero de la Casa del Molino, rehabilitado entre 1983 y 1985. Dispone de cuatro salas permanentes y una sala de exposiciones temporales. El museo es de titularidad municipal y se gestiona mediante un convenio con la fundación cultural provincial. El equipo consta de 14 personas entre gestión, sala y conservación.",
+        "Colección"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-sierra-senderismo",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-2070dfdcf39541479c87282cca1a3426",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Red de Senderos de la Sierra Blanca",
+        "Presentación de la red",
+        "Presupuesto y cuentas",
+        "Voluntariado ambiental",
+        "Seguridad en rutas",
+        "Biodiversidad"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-altiplano-energia",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-8e4aeadbd56642909a598da84b64666c",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "El proyecto",
+        "Producción 2025",
+        "Inversores y mantenimiento",
+        "Impacto ambiental",
+        "Economía del proyecto"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "es-norte-textil",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-e9af581b840e4061919684f40a110460",
+      "nodes": 10,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Hilados del Norte",
+        "Memoria Industrial 2025",
+        "La fábrica",
+        "Producción de hilos",
+        "Tejidos medicinales",
+        "Calidad y certificados"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-elbe-werft",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-69948dd7afd34007b773f281ff18ec3d",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Das Unternehmen",
+        "Auftragsbestand 2025",
+        "Schiffbauprojekte",
+        "Reparaturbetrieb",
+        "Finanzen"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-alpen-bahnen",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-e4ea77eaa8b5424499f5d6bf41702044",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Das Unternehmen",
+        "Bahnen und Anlagen",
+        "Gäste und Fahrgäste",
+        "Beschneiung und Pisten",
+        "Energiemanagement"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-rhein-muehlen",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-f58a2fe583d5477494e63c3e87d996f9",
+      "nodes": 8,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 1,
+      "firstTitles": [
+        "Rhein Mühlenwerke",
+        "Geschäftsbericht 2025",
+        "Konzernüberblick",
+        "Mahlleistung und Produkte",
+        "Rohstoffbeschaffung",
+        "Qualität"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-ostsee-hafen",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-9be1440fccb9475a910c9fdeca96964f",
+      "nodes": 9,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Ostsee Hafenverwaltung",
+        "Hafenbericht 2025",
+        "Hafenüberblick",
+        "Umschlag nach Güterart",
+        "Reedereien und Linien",
+        "Bahnanbindung"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-schwarzwald-kurhaus",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-f64d34aad4cc471aa4c29041a79cce80",
+      "nodes": 8,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 1,
+      "firstTitles": [
+        "Preface",
+        "Das Haus",
+        "Das Haus",
+        "Investitionen und Liquidität",
+        "Gäste und Belegung",
+        "Personal und Dienstpläne"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-mosel-weinberg",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-098915d4c1cb4ba1b4a61badb53bd477",
+      "nodes": 7,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Preface",
+        "Das Weingut",
+        "Lagen und Rebsorten",
+        "Lese 2025",
+        "Keller und Ausbau",
+        "Vermarktung"
+      ],
+      "badNodes": []
+    },
+    {
+      "docId": "de-brandenburg-observatorium",
+      "cached": true,
+      "ok": true,
+      "doc_id": "pi-d6afd50b13ab4606a4a45af181a3a838",
+      "nodes": 8,
+      "pageOutOfRange": 0,
+      "nodesWithoutSummary": 0,
+      "firstTitles": [
+        "Brandenburg Observatorium Tätigkeitsbericht 2025",
+        "Das Observatorium",
+        "Instrumente",
+        "Beobachtungsprogramm",
+        "Nachwuchs und Schule",
+        "Amateurkooperation"
+      ],
+      "badNodes": []
+    }
+  ]
+}

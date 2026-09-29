@@ -1,0 +1,174 @@
+{
+  "gradedFrom": "pi2-dev-pageindex-2026-09-29T04-40-28-634Z.json",
+  "rubric": {
+    "fully_supported": "expected canonical fact present in answer (normalized containment, numeric tolerance max(0.011, 0.5%)) AND cited page set covers an expectedEvidence (docId,page)",
+    "partially_supported": "fact present, citation does not match",
+    "unsupported": "fact not present",
+    "abstained": "unanswerable question, abstention pattern or empty answer",
+    "invented": "unanswerable question, non-empty answer without abstention marker (conservative)",
+    "failure": "arm error/timeout (stays in every denominator as a non-success)",
+    "citations_fts_hybrid": "context pages shown to the model (top-6 chunk spans)",
+    "citations_pageindex_arms": "pages read via get_page_content + [<file>, p. N] citations parsed from the answer"
+  },
+  "armGrades": [
+    {
+      "arm": "pageindex",
+      "structuralFullySupported": {
+        "k": 0,
+        "n": 0,
+        "rate": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "exactFactFullySupported": {
+        "k": 1,
+        "n": 1,
+        "rate": 1,
+        "ci": [
+          0.20654329147389294,
+          1
+        ]
+      },
+      "allAnswerableFullySupported": {
+        "k": 1,
+        "n": 1,
+        "rate": 1,
+        "ci": [
+          0.20654329147389294,
+          1
+        ]
+      },
+      "partiallySupported": 0,
+      "unsupported": 0,
+      "invented": {
+        "k": 0,
+        "n": 0,
+        "rate": 0,
+        "ci": [
+          0,
+          0
+        ]
+      },
+      "abstained": 0,
+      "failures": 0,
+      "e2eP50Ms": 11098.6078,
+      "e2eP95Ms": 11098.6078,
+      "tokens": {
+        "prompt": 7935,
+        "completion": 120,
+        "questions": 1
+      },
+      "recallAt10": 1
+    }
+  ],
+  "criteria": {
+    "c1_safety": {
+      "pass": true,
+      "violations": [],
+      "total": 0
+    },
+    "c2_structural": null,
+    "c3_exact_fact": null,
+    "c4_abstention": null,
+    "c5_budget": {
+      "p95Ratio": null,
+      "vramMaxMiB": 5975,
+      "ramMaxMB": 4559.28515625,
+      "memoryBudgetPass": true,
+      "cancelAbortMs": null,
+      "cancelBudgetMs": 2000
+    },
+    "c6_degradation": {
+      "checked": [
+        {
+          "docId": "en-harbor-registry",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "en-quarry-heritage",
+          "notes": [
+            "misleading-headings"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "en-meridian-clinic",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "es-valle-museo",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "es-sierra-senderismo",
+          "notes": [
+            "misleading-headings"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "es-norte-textil",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "de-ostsee-hafen",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "de-schwarzwald-kurhaus",
+          "notes": [
+            "misleading-headings"
+          ],
+          "result": "valid_index"
+        },
+        {
+          "docId": "de-brandenburg-observatorium",
+          "notes": [
+            "no-toc"
+          ],
+          "result": "valid_index"
+        }
+      ],
+      "pass": true
+    }
+  },
+  "decision": {
+    "allPass": false,
+    "rule": "adopt iff ALL of c1..c6 pass (pi2-criteria.md); quality-only fail -> do-not-adopt; doc-class-only gains -> scope; unsafe/unbuildable -> fail"
+  },
+  "grades": [
+    {
+      "id": "q-001",
+      "type": "exact-fact",
+      "arm": "pageindex",
+      "verdict": "fully_supported",
+      "factOk": true,
+      "evidenceMatch": true,
+      "abstention": false,
+      "numbersFound": 1,
+      "numbersExpected": 1,
+      "wordMatched": "million",
+      "citedPages": 3,
+      "quoteOnCitedPage": true,
+      "rationale": "fact found (nums 1/1, word 'million'); cited pages cover expected evidence",
+      "outcome": "ok"
+    }
+  ]
+}

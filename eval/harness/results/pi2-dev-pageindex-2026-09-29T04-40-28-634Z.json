@@ -1,0 +1,388 @@
+{
+  "meta": {
+    "timestamp": "2026-09-29T04:40:28.634Z",
+    "subset": "dev",
+    "arms": [
+      "pageindex"
+    ],
+    "questionCount": 1,
+    "corpus": "document-trees-v1",
+    "model": {
+      "chat": "Qwen2.5-7B-Instruct",
+      "file": "qwen2.5-7b-instruct-q4_k_m split GGUF (sha256 in gpu7b-verify.md)",
+      "server": "llama.cpp b11233 CUDA 12.4 eval build, -ngl 99 -c 8192 --jinja",
+      "max_tokens": 512,
+      "temperature": 0
+    },
+    "embedding": null,
+    "chunking": {
+      "maxChunkSize": 180,
+      "overlap": 40,
+      "totalChunks": 72,
+      "totalDocs": 21
+    },
+    "answerRule": "Answer using ONLY the content of the user's documents. Cite every page you used with the format [<document name>, p. N]. If the documents do not contain the answer, reply with exactly: \"La información no está en los documentos.\" Do not use general knowledge.",
+    "contextChunks": 6,
+    "selection": {
+      "pageindex": "answerable: expected doc set as scoped selection; unanswerable: full corpus (wall-budgeted)",
+      "hybrid+tree": "hybrid top-3 distinct docs by best rank, tree exploration within those docs"
+    },
+    "budgets": {
+      "perQuestionWallCapMs": 90000,
+      "bridgeTimeoutS": 85,
+      "maxTurns": 14,
+      "chatTimeoutMs": 60000
+    }
+  },
+  "chatServer": {
+    "pid": 16416,
+    "alias": "Qwen2.5-7B-Instruct"
+  },
+  "resources": {
+    "vramUsedMaxMiB": 5975,
+    "ramWorkingSetMaxMB": 4559.28515625,
+    "samples": 4,
+    "note": "vramUsedMaxMiB = nvidia-smi total GPU memory used max; ramWorkingSetMaxMB = max working set over both llama-server pids"
+  },
+  "phases": {
+    "ingestMs": 537.6979999999999,
+    "indexMs": 0,
+    "runMs": 11101.1606,
+    "gradeMs": 0.4058999999997468,
+    "totalMs": 14262.9095
+  },
+  "retrievalGrade": {
+    "pageindex": {
+      "answerable": {
+        "count": 1,
+        "perQuestion": [
+          {
+            "id": "q-001",
+            "type": "exact-fact",
+            "recallAt5": 1,
+            "recallAt10": 1,
+            "mrr": 1,
+            "ndcgAt10": 1,
+            "docIdRecallAt10": 1,
+            "firstPageRecallAt10": 1
+          }
+        ],
+        "recallAt10": 1,
+        "recallAt5": 1,
+        "mrr": 1,
+        "ndcgAt10": 1,
+        "docIdRecallAt10": 1,
+        "firstPageRecallAt10": 1
+      },
+      "unanswerableCount": 0,
+      "outcomes": {
+        "ok": 1,
+        "timeout": 0,
+        "error": 0
+      },
+      "tokens": {
+        "prompt": 7935,
+        "completion": 120,
+        "questions": 1
+      },
+      "perf": {
+        "e2eP50Ms": 11098.6078,
+        "e2eP95Ms": 11098.6078,
+        "e2eMeanMs": 11098.6078,
+        "retrievalP50Ms": 11098.6078,
+        "retrievalP95Ms": 11098.6078,
+        "note": "e2e = retrieval + answer generation per question (budget metric); retrieval = search/agent portion only"
+      }
+    }
+  },
+  "questions": [
+    {
+      "id": "q-001",
+      "type": "exact-fact",
+      "language": "en",
+      "question": "What was the revenue of Riverdale Bicycle Works in 2025?",
+      "docIds": [
+        "en-atlas-bicycles"
+      ],
+      "expected": [
+        {
+          "docId": "en-atlas-bicycles",
+          "page": 7,
+          "section": "Financial Summary",
+          "quoteSnippet": "Revenue for 2025 was 12.4 million EUR"
+        }
+      ],
+      "expectedAnswer": "12.4 million EUR",
+      "perArm": {
+        "pageindex": {
+          "outcome": "ok",
+          "latencyMs": 11098.6078,
+          "retrievalMs": 11098.6078,
+          "answerMs": null,
+          "hits": [
+            {
+              "docId": "en-atlas-bicycles",
+              "page": 7,
+              "lastPage": 7,
+              "score": -1,
+              "rank": 1
+            }
+          ],
+          "answer": "The revenue of Riverdale Bicycle Works in 2025 was 12.4 million EUR, an increase of 9 percent over 2024. \n\n[en-atlas-bicycles.pdf, p. 7]",
+          "readPages": [
+            {
+              "docName": "en-atlas-bicycles.pdf",
+              "docId": "en-atlas-bicycles",
+              "pages": [
+                7
+              ],
+              "resolved": true
+            }
+          ],
+          "toolCalls": [
+            {
+              "name": "get_document_structure",
+              "arguments": {
+                "doc_name": "en-atlas-bicycles.pdf"
+              }
+            },
+            {
+              "name": "get_page_content",
+              "arguments": {
+                "doc_name": "en-atlas-bicycles.pdf",
+                "pages": "7",
+                "wait_for_completion": true
+              }
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 7935,
+            "completion_tokens": 120,
+            "total_tokens": 8055,
+            "prompt_tokens_details": {
+              "cached_tokens": 4851
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "pageTexts": {
+    "en-atlas-bicycles": [
+      "Riverdale Bicycle Works\nAnnual Technical Review 2025\nRiverdale Bicycle Works - Leeds, United Kingdom\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Table of Contents\n1. Company Overview 3\n2. Manufacturing Sites 4\n3. Model Lineup 2025 5\n2",
+      "Company Overview\nRiverdale Bicycle Works was founded in 1998 by Elena Marsh in a former textile mill in Leeds. The\ncompany designs and assembles bicycle frames in aluminium and carbon fibre and sells through 240\nindependent dealers in the United Kingdom and Ireland.\nAt the end of 2025 the company employed 214 people, of whom 68 worked in production, 41 in\nassembly and finishing, and the remainder in administration, quality control and sales. A second\nproduction site in Porto, Portugal, was acquired in 2019 to serve continental customers.\n3",
+      "Manufacturing Sites\nThe Leeds plant operates two welding lines, line A for aluminium city frames and line B for gravel and\ntouring frames. Planned capacity is 38,000 frames per year, and 2025 output reached 35,900 frames.\nThe Porto plant, bought in 2019, specialises in carbon lay-up and paint. Its planned capacity is 26,000\nframes per year with a current utilisation of 71 percent. Both sites share a single quality laboratory\nestablished in 2022 that performs fatigue tests on 40 samples per month.\n4",
+      "Model Lineup 2025\nFive models were offered in the 2025 season. The road model Kestrel 700 weighs 8.2 kg in size 54 and\nis priced at 2,499 EUR. The gravel model Harrier ST weighs 9.6 kg and costs 1,899 EUR.\nThe children model Owl 26 ships in one colour scheme and costs 449 EUR. The electric model\nPeregrine E carries a 540 Wh battery, reaches 25 km/h under motor assistance and costs 3,299 EUR.\nThe city model Swift 3 completes the range at 799 EUR.\n- Kestrel 700: road, 8.2 kg, 2,499 EUR\n- Harrier ST: gravel, 9.6 kg, 1,899 EUR\n- Owl 26: children, one colour, 449 EUR\n- Peregrine E: electric, 540 Wh battery, 3,299 EUR\n- Swift 3: city, 799 EUR\n5",
+      "Quality and Recalls\nOne product recall was issued in 2025. On 11 March 2025 the company announced a recall of 4,200\nHarrier ST front forks from batch H-2417, after a weld seam defect was found in three customer\ncomplaints. No injuries were reported.\nDealers replaced the affected forks free of charge within six weeks. The supplier of the forged fork\ncrowns was changed in May 2025, and incoming inspection now includes X-ray testing of every fork\ncrown batch.\n6",
+      "Financial Summary\nRevenue for 2025 was 12.4 million EUR, an increase of 9 percent over 2024. Export sales accounted for\n31 percent of revenue, with Germany, the Netherlands and Ireland as the largest export markets.\nThe gross margin reached 27 percent, one point higher than the previous year, mainly due to the lower\naluminium spot price. Operating expenses rose by 4 percent, and the company closed the year with a\nsmall operating profit of 0.4 million EUR.\n7",
+      "Research and Outlook\nThe carbon laboratory started a cooperation with Trent University on flax fibre composites in February\n2025. Three test frames were built and are being ridden by employees on a daily commute programme.\nFor 2026 the company plans a prototype electric cargo bike under the working name Mule 1, with a\ntarget payload of 180 kg. Series production is not planned before 2027.\n8"
+    ],
+    "en-orion-observatory": [
+      "Orion Hills Observatory\nResearch Report 2025\nOrion Hills Observatory - Eastern Oregon, United States\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Table of Contents\n1. Institution Overview 3\n2. Instrumentation 4\n3. Survey Programs 5\n2",
+      "Institution Overview\nOrion Hills Observatory was founded in 1963 on a ridge in eastern Oregon at an altitude of 2,140\nmetres. The site was selected for its number of clear nights, which averaged 212 per year during the last\ndecade.\nThe main instrument is the Pioneer telescope, a 1.8 metre Cassegrain reflector commissioned in 1979\nand modernised in 2014. The observatory is operated by a nonprofit research consortium together with\ntwo state universities.\n3",
+      "Instrumentation\nBesides the Pioneer telescope, the observatory operates the Vesper echelle spectrograph with a\nresolving power of R = 42,000, fed by an optical fibre from the Cassegrain focus.\nThe wide-field camera Lattice uses a mosaic of twelve CCD chips and covers a field of 1.7 square\ndegrees. A robotic 0.4 metre patrol telescope installed in 2021 screens nearby star fields for transient\nevents every clear night.\n4",
+      "Survey Programs\nThe asteroid survey discovered 1,342 new minor planets in 2025, of which 87 received permanent\nnumbers during the year. Follow-up astrometry is shared with four amateur stations.\nThe exoplanet transit program observed 3,100 target stars and registered 17 transit candidates. Four\ncandidates were confirmed as planets by radial velocity measurements with the Vesper spectrograph.\n5",
+      "Variable Star Monitoring\nA long term monitoring catalogue covers 386 RR Lyrae stars in the northern sky. Observations are\ntaken with the Lattice camera in two filters, and light curves reach a period precision of 0.4 percent.\nIn 2025 the program added 44 newly discovered eclipsing binaries with periods between 0.9 and 42\ndays. All light curves are published within one year of observation.\n6",
+      "Publications and Funding\nStaff and visiting astronomers published 21 peer reviewed papers in 2025, twelve of them in journals of\nthe American Astronomical Society family.\nThe annual budget was 3.8 million USD. The largest single item is a federal grant of 1.2 million USD for\nthe survey programs, followed by university contributions of 1.5 million USD and private donations of 1.1\nmillion USD.\n7",
+      "Education and Outreach\nThe visitor programme counted 9,400 guests in 2025. Sixty-two school classes took part in guided\ndaytime visits, and monthly public star parties were held from April to October.\nA summer academy for 30 undergraduate students ran for eight weeks in July and August. Participants\nreduced real survey data and contributed 14 asteroids measurements to the minor planet center\npipeline.\n8"
+    ],
+    "en-bluefin-fisheries": [
+      "Bluefin Sound Fisheries Cooperative\nQuota and Harvest Report 2025\nBluefin Sound Fisheries Cooperative - Nova Scotia, Canada\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Table of Contents\n1. Cooperative Overview 3\n2. Fleet Composition 4\n3. Catch Quotas 2025 5\n2",
+      "Cooperative Overview\nThe cooperative was founded in 1957 by 22 fishing families and is headquartered in the port of Bluefin\nSound, Nova Scotia. Membership grew to 118 member vessels by the end of 2025.\nThe cooperative manages quotas, operates the fuel dock and runs the processing plant on the east\nquay. A board of seven elected skippers meets every second Thursday.\n3",
+      "Fleet Composition\nThe member fleet consists of 41 longliners, 33 trawlers, 28 gillnetters and 16 coastal handliners. The\naverage vessel age is 19 years.\nNine vessels were replaced in 2025 under the fleet renewal agreement signed in 2023. All new vessels\nare equipped with electronic logbooks and net sensors.\n4",
+      "Catch Quotas 2025\nThe table below compares the allocated quotas with the actual landings of the 2025 season. Quotas are\nset annually by the regional fisheries authority in consultation with the cooperative.\nHerring was fully utilised, while pollock remained below quota because the fleet shifted effort to haddock\nin the second half of the year. No quota was exceeded.\nTable 1: 2025 quotas and landings by species\nSpecies\nQuota (t)\nLanded (t)\nUtilisation\nAtlantic cod\n3,600\n3,412\n95%\nHaddock\n2,100\n2,088\n99%\nPollock\n1,750\n1,301\n74%\nHerring\n5,200\n5,200\n100%\nHalibut\n640\n612\n96%\n5",
+      "Sustainability Measures\nSince 2021 two areas of 40 and 55 square nautical miles are closed to bottom trawling to protect\njuvenile cod. Mesh size in the trawl fishery was raised to 120 millimetres in 2024.\nIndependent observers covered 18 percent of all fishing trips in 2025. The cooperative runs a discard\nmonitoring programme in which skippers photograph every haul with a deck camera.\n6",
+      "Processing and Markets\nThe processing plant on the east quay handles up to 90 tonnes per day. In 2025 the plant processed\n11,900 tonnes of fish, of which 62 percent was exported to the United States.\nThe average ex-vessel price for cod was 4.30 USD per kilogram, 6 percent above 2024. Herring is\nmostly sold to roe processors in Asia under a fixed annual contract.\n7",
+      "Outlook 2026\nFor the 2026 season the authority has proposed a 3 percent reduction of the cod quota and an\nunchanged herring quota. The cooperative has asked for a review of the pollock assessment.\nThe fleet renewal programme continues with nine further vessels ordered for delivery in 2026 and 2027.\nHeat recovery from the plant refrigeration system will be connected to the fuel dock building in spring\n2026.\n8"
+    ],
+    "en-harbor-registry": [
+      "Port of Grey Harbor\nVessel Registry Digest 2025\nPort of Grey Harbor Authority - Grey Harbor, Oregon\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Registry Overview\nThe vessel registry of the Port of Grey Harbor was opened in 1904 and lists 3,812 registered vessels at\nthe end of 2025. Registration is renewed annually for a flat fee of 240 USD.\nThe registry covers commercial vessels, fishing vessels and pleasure craft above 12 metres hull length.\nSmaller pleasure craft are registered by the county instead.\n2",
+      "Commercial Fleet Register\nThe ten largest commercial vessels registered in 2025 are listed in the table below. Deadweight tonnage\nis the registered carrying capacity of each ship.\nThree of the largest vessels are bulk carriers serving the grain terminal, two are product tankers calling\nat the fuel berth, and the remainder are container feeders and general cargo ships.\nTable 1: Largest registered commercial vessels, 2025\nVessel\nFlag\nDWT (t)\nBuilt\nMeridian Star\nPanama\n52,000\n2011\nCorva Breeze\nLiberia\n38,400\n2016\nNorthern Gannet\nCanada\n12,750\n2008\nSilver Fir\nMarshall Is.\n11,900\n2014\nCape Duchess\nPanama\n10,300\n2019\nAster Bay\nLiberia\n9,850\n2021\nDunlin Trader\nCanada\n8,120\n2010\nFjord Rose\nNorway\n7,640\n2018\nKestrel Arrow\nSingapore\n7,010\n2022\n3",
+      "Heron Point\nPanama\n6,480\n2013\n4",
+      "Berth Allocation\nThe port offers 14 berths along two piers. The deepest berth accommodates vessels with 16.5 metres\ndraught, and two mobile harbour cranes lift up to 100 tonnes each.\nBerth occupancy averaged 74 percent in 2025. Grain exports occupy berth 3 to 5 during the October to\nJanuary season, and the fuel berth is reserved for tankers every Tuesday and Friday.\n5",
+      "Pilotage and Towage\nSeven licensed pilots handled 2,214 pilotage movements in 2025. Pilotage is compulsory for vessels\nabove 90 metres length or 6,000 gross tonnage.\nThree tugs are stationed at the harbour mouth, of which two are tractor tugs with 55 tonnes bollard pull.\nTug assistance was used on 611 movements during the year.\n6",
+      "Environmental Program\nSince 2023 five berths provide shore power for container feeders and tugs. Total port emissions fell by\n11 percent compared with the 2019 baseline year.\nA barge collects oily water and garbage from calling vessels free of charge. The authority plants one\nnative tree for every 1,000 tonnes of cargo handled, adding 8,400 trees in 2025.\n7",
+      "Incidents and Safety\nThree reportable incidents occurred in 2025: a mooring line failure in March, a minor contact between a\nfeeder and a fender in August, and a crane cable fault in November. Nobody was injured and no spill\nexceeded one tonne.\nThe safety office completed 46 lockout-tagout audits and 12 emergency drills. Average response time of\nthe harbour fire unit was 7 minutes.\n8",
+      "Future Projects\nThe authority plans to extend the breakwater by 240 metres to reduce swell at berths 12 to 14. Planning\napproval is expected in 2026 and construction would start in 2027.\nA second shore power substation is designed and will double shore power capacity from five to nine\nberths. The investment volume of both projects is estimated at 61 million USD.\n9"
+    ],
+    "en-quarry-heritage": [
+      "Caldstone Quarry Heritage Trust\nAnnual Review 2025\nCaldstone Quarry Heritage Trust - Caldstone, England\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Table of Contents\n1. Trust and Mission 3\n2. Financial Outlook 4\n3. Archive and Collections 5\n2",
+      "Trust and Mission\nThe trust was founded in 1987 to preserve the Caldstone limestone quarry and its industrial heritage.\nThe site closed as a working quarry in 1962 and has been open to visitors since 1991.\nAt the end of 2025 the trust had 2,300 members. Its mission combines conservation of the quarry\nlandscape, the kiln complex and the archive of the former quarry company.\n3",
+      "Financial Outlook\nUnder this heading the trust reports on its volunteer training programme, which in 2025 was funded from\nthe designated training reserve rather than the general budget.\nIn 2025, 84 volunteers completed the accredited course in archive handling and guided tour practice.\nThe course ran over nine weekends, and 61 volunteers qualified as site guides for the 2026 season.\n4",
+      "Archive and Collections\nThe archive holds 12,400 photographic negatives of quarry operations between 1904 and 1961 and 480\noral history recordings of former quarry workers and their families.\nIn 2025 the digitisation team scanned 2,150 negatives and transcribed 66 oral histories. A reading room\nwith twelve seats opened in the old weighbridge office.\n5",
+      "Membership Benefits\nThis section describes the restoration of the kiln complex, which was financed largely by membership\nfunds and external grants rather than by membership fees alone.\nRestoration of the three draw kilns was completed in June 2025 at a cost of 214,000 GBP, of which\n130,000 GBP came from an industrial heritage grant. Scaffolding protected the original brick linings\nduring the works.\n6",
+      "Site Interpretation\nThe visitor trail around the quarry floor and kiln bank is 2.6 kilometres long and marked with 18\ninterpretation panels describing the stone extraction process.\nA new audio guide in three languages was launched in May 2025. Average visitor dwell time rose from\n48 to 71 minutes after the trail was extended to the upper bench.\n7",
+      "Governance\nThe trust is governed by a board of nine trustees who meet quarterly. The audited accounts for the year\nending 31 March 2025 were filed on 30 April 2025.\nA members assembly takes place each October. In 2025 the assembly approved a change of the trust\nobjects to include the adjacent lime woodland, and elected two new trustees.\n8"
+    ],
+    "en-maple-transit": [
+      "Maple Ridge Transit Authority\nService Report 2025\nMaple Ridge Transit Authority - Maple Ridge, Canada\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Table of Contents\n1. Authority Overview 3\n2. Route Network 4\n3. Ridership and Fares 5\n2",
+      "Authority Overview\nThe transit authority operates the local bus network of the city of Maple Ridge with 210 buses on 34\nroutes. It was established in 1994 as a joint body of the city and two neighbouring municipalities.\nThe main depot and control centre are located at Ironworks Yard. A second, smaller depot for 60\nvehicles opened at Eastgate in 2022.\n3",
+      "Route Network\nThe core network consists of twelve high frequency routes and 22 local routes. The table shows the\nbusiest routes in 2025 with their average weekday ridership and scheduled headway at midday.\nRoute 3 crosses the river and connects the university campus with the central station. Its bridge span\nlimits vehicle length to 12 metres, which caps its capacity despite high demand.\nTable 1: Busiest routes 2025\nRoute\nTerminus\nRiders/day\nHeadway\n3\nUniversity - Central Station\n9,100\n6 min\n7\nHarbour - Eastgate\n7,400\n8 min\n11\nNorth Market - Central Station\n6,850\n8 min\n14\nRiverdale Loop\n5,200\n10 min\n19\nIronworks - South Ridge\n4,980\n10 min\n22\nHospital - Central Station\n4,310\n12 min\n27\nAirport Road - Harbour\n3,660\n15 min\n34\nWestfield Express\n3,050\n20 min\n4",
+      "Ridership and Fares\nTotal ridership in 2025 was 41.2 million rides, an increase of 4 percent over 2024. Weekday boardings\npeaked between 7:30 and 8:30 in the morning.\nThe single fare is 2.75 CAD and the monthly pass costs 96 CAD. Children under 12 travel free, and the\nemployer partnership programme covers 34,000 pass holders.\n5",
+      "Fleet Electrification\nBy December 2025 the fleet included 48 battery electric buses. The Ironworks Yard depot operates 26\nfast chargers, and Eastgate has six.\nThe authority targets a fully zero emission fleet by 2035. Winter range loss reduced the effective duty of\nelectric buses on route 34, so the express route keeps diesel buses as reserve.\n6",
+      "Accessibility\n92 percent of all stops are wheelchair accessible with level boarding or a raised pad. All buses in the\nfleet have ramps or kneeling suspension.\nThe ramp failure rate in daily service was 0.7 percent in 2025. Audio-visual next stop announcements\nare installed in 84 percent of the fleet and are mandatory for all new vehicles.\n7",
+      "On-Time Performance\nSystem wide on-time performance reached 87.3 percent in 2025, measured as departure within one\nminute of schedule at time points.\nCongestion caused 54 percent of delays and traffic incidents 21 percent. The worst corridor is the bridge\napproach of route 3, where OTP dropped to 71 percent during the afternoon peak.\n8"
+    ],
+    "en-meridian-clinic": [
+      "Meridian Community Clinic\nQuality and Activity Report 2025\nMeridian Community Clinic - Farncombe, United Kingdom\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Clinic Overview\nMeridian Community Clinic opened in 2009 in the suburb of Farncombe and provides primary care for\nabout 24,000 registered patients. The building offers 11 examination rooms and one minor procedure\nroom.\nThe clinic employed 38 staff at the end of 2025: nine general practitioners, fourteen nurses, six\nadministrative staff, four health care assistants and five allied professionals.\n2",
+      "Patient Volumes\nIn 2025 the clinic recorded 52,800 consultations. Of these, 63 percent were offered as same-day\nappointments, reflecting the walk-in capacity held open each morning.\nTelephone and video consultations accounted for 11 percent of all contacts. The average consultation\nlength was 12.4 minutes, slightly above the regional average of 11.1 minutes.\n3",
+      "Chronic Disease Program\nThe diabetes register included 1,940 patients in 2025. The median HbA1c value of the register was 7.1\npercent, and 68 percent of hypertensive patients reached the blood pressure target.\nPatients with two or more chronic conditions are offered a quarterly review call by the nursing team. In\n2025 the team completed 6,100 such calls with a completion rate of 82 percent.\n4",
+      "Vaccination Campaigns\nThe autumn influenza campaign delivered 14,700 vaccine doses, reaching 71 percent of registered\npatients over 65 years of age.\nA COVID-19 booster round in spring 2025 delivered 5,320 doses. The HPV catch-up programme\nvaccinated 910 adolescents, using school sessions at four secondary schools in the catchment area.\n5",
+      "Referrals and Diagnostics\nThe clinic made 4,120 specialist referrals in 2025. The median waiting time from referral to first specialist\nappointment was 26 days.\nIn-house ultrasound is available two days per week and performed 940 examinations. Point-of-care\nblood testing covers full blood count, CRP and HbA1c with results within ten minutes.\n6",
+      "Staffing and Training\nStaff turnover was 8 percent in 2025, with three retirements and no involuntary departures. Two GP\nregistrars completed their training year at the clinic.\nThe team logged 380 hours of protected training time. Mandatory resuscitation training was completed\nby 100 percent of clinical staff, and two nurses qualified as prescribers.\n7",
+      "Digital Systems\nThe clinic uses a cloud hosted patient record system with two factor authentication for all users. Online\nappointment booking was used for 22 percent of booked appointments in 2025.\nA patient messaging pilot reached 4,300 enrolled patients. The average first response time of the\nadministrative inbox was 1.4 working days during the pilot period.\n8"
+    ],
+    "es-ribera-vinedos": [
+      "Bodegas Ribera del Alba\nMemoria Anual 2025\nBodegas Ribera del Alba - Tobalina, España\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Índice\n1. Presentación de la bodega 3\n2. Viñedos y variedades 4\n3. Vendimia 2025 5\n2",
+      "Presentación de la bodega\nBodegas Ribera del Alba fue fundada en 1972 por Álvaro Sainz y sigue siendo una empresa familiar de\nsegunda generación. La bodega dispone de 148 hectáreas de viñedo propio en el término de Tobalina.\nLa plantilla está formada por 34 personas fijas, a las que se suman 60 temporeros durante la vendimia.\nLa sala de barricas y la sala de embotellado se rehabilitaron por completo en 2019.\n3",
+      "Viñedos y variedades\nLa composición varietal del viñedo es la siguiente: tempranillo 62 por ciento, garnacha 21 por ciento,\nverdejo 12 por ciento y otras variedades el 5 por ciento restante.\nLas parcelas se sitúan entre 720 y 860 metros de altitud, con una media de 780 metros. El viñedo se\nconduce en vaso en las parcelas más antiguas, plantadas entre 1974 y 1988, y en espaldera en las\nmás recientes.\n4",
+      "Vendimia 2025\nLa vendimia de 2025 comenzó el 22 de septiembre y finalizó el 18 de octubre. Se recogieron 912.000\nkilogramos de uva con un rendimiento medio de 6.100 kilogramos por hectárea.\nLa uva entró sana y con una acidez superior a la de 2024. La noche de octubre más fría registró 2\ngrados, lo que retrasó la recogida del verdejo una semana respecto al plan inicial.\n5",
+      "Elaboración y crianza\nLa bodega trabajó en 2025 con 420 barricas de roble, de las cuales el 60 por ciento son de roble\namericano y el resto de roble francés. La crianza media de los tintos es de 14 meses.\nLos blancos fermentan en depósitos de acero a temperatura controlada de 15 grados. Una pequeña\npartida de garnacha se elabora en ánforas desde 2023.\n6",
+      "Ventas y mercados\nEn 2025 se vendieron 340.000 botellas, de las cuales el 44 por ciento se exportaron. Alemania es el\nprincipal mercado exterior con el 18 por ciento de las ventas, seguido de Estados Unidos con el 11 por\nciento.\nLa facturación alcanzó 4,8 millones de euros, un 6 por ciento más que en 2024. El precio medio de\nsalida de la gama de crianza se situó en 13,50 euros por botella.\n7",
+      "Proyectos 2026\nPara 2026 está prevista la construcción de una nueva sala de embotellado con etiquetado automático,\nque duplicará la capacidad actual de 2.000 botellas por hora.\nLa finca Valdemoras, con 30 hectáreas, iniciará en marzo de 2026 el período de conversión a\nagricultura ecológica, que dura tres campañas hasta la certificación.\n8"
+    ],
+    "es-delta-citricos": [
+      "Citrícola del Delta\nInforme de Exportación 2025\nCitrícola del Delta S.A. - Amposta, España\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Índice\n1. La empresa 3\n2. Producción de campaña 4\n3. Exportaciones por destino 5\n2",
+      "La empresa\nCitrícola del Delta S.A. fue fundada en 1998 en Amposta por un grupo de doce productores de la\ncomarca. La sociedad opera tres plantas de selección y envasado en la carretera del delta.\nDurante la campaña de 2025 la plantilla alcanzó 640 personas en picos de temporada. El consejo de\nadministración está formado por cinco productores elegidos cada cuatro años.\n3",
+      "Producción de campaña\nLa campaña 2025 cerró con una producción de 41.000 toneladas de naranja, 18.500 toneladas de\nmandarina y 7.200 toneladas de limón.\nEl 90 por ciento de la superficie se riega por goteo. La campaña estuvo marcada por una ola de calor\nen julio que redujo el calibre de la mandarina en las parcelas sin malla antigranizo.\n4",
+      "Exportaciones por destino\nLa tabla siguiente detalla los principales mercados de exportación de la campaña 2025 por orden de\nvolumen. Las cifras corresponden a toneladas cursadas desde las tres plantas.\nAlemania encabeza el ranking con mandarina de calibre 2 y 3. El total exportado fue de 65.100\ntoneladas, el 97 por ciento de la producción; el resto se destinó al mercado interior.\nTabla 1: Exportaciones por país, campaña 2025\nPaís\nToneladas\nPorcentaje\nProducto principal\nAlemania\n12.400\n21%\nMandarina\nFrancia\n9.800\n17%\nNaranja\nReino Unido\n7.300\n12%\nNaranja\nPaíses Bajos\n6.100\n10%\nMandarina\nItalia\n5.600\n10%\nLimón\nPortugal\n5.100\n9%\nNaranja\n5",
+      "Tabla 1 (continuación): Exportaciones por país, campaña 2025\nPaís\nToneladas\nPorcentaje\nProducto principal\nPolonia\n4.900\n8%\nNaranja\nCanadá\n4.200\n7%\nLimón\nEmiratos Árabes\n3.100\n5%\nLimón\nSuecia\n2.700\n5%\nNaranja\nIrlanda\n2.100\n4%\nMandarina\nSuiza\n1.800\n3%\nMandarina\n6",
+      "Logística y cadena de frío\nLa empresa dispone de 21 camiones frigoríficos propios y completa los picos de campaña con\ntransporte concertado. Las cámaras de conservación trabajan entre 0 y 2 grados.\nEl tránsito terrestre hasta Alemania es de 4 días y hasta Polonia de 5 días. Cada palé se registra con\netiqueta RFID desde el envasado hasta la entrega.\n7",
+      "Certificaciones\nLas tres plantas están certificadas con GLOBALG.A.P. desde 2015 y mantienen el grado A de la norma\nBRC. En 2025 se realizaron dos auditorías externas sin hallazgos mayores.\nEl protocolo de residuos incluye 1.400 análisis por campaña. Dos parcelas quedaron fuera de\ncertificación durante 90 días por un tratamiento no autorizado detectado en agosto.\n8",
+      "Previsión 2026\nLa previsión de volumen para la campaña 2026 es de 63.000 toneladas, un 8 por ciento más que en\n2025, apoyada en las nuevas plantaciones de mandarina de la partida dels Comellars.\nLa inversión más relevante es una línea de pelado y gajos que entrará en pruebas en octubre de 2026\ncon una capacidad inicial de 2 toneladas por hora.\n9"
+    ],
+    "es-cordillera-ferrocarril": [
+      "Ferrocarril de la Cordillera\nMemoria de Explotación 2025\nFerrocarril de la Cordillera - Estación de Puente Alto\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Índice\n1. Historia y concesión 3\n2. Infraestructura 4\n3. Tráfico de viajeros 5\n2",
+      "Historia y concesión\nLa línea se inauguró en 1913 como ferrocarril minero y se transformó en ferrocarril turístico de montaña\nen 1988. La concesión administrativa se extiende hasta el año 2058.\nLa red tiene 96 kilómetros de vía de ancho métrico, con estaciones principales en Puente Alto,\nValdemoros y Cima. La empresa es pública y depende de la comunidad de montaña.\n3",
+      "Infraestructura\nLa línea atraviesa 23 túneles, el mayor de ellos de 1.940 metros. El viaducto del Cóndor, con 284\nmetros de longitud y 92 metros de altura, es la obra más destacada del trazado.\nEl tramo de Cima incluye 7,2 kilómetros de cremallera con pendiente máxima de 92 por mil. Los\ndeslizamientos de ladera se vigilan con 34 sensores instalados entre 2021 y 2024.\n4",
+      "Tráfico de viajeros\nEn 2025 la red transportó 1,84 millones de viajeros, un 12 por ciento más que en 2024. El verano\nconcentra el 47 por ciento del tráfico anual.\nEl billete sencillo de Puente Alto a Cima cuesta 18,50 euros. Los trenes circulares con locomotora de\nvapor circularon 84 días durante la temporada.\n5",
+      "Tráfico de mercancías\nEl tráfico de mercancías alcanzó 210.000 toneladas en 2025. La mercancía principal es el concentrado\nde cobre de la mina de Valdemoros, con tres trenes semanales.\nEl tráfico de mercancías se realiza de noche para no interferir con los servicios de viajeros. La\nmercancía se trasborda a ancho normalizado en la estación de Puente Alto.\n6",
+      "Ingresos y subvención\nLos ingresos de explotación sumaron 26,4 millones de euros en 2025, de los cuales el 91 por ciento\nprocede de viajeros y mercancías y el 9 por ciento restante de subvenciones para el mantenimiento de\nla vía.\nEl coste por kilómetro circulado es de 19,80 euros en los servicios ordinarios. El gasto de conservación\nde infraestructura alcanzó 6,1 millones de euros.\n7",
+      "Seguridad y mantenimiento\nSe registraron 4 descarrilamientos leves en maniobras de depot, sin heridos. La renovación de vía\nalcanzó 11 kilómetros en el tramo Valdemoros-Cima.\nEl sistema de enclavamientos electrónicos cubre ya el 80 por ciento de la red. Las 34 estaciones\ndisponen de comunicación digital y registro de circulaciones.\n8"
+    ],
+    "es-valle-museo": [
+      "Museo del Valle\nMemoria de Actividades 2025\nMuseo del Valle - Casa del Molino\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "El museo\nEl Museo del Valle se fundó en 1985 y ocupa el antiguo molino harinero de la Casa del Molino,\nrehabilitado entre 1983 y 1985. Dispone de cuatro salas permanentes y una sala de exposiciones\ntemporales.\nEl museo es de titularidad municipal y se gestiona mediante un convenio con la fundación cultural\nprovincial. El equipo consta de 14 personas entre gestión, sala y conservación.\n2",
+      "Colección\nLa colección reúne 3.240 obras y objetos registrados. El núcleo más numeroso es la cerámica popular,\ncon 1.100 piezas, seguida de los útiles del molino y de la vida rural.\nLa pinacoteca incluye 62 lienzos del siglo XIX, con paisajes del valle y retratos de familias locales. La\njoya de la colección es el retablo procesional de 1748.\n3",
+      "Exposiciones temporales\nEn 2025 se celebraron cinco exposiciones temporales. La más visitada fue Hilos del Sur, sobre\ntejeduría tradicional, con 21.400 visitantes entre marzo y junio.\nLa exposición de fotografía de montaña alcanzó 12.100 visitantes y la muestra de cerámica\ncontemporánea 9.800. Todas las exposiciones se acompañaron de catálogo editado en dos idiomas.\n4",
+      "Público y educación\nEl museo recibió 68.900 visitantes en 2025, un 9 por ciento más que el año anterior. La entrada general\ncuesta 6 euros y la reducida 3 euros.\nEl departamento educativo impartió 340 talleres escolares con 8.900 participantes. Las visitas guiadas\nde grupo requieren reserva con una semana de antelación.\n5",
+      "Restauración\nEl taller propio restauró 92 obras en 2025, entre ellas 18 piezas de cerámica del siglo XVI y el conjunto\nde hierros del antiguo mecanismo del molino.\nCada intervención se documenta con un informe técnico de 12 páginas como media. El taller colabora\ncon la escuela de restauración provincial en dos prácticas formativas al año.\n6",
+      "Amigos del museo\nLa asociación de Amigos del Museo contaba con 820 socios a finales de 2025. La cuota anual es de 35\neuros y da acceso gratuito a todas las salas.\nLa asociación organizó 14 visitas guiadas exclusivas a almacenes y monumentos de la comarca. Sus\naportaciones financian la compra anual de una pieza para la colección.\n7",
+      "Difusión y comunicación\nEl boletín trimestral del museo se envía a 5.600 suscriptores. La cuenta de la institución en redes\nsociales superó los 31.000 seguidores en diciembre de 2025.\nLa radiotelevisión regional dedicó cuatro programas al retablo procesional tras su restauración. La\ntienda del museo facturó 84.000 euros en publicaciones y reproducciones.\n8"
+    ],
+    "es-sierra-senderismo": [
+      "Red de Senderos de la Sierra Blanca\nInforme Anual 2025\nConsorcio de la Sierra Blanca\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Índice\n1. Presentación de la red 3\n2. Presupuesto y cuentas 4\n3. Voluntariado ambiental 5\n2",
+      "Presentación de la red\nLa red de senderos de la Sierra Blanca comprende 412 kilómetros señalizados distribuidos en 27 rutas\nhomologadas. El consorcio gestiona el mantenimiento desde 2004.\nLas rutas se clasifican en 8 grandes recorridos de más de 20 kilómetros, 12 travesías medias y 7\nsenderos locales. La ruta más frecuentada es la subida al pico Almirante.\n3",
+      "Presupuesto y cuentas\nBajo este epígrafe se informa del señalamiento y balizamiento de rutas, que en 2025 se financió con\ncargo a la línea de conservación y no con cargo al capítulo de cuentas corrientes.\nDurante 2025 se repintaron 1.240 paneles de madera y se colocaron 380 hitos de piedra en los tramos\nde crestería. La revisión del balizamiento cubrió 178 kilómetros de senda.\n4",
+      "Voluntariado ambiental\nEste epígrafe recoge la economía del senderismo en la comarca, elaborada con las encuestas a\ncaminantes y los convenios con alojamientos firmados por el consorcio.\nEl consorcio mantiene convenios con 45 refugios y casas rurales de la tarjeta Sendero Amigo. El gasto\nmedio del caminante se situó en 31 euros por día según la encuesta de 2025.\n5",
+      "Seguridad en rutas\nLos equipos de rescate intervinieron 18 veces en 2025, la mayoría por esguinces y deshidratación en\nlos meses de julio y agosto. Ninguna intervención fue mortal.\nSe cartografiaron con dron 60 kilómetros de los tramos más expuestos. La fuente natural Fuente del\nRoble se analizó cuatro veces al año y resultó potable en todas las muestras.\n6",
+      "Biodiversidad\nEl censo de cabra montés estimó 640 ejemplares en la sierra, con una ligera expansión hacia el valle\ndel río Frío. El águila real mantiene 9 parejas reproductoras.\nLas cumbres albergan la mayor población de ajedrea de sierra de la región. Las parcelas de\nseguimiento florístico se miden dos veces al año en 26 puntos fijos.\n7",
+      "Colaboraciones\nEl consorcio agrupa a 12 ayuntamientos y colabora con la universidad regional en el seguimiento de\nfauna. La aplicación móvil de la red superó las 38.000 descargas.\nTres empresas de turismo activo trabajan bajo autorización anual. El convenio con la asociación de\nvecinos de Valdemoros permitió recuperar el camino empedrado del Puerto Viejo.\n8"
+    ],
+    "es-altiplano-energia": [
+      "Parque Solar Altiplano\nInforme Técnico y Financiero 2025\nParque Solar Altiplano - Llanura de Zújar\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Índice\n1. El proyecto 3\n2. Producción 2025 4\n3. Inversores y mantenimiento 5\n2",
+      "El proyecto\nEl parque solar Altiplano tiene una potencia instalada de 120 megavatios distribuidos en 312.000\npaneles sobre una superficie de 380 hectáreas en la llanura de Zújar.\nLa planta se conectó a la red en octubre de 2023 y opera desde entonces en régimen de venta a\nmercado. La subestación elevadora dispone de un transformador de 132 kilovoltios.\n3",
+      "Producción 2025\nLa producción anual de 2025 fue de 246,3 gigavatios hora. La tabla resume la producción trimestral, las\nhoras de sol medidas y el factor de planta correspondiente.\nEl mejor trimestre fue el segundo, con un factor de planta del 32 por ciento. La primavera registró cinco\ndías de polvo en suspensión que redujeron la producción un 6 por ciento.\nTabla 1: Producción trimestral 2025\nTrimestre\nProducción GWh\nHoras de sol\nFactor de planta\nT1\n50,1\n529\n23%\nT2\n70,4\n712\n32%\nT3\n66,8\n698\n30%\nT4\n59,0\n554\n27%\n4",
+      "Inversores y mantenimiento\nLa planta utiliza 28 inversores centrales de 4,4 megavatios. La disponibilidad técnica de los equipos fue\ndel 98,6 por ciento en 2025.\nLa limpieza robotizada de paneles se realizó en 6 ciclos. Los módulos bifaciales instalados en las filas\nnorte ganaron un 4 por ciento de rendimiento tras la primera limpieza anual.\n5",
+      "Impacto ambiental\nBajo los paneles se mantiene pastoreo ovino con 2.400 cabezas de un ganadero de la zona, lo que\nevita el desbroce mecánico en 240 hectáreas.\nEl seguimiento de avifauna registró 3 colisiones con aves protegidas durante el año. Las medidas de\nreposición incluyen la plantación de 900 arbustos en los corredores perimetrales.\n6",
+      "Economía del proyecto\nLa inversión total fue de 118 millones de euros. El precio medio de venta de la energía en 2025 se situó\nen 41 euros por megavatio hora.\nLa vida útil de diseño es de 30 años. El servicio de deuda se cubre 1,7 veces con el flujo de caja\noperativo, y el seguro de producción no se activó en 2025.\n7",
+      "Ampliación\nLa fase II del parque, con 40 megavatios adicionales, recibió autorización administrativa en noviembre\nde 2025. Las obras comenzarán en el segundo trimestre de 2026.\nEl proyecto incluye un sistema de almacenamiento de 60 megavatios hora en baterías de litio, que\npermitirá desplazar la entrega de energía a las franjas de mayor precio.\n8"
+    ],
+    "es-norte-textil": [
+      "Hilados del Norte\nMemoria Industrial 2025\nHilados del Norte S.A. - Bembibre\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "La fábrica\nHilados del Norte S.A. fue fundada en 1954 y produce hilos textiles en su planta de Bembibre. La\nfábrica trabaja en tres turnos con 260 trabajadores.\nLa planta agrupa las secciones de apertura, cardado, hilatura y bobinado en dos naves. El almacén de\nproducto terminado se automatizó en 2021 con cuatro transelevadores.\n2",
+      "Producción de hilos\nLa tabla siguiente resume la producción por tipo de hilado en 2025, con el título en Tex y el destino\nprincipal de cada familia de producto.\nLos hilos técnicos crecieron un 14 por ciento y compensaron la caída del hilo de algodón para\nconfección. La producción total fue de 6.480 toneladas.\nTabla 1: Producción por tipo de hilado, 2025\nHilado\nTítulo Tex\nToneladas\nDestino principal\nAlgodón peinado\n30\n1.850\nConfección\nAlgodón cardado\n40\n980\nPunto\nLana merino\n34\n620\nCabonería\nPoliéster filamento\n75\n890\nDecoración\nMezcla algodón-poliéster\n25\n760\nUniformidad\nLino seco\n48\n210\nTapicería\nAcrílico alta contracción\n60\n330\nMantas\nTécnico aramida\n22\n180\nProtección\nTécnico vidrio\n68\n240\nComposite\n3",
+      "Tejidos medicinales\n16\n90\nSanitario\nFibra reciclada\n35\n280\nAutomoción\nHilo coser industrial\n12\n50\nConfección técnica\n4",
+      "Calidad y certificados\nLa planta mantiene la certificación ISO 9001 desde 1998 y la renovó sin desviaciones en la auditoría de\nmarzo de 2025. La tasa de defectos en bobinas fue del 0,8 por ciento.\nEl laboratorio interno dispone de 14 máquinas de ensayo y analiza 60 muestras diarias. La regularidad\nde los hilos se controla con probadores automáticos en cada turno.\n5",
+      "Energía y agua\nEl consumo eléctrico de 2025 fue de 9,4 gigavatios hora, de los cuales el 38 por ciento procede de\nfuentes renovables mediante contratos con garantía de origen.\nEl circuito de recuperación de calor de los acondicionadores de naves cubre el 22 por ciento de la\ndemanda de agua caliente. El consumo de agua bajó a 2,1 litros por kilogramo de hilo.\n6",
+      "Clientes y pedidos\nLa cartera de clientes consta de 62 empresas, con un pedido medio de 4.300 kilogramos. Los plazos de\nentrega habituales son de 21 días desde la confirmación.\nLos cinco mayores clientes concentran el 41 por ciento de las ventas. La facturación de 2025 alcanzó\n19,2 millones de euros, con un margen bruto del 18 por ciento.\n7",
+      "Personal y formación\nEl absentismo voluntario se situó en el 3,1 por ciento, dos décimas por debajo de 2024. La plantilla\nincluyó 5 aprendices en formación dual durante todo el año.\nSe impartieron 2.400 horas de formación, de las cuales 800 correspondieron a seguridad y 600 al\nmanejo de la nueva línea de hilatura de núcleo.\n8",
+      "Mercados exteriores\nLas exportaciones representaron el 27 por ciento de las ventas, con Portugal y Francia como\nprincipales destinos. El primer pedido de América del Sur se sirvió en octubre de 2025.\nLa empresa participa en dos ferias internacionales del sector. El gabinete de exportación prepara la\ncertificación de la planta para clientes del sector automoción durante 2026.\n9"
+    ],
+    "de-elbe-werft": [
+      "Elbe Werft\nJahresbericht 2025\nElbe Werft GmbH - Lauenburg an der Elbe\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Inhaltsverzeichnis\n1. Das Unternehmen 3\n2. Auftragsbestand 2025 4\n3. Schiffbauprojekte 5\n2",
+      "Das Unternehmen\nDie Elbe Werft GmbH wurde 1919 in Lauenburg an der Elbe gegründet und baut heute Binnenschiffe\nund kleine Seeschiffe. Das Unternehmen beschäftigt 410 Mitarbeiter an zwei Helgen.\nZur Werft gehören eine Maschinenhalle, eine Dockanlage und eine eigene Konstruktionsabteilung mit\n32 Ingenieuren. Die Ausbildungswerkstatt bildet in vier Gewerken aus.\n3",
+      "Auftragsbestand 2025\nZum 31. Dezember 2025 umfasste der Auftragsbestand sechs Neubauten mit einem Auftragswert von\n41,2 Millionen EUR. Der Bestand lag damit 14 Prozent über dem Vorjahr.\nIm Jahr 2025 wurden vier Schiffe abgeliefert. Die durchschnittliche Bauzeit je Schiff betrug elf Monate,\nein Monat weniger als im Vorjahr.\n4",
+      "Schiffbauprojekte\nDie Tabelle listet die im Jahr 2025 abgelieferten und laufenden Baunummern. Die Längenangabe\nbezieht sich auf das Schiff über alles.\nBaunummer 584 ist das erste Schiff der Werft mit einem gasbetriebenen Bordnetz für den\nHafenaufenthalt. Die Ablieferung ist für April 2026 geplant.\nTabelle 1: Bauprogramm 2025\nBaunr.\nSchiffstyp\nLänge\nAblieferung\n581\nFrachtmotorschiff\n110 m\nApril 2025\n582\nSchubverband\n98 m\nJuni 2025\n583\nPassagierfähre\n72 m\nSeptember 2025\n584\nTankmotorschiff\n135 m\nApril 2026\n585\nFrachtmotorschiff\n110 m\nJuli 2026\n586\nBaggerschiff\n54 m\nOktober 2026\n5",
+      "Reparaturbetrieb\nDer Reparaturbetrieb führte 2025 insgesamt 96 Aufträge durch. Die mediane Standzeit im Dock betrug\nelf Tage, drei Tage weniger als im Jahr zuvor.\nDie Dockkapazität beträgt 3.000 Tonnen Tragfähigkeit. Der größte Einzelauftrag war die\nGeneralüberholung eines 90-Meter-Gütermotorschiffs mit Überholung der Maschinenanlage.\n6",
+      "Finanzen\nDer Umsatz der Werft lag 2025 bei 68,7 Millionen EUR, der Exportanteil betrug 22 Prozent. Das\nErgebnis vor Steuern betrug 1,9 Millionen EUR.\nDie Eigenkapitalquote stieg auf 31 Prozent. Die Investitionen umfassten vor allem einen neuen\n60-Tonnen-Kran und die Erweiterung der Lackierhalle.\n7",
+      "Ausblick\nGemeinsam mit zwei Partnern entwickelt die Werft ein Wasserstoff-Bordnetz für Binnenschiffe; ein\nVersuchsträger läuft ab Sommer 2026 auf der Elbe.\nDie Ausbildungsquote liegt bei 8 Prozent. Für 2027 ist der Bau einer zweiten Schiffbauhalle geplant, die\nbeide Helgen ganzjährig überspannen soll.\n8"
+    ],
+    "de-alpen-bahnen": [
+      "Alpen Bahnen AG\nGeschäftsbericht 2025\nAlpen Bahnen AG - Steinbach im Tal\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Inhaltsverzeichnis\n1. Das Unternehmen 3\n2. Bahnen und Anlagen 4\n3. Gäste und Fahrgäste 5\n2",
+      "Das Unternehmen\nDie Alpen Bahnen AG betreibt am Talort Steinbach vier Seilbahnanlagen und wurde 1949 von einer\nGenossenschaft gegründet. Das Unternehmen beschäftigt 96 Festangestellte und in der Wintersaison\n140 Saisonkräfte.\nDie Aktienmehrheit hält seit 2011 die Gemeinde Steinbach. Der Vorstand besteht aus zwei Personen,\nder Aufsichtsrat aus sieben Mitgliedern.\n3",
+      "Bahnen und Anlagen\nDie Tabelle zeigt die vier Anlagen mit Bauart, Länge und Förderleistung je Stunde. Die Gipfelbahn\nwurde 1998 errichtet und 2019 modernisiert.\nDer Sessellift Rohrmoos wird nur im Winter betrieben. Die Sombreilienbahn erschliesst den\nSommerwanderpark und fährt von Mai bis Oktober.\nTabelle 1: Anlagenübersicht 2025\nAnlage\nBauart\nLänge\nPersonen/h\nGipfelbahn\nLuftseilbahn\n2.340 m\n1.800\nRohrmoos\nSessellift\n1.150 m\n1.200\nSonnenhang\nSessellift\n980 m\n1.000\nSonnenbahn\nGondelbahn\n1.720 m\n1.500\n4",
+      "Gäste und Fahrgäste\nIn der Wintersaison 2024/25 beförderten die Anlagen 512.000 Fahrgäste, in der Sommersaison 2025\nwaren es 189.000. Der Tages-Skipass kostet im Winter 62 EUR.\nDer Sommerbetrieb erreichte einen Anteil von 27 Prozent am Gesamtumsatz. Die Berggastronomie mit\nzwei Restaurants verzeichnete 96.000 Bewirtungen.\n5",
+      "Beschneiung und Pisten\nDas Pistenangebot umfasst 38 Kilometer, davon sind 24 Kilometer beschneibar. Für die Beschneiung\nstehen 54 Schneekanonen und ein Wasserspeicher von 120.000 Kubikmetern zur Verfügung.\nDie Saison 2024/25 begann am 6. Dezember mit beschneiten Pisten und endete am 13. April. Die\nmittlere Schneehöhe in der Talstation lag bei 41 Zentimetern.\n6",
+      "Energiemanagement\nDer Jahresverbrauch der gesamten Anlagengruppe lag bei 9,8 Gigawattstunden, davon entfallen 7,1\nGigawattstunden auf den Winterbetrieb mit Beschneiung.\nSeit 2023 deckt eine Photovoltaikanlage mit 420 Kilowattspitze einen Teil des Sommerbedarfs. Die\nBeleuchtung aller Stationen wurde auf LED umgestellt.\n7",
+      "Projekte 2026\nFür den Sommer 2026 ist der Ersatz der Gipfelbahn durch eine 10er-Gondelbahn geplant. Die\nInvestitionssumme beträgt 24 Millionen EUR, die Baugenehmigung liegt vor.\nIm Bereich Lawinenschutz werden 1,2 Kilometer Verbauungen oberhalb der Talabfahrt erneuert. Die\nArbeiten erfolgen im Spätsommer mit mit Seilwinde und Kran.\n8"
+    ],
+    "de-rhein-muehlen": [
+      "Rhein Mühlenwerke\nGeschäftsbericht 2025\nRhein Mühlenwerke GmbH - Worms\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Inhaltsverzeichnis\n1. Konzernüberblick 3\n2. Mahlleistung und Produkte 4\n3. Rohstoffbeschaffung 5\n2",
+      "Konzernüberblick\nDie Rhein Mühlenwerke GmbH wurden 1888 als Familienstiftung gegründet und betreiben heute drei\nMühlenstandorte entlang des Rheins. Die Gruppe beschäftigt 180 Personen.\nDer Hauptsitz mit Verwaltung und Hauptmühle liegt in Worms. Zwei weitere Standorte in Karlsruhe und\nMainz arbeiten als reine Produktionsmühlen.\n3",
+      "Mahlleistung und Produkte\nDie Tabelle zeigt die Mahlleistung 2025 je Standort und Produktgruppe sowie die vorhandene\nSilokapazität. Mehl der Type 550 bleibt das mengenstärkste Produkt.\nDie Gesamtvermahlung betrug 128.000 Tonnen. Der Ausbau des Vollkornbereichs führte zu einer\nVerschiebung von 4.000 Tonnen Weizenmehl auf Roggenvollkorn.\nTabelle 1: Mahlleistung 2025\nStandort\nProdukt\nTonnen\nSilo (t)\nWorms\nWeizenmehl Type 550\n46.000\n12.000\nWorms\nWeizenvollkorn\n9.500\n3.000\nKarlsruhe\nRoggenmehl Type 997\n21.000\n6.500\nKarlsruhe\nRoggenvollkorn\n8.400\n2.800\nMainz\nDinkelmehl Type 630\n17.300\n5.200\nMainz\nBackmischungen\n25.800\n4.000\n4",
+      "Rohstoffbeschaffung\nRund 87 Prozent des Getreides stammen von 210 vertraglich gebundenen Landwirten der Region. Der\nEiweißgehalt des eingekauften Weizens lag 2025 bei 12,5 Prozent.\nDie Lagerung im Silobereich ist auf maximal neun Monate ausgelegt. Eine Rückstandskontrolle je Partie\nist vor der Vermahlung verpflichtend.\n5",
+      "Qualität\nIm Jahr 2025 wurden 1.900 Rückstandsprüfungen durchgeführt. Die Ausschussquote lag bei 0,4\nProzent und damit unter dem Branchenwert von 0,8 Prozent.\nAlle drei Standorte sind nach IFS Food auf dem höheren Level zertifiziert. Das Brottester-Team\nbewertet wöchentlich eine Backprobe aus der Kundenschulung.\n6",
+      "Logistik\nDie Auslieferung erfolgt zu 42 Prozent per Lkw, zu 33 Prozent per Bahn und zu 25 Prozent mit\nBinnenschiff. Die eigene Flotte umfasst 18 Silofahrzeuge.\nDer Bahnanschluss in Worms wurde 2024 erneuert und trägt seitdem drei Ganzzüge pro Woche. Die\nmittlere Distanz bis zum Kunden betrug 96 Kilometer.\n7",
+      "Energie und Klima\nDer Stromverbrauch lag 2025 bei 6,2 Gigawattstunden, wovon das Blockheizkraftwerk der Hauptmühle\n1,9 Gigawattstunden beisteuerte.\nDie Treibhausgasemissionen je Tonne Mehl betrugen 78 Kilogramm CO2-Äquivalent. Ziel bis 2030 ist\nein Wert von 60 Kilogramm durch Strom aus eigenen Anlagen.\n8"
+    ],
+    "de-ostsee-hafen": [
+      "Ostsee Hafenverwaltung\nHafenbericht 2025\nOstsee Hafenverwaltung GmbH\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Hafenüberblick\nDie Ostsee Hafenverwaltung GmbH betreibt einen Seehafen mit vier Terminals und 22 Liegeplätzen.\nDer gesamte Güterumschlag betrug 2025 rund 8,4 Millionen Tonnen.\nDer Hafen beschäftigt 340 Festangestellte und schichtet im Hafenbetrieb in drei Wachen. Der\nSchwerpunkt des Umschlags liegt auf Schüttgut und Fähren.\n2",
+      "Umschlag nach Güterart\nDie Tabelle ordnet die Umschlagsmengen 2025 nach Güterart. Getreide bleibt mit deutlichem Abstand\ndas wichtigste Massengut im Hafen.\nDer Stückgutumschlag entfällt fast vollständig auf Stahl und Forsterzeugnisse. Der Gesamtumschlag\nstieg gegenüber dem Vorjahr um 3 Prozent.\nTabelle 1: Umschlag 2025 nach Güterart\nGüterart\nTonnen\nAnteil\nGetreide\n2.100.000\n25%\nDünger\n1.430.000\n17%\nFahrgäste Fähre\n820.000\n10%\nStahl und Bleche\n690.000\n8%\nHolz und Zellstoff\n560.000\n7%\nLkw Fähre\n38.000\n5%\nZementklinker\n410.000\n5%\nTorf\n260.000\n3%\nContainer TEU\n84.000\n10%\nSonstige\n920.000\n10%\n3",
+      "Reedereien und Linien\nDer Hafen bedient 14 feste Linienverbindungen. Die Fährverbindung nach Schweden verkehrt zweimal\ntäglich mit einer Kapazität von 1.800 Passagieren je Abfahrt.\nZwei Reedereien haben ihre Linien 2025 auf größere Einheiten umgestellt. Der Frachtfahrplan der\nFähre berücksichtigt seit April die Sperrzeiten der Klappbrücke.\n4",
+      "Bahnanbindung\nDer Hafen verfügt über drei Gleisanschlüsse mit insgesamt 41 Kilometern Gleislänge. Rund 210\nGüterzüge fahren wöchentlich in den Hafen ein oder aus ihm heraus.\nDer Rangierbetrieb wird mit einer Elektrolokomotive und einer dieselelektrischen Reserve bespannt. Die\nLadegleise der Getreideterminals wurden auf 720 Meter verlängert.\n5",
+      "Umweltschutz\nSeit 2022 stehen an sechs Liegeplätzen Landstromanschlüsse für Seeschiffe bereit. Der\nSchadstoffausstoß der liegenden Schiffe sank dadurch um 40 Prozent.\nDas Hafenmuseum wird mit Abwärme des Verwaltungsgebäudes beheizt. Regenwasser von den\nUmschlagflächen der Düngeraufstellung wird über ein eigenes Becken gereinigt.\n6",
+      "Personal und Ausbildung\nDie Verwaltung bildet in zwölf Berufen aus und beschäftigt derzeit 12 Auszubildende. Die\nÜbernahmequote nach der Ausbildung lag 2025 bei 92 Prozent.\nFür den Kranführerberuf wurde ein Eignungstest eingeführt. Der Krankenstand im Hafenbetrieb betrug\n4,6 Prozent und liegt damit unter dem Wert des Vorjahres.\n7",
+      "Zukunft und Bauprojekte\nFür 2026 ist die Verlängerung des Kais 4 um 180 Meter geplant, damit größere Fähren festmachen\nkönnen. Die Planfeststellung wurde im November 2025 abgeschlossen.\nDas zweite Großprojekt ist eine Umschlaghalle für Recyclingstoffe mit 12.000 Quadratmetern\nGrundfläche. Beide Projekte sind mit 74 Millionen EUR veranschlagt.\n8"
+    ],
+    "de-schwarzwald-kurhaus": [
+      "Kurhaus Tannenfels\nRechenschaftsbericht 2025\nKurhaus Tannenfels - Tannenfels im Schwarzwald\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Inhaltsverzeichnis\n1. Das Haus 3\n2. Investitionen und Liquidität 4\n3. Gäste und Belegung 5\n2",
+      "Das Haus\nDas Kurhaus Tannenfels eröffnete 1902 als Badehaus mit eigener Thermalquelle von 34 Grad\nWassertemperatur. Es bietet heute 84 Zimmer und drei Tagungsräume.\nDas Gebäude steht unter Denkmalschutz. Die glasgedeckte Vorhalle von 1928 wurde 2024\ndenkmalgerecht saniert und ist wieder vollständig geöffnet.\n3",
+      "Investitionen und Liquidität\nUnter dieser Überschrift berichtet das Haus über Kräuteranwendungen und Wellness-Behandlungen,\ndie 2025 aus dem Pflegefonds des Kurgartens mitfinanziert wurden.\nDas Anwendungsangebot umfasste 24 Behandlungen, darunter Heublumenbad, Algenpackung und\nSteinhofenmassage. Es wurden 9.100 Anwendungen gebucht, 18 Prozent mehr als 2024.\n4",
+      "Gäste und Belegung\n2025 verzeichnete das Haus 41.600 Übernachtungen bei einer Auslastung von 63 Prozent. Die\ndurchschnittliche Aufenthaltsdauer betrug 4,2 Nächte.\nDer Gästestamm ist geprägt von Stammgästen: 44 Prozent der Buchungen stammen von\nWiederkehrern. Die Nebensaison wurde mit zwei Musikwochen stabilisiert.\n5",
+      "Personal und Dienstpläne\nDieser Abschnitt behandelt den Kurpark und die Gartenarchitektur, deren Pflege aus dem Personalkreis\nder Gärtnerei mit drei festen Kräften sichergestellt wird.\nDer Kurpark umfasst 6,2 Hektar mit 180 alten Bäumen. Der Rundweg durch den Park ist 2,4 Kilometer\nlang und im Winter geräumt, zuletzt wurde der Rosengarten umgeplant.\n6",
+      "Gastronomie\nDas Restaurant servierte 2025 rund 58.000 Menüs, davon 71 Prozent als Halbpension für Hausgäste.\nDie Küche arbeitet mit regionalen Lieferanten aus einem Umkreis von 50 Kilometern.\nDie Schwarzwälder Spezialitätenkarte wurde im Herbst 2025 neu aufgelegt. Das Frühstücksservice\nöffnet seit März kontinuierlich ab 7 Uhr morgens.\n7",
+      "Nachhaltigkeit\nDas Haus wird über das Fernwärmenetz mit Holz aus dem Stadtwald beheizt. Auf dem Dach der\nTherme erzeugen 120 Solarmodule warmes Brauchwasser.\nEinwegplastik wurde in allen Bereichen ersetzt. Der Wasserverbrauch je übernachtetem Gast sank\ndurch Perlatoren und Wäscheoptimierung auf 168 Liter.\n8"
+    ],
+    "de-mosel-weinberg": [
+      "Weingut Moselhang\nJahresbericht 2025\nWeingut Moselhang - Kinheim-Brück an der Mosel\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Inhaltsverzeichnis\n1. Das Weingut 3\n2. Lagen und Rebsorten 4\n3. Lese 2025 5\n2",
+      "Das Weingut\nDas Weingut Moselhang wird seit 1683 in Familienbesitz geführt und bewirtschaftet heute 11 Hektar\nRebfläche in Steillage und Flachlage bei Kinheim-Brück.\nDas Gut arbeitet seit 2014 nach kontrolliert ökologischen Richtlinien und ist seit 2019 zertifiziert. Die\nKelleranlage unter dem Gutshaus ist teils aus dem 18. Jahrhundert erhalten.\n3",
+      "Lagen und Rebsorten\nDer Sortenspiegel: Riesling 74 Prozent, Elbling 12 Prozent, Spätburgunder 9 Prozent und weitere\nSorten 5 Prozent. Rund 55 Prozent der Fläche liegt in Steillage.\nDie Top-Lage ist der Sonnenuhr-Hang mit über 60 Jahren alten Reben. Dort werden die Spätlesen und\nder Große Gewächs geerntet, die übrige Fläche liefert die Gutsweine.\n4",
+      "Lese 2025\nDie Lese 2025 begann am 29. September und endete am 24. Oktober. Es wurden 58.000 Liter Most\neingebracht bei einem mittleren Mostgewicht von 88 Grad Oechsle.\nDer Spätburgunder wurde am 6. Oktober geerntet und vergärte in offenen Eichenbottichen. Der\ngesunde Lesegang erlaubte erstmals seit 2021 wieder eine Spätlese trocken.\n5",
+      "Keller und Ausbau\nDer Ausbau erfolgt überwiegend im Stahlfass; für die Spätburgunder und einige Rieslingparzellen\nstehen 380 Stückfässer zu 1.000 Litern bereit. Die Gärtemperatur wird bei 16 Grad gehalten.\nDie Füllung der Weine erfolgt ohne Schönung mit leichter Filtration. Die Restzuckerwerte der trockenen\nWeine liegen unter sechs Gramm je Liter.\n6",
+      "Vermarktung\nDie Tabelle zeigt die Absatzmengen 2025 je Wein mit durchschnittlichem Ab-Hof-Preis. Rund 60 Prozent\nder Weine werden direkt ab Hof verkauft.\nDer Rest verteilt sich auf Fachhandel und Gastronomie in vier Bundesländern. Ein Auslandskunde in\nDänemark bezieht seit 2024 eine feste Jahresmenge.\nTabelle 1: Absatz 2025\nWein\nFlaschen\nPreis EUR\nRiesling Gutswein trocken\n62.000\n9,80\nRiesling Sonnenuhr Kabinett\n8.400\n16,50\nRiesling Spätlese trocken\n3.100\n22,00\nElbling spritzig\n14.500\n6,90\nSpätburgunder trocken\n5.200\n14,80\nSecco Riesling\n4.000\n8,50\n7",
+      "Veranstaltungen\nDas Gut veranstaltete zwei Hoffeste im Mai und August mit zusammen 1.600 Gästen. Die\nWeinseminare im Gewölbekeller zählten 340 Teilnehmer.\nErstmals wurde eine Herbstwanderung mit Lesefrühstück angeboten; die 120 Plätze waren innerhalb\neiner Woche vergeben. Das nächste Hoffest ist für Mai 2026 terminiert.\n8"
+    ],
+    "de-brandenburg-observatorium": [
+      "Brandenburg Observatorium\nTätigkeitsbericht 2025\nBrandenburg Observatorium Lindhorst e.V.\nPI-0 synthetic corpus - document-trees-v1\n1",
+      "Das Observatorium\nDas Brandenburg Observatorium Lindhorst wurde 1976 als Volkssternwarte gegründet und liegt am\nNordrand des Ortes Lindhorst. Hauptinstrument ist ein 70-Zentimeter-Spiegelteleskop.\nDer Verein betreibt die Sternwarte mit ehrenamtlichen Beobachtern. Die Kuppel steht auf dem Gelände\neiner ehemaligen Wasseraufbereitungsanlage.\n2",
+      "Instrumente\nDas 70-Zentimeter-Teleskop ist ein Newton-System mit Brennweite 3,2 Meter. Es verfügt über einen\nSpektrograf mit Auflösung R = 9.000 und eine monochrome Kamera für Photometrie.\nEine Kleinwetterstation mit Bewölkungssensor steuert den Beobachtungsbetrieb automatisch. Seit 2023\nläuft eine Allsky-Kamera für Meteorbestimmungen mit vier Fisheye-Kameras.\n3",
+      "Beobachtungsprogramm\n2025 waren 148 Nächte astronomisch nutzbar. Im Asteroidenprogramm wurden 96 neue Objekte\nvermessen und an die Kleinplanetenzentrale gemeldet.\nIm Programm Sternbedeckungen wurden 22 Ereignisse erfolgreich beobachtet. Die Messreihen zu\nveränderlichen Sternen umfassen 620 Einzelmessungen in vier Monaten.\n4",
+      "Nachwuchs und Schule\nAn Führungen und Schulprogrammen nahmen 1.900 Schülerinnen und Schüler teil. Drei\nArbeitsgemeinschaften von weiterführenden Schulen arbeiten regelmäßig in der Sternwarte.\nDer Teleskopführerschein wurde 2025 von 41 Teilnehmern erworben. Ein Praktikumsplatz für\nFerienschüler wurde erstmals mit einer Firma aus der Region geteilt.\n5",
+      "Amateurkooperation\nDer Förderverein zählt 40 Mitglieder und organisiert sechs Beobachtungswochenenden im Jahr. Die\nMessreihen der Mitglieder speisen die Datenbank des Observatoriums.\nIm September 2025 veranstaltete der Verein eine Konferenz zu Kleinplaneten mit 90 Teilnehmern. Zwei\nVorträge wurden als Aufzeichnung veröffentlicht.\n6",
+      "Technik und Instandhaltung\nDer Kuppelantrieb wurde im Februar 2025 erneuert, nachdem die alte Zahnstange verschlissen war. Die\nNachführung läuft seither mit Schrittmotoren und Endschaltern.\nDas Rechnernetz besteht aus zwei Servern und vier Knotenpunkten. Die Spiegelaluminisierung des\nHauptspiegels ist für das Frühjahr 2026 geplant.\n7",
+      "Finanzen und Förderung\nDie Einnahmen 2025 setzten sich aus Mitgliedsbeiträgen (9.200 EUR), Spenden (6.800 EUR) und einer\nkommunalen Förderung (14.000 EUR) zusammen.\nGrößter Ausgabenposten war die Instandhaltung mit 12.400 EUR. Eine Stiftung fördert 2026 die\nBeschaffung eines neuen Spektrografen mit 8.500 EUR.\n8"
+    ]
+  }
+}

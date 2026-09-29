@@ -114,3 +114,32 @@ PageIndex returns exact pages, also report its numbers against
   per-question per-variant top-10 with latencies.
 - `results/history.jsonl` — one appended line per run
   `{timestamp, subset, variants, metrics}` for trend tracking.
+
+## PI-2 four-arm decision run (PageIndex)
+
+`run-pi2-eval.mts` runs all four arms of `docs/specs/pageindex-integration-plan.md`
+in ONE pass (fresh temp DB, identical 7B chat model / temperature 0 /
+max_tokens 512 for every arm):
+
+- `fts`, `hybrid` — as above, plus answer generation from the top-6 chunk
+  spans (page-labeled context prompt).
+- `pageindex` — PageIndex SDK agent (local llama.cpp) scoped to the question's
+  expected doc set (unanswerables: full corpus, wall-budgeted).
+- `hybrid+tree` — hybrid retrieval picks the top-3 docs, the SDK agent
+  explores those only.
+
+`grade-answers.mts` applies the mechanical rubric of
+`eval/pageindex-proto/pi2-criteria.md` (judge-free; parse/SDK failures stay in
+every denominator) and prints the criteria checklist. Outcomes and the
+decision: `eval/pageindex-proto/pi2-decision-report.md`.
+
+```bash
+npx tsx eval/harness/run-pi2-eval.mts --subset dev   # tuning pass (done)
+npx tsx eval/harness/run-pi2-eval.mts --subset eval  # reserved set (ran once)
+npx tsx eval/harness/grade-answers.mts eval/harness/results/<pi2 run>.json
+```
+
+The SDK arms talk to the PageIndex store through
+`eval/pageindex-proto/pi2_bridge.py` (JSON lines over stdin/stdout, UTF-8);
+the bridge builds indexes on first use (flash first, standard fallback —
+flash cannot extract a structure from this corpus, see the decision report).

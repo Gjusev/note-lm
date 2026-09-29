@@ -1,0 +1,23 @@
+0.00.086.654 I srv  llama_server: initializing ...
+0.00.086.660 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.086.763 I srv  init_listene: The UI is disabled
+0.00.086.764 I srv  init_listene: Use --ui/--no-ui (or deprecated --webui/--no-webui) to enable/disable
+0.00.093.562 I srv    load_model: loading model '../../.probe-downloads/qwen2.5-7b-instruct-q4_k_m-00001-of-00002.gguf'
+0.00.524.156 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+0.02.133.196 I cmn          init: llama threadpool init, n_threads = 6
+0.02.251.780 I srv    load_model: initializing, n_slots = 4, n_ctx_slot = 8192, kv_unified = 'true'
+0.02.255.982 I srv  llama_server: model loaded
+0.02.255.987 I srv  llama_server: listening on http://127.0.0.1:8737
+WARNING: JSON schema conversion was incomplete: pattern ^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$ is not supported (unsupported escape: \d), accepting any string
+0.15.533.775 I slot get_availabl: id  3 | task -1 | selected slot by LRU, t_last = -1
+0.15.534.353 I slot launch_slot_: id  3 | task 0 | processing task, is_child = 0
+0.18.750.936 I slot print_timing: id  3 | task 0 | prompt eval time =    2456.80 ms /  1709 tokens (    1.44 ms per token,   695.62 tokens per second)
+0.18.750.941 I slot print_timing: id  3 | task 0 |        eval time =     759.74 ms /    27 tokens (   29.22 ms per token,    34.22 tokens per second)
+0.18.750.948 I slot print_timing: id  3 | task 0 |       total time =    3216.54 ms /  1736 tokens
+0.18.750.949 I slot print_timing: id  3 | task 0 |    graphs reused =         26
+0.18.751.028 I slot      release: id  3 | task 0 | stop processing: n_tokens = 1735, truncated = 0
+WARNING: JSON schema conversion was incomplete: pattern ^(\d+(-\d+)?)(,\s*\d+(-\d+)?)*$ is not supported (unsupported escape: \d), accepting any string
+0.18.783.173 I slot get_availabl: id  3 | task -1 | selected slot by LCP similarity, f_sim_best = 0.442 (> 0.100 thold), f_keep = 1.000
+0.18.783.662 I slot launch_slot_: id  3 | task 28 | processing task, is_child = 0
+0.20.796.666 W srv          stop: cancel task, id_task = 28
+0.21.222.541 I slot      release: id  3 | task 28 | stop processing: n_tokens = 3783, truncated = 0

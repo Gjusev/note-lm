@@ -1,0 +1,44 @@
+[chat] llama-cuda server on :25192 pid 2628 (Qwen2.5-7B-Instruct)
+[bridge] ready, 21 docs in store
+[ingest] 21 docs, 72 chunks in 0.5s (db: C:\Users\ahmia\AppData\Local\Temp\notelm-pi2-eval-lrPvCL)
+[index] 72 chunks embedded via bge-small-en-v1.5 in 3.5s
+[bridge] Traceback (most recent call last):
+  File "C:\Code Main\note-lm\eval\pageindex-proto\pi2_bridge.py", line 439, in <module>
+[bridge]     main()
+[bridge]   File "C:\Code Main\note-lm\eval\pageindex-proto\pi2_bridge.py", line 431, in main
+[bridge]     asyncio.run(serve(args.store, args.server_url, args.api_key))
+[bridge]   File "C:\Python312\Lib\asyncio\runners.py", line 194, in run
+[bridge]     return runner.run(main)
+[bridge]            ^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\asyncio\runners.py", line 118, in run
+[bridge]     return self._loop.run_until_complete(task)
+[bridge]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python312\Lib\asyncio\base_events.py", line 685, in run_until_complete
+[bridge]     return future.result()
+[bridge]            ^^^^^^^^^^^^^^^
+  File "C:\Code Main\note-lm\eval\pageindex-proto\pi2_bridge.py", line 294, in serve
+[bridge]     emit(out)
+[bridge]   File "C:\Code Main\note-lm\eval\pageindex-proto\pi2_bridge.py", line 268, in emit
+[bridge]     sys.stdout.write(json.dumps(obj, ensure_ascii=False) + "\n")
+[bridge]   File "C:\Python312\Lib\encodings\cp1252.py", line 19, in encode
+[bridge]     return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+[bridge]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 60-81: character maps to <undefined>
+[run] 5/30 questions done
+[run] 10/30 questions done
+[run] 15/30 questions done
+[run] 20/30 questions done
+[run] 25/30 questions done
+[run] 30/30 questions done
+[grade] done in 0.0s; peak VRAM 5979 MiB, peak llama RAM 10263 MB
+
+==== pi2-eval: subset=dev questions=30 arms=fts,hybrid,pageindex,hybrid+tree ====
+phases: ingest 0.5s | embed-index 3.5s | run 386.3s | grade 0.0s
+
+arm          recall@10  docIdR@10  1stPgR@10  ok/timeout/error   e2e p50(ms)  e2e p95(ms)
+fts          0.909      0.932      0.523      30/0/0            3837        6139
+hybrid       0.955      0.955      0.568      30/0/0            3226        5483
+pageindex    0.318      0.227      0.318      5/0/25            0           8169
+hybrid+tree  0.273      0.182      0.273      4/1/25            0           7351
+results: C:\Code Main\note-lm\eval\harness\results\pi2-dev-fts_hybrid_pageindex_hybrid_tree-2026-09-29T04-48-57-565Z.json
+total wall: 393.0s
