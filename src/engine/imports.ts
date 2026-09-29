@@ -36,6 +36,7 @@ import {
   heartbeatImportJob,
   updateImportJobPhase,
 } from "@/lib/services/import-jobs";
+import { recordVersion } from "@/lib/services/source-versions";
 import {
   deleteJobCheckpoints,
   emitJobEvent,
@@ -349,6 +350,23 @@ export async function runImportJob(
       for (const staleId of res.staleFileIds ?? []) {
         await ctx.store.delete(staleId);
       }
+
+      // versioned evidence (strategy 5A): snapshot the original bytes as an
+      // immutable version before finishing. Non-fatal — completion must never
+      // break on version bookkeeping. No persisted original → no bytes → an
+      // honest unresolvable version (no sidecar, page_count null).
+      try {
+        await recordVersion(ctx.db, ctx.store, {
+          sourceId: res.sourceId!,
+          ...(storageId !== undefined && { storageId }),
+          fileName,
+          contentType: download.contentType,
+          ...(storageId !== undefined && { buffer: download.buffer }),
+        });
+      } catch (err) {
+        console.error("[IMPORT] version not recorded:", err);
+      }
+
       log("DONE", `${chunks.length} Chunks, Quelle ${res.sourceId}`);
       return finish("completed");
     }

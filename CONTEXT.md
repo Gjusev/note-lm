@@ -15,6 +15,11 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 - **Import job** — a URL import running through the lease-fenced queue.
 - **Processing job** — a manual upload running extract/transcribe → chunk.
 - **Lease** — the fencing token + expiry that protects a job against stale workers.
+- **SourceVersion** — an immutable snapshot of a source's original bytes plus
+  its page texts. Importing the same document again with changed bytes
+  appends a new version; the original bytes and older versions are never
+  destroyed. Claims (later slices) anchor to versions, never to the mutable
+  source row — the source row is overwritten on re-import, a version is not.
 
 ## Seams
 
@@ -35,6 +40,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | llama supervisor | `startLlama` lifecycle + embed | `src/__tests__/llama-supervisor.test.ts` (fake) + `e2e/llama-server.e2e.test.ts` (real, artifact-gated) |
 | engine job pool | `runProcessingJob` / `runImportJob` stage gates + job-control checkpoint fns over a real temp SQLite (driven like `engine-imports`) | `src/__tests__/engine-pool.test.ts` |
 | job event stream | `emitJobEvent`/`emitProgress` writer coalescing + `setProgressClock` test hook, `eventsSince` paging, over a real temp SQLite | `src/__tests__/job-control.test.ts` |
+| source versioning | `recordVersion` / `listVersions` / `getLatestVersion` / `readVersionPages` over a real temp SQLite + LocalStore | `src/__tests__/source-versions.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

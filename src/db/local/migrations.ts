@@ -284,6 +284,26 @@ CREATE TABLE job_checkpoints (
   PRIMARY KEY (job_kind, job_id, stage)
 );
 `,
+  // 0007 — versioned evidence (open-source-innovation-strategy 5A/5B):
+  // immutable document versions. Replaces the never-used RAG-plan
+  // source_versions table from 0002 (no service ever read or wrote it): a
+  // version now references the persisted original bytes (storage_id), carries
+  // the sha256 file hash (identical re-imports dedupe) and the page count of
+  // the per-version sidecar JSON under files/versions/. Claims in later
+  // slices anchor to versions, never to the mutable source row.
+  `
+DROP TABLE IF EXISTS source_versions;
+CREATE TABLE source_versions (
+  id TEXT PRIMARY KEY,
+  source_id TEXT NOT NULL REFERENCES sources (id) ON DELETE CASCADE,
+  version INTEGER NOT NULL,
+  storage_id TEXT,
+  file_hash TEXT,
+  page_count INTEGER,
+  created_at INTEGER NOT NULL,
+  UNIQUE (source_id, version)
+);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

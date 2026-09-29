@@ -22,6 +22,7 @@ import {
   observeJobIntent,
   setJobCheckpoint,
 } from "@/lib/services/job-control";
+import { recordVersion } from "@/lib/services/source-versions";
 
 /** Upload pipeline stages the intent gate observes before. */
 export type ProcessingStage = "extract" | "transcribe" | "commit";
@@ -107,12 +108,15 @@ export async function runProcessingJob(
 
     let text: string;
     let transcriptFileId: string | undefined;
+    // versioned evidence: the original bytes whose hash the version snapshots
+    let originalBuffer: Buffer | undefined;
 
     if (resolvedType.startsWith("audio/") || resolvedType.startsWith("video/")) {
       if (!source.storageId) throw new PermanentProcessingError("Originaldatei fehlt");
       const stored = await ctx.store.read(source.storageId);
       if (!stored) throw new PermanentProcessingError("Originaldatei fehlt auf der Platte");
       log("FILE", `${(stored.buffer.length / 1024 / 1024).toFixed(1)} MB`);
+      originalBuffer = stored.buffer;
 
       let audioBuffer = stored.buffer;
       const ext = source.fileName.split(".").pop()?.toLowerCase() || "wav";
@@ -190,6 +194,7 @@ export async function runProcessingJob(
       if (!source.storageId) throw new PermanentProcessingError("Originaldatei fehlt");
       const stored = await ctx.store.read(source.storageId);
       if (!stored) throw new PermanentProcessingError("Originaldatei fehlt auf der Platte");
+      originalBuffer = stored.buffer;
       text = await extractTextFromFile(stored.buffer, resolvedType);
     } else {
       throw new PermanentProcessingError(`Nicht unterstützter Dateityp: ${resolvedType}`);
@@ -226,6 +231,24 @@ export async function runProcessingJob(
     // slice 3c terminal bookkeeping: completed — discard media checkpoint + seg files
     await fs.promises.rm(segDir, { recursive: true, force: true }).catch(() => {});
     deleteJobCheckpoints(ctx.db, "processing", jobId);
+
+    // versioned evidence (strategy 5A): snapshot the original bytes as an
+    // immutable version; media versions carry the transcript as their page
+    // text. Non-fatal — completion must never break on version bookkeeping.
+    try {
+      const isMedia = resolvedType.startsWith("audio/") || resolvedType.startsWith("video/");
+      await recordVersion(ctx.db, ctx.store, {
+        sourceId,
+        ...(source.storageId ? { storageId: source.storageId } : {}),
+        fileName: source.fileName,
+        contentType: resolvedType,
+        ...(originalBuffer ? { buffer: originalBuffer } : {}),
+        ...(isMedia ? { pageTexts: [text] } : {}),
+      });
+    } catch (err) {
+      console.error("[PROCESS] version not recorded:", err);
+    }
+
     log("DONE", `${chunks.length} Chunks, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 
     // embedding indexing moved to the engine loop's index lane (slice 3d):

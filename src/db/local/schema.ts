@@ -256,7 +256,9 @@ export const settings = sqliteTable("settings", {
 
 // ── RAG metadata (issue #3, migration 0002) ────────────────────────────────
 
-/** One extraction version of a source; re-imports create a new version. */
+/** Immutable snapshot of a source's original bytes + page texts (5A/5B).
+ * Changed re-imports append versions; claims anchor to versions, never to the
+ * mutable source row. Sidecar page texts live in files/versions/<id>.json. */
 export const sourceVersions = sqliteTable(
   "source_versions",
   {
@@ -265,14 +267,12 @@ export const sourceVersions = sqliteTable(
       .notNull()
       .references(() => sources.id, { onDelete: "cascade" }),
     version: integer("version").notNull(),
-    contentHash: text("content_hash").notNull(),
-    extractor: text("extractor"),
+    storageId: text("storage_id"),
+    fileHash: text("file_hash"),
+    pageCount: integer("page_count"),
     createdAt: integer("created_at").notNull(),
   },
-  (t) => [
-    uniqueIndex("source_versions_unique").on(t.sourceId, t.version),
-    index("source_versions_by_source").on(t.sourceId),
-  ]
+  (t) => [uniqueIndex("source_versions_unique").on(t.sourceId, t.version)]
 );
 
 /** How embeddings were produced — vectors from different profiles never mix. */

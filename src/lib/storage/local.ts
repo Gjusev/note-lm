@@ -30,7 +30,7 @@ const EXT_RE = /^[\w-]{1,16}$/;
 export class LocalStore {
   constructor(
     private readonly db: LocalDb,
-    private readonly dataDir: string
+    readonly dataDir: string // public: source-version sidecars live under <dataDir>/files/versions/
   ) {}
 
   private abs(relPath: string): string {
