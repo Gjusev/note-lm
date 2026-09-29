@@ -4,6 +4,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
@@ -16,7 +17,9 @@ import {
   getSource,
   listSourcesByNotebook,
   removeSource,
+  updateSourceStorage,
 } from "@/lib/services/sources";
+import { getLatestVersion } from "@/lib/services/source-versions";
 import { clearMessagesByNotebook, createMessage, listMessagesByNotebook } from "@/lib/services/messages";
 import { removeMaterial } from "@/lib/services/learning-materials";
 import {
@@ -237,6 +240,53 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           await store.delete(stored.id);
           throw err;
         }
+      }
+
+      case "sources.reimportVersion": {
+        // Re-import as version (strategy §9): a changed local file appends a
+        // new immutable version of the EXISTING source — never a second
+        // source row. Identical bytes are a no-op; changed bytes re-run the
+        // same processing pipeline, whose recordVersion hook lands the
+        // version and fires the staleness scan against anchored claims.
+        const { sourceId, path: filePath, fileName } = args as {
+          sourceId?: string; path?: string; fileName?: string;
+        };
+        if (!sourceId || !filePath) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId and path are required" } };
+        }
+        if (path.isAbsolute(filePath) !== true) {
+          return { ok: false, error: { code: "bad_args", message: "path must be absolute" } };
+        }
+        const { db, store } = getLocalContext();
+        const source = getSource(db, sourceId);
+        if (!source) return { ok: false, error: { code: "not_found", message: "Quelle nicht gefunden." } };
+        let buffer: Buffer;
+        try {
+          buffer = await fs.promises.readFile(filePath);
+        } catch {
+          return { ok: false, error: { code: "bad_args", message: `file not readable: ${filePath}` } };
+        }
+        // identical bytes as the latest version: nothing new to remember
+        const hash = createHash("sha256").update(buffer).digest("hex");
+        const latest = getLatestVersion(db, sourceId);
+        if (latest?.fileHash && latest.fileHash === hash) {
+          return { ok: true, result: { unchanged: true } };
+        }
+        const profile = await getOrCreateProfile(db);
+        const stored = await store.save(buffer, {
+          fileName: fileName ?? source.fileName,
+          contentType: source.fileType,
+        });
+        // the pipeline reads the original bytes through the source row's
+        // storageId — point it at the re-imported file first (the old bytes
+        // stay referenced by version 1's storageId and are never deleted)
+        await updateSourceStorage(db, sourceId, {
+          storageId: stored.id,
+          fileSize: buffer.length,
+          ...(fileName ? { fileName } : {}),
+        });
+        const jobId = enqueueProcessingJob(db, { ownerId: profile.id, sourceId, notebookId: source.notebookId });
+        return { ok: true, result: { jobId, unchanged: false } };
       }
 
       case "messages.create": {
@@ -672,13 +722,27 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
       }
 
       case "claims.create": {
-        const { notebookId, text } = args as { notebookId?: string; text?: string };
+        const { notebookId, text, anchors } = args as {
+          notebookId?: string; text?: string;
+          anchors?: { sourceId?: string; page?: number; quote?: string }[];
+        };
         if (!notebookId || !text) {
           return { ok: false, error: { code: "bad_args", message: "notebookId and text are required" } };
         }
         const { db } = getLocalContext();
         const profile = await getOrCreateProfile(db);
-        const outcome = await createClaim(db, { notebookId, ownerId: profile.id, text, origin: "user" });
+        // optional anchors: bind the claim to a source's latest version
+        // without a chat model (same input the claims service accepts)
+        const validAnchors = (Array.isArray(anchors) ? anchors : []).filter(
+          (a): a is { sourceId: string; page?: number; quote?: string } => typeof a?.sourceId === "string"
+        );
+        const outcome = await createClaim(db, {
+          notebookId,
+          ownerId: profile.id,
+          text,
+          origin: "user",
+          ...(validAnchors.length > 0 && { anchors: validAnchors }),
+        });
         return { ok: true, result: outcome };
       }
 

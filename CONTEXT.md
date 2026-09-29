@@ -73,6 +73,8 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | provider connection test | `handleEngineRequest("providers.test")` side-effect-free probes over pending config (SDK + fetch mocked) | `src/__tests__/providers-protocol.test.ts` |
 | provider run telemetry | `recordProviderRun` / `pruneProviderRuns` over a real temp SQLite (rows carry honest nulls, never prompt text) | `src/__tests__/provider-runs.test.ts` |
 | inspectable calculations | `runCalculation` / `listCalculations` + `calculations.run` / `calculations.list` over a real temp SQLite + LocalStore | `src/__tests__/calculations.test.ts` |
+| file re-import as version | `sources.reimportVersion` op: changed bytes re-run processing on the SAME source (version + staleness scan via the recordVersion hook), identical bytes answer `{unchanged:true}`, missing source is a typed `not_found`; `claims.create` accepts `anchors` | `src/__tests__/source-reimport.test.ts` |
+| csv import pipeline | `sources.importFile` (csv) → `runProcessingJob` → `{kind:'sheet'}` sidecar → `calculations.run` end to end | `src/__tests__/source-reimport.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

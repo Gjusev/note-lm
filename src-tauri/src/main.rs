@@ -215,24 +215,25 @@ fn source_status_in_list(list_result: &serde_json::Value, source_id: &str) -> Op
 /// redistributable sample notebook through the ENGINE ONLY — Rust composes
 /// the same ops the UI uses, it never touches SQLite itself.
 ///
-/// Engine limitation (known, accepted for this slice): sources.importFile
-/// always creates a NEW source — the engine has no re-import/version op for
-/// file sources (URL imports dedupe via completeImportJob, file imports do
-/// not). So only kaffee-studie-v1.pdf is imported; kaffee-studie-v2.pdf ships
-/// in the bundle ready for a future re-import-as-new-version demo.
-///
 /// Flow: notebooks.create "Beispiel: Kaffeestudie" -> sources.importFile(v1)
 /// -> poll sources.list until the source status leaves pending/processing
 /// (processing is async in the engine scheduler; 30 s cap) -> claims.create
-/// quoting the v1 result fact. Anchors are NOT attached here: the engine's
-/// claims.create takes text only — anchors bind exclusively via chat
-/// citations (claims.createFromMessage), which would need a configured model.
+/// quoting the v1 result fact, anchored to the v1 version (the claim must
+/// depend on the source so the v2 re-import can raise staleness proposals)
+/// -> sources.reimportVersion(v2): the engine appends version 2 of the SAME
+/// source and the change review raises a pending proposal for the changed
+/// fact -> poll jobs.list until the reimport job is terminal -> review.list
+/// must contain >= 1 pending proposal (returned to the UI as `proposals`).
 #[tauri::command]
 fn create_sample_notebook(state: tauri::State<EngineState>) -> Result<serde_json::Value, String> {
     let samples = samples_dir()?;
     let v1 = samples.join("kaffee-studie-v1.pdf");
     if !v1.is_file() {
         return Err(format!("Beispieldatei fehlt im Paket: {}", v1.display()));
+    }
+    let v2 = samples.join("kaffee-studie-v2.pdf");
+    if !v2.is_file() {
+        return Err(format!("Beispieldatei fehlt im Paket: {}", v2.display()));
     }
 
     let nb = engine_call(
@@ -295,6 +296,11 @@ fn create_sample_notebook(state: tauri::State<EngineState>) -> Result<serde_json
         serde_json::json!({
             "notebookId": notebook_id,
             "text": "Die Kaffeestudie 2026 berichtet, Filterkaffee verlängere die durchschnittliche Konzentrationsdauer um 14 Minuten.",
+            "anchors": [{
+                "sourceId": source_id,
+                "page": 3,
+                "quote": "Filterkaffee verlängerte die durchschnittliche Konzentrationsdauer um 14 Minuten.",
+            }],
         }),
     )
     .ok_or("Aussage konnte nicht erstellt werden")?;
@@ -304,10 +310,70 @@ fn create_sample_notebook(state: tauri::State<EngineState>) -> Result<serde_json
         .ok_or("Aussage-Antwort ohne id")?
         .to_string();
 
+    // v2 as a NEW VERSION of the same source: the engine re-runs processing
+    // and the change review raises a pending proposal for the changed fact
+    // (14 -> 9 minutes) against the anchored claim.
+    let reimported = engine_call(
+        state.inner(),
+        "sources.reimportVersion",
+        serde_json::json!({
+            "sourceId": source_id,
+            "path": v2.to_string_lossy(),
+            "fileName": "kaffee-studie-v2.pdf",
+        }),
+    )
+    .ok_or("Beispielquelle (Version 2) konnte nicht neu importiert werden")?;
+
+    // Processing runs async in the engine scheduler: poll jobs.list until the
+    // reimport job is terminal (same 30 s cap as the v1 poll).
+    if let Some(job_id) = reimported.get("jobId").and_then(|v| v.as_str()) {
+        let mut done = false;
+        for _ in 0..60 {
+            std::thread::sleep(std::time::Duration::from_millis(500));
+            let jobs = engine_call(state.inner(), "jobs.list", serde_json::json!({}))
+                .ok_or("jobs.list fehlgeschlagen")?;
+            let status = jobs
+                .get("jobs")
+                .and_then(|j| j.as_array())
+                .and_then(|arr| {
+                    arr.iter().find(|j| j.get("id").and_then(|v| v.as_str()) == Some(job_id))
+                })
+                .and_then(|j| j.get("status").and_then(|v| v.as_str()))
+                .map(|s| s.to_string());
+            match status.as_deref() {
+                Some("completed") => {
+                    done = true;
+                    break;
+                }
+                Some("failed") | Some("cancelled") => {
+                    return Err("Beispielquelle (Version 2) konnte nicht verarbeitet werden".into())
+                }
+                _ => {}
+            }
+        }
+        if !done {
+            return Err("Zeitüberschreitung: Beispielquelle (Version 2) wurde nicht rechtzeitig verarbeitet".into());
+        }
+    }
+
+    // The demo must show its point: the changed fact quote raises a pending
+    // review proposal. The count rides in the result JSON for the UI.
+    let reviews = engine_call(
+        state.inner(),
+        "review.list",
+        serde_json::json!({ "notebookId": notebook_id }),
+    )
+    .ok_or("review.list fehlgeschlagen")?;
+    let proposal_count = reviews.as_array().map(|a| a.len()).unwrap_or(0);
+    if proposal_count == 0 {
+        return Err("Keine Überarbeitungsvorschläge nach dem Beispiel-Update".into());
+    }
+
     Ok(serde_json::json!({
         "notebookId": notebook_id,
         "sourceId": source_id,
         "claimId": claim_id,
+        "proposals": proposal_count,
     }))
 }
 
@@ -490,11 +556,27 @@ fn smoke() -> Result<(), String> {
     )?;
     let evidence_ok = !evidence["ok"].as_bool().unwrap_or(true)
         && evidence["error"]["code"] == "not_found";
+
+    // Re-import-as-version op presence (strategy §9 v2 step): the op must
+    // exist in the installed bundle and answer a fabricated source id with a
+    // typed not_found — the full sample flow is async and NOT exercised here.
+    let reimport = eng.request(
+        "smoke-reimport-presence",
+        "sources.reimportVersion",
+        serde_json::json!({
+            "sourceId": "fabricated-source-id",
+            "path": "C:\\notelm-fabricated.pdf"
+        }),
+    )?;
+    let reimport_ok = !reimport["ok"].as_bool().unwrap_or(true)
+        && reimport["error"]["code"] == "not_found";
+
     for (name, pass) in [
         ("claims.create", claim_ok),
         ("claims.list returns it", list_ok),
         ("review.list empty", reviews_ok),
         ("evidence.open fabricated -> not_found", evidence_ok),
+        ("sources.reimportVersion fabricated -> not_found", reimport_ok),
     ] {
         println!("{} claims flow: {}", if pass { "ok" } else { "FAIL" }, name);
         failed = failed || !pass;

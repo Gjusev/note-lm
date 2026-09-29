@@ -62,6 +62,26 @@ export async function updateSourceStatus(
     .where(eq(sources.id, sourceId));
 }
 
+/** Point an existing source at re-imported bytes (sources.reimportVersion):
+ *  the processing pipeline reads originals through storageId, so the row must
+ *  reference the new file before the job runs. The previous bytes stay
+ *  referenced by older source_versions rows — never deleted here. */
+export async function updateSourceStorage(
+  db: LocalDb,
+  sourceId: string,
+  patch: { storageId: string; fileSize?: number; fileName?: string }
+): Promise<void> {
+  await db
+    .update(sources)
+    .set({
+      storageId: patch.storageId,
+      ...(patch.fileSize !== undefined && { fileSize: patch.fileSize }),
+      ...(patch.fileName !== undefined && { fileName: patch.fileName }),
+      updatedAt: Date.now(),
+    })
+    .where(eq(sources.id, sourceId));
+}
+
 /** Replace all chunks of a source idempotently (upload/search/fetch paths). */
 export function replaceChunks(
   db: LocalDb,

@@ -51,7 +51,8 @@ export async function extractTextFromFile(
   if (
     fileType === "text/plain" ||
     fileType === "text/markdown" ||
-    fileType === "application/markdown"
+    fileType === "application/markdown" ||
+    fileType === "text/csv"
   ) {
     return buffer.toString("utf-8");
   }

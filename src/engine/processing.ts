@@ -37,7 +37,7 @@ export function resolveFileType(fileType: string, fileName: string): string {
   if (fileType && fileType !== "application/octet-stream") return fileType;
   const ext = fileName.split(".").pop()?.toLowerCase() || "";
   const EXT_MIME: Record<string, string> = {
-    pdf: "application/pdf", txt: "text/plain", md: "text/markdown",
+    pdf: "application/pdf", txt: "text/plain", md: "text/markdown", csv: "text/csv",
     mp3: "audio/mpeg", wav: "audio/wav", m4a: "audio/mp4",
     webm: "audio/webm", ogg: "audio/ogg", flac: "audio/flac",
     mp4: "video/mp4", mov: "video/quicktime", avi: "video/x-msvideo",
@@ -194,7 +194,8 @@ export async function runProcessingJob(
       resolvedType === "application/pdf" ||
       resolvedType === "text/plain" ||
       resolvedType === "text/markdown" ||
-      resolvedType === "application/markdown"
+      resolvedType === "application/markdown" ||
+      resolvedType === "text/csv"
     ) {
       if (!source.storageId) throw new PermanentProcessingError("Originaldatei fehlt");
       const stored = await ctx.store.read(source.storageId);
