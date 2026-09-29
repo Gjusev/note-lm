@@ -46,6 +46,7 @@ import {
   resolveReview,
 } from "@/lib/services/claims";
 import { listPendingReviews } from "@/lib/services/change-review";
+import { buildMatrixView } from "@/lib/services/evidence-matrix";
 import {
   CalculationError,
   runCalculation,
@@ -529,6 +530,32 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         return { ok: true, result: { entries: MODEL_CATALOG } };
       }
 
+      case "runtimes.whisper": {
+        // App-managed whisper.cpp runtime (S5): downloads the pinned zip
+        // (whisper-pin.mjs, shared with scripts/fetch-whisper.mjs) into
+        // <dataDir>/runtimes/whisper/<tag> — resumable, sha-verified before
+        // extraction, atomic promote. Progress: deliberately no job-queue
+        // events — install resolves when done and the UI polls
+        // action=status (partialBytes grows). Documented mandate choice.
+        const { action } = args as { action?: string };
+        const { dataDir } = getLocalContext();
+        const { whisperRuntimeStatus, installWhisperRuntime } = await import("@/lib/ai/whisper-runtime");
+        if (action === "status") {
+          return { ok: true, result: whisperRuntimeStatus(dataDir) };
+        }
+        if (action === "install") {
+          try {
+            return { ok: true, result: await installWhisperRuntime(dataDir) };
+          } catch (err) {
+            return {
+              ok: false,
+              error: { code: "runtime_install_failed", message: err instanceof Error ? err.message : String(err) },
+            };
+          }
+        }
+        return { ok: false, error: { code: "bad_args", message: "action install|status is required" } };
+      }
+
       case "models.list": {
         const { db } = getLocalContext();
         const rows = listModels(db);
@@ -873,6 +900,35 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             error: { code: "not_found", message: err instanceof Error ? err.message : String(err) },
           };
         }
+      }
+
+      case "matrix.get": {
+        // evidence matrix read path: notebook-scoped like claims.list;
+        // optional claimIds/sourceIds subsets (explicitly selected sources
+        // stay columns even with zero relations - see evidence-matrix.ts)
+        const { notebookId, claimIds, sourceIds } = args as {
+          notebookId?: string; claimIds?: unknown; sourceIds?: unknown;
+        };
+        if (!notebookId) {
+          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
+        }
+        const asIds = (v: unknown): string[] | undefined =>
+          Array.isArray(v) && v.every((x) => typeof x === "string") ? (v as string[]) : undefined;
+        if (claimIds !== undefined && asIds(claimIds) === undefined) {
+          return { ok: false, error: { code: "bad_args", message: "claimIds must be an array of ids" } };
+        }
+        if (sourceIds !== undefined && asIds(sourceIds) === undefined) {
+          return { ok: false, error: { code: "bad_args", message: "sourceIds must be an array of ids" } };
+        }
+        const { db } = getLocalContext();
+        return {
+          ok: true,
+          result: buildMatrixView(db, {
+            notebookId,
+            ...(asIds(claimIds) && { claimIds: asIds(claimIds) }),
+            ...(asIds(sourceIds) && { sourceIds: asIds(sourceIds) }),
+          }),
+        };
       }
 
       case "evidence.open": {

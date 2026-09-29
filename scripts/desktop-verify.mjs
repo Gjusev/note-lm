@@ -520,6 +520,196 @@ await run("installed audio walkthrough", async () => {
   }
 });
 
+// 6e) installed VOICE walkthrough (S5 engine half): the runtime AND the model
+// come FROM THE APP on a FRESH data dir — no evaluator env, no repo paths, no
+// gate-copied files, no extension renames. (1) runtimes.whisper install does
+// a REAL download of the pinned whisper.cpp zip into the DATA dir, (2) the
+// ggml-tiny catalog model downloads into the DATA dir and is selected, (3)
+// whisper-local provider, (4) the bundled sample wav imported WITH its real
+// .wav extension — the direct single-call path now preserves whisper's own
+// segments, (5) media sidecar with whisper-true times, (6) time-anchored
+// claim -> evidence.open locator, (7) transcript term over the source chunks,
+// (8) interruption: ggml-base download killed mid-flight, restarted engine
+// RESUMES from the on-disk partial (Range) and completes, (9) export +
+// restore into a second engine.
+await run("installed voice walkthrough", async () => {
+  const sample = path.join(installDir, "resources", "samples", "notelm-audio-de.wav");
+  if (!fs.existsSync(sample)) throw new Error(`bundled sample missing: ${sample}`);
+  const FFMPEG = { FFMPEG_PATH: path.join(installDir, "resources", "ffmpeg", "ffmpeg.exe") };
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-voice-"));
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-voice-export-"));
+  const importDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-voice-import-"));
+  let e1, e2;
+  try {
+    e1 = startInstalledEngine(dataDir, FFMPEG); // NOTELM_WHISPER_DIR stripped: app-managed only
+    await e1.request("protocol.version", {});
+    const nb = await e1.request("notebooks.create", { title: "Sprache" });
+
+    // (1) runtime install: real network download of the pinned zip (~8 MB)
+    // into <dataDir>/runtimes/whisper/v1.9.2, sha-verified before extraction
+    const t0 = Date.now();
+    const inst = await e1.request("runtimes.whisper", { action: "install" }, 300_000);
+    const installSec = ((Date.now() - t0) / 1000).toFixed(1);
+    if (!inst.installed || inst.version !== "v1.9.2" || !inst.path) {
+      throw new Error(`runtime install unexpected: ${JSON.stringify(inst)}`);
+    }
+    const exe = path.join(inst.path, "whisper-cli.exe");
+    if (!inst.path.startsWith(dataDir) || !fs.existsSync(exe)) {
+      throw new Error(`runtime not under the DATA dir: ${exe}`);
+    }
+    const extractedBytes = (() => {
+      let sum = 0;
+      for (const f of fs.readdirSync(inst.path)) sum += fs.statSync(path.join(inst.path, f)).size;
+      return sum;
+    })();
+    const st = await e1.request("runtimes.whisper", { action: "status" });
+    if (!st.installed || st.path !== inst.path || st.partialBytes !== 0) {
+      throw new Error(`status after install unexpected: ${JSON.stringify(st)}`);
+    }
+    console.log(`[voice] runtime installed in ${installSec}s, ${extractedBytes} bytes extracted under ${path.relative(dataDir, inst.path)}`);
+
+    // (2) model from the catalog: real HF download into <dataDir>/models
+    const { entries } = await e1.request("models.catalog", {});
+    const tiny = entries.find((e) => e.id === "ggml-tiny");
+    const t1 = Date.now();
+    const dl = await e1.request("models.download", {
+      url: tiny.url, fileName: "ggml-tiny.bin", capability: "transcriptions", sha256: tiny.sha256,
+    }, 300_000);
+    const tinySec = ((Date.now() - t1) / 1000).toFixed(1);
+    if (dl.model.sha256 !== tiny.sha256) throw new Error(`tiny sha mismatch: ${JSON.stringify(dl.model)}`);
+    const tinyFile = path.join(dataDir, "models", `${tiny.sha256}.bin`);
+    if (!fs.existsSync(tinyFile)) throw new Error(`tiny not in data dir: ${tinyFile}`);
+    await e1.request("models.selectTranscribe", { modelId: "ggml-tiny" });
+    console.log(`[voice] ggml-tiny downloaded+selected in ${tinySec}s (${tiny.sizeBytes} bytes)`);
+
+    // (3) the local transcribe capability, exactly as the UI saves it
+    await e1.request("providers.save", {
+      connection: { presetId: "whisper-local", label: "Auf diesem Computer (whisper.cpp)" },
+      models: { transcribe: "ggml-tiny" },
+    });
+
+    // (4) import the bundled sample WITH its real .wav extension: 400 KB is
+    // far under the 24 MB limit, so this exercises the DIRECT single-call
+    // path — which must now carry whisper's own segments (S5 mandate C)
+    const created = await e1.request("sources.importFile", {
+      path: sample, notebookId: nb.id, fileName: "notelm-audio-de.wav", fileType: "audio/wav",
+    });
+    const sourceId = created.sourceId;
+    await waitFor("audio import completed", async () => {
+      const sources = await e1.request("sources.list", { notebookId: nb.id });
+      return sources.find((s) => s._id === sourceId)?.status === "completed";
+    }, 120_000);
+
+    // (5) media sidecar with whisper-true times (startSec 0, endSec > 0)
+    const [v1] = await e1.request("sources.listVersions", { sourceId });
+    const opened = await e1.request("sources.open", { sourceId });
+    if (opened.sidecarKind !== "media") {
+      throw new Error(`expected media sidecar from the DIRECT path, got ${JSON.stringify(opened)}`);
+    }
+    const sidecar = JSON.parse(
+      fs.readFileSync(path.join(dataDir, "files", "versions", `${v1.id}.json`), "utf8")
+    );
+    if (!Array.isArray(sidecar.segments) || sidecar.segments.length === 0) {
+      throw new Error(`no whisper segments in sidecar: ${JSON.stringify(sidecar).slice(0, 200)}`);
+    }
+    if (sidecar.segments[0].startSec !== 0 || sidecar.segments[0].endSec <= 0) {
+      throw new Error(`first segment not whisper-true: ${JSON.stringify(sidecar.segments[0])}`);
+    }
+    if (!(sidecar.segments.at(-1).endSec > 10)) {
+      throw new Error(`last segment end suspiciously short: ${JSON.stringify(sidecar.segments.at(-1))}`);
+    }
+    console.log(`[voice] direct-path media sidecar: ${sidecar.segments.length} whisper segments, 0..${sidecar.segments.at(-1).endSec}s`);
+
+    // (6) a claim anchored with a real time locator, resolved via evidence.open
+    const claim = await e1.request("claims.create", {
+      notebookId: nb.id,
+      text: "Beispielzitat aus der Audioaufnahme.",
+      anchors: [{ sourceId, locator: { startSec: 0, endSec: null } }],
+    });
+    if (claim.unresolved.length) throw new Error(`anchor unresolved: ${JSON.stringify(claim.unresolved)}`);
+    const [claimRow] = await e1.request("claims.list", { notebookId: nb.id });
+    const anchorId = claimRow.anchors[0].id;
+    const evidence = await e1.request("evidence.open", { anchorId });
+    if (evidence.locator?.startSec !== 0) {
+      throw new Error(`evidence.open lost the locator: ${JSON.stringify(evidence)}`);
+    }
+
+    // (7) the transcript is retrievable content: the chunks carry the
+    // transcript term (the rows searchHybrid's FTS reads — the engine has no
+    // dedicated search op yet; deviation documented in the delivery report)
+    const chunks = await e1.request("sources.chunks", { sourceId });
+    const joined = chunks.map((c) => c.content).join(" ");
+    if (!/Willkommen|Sprachaufnahme/.test(joined)) {
+      throw new Error(`transcript term not found in chunks: ${joined.slice(0, 200)}`);
+    }
+
+    // (8) interruption: start ggml-base (~148 MB), kill the engine
+    // mid-download, restart, download again -> RESUMES from the on-disk
+    // partial (Range) and completes with the pinned sha
+    const base = entries.find((e) => e.id === "ggml-base");
+    const basePart = path.join(dataDir, "models", `${base.sha256}.bin.part`);
+    const t2 = Date.now();
+    e1.request("models.download", {
+      url: base.url, fileName: "ggml-base.bin", capability: "transcriptions", sha256: base.sha256,
+    }, 600_000).catch(() => {}); // will be killed; the restart retries
+    await waitFor("base partial with bytes on disk", () => fs.existsSync(basePart) && fs.statSync(basePart).size > 1_000_000, 120_000);
+    const resumedFrom = fs.statSync(basePart).size;
+    killTree(e1.proc.pid);
+    await e1.exited;
+    console.log(`[voice] engine killed mid-download, partial on disk: ${resumedFrom} bytes`);
+    e1 = startInstalledEngine(dataDir, FFMPEG);
+    await e1.request("protocol.version", {});
+    // proof of RESUME (not a from-scratch rewrite): poll the partial from
+    // the instant the retry starts — an appending (206) download only ever
+    // grows ABOVE resumedFrom, a rewriting (200) one drops back near 0
+    const retry = e1.request("models.download", {
+      url: base.url, fileName: "ggml-base.bin", capability: "transcriptions", sha256: base.sha256,
+    }, 600_000);
+    let minSeen = Infinity;
+    const watchUntil = Date.now() + 3_000; // early window: a rewrite drops to ~0 fast
+    while (Date.now() < watchUntil) {
+      if (fs.existsSync(basePart)) minSeen = Math.min(minSeen, fs.statSync(basePart).size);
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    const baseOut = await retry;
+    if (baseOut.model.sha256 !== base.sha256) throw new Error(`base sha mismatch after resume`);
+    if (!fs.existsSync(path.join(dataDir, "models", `${base.sha256}.bin`))) {
+      throw new Error("base model file missing after resumed download");
+    }
+    console.log(`[voice] resumed download completed in ${((Date.now() - t2) / 1000).toFixed(1)}s total; partial was >= ${minSeen} bytes right after retry (resumedFrom ${resumedFrom})`);
+    if (minSeen < resumedFrom) {
+      throw new Error(`download restarted from scratch instead of resuming: minSeen ${minSeen} < resumedFrom ${resumedFrom}`);
+    }
+
+    // (9) export + restore into a SECOND engine (fresh data dir, no whisper
+    // anything): the media version + time-anchored claim ride along
+    await e1.request("notebook.export", { notebookId: nb.id, targetDir: exportDir });
+    e2 = startInstalledEngine(importDataDir, FFMPEG);
+    await e2.request("protocol.version", {});
+    const imported = await e2.request("notebook.import", { sourceDir: exportDir });
+    const [iClaim] = await e2.request("claims.list", { notebookId: imported.notebookId });
+    if (!iClaim?.anchors?.length || iClaim.anchors[0].locator?.startSec !== 0) {
+      throw new Error(`restored claim lost the time locator: ${JSON.stringify(iClaim)}`);
+    }
+    const iSource = (await e2.request("sources.list", { notebookId: imported.notebookId }))
+      .find((s) => s.fileType === "audio/wav");
+    if (!iSource) throw new Error("restored notebook lost the audio source");
+    const iOpened = await e2.request("sources.open", { sourceId: iSource._id });
+    if (iOpened.sidecarKind !== "media") {
+      throw new Error(`restored source lost the media sidecar: ${JSON.stringify(iOpened)}`);
+    }
+
+    await e1.stop();
+    await e2.stop();
+    assertNoInstalledEngineLeft();
+  } finally {
+    for (const e of [e1, e2]) if (e) killTree(e.proc.pid); // failure path: no orphans
+    for (const dir of [dataDir, exportDir, importDataDir]) {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* temp cleaner */ }
+    }
+  }
+});
+
 await run("uninstall + process teardown", () => {
   const uninstaller = path.join(installDir, "uninstall.exe");
   if (fs.existsSync(uninstaller)) execFileSync(uninstaller, ["/S"], { stdio: "ignore" });
@@ -655,8 +845,9 @@ function startInstalledEngine(dataDir, extraEnv = {}) {
   };
   // a clean install has no local-model env overrides: strip them so the
   // installed engine's capability resolution matches a fresh machine (the
-  // walkthrough gate depends on chat.send honestly answering no_provider)
-  for (const k of ["NOTELM_LLAMA_DIR", "NOTELM_CHAT_MODEL", "NOTELM_EMBED_MODEL"]) delete env[k];
+  // walkthrough gate depends on chat.send honestly answering no_provider, the
+  // voice walkthrough on the app-managed whisper runtime winning on its own)
+  for (const k of ["NOTELM_LLAMA_DIR", "NOTELM_CHAT_MODEL", "NOTELM_EMBED_MODEL", "NOTELM_WHISPER_DIR"]) delete env[k];
   Object.assign(env, extraEnv);
   const proc = spawn(nodeBin, [engineScript], {
     stdio: ["pipe", "pipe", "inherit"],
@@ -675,25 +866,34 @@ function startInstalledEngine(dataDir, extraEnv = {}) {
       if (!line.trim()) continue;
       const msg = JSON.parse(line);
       if (msg.id && pending.has(msg.id)) {
-        pending.get(msg.id)(msg);
+        const entry = pending.get(msg.id);
         pending.delete(msg.id);
+        clearTimeout(entry.timer);
+        entry.settle(msg);
       }
     }
   });
   const exited = exitedOf(proc);
+  // a dead engine can never answer: settle everything pending so killed
+  // mid-op requests (voice walkthrough interruption) don't hold timers alive
+  proc.once("exit", () => {
+    for (const [id, entry] of pending) {
+      pending.delete(id);
+      clearTimeout(entry.timer);
+      entry.settle({ ok: false, error: { code: "engine_died", message: "engine process exited" } });
+    }
+  });
   let seq = 0;
-  const request = (op, args) =>
+  const request = (op, args, timeoutMs = 20_000) =>
     new Promise((resolve, reject) => {
       const id = `gate${++seq}`;
       const timer = setTimeout(() => {
         pending.delete(id);
         reject(new Error(`engine op ${op} timed out`));
-      }, 20_000);
-      pending.set(id, (msg) => {
-        clearTimeout(timer);
+      }, timeoutMs);
+      const settle = (msg) =>
         msg.ok ? resolve(msg.result) : reject(new Error(`engine op ${op} failed: ${msg.error?.code} ${msg.error?.message}`));
-        pending.delete(id);
-      });
+      pending.set(id, { settle, timer });
       proc.stdin.write(JSON.stringify({ id, op, args }) + "\n");
     });
   return { proc, request, exited, stop: () => stopEngine(proc) };
