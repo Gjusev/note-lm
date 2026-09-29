@@ -1,0 +1,222 @@
+{
+  "generated": "2026-09-29T12:43:18.851Z",
+  "note": "Redistributable natural-speech corpus for T2-v2 (experiment: real human speech vs the SAPI TTS ceiling of T2). Audio licenses are per-file as recorded; transcripts are public-domain texts fetched verbatim from the listed Wikisource pages (transcriptNotes records orthographic-only modernizations where the spoken word is identical).",
+  "clips": [
+    {
+      "id": "de-purzelbaum",
+      "language": "de",
+      "file": "audio-orig/de-purzelbaum.ogg",
+      "durOrig": 58,
+      "source": "Wikimedia Commons (de.wikisource Gesprochene Wikisource project)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:DE-Morgenstern_Der_Purzelbaum-wikisource.ogg",
+      "audioLicense": "CC BY-SA 4.0",
+      "recorder": "Frank Dittmer",
+      "work": {
+        "title": "Der Purzelbaum",
+        "author": "Christian Morgenstern",
+        "authorDeath": 1914,
+        "textLicense": "Public domain",
+        "textSource": "https://de.wikisource.org/wiki/Der_Purzelbaum"
+      },
+      "transcriptNotes": "de.wikisource transcription verbatim; orthographic-only fix where spoken identical: source-print 'Jenun' -> 'Je nun'. Reference INCLUDES the reader's spoken opening announcement, which follows the documented de.wikisource 'Gesprochene Wikisource' formula (https://de.wikisource.org/wiki/Wikisource:Gesprochene_Wikisource).",
+      "sha256": "fc2e360692954e1b9128809a5202a168ccd450c382029fe9066613f0787af78b",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "de-landregen",
+      "language": "de",
+      "file": "audio-orig/de-landregen.ogg",
+      "durOrig": 53.6,
+      "source": "Wikimedia Commons (de.wikisource Gesprochene Wikisource project)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:De-Landregen-wikisource.ogg",
+      "audioLicense": "CC0 1.0",
+      "recorder": "Juliane Flade",
+      "work": {
+        "title": "Landregen",
+        "author": "Joachim Ringelnatz",
+        "authorDeath": 1934,
+        "textLicense": "Public domain",
+        "textSource": "https://de.wikisource.org/wiki/Landregen"
+      },
+      "transcriptNotes": "Verbatim from de.wikisource; that page itself confirms this exact recording (00:53 min, reader Juliane Flade). Reference INCLUDES the reader's spoken opening announcement per the documented 'Gesprochene Wikisource' formula.",
+      "sha256": "1909016c815d817c73ffb51cf24208a47167c878f686960c1b42e3d31a876205",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "de-flugzeug",
+      "language": "de",
+      "file": "audio-orig/de-flugzeug.ogg",
+      "durOrig": 45,
+      "source": "Wikimedia Commons (de.wikisource Gesprochene Wikisource project)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:De-Flugzeuge_am_Winterhimmel-Wikisource.ogg",
+      "audioLicense": "CC BY-SA 4.0",
+      "recorder": "Juliane Flade",
+      "work": {
+        "title": "Flugzeug am Winterhimmel",
+        "author": "Joachim Ringelnatz",
+        "authorDeath": 1934,
+        "textLicense": "Public domain",
+        "textSource": "https://de.wikisource.org/wiki/Flugzeug_am_Winterhimmel"
+      },
+      "transcriptNotes": "Verbatim; orthographic-only modernization where spoken identical: 'laß' -> 'lass'. Reference INCLUDES the reader's spoken title announcement ('Flugzeug am Winterhimmel.').",
+      "sha256": "72618a0937353bfb753794064985dd2cf71d980f54364ea7c552bd2dcfe02c0e",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "es-rima30",
+      "language": "es",
+      "file": "audio-orig/es-rima30.ogg",
+      "durOrig": 26.5,
+      "source": "Wikimedia Commons (Madrid 2016 public-poetry reading series)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Gustavo_Adolfo_B%C3%A9cquer,_Rima_XXX,_Madrid,_2016.ogg",
+      "audioLicense": "CC BY-SA 4.0",
+      "recorder": "Benjamín Núñez González",
+      "work": {
+        "title": "Rima XXX (Asomaba a sus ojos una lágrima)",
+        "author": "Gustavo Adolfo Bécquer",
+        "authorDeath": 1870,
+        "textLicense": "Public domain",
+        "textSource": "https://es.wikisource.org/wiki/Rimas_(B%C3%A9cquer,_1885)/Rima_XXX"
+      },
+      "transcriptNotes": "Verbatim from the 1885 edition; orthographic-only modernization where spoken identical: 'á'->'a', 'fué'->'fue'. Reference INCLUDES the reader's spoken intro ('Poesía de Bécquer, Rima 30.').",
+      "sha256": "790f1b3d5f9c72fc0e55ccbf8cf3d58a1725cfa52f66af9a399dddb6cd047062",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "es-luna",
+      "language": "es",
+      "file": "audio-orig/es-luna.ogg",
+      "durOrig": 38.8,
+      "source": "Wikimedia Commons (amorypoesia.es poetry series)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Lorca_la_luna_asoma.ogg",
+      "audioLicense": "CC BY-SA 4.0",
+      "recorder": "Voiceover77",
+      "work": {
+        "title": "La luna asoma",
+        "author": "Federico García Lorca",
+        "authorDeath": 1936,
+        "textLicense": "Public domain (Spain, since 2017)",
+        "textSource": "https://es.wikisource.org/wiki/La_luna_asoma"
+      },
+      "transcriptNotes": "Verbatim from es.wikisource. Reference INCLUDES the reader's spoken intro ('De Federico García Lorca, la luna asoma.'); the clip has a short non-speech music tail (~2 s) that resists the -38 dB silence trim.",
+      "sha256": "7778df1791e9a45b38b0bd2d7470724fad5f8cb276ecc06f07efb46e1b852274",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "es-cogida",
+      "language": "es",
+      "file": "audio-orig/es-cogida.ogg",
+      "durOrig": 105.5,
+      "source": "Wikimedia Commons (Madrid 2016 public-poetry reading series)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:La_cogida_y_la_muerte,_2016.ogg",
+      "audioLicense": "CC BY-SA 4.0",
+      "recorder": "Benjamín Núñez González",
+      "work": {
+        "title": "Llanto por Ignacio Sánchez Mejías, part 1: La cogida y la muerte",
+        "author": "Federico García Lorca",
+        "authorDeath": 1936,
+        "textLicense": "Public domain (Spain, since 2017)",
+        "textSource": "https://es.wikisource.org/wiki/Llanto_por_Ignacio_S%C3%A1nchez_Mej%C3%ADas"
+      },
+      "transcriptNotes": "Section 1 only, verbatim from es.wikisource. Reference INCLUDES the reader's spoken intro ('La cogida y la muerte, Federico García Lorca.').",
+      "sha256": "5ee8de8fcfbbbe2129c076db4173bfbdd6c1775ef6d4fbdff80a57375926973e",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "en-elephant",
+      "language": "en",
+      "file": "audio-orig/en-elephant.ogg",
+      "durOrig": 14.6,
+      "source": "Wikimedia Commons (en.wikisource spoken-text recording)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:The_Bad_Childs_Book_of_Beasts_The_Elephant.ogg",
+      "audioLicense": "CC BY-SA 3.0",
+      "recorder": "Theornamentalist",
+      "work": {
+        "title": "The Elephant (The Bad Child's Book of Beasts, 1896)",
+        "author": "Hilaire Belloc",
+        "authorDeath": 1953,
+        "textLicense": "Public domain (1896 US publication; PD in EU since 2024)",
+        "textSource": "https://en.wikisource.org/wiki/The_Bad_Child%27s_Book_Of_Beasts/The_Elephant"
+      },
+      "transcriptNotes": "Verbatim from en.wikisource; emphasis capitals (LITTLE/LARGE) lowercased.",
+      "sha256": "5adda7d48c3ba849f3e87e15196eb96fbc00d65acb08686068ef79dce03f4424",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "en-hippopotamus",
+      "language": "en",
+      "file": "audio-orig/en-hippopotamus.ogg",
+      "durOrig": 12,
+      "source": "Wikimedia Commons (en.wikisource spoken-text recording)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:The_Bad_Childs_Book_of_Beasts_The_Hippopotamus.ogg",
+      "audioLicense": "CC BY-SA 3.0",
+      "recorder": "Theornamentalist",
+      "work": {
+        "title": "The Hippopotamus (The Bad Child's Book of Beasts, 1896)",
+        "author": "Hilaire Belloc",
+        "authorDeath": 1953,
+        "textLicense": "Public domain (1896 US publication; PD in EU since 2024)",
+        "textSource": "https://en.wikisource.org/wiki/The_Bad_Child%27s_Book_Of_Beasts/The_Hippopotamus"
+      },
+      "transcriptNotes": "Verbatim from en.wikisource.",
+      "sha256": "682b04595ef22a14cfbc6fb48a7561581765396c61c3f5b7bfd072592309093f",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    },
+    {
+      "id": "en-dodo",
+      "language": "en",
+      "file": "audio-orig/en-dodo.ogg",
+      "durOrig": 22,
+      "source": "Wikimedia Commons (en.wikisource spoken-text recording)",
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:The_Bad_Child%27s_Book_Of_Beasts_The_Dodo.ogg",
+      "audioLicense": "CC BY-SA 3.0",
+      "recorder": "Theornamentalist",
+      "work": {
+        "title": "The Dodo (The Bad Child's Book of Beasts, 1896)",
+        "author": "Hilaire Belloc",
+        "authorDeath": 1953,
+        "textLicense": "Public domain (1896 US publication; PD in EU since 2024)",
+        "textSource": "https://en.wikisource.org/wiki/The_Bad_Child%27s_Book_Of_Beasts/The_Dodo"
+      },
+      "transcriptNotes": "Verbatim from en.wikisource; source hyphenation 'Mu-se-um' written as 'museum' (identical when spoken).",
+      "sha256": "702dea2461415d35537743b9cc25f48e85234deb1a6c52c8ec7f116aa2ccaa94",
+      "annotation": {
+        "type": "single-utterance",
+        "span": "[0, wavDurationSec]",
+        "rationale": "clip is one complete poem read start to finish; the RIFF/ffprobe-measured duration is the true span of that single utterance, so [0, duration] is a real temporal annotation (no file-duration-vs-multi-sentence-span confound)"
+      }
+    }
+  ]
+}

@@ -61,3 +61,6 @@ eval/docling-proto/.venv/
 eval/docling-proto/docling_models/
 eval/docling-proto/easyocr_models/
 eval/docling-proto/*.log
+
+# T2-v2 natural-speech eval: 16k mono wav conversion cache (originals in audio-orig/)
+eval/audio-proto-v2/wav/
