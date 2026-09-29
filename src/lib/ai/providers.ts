@@ -99,6 +99,17 @@ export const PRESETS: ProviderPreset[] = [
     authHeader: "bearer",
   },
   {
+    // managed local ASR (whisper.cpp): baseUrl null = managed local, like
+    // llamacpp. The runtime + model come from the local machine (runtime via
+    // NOTELM_WHISPER_DIR / packaged resources, model via the catalog); the
+    // TranscribeFn is built in engine/capabilities.ts, never a remote wire.
+    id: "whisper-local",
+    label: "Auf diesem Computer (whisper.cpp)",
+    baseUrl: null,
+    capabilities: ["transcribe"],
+    authHeader: "bearer",
+  },
+  {
     id: "openai",
     label: "OpenAI",
     baseUrl: "https://api.openai.com/v1",

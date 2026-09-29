@@ -9,7 +9,7 @@
 export interface CatalogModel {
   id: string;
   label: string;
-  capability: "chat" | "embed";
+  capability: "chat" | "embed" | "transcribe";
   sizeBytes: number;
   license: string;
   /** SHA-256 of the GGUF (= Hugging Face LFS oid); verified after download. */
@@ -46,12 +46,31 @@ export const MODEL_CATALOG: CatalogModel[] = [
     capability: "chat",
     sizeBytes: 4_690_984_448, // both shards together (~4.7 GB)
     license: "Apache-2.0",
-    // shard 1 of 2 (shard 2: 539cf93f78e887edea1c04e2d7d8cdaca9d01dae9c9025bcb8accbe29df3d72a)
     sha256: "dfce12e3862a5283ccfb88221b48480e58745165de856439950d0f22590580db",
     url: null,
     // ponytail: Split-GGUF has no single-file pipeline — the managed store
     // renames downloads to <sha256>.gguf, so llama.cpp cannot find shard 2.
     // Add multi-shard download/import when a real user asks for 7B locally.
     notes: "In zwei Shard-Dateien veröffentlicht; die Einzeldatei-Verwaltung kann Split-Modelle noch nicht laden — daher kein Download-Button.",
+  },
+  {
+    id: "ggml-tiny",
+    label: "Whisper tiny (mehrsprachig)",
+    capability: "transcribe",
+    sizeBytes: 77_691_713,
+    license: "MIT",
+    sha256: "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21",
+    url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin",
+    notes: "Whisper tiny: schnelle lokale Transkription, ~78 MB, mehrsprachig (en/de/es) — passt für schwache Hardware.",
+  },
+  {
+    id: "ggml-base",
+    label: "Whisper base (mehrsprachig)",
+    capability: "transcribe",
+    sizeBytes: 147_951_465,
+    license: "MIT",
+    sha256: "60ed5bc3dd14eea856493d334349b405782ddcaf0028d4b5df4088345fba2efe",
+    url: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin",
+    notes: "Whisper base: etwas genauer als tiny, ~148 MB, mehrsprachig (en/de/es).",
   },
 ];

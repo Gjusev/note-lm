@@ -575,12 +575,37 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         return { ok: true, result: {} };
       }
 
+      case "models.selectTranscribe": {
+        // whisper models carry no models-table row (CHECK covers chat/embeddings
+        // only) — selection resolves the CATALOG entry and requires the
+        // sha-named file to be downloaded already
+        const { modelId } = args as { modelId?: string };
+        if (!modelId) {
+          return { ok: false, error: { code: "bad_args", message: "modelId (catalog id) is required" } };
+        }
+        const entry = MODEL_CATALOG.find((e) => e.id === modelId && e.capability === "transcribe");
+        if (!entry) {
+          return { ok: false, error: { code: "not_found", message: "kein Transkriptionsmodell mit dieser ID im Katalog" } };
+        }
+        const { db, dataDir } = getLocalContext();
+        if (!fs.existsSync(path.join(dataDir, "models", `${entry.sha256}.bin`))) {
+          return { ok: false, error: { code: "not_found", message: "Modell wurde noch nicht heruntergeladen" } };
+        }
+        await setSetting(db, "ai.transcribeModel", {
+          catalogId: entry.id,
+          fileName: entry.url?.split("/").pop() ?? entry.id,
+          sha256: entry.sha256,
+          sizeBytes: entry.sizeBytes,
+        });
+        return { ok: true, result: {} };
+      }
+
       case "models.download": {
         const { url, capability, fileName, sha256 } = args as {
-          url?: string; capability?: "chat" | "embeddings"; fileName?: string; sha256?: string;
+          url?: string; capability?: "chat" | "embeddings" | "transcriptions"; fileName?: string; sha256?: string;
         };
-        if (!url || !fileName || (capability !== "chat" && capability !== "embeddings")) {
-          return { ok: false, error: { code: "bad_args", message: "url, fileName and capability are required" } };
+        if (!url || !fileName || (capability !== "chat" && capability !== "embeddings" && capability !== "transcriptions")) {
+          return { ok: false, error: { code: "bad_args", message: "url, fileName and capability chat|embeddings|transcriptions are required" } };
         }
         const { db, dataDir } = getLocalContext();
         const { downloadModel } = await import("@/lib/services/models");

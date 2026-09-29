@@ -1,0 +1,42 @@
+{
+	"model": {
+		"type": "tiny",
+		"multilingual": true,
+		"vocab": 51865,
+		"audio": {
+			"ctx": 1500,
+			"state": 384,
+			"head": 6,
+			"layer": 4
+		},
+		"text": {
+			"ctx": 448,
+			"state": 384,
+			"head": 6,
+			"layer": 4
+		},
+		"mels": 80,
+		"ftype": 1
+	},
+	"params": {
+		"model": ".probe-downloads/ggml-tiny.bin",
+		"language": "auto",
+		"translate": false
+	},
+	"result": {
+		"language": "en"
+	},
+	"transcription": [
+		{
+			"timestamps": {
+				"from": "00:00:00,000",
+				"to": "00:00:10,500"
+			},
+			"offsets": {
+				"from": 0,
+				"to": 10500
+			},
+			"text": " And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country."
+		}
+	]
+}

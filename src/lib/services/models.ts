@@ -9,11 +9,12 @@ import path from "node:path";
 import { eq } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import { models } from "@/db/local/schema";
+import { getSetting, setSetting } from "./settings";
 import { toWire } from "./wire";
 
 export interface ManagedModel {
   _id: string;
-  capability: "chat" | "embeddings";
+  capability: "chat" | "embeddings" | "transcriptions";
   fileName: string;
   /** path relative to the data dir (models/<sha256>.gguf) */
   path: string;
@@ -108,7 +109,7 @@ export async function downloadModel(
   dataDir: string,
   opts: {
     url: string;
-    capability: "chat" | "embeddings";
+    capability: "chat" | "embeddings" | "transcriptions";
     fileName: string;
     sha256?: string;
     origin?: string;
@@ -116,7 +117,10 @@ export async function downloadModel(
     onProgress?: (downloaded: number, total: number | null) => void;
   }
 ): Promise<ManagedModel> {
-  const target = path.join(modelsDir(dataDir), `${opts.sha256 ?? randomUUID()}.gguf`);
+  const target = path.join(
+    modelsDir(dataDir),
+    `${opts.sha256 ?? randomUUID()}.${opts.capability === "transcriptions" ? "bin" : "gguf"}`
+  );
   const tmp = `${target}.part`;
   let downloaded = fs.existsSync(tmp) ? fs.statSync(tmp).size : 0;
 
@@ -148,7 +152,7 @@ export async function downloadModel(
   const actual = await hashFile(tmp);
   if (opts.sha256 && actual !== opts.sha256) {
     await fs.promises.rm(tmp, { force: true });
-    throw new Error(`SHA-256 stimmt nicht: ${actual}`);
+    throw new Error(`SHA-256 stimmt nicht: ${actual}` );
   }
 
   // dedupe by content hash: an identical model already managed wins
@@ -156,6 +160,34 @@ export async function downloadModel(
   if (already) {
     await fs.promises.rm(tmp, { force: true });
     return already;
+  }
+
+  // Whisper models (capability "transcriptions") are SETTINGS-tracked: the
+  // models table's CHECK constraint covers chat/embeddings only, and a table
+  // rebuild migration for one capability is not warranted. File:
+  // models/<sha256>.bin; when the active model changes the previous file is
+  // removed, so no orphan blobs accumulate. Mirrors chat/embed path
+  // resolution (one settings row per capability selects the active model).
+  if (opts.capability === "transcriptions") {
+    const prev = await getSetting<{ sha256?: string } | null>(db, "ai.transcribeModel");
+    if (prev?.sha256 && prev.sha256 !== actual) {
+      await fs.promises.rm(path.join(modelsDir(dataDir), `${prev.sha256}.bin`), { force: true });
+    }
+    await fs.promises.rename(tmp, target);
+    await setSetting(db, "ai.transcribeModel", {
+      fileName: opts.fileName, sha256: actual, sizeBytes: downloaded,
+    });
+    return {
+      _id: actual,
+      capability: "transcriptions",
+      fileName: opts.fileName,
+      path: path.relative(dataDir, target).split(path.sep).join("/"),
+      sizeBytes: downloaded,
+      sha256: actual,
+      origin: opts.origin ?? new URL(opts.url).hostname,
+      status: "available",
+      errorMessage: null,
+    };
   }
 
   await fs.promises.rename(tmp, target);

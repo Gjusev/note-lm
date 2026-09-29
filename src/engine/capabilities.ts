@@ -37,6 +37,7 @@ import {
   type ProviderLabel,
   type TranscribeFn,
 } from "@/lib/ai/providers";
+import { makeLocalTranscribe } from "@/lib/ai/whisper";
 
 export type { ChatFn, ChatResult, EmbedFn, ProviderLabel, TranscribeFn } from "@/lib/ai/providers";
 
@@ -53,6 +54,8 @@ interface Capabilities {
   transcribe?: TranscribeFn | null;
   /** German reason when transcribe is null despite a config asking for it. */
   transcribeReason?: string;
+  /** What actually answers transcribe, for the German diagnostics label. */
+  transcribeProvider?: ProviderLabel | null;
 }
 
 let llamaChat: LlamaHandle | null = null;
@@ -100,6 +103,18 @@ async function resolveModelPaths(): Promise<ResolvedModelPaths> {
       ? path.resolve(dataDir, "..", "resources", "llama") // packaged layout
       : undefined);
   return { llamaDir, chatModel: chatModel ?? process.env.NOTELM_CHAT_MODEL, embedModel: embedModel ?? process.env.NOTELM_EMBED_MODEL };
+}
+
+/** Active transcribe model file: whisper models are SETTINGS-tracked
+ *  (ai.transcribeModel = {catalogId, fileName, sha256, sizeBytes}) because the
+ *  models table CHECK covers chat/embeddings only - no rebuild migration for
+ *  one capability. Mirrors chat/embed path resolution (models/<sha>.bin). */
+async function resolveTranscribeModel(): Promise<string | undefined> {
+  const { db, dataDir } = getLocalContext();
+  const rec = await getSetting<{ sha256: string } | null>(db, "ai.transcribeModel");
+  if (!rec?.sha256) return undefined;
+  const abs = path.resolve(dataDir, "models", `${rec.sha256}.bin`);
+  return fs.existsSync(abs) ? abs : undefined;
 }
 
 /** Read the connections/capability selections from settings (JSON rows). */
@@ -192,15 +207,38 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
     }
   }
 
-  // Transcribe (S3): explicit remote config (openai/custom presets) only —
-  // managed local ASR is a later phase, so a llamacpp selection resolves to
-  // null with a typed pending reason. Dev fallback mirrors chat's env path.
+  // Transcribe (S3): explicit config. Since increment 1 a "whisper-local"
+  // connection resolves to the LOCAL whisper.cpp factory (never offline-
+  // blocked, no remote fallback); a llamacpp transcribe selection still
+  // resolves to null with the typed pending reason. Dev fallback mirrors
+  // chat's env path.
   let transcribe: TranscribeFn | null = null;
+  let transcribeProvider: ProviderLabel | null = null;
   let transcribeReason: string | undefined;
   if (capCfg.transcribe) {
     const trRes = resolveRemoteCapability("transcribe", capCfg.transcribe, connections);
-    if ("connection" in trRes) {
+    if ("connection" in trRes && trRes.preset.id === "whisper-local") {
+      const modelPath = await resolveTranscribeModel();
+      const { dataDir } = getLocalContext();
+      const whisperDir = process.env.NOTELM_WHISPER_DIR
+        || (modelPath ? path.resolve(dataDir, "..", "resources", "whisper") : undefined);
+      const runtimeReady = !!whisperDir
+        && fs.existsSync(path.join(whisperDir, "whisper-cli.exe"));
+      if (runtimeReady && modelPath) {
+        transcribe = makeLocalTranscribe(d, {
+          whisperDir,
+          modelPath,
+          model: capCfg.transcribe.model,
+        });
+        transcribeProvider = { kind: "local", label: `Auf diesem Computer · whisper ${capCfg.transcribe.model}` };
+      } else if (!runtimeReady) {
+        transcribeReason = "Lokale Transkription: das Whisper-Programm (whisper.cpp) wurde auf diesem Computer nicht gefunden.";
+      } else {
+        transcribeReason = "Lokale Transkription: das Whisper-Modell ist nicht heruntergeladen — bitte in den Einstellungen herunterladen.";
+      }
+    } else if ("connection" in trRes) {
       transcribe = makeRemoteTranscribe(d, { ...trRes, model: capCfg.transcribe.model });
+      transcribeProvider = { kind: "remote", label: `${trRes.preset.label} · ${capCfg.transcribe.model}` };
     } else {
       const selected = connections.find((c) => c.id === capCfg.transcribe!.connectionId);
       transcribeReason =
@@ -214,7 +252,9 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
 
   return {
     chat, chatProvider, chatProviderKind, embed,
-    transcribe, ...(chatReason ? { chatReason } : {}), ...(transcribeReason ? { transcribeReason } : {}),
+    transcribe, transcribeProvider,
+    ...(chatReason ? { chatReason } : {}),
+    ...(transcribeReason ? { transcribeReason } : {}),
   };
 }
 

@@ -22,6 +22,7 @@
     "eval:retrieval": "tsx scripts/eval-retrieval.ts",
     "eval:benchmark": "node scripts/run-benchmark.mjs",
     "fetch:llama": "node scripts/fetch-llama.mjs",
+    "fetch:whisper": "node scripts/fetch-whisper.mjs",
     "build:desktop": "vite build --config src/desktop/vite.config.ts"
   },
   "dependencies": {

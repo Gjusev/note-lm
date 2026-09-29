@@ -106,7 +106,9 @@ export async function llamaChat(
   return content;
 }
 
-function stopTree(child: ChildProcess): Promise<void> {
+/** Kill the child's whole process tree (Windows: taskkill /T /F; signals do
+ *  not reach grandchildren here). Shared with the whisper runtime teardown. */
+export function stopTree(child: ChildProcess): Promise<void> {
   return new Promise((resolve) => {
     if (child.exitCode !== null) return resolve();
     if (process.platform === "win32") {

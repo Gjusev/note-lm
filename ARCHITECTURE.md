@@ -142,6 +142,11 @@ not yet asserted from the installer), **PENDIENTE**.
 - Multi-provider S1–S3 resolution/offline/telemetry (keyring covered above
   from the installer; the rest unit-level) — `src/__tests__/providers.test.ts`,
   `providers-protocol.test.ts`, `provider-runs.test.ts`.
+- Local whisper.cpp transcription (managed runtime): `whisper-local` preset +
+  catalog `transcribe` models (ggml-tiny/base, HF-hash-verified), local
+  TranscribeFn never offline-blocked with provider_runs telemetry, runWhisper
+  over the pinned v1.9.2 win-x64 build (real-binary smoke in-suite) —
+  `src/__tests__/whisper.test.ts`, `src/lib/ai/whisper.ts`.
 - Change-review experiments E1/E2 — fixture-level, synthetic; real-document
   precision NOT demonstrated (`eval/reports/e1-e2-change-review.md`).
 
@@ -149,8 +154,12 @@ not yet asserted from the installer), **PENDIENTE**.
 
 - In-app PDF page rendering — the evidence panel shows quote + locator, no
   page image (`src/desktop/src/components/EvidencePanel.tsx`).
-- Local ASR/TTS — `transcribe`/`tts` capabilities typed but unresolvable
-  (`src/lib/ai/providers.ts`).
+- Local TTS — `tts` capability typed but unresolvable
+  (`src/lib/ai/providers.ts`); local ASR landed (whisper.cpp: `whisper-local`
+  preset, catalog `transcribe` models, `src/lib/ai/whisper.ts`). Runtime via
+  `npm run fetch:whisper` / `NOTELM_WHISPER_DIR` (no installer bundling);
+  models download on demand via the catalog + `models.download` capability
+  `transcriptions`.
 - E3 human pilot; I5/I6 gated experiments (adaptive router, visual retrieval,
   RLM, collaboration — each behind registered criteria) —
   [docs/specs/open-source-innovation-strategy.md](docs/specs/open-source-innovation-strategy.md).
