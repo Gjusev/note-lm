@@ -640,13 +640,15 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
 
       case "notebook.export": {
         // Rust granted the target directory via the native dialog
-        const { notebookId: nbId, targetDir } = args as { notebookId?: string; targetDir?: string };
+        const { notebookId: nbId, targetDir, includeOriginals } = args as {
+          notebookId?: string; targetDir?: string; includeOriginals?: boolean;
+        };
         if (!nbId || !targetDir || path.isAbsolute(targetDir) !== true) {
           return { ok: false, error: { code: "bad_args", message: "notebookId and absolute targetDir are required" } };
         }
         const { db, store } = getLocalContext();
         try {
-          const outcome = await exportNotebook(db, store, nbId, targetDir);
+          const outcome = await exportNotebook(db, store, nbId, targetDir, { includeOriginals });
           return { ok: true, result: outcome };
         } catch (err) {
           return {

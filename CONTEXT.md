@@ -76,6 +76,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | file re-import as version | `sources.reimportVersion` op: changed bytes re-run processing on the SAME source (version + staleness scan via the recordVersion hook), identical bytes answer `{unchanged:true}`, missing source is a typed `not_found`; `claims.create` accepts `anchors` | `src/__tests__/source-reimport.test.ts` |
 | csv import pipeline | `sources.importFile` (csv) → `runProcessingJob` → `{kind:'sheet'}` sidecar → `calculations.run` end to end | `src/__tests__/source-reimport.test.ts` |
 | media time-range evidence | `transcribeMedia` per-segment timing (CBR byte size) + `{kind:'media'}` version sidecar + 1 chunk per segment + `time_range` anchors over a real temp SQLite + LocalStore (fake muxer + fake transcriber) | `src/__tests__/media-evidence.test.ts` |
+| portable research package | `exportNotebook` / `importNotebook` (formatVersion 2 manifest: sha256 per file, source versions + sidecars, claims/anchors/links/reviews/calculations, exclusion note, `{includeOriginals}` metadata-only mode) + `notebook.export` / `notebook.import` ops over a real temp SQLite + LocalStore | `src/__tests__/notebook-transfer.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).
