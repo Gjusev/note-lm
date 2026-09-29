@@ -33,6 +33,22 @@ export interface EvidenceRef {
   quote: string; storageId: string | null; absolutePath: string | null;
 }
 
+/** One immutable version of a source (sources.listVersions), oldest first. */
+export interface SourceVersionView { id: string; version: number; pageCount: number | null; createdAt: number }
+
+/** Recorded calculation row (calculations.run/list); argsJson holds the
+ *  exact query {op, column, filter} - the reproducibility record. */
+export interface CalculationView {
+  id: string; sourceVersionId: string; operation: string; argsJson: string;
+  result: string | null; unit: string | null; status: string; error: string | null; createdAt: number;
+}
+export interface CalcRunArgs {
+  notebookId: string; sourceId?: string; sourceVersionId?: string;
+  op: "sum" | "avg" | "min" | "max" | "count";
+  column: string | number;
+  filter?: { column: string | number; equals: string };
+}
+
 export interface ProviderPresetView {
   id: string;
   label: string;
@@ -125,6 +141,17 @@ export const desktopApi = {
   resolveReview: (proposalId: string, decision: "accepted" | "rejected") =>
     call<{}>("review.resolve", { proposalId, decision }),
   openEvidence: (anchorId: string) => call<EvidenceRef>("evidence.open", { anchorId }),
+  listVersions: (sourceId: string) => call<SourceVersionView[]>("sources.listVersions", { sourceId }),
+  /** Re-import as a new immutable version; identical bytes return
+   *  { unchanged: true }, changed bytes enqueue processing { jobId }. */
+  reimportVersion: (sourceId: string, path: string, fileName?: string) =>
+    call<{ unchanged: boolean; jobId?: string }>("sources.reimportVersion", {
+      sourceId, path, ...(fileName ? { fileName } : {}),
+    }),
+  /** Deterministic sheet op; typed engine errors surface as Error.message
+   *  (already German) - codes stay engine-side. */
+  runCalculation: (args: CalcRunArgs) => call<CalculationView>("calculations.run", args),
+  listCalculations: (notebookId: string) => call<CalculationView[]>("calculations.list", { notebookId }),
   listProviders: () => call<ProvidersView>("providers.list"),
   saveProvider: (
     connection: { id?: string; presetId: string; label: string; baseUrl?: string },

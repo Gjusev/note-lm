@@ -2,17 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   desktopApi,
-  openExternalFile,
   pickFile,
   type ClaimAnchorView,
   type Message,
+  type Source,
 } from "../lib/api";
+import { EvidencePanel, formatTimeRange } from "../components/EvidencePanel";
 
 /** Workspace: sources left, chat center, notes right. Panels collapse on
  *  narrow windows (plan B4) — tabs at <900px via CSS. */
 export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"sources" | "claims" | "notes">("sources");
+  const [tab, setTab] = useState<"sources" | "claims" | "notes" | "calculations">("sources");
 
   const { data: sources } = useQuery({
     queryKey: ["sources", notebookId],
@@ -77,7 +78,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
         aria-label="Quellen und Notizen"
       >
         <div style={{ display: "flex", gap: "var(--space-1)" }}>
-          {(["sources", "claims", "notes"] as const).map((t) => (
+          {(["sources", "claims", "notes", "calculations"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -86,10 +87,10 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
                 flex: 1,
                 borderColor: tab === t ? "var(--accent)" : "var(--rule)",
                 color: tab === t ? "var(--accent)" : "inherit",
-                fontSize: "0.85rem",
+                fontSize: "0.75rem",
               }}
             >
-              {t === "sources" ? "Quellen" : t === "claims" ? "Afirmaciones" : "Notizen"}
+              {t === "sources" ? "Quellen" : t === "claims" ? "Aussagen" : t === "notes" ? "Notizen" : "Berechnungen"}
             </button>
           ))}
         </div>
@@ -136,10 +137,12 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
                 {importUrl.error.message}
               </p>
             )}
-            <SourceList sources={sources ?? []} />
+            <SourceList sources={sources ?? []} notebookId={notebookId} />
           </>
         ) : tab === "claims" ? (
           <ClaimsPanel notebookId={notebookId} />
+        ) : tab === "calculations" ? (
+          <CalcPanel notebookId={notebookId} sources={sources ?? []} />
         ) : (
           <NotesPanel notebookId={notebookId} />
         )}
@@ -159,7 +162,7 @@ function guessType(name: string): string {
   return map[ext ?? ""] ?? "application/octet-stream";
 }
 
-function SourceList({ sources }: { sources: Array<{ _id: string; fileName: string; status: string; errorMessage?: string | null }> }) {
+function SourceList({ sources, notebookId }: { sources: Source[]; notebookId: string }) {
   if (!sources.length) {
     return (
       <p className="muted" style={{ fontSize: "0.85rem" }}>
@@ -170,39 +173,114 @@ function SourceList({ sources }: { sources: Array<{ _id: string; fileName: strin
   return (
     <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)", overflowY: "auto" }}>
       {sources.map((s) => (
-        <li
-          key={s._id}
-          style={{
-            padding: "var(--space-2)",
-            border: "1px solid var(--rule)",
-            borderRadius: "var(--radius)",
-            fontSize: "0.85rem",
-          }}
-        >
-          <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
-            <span
-              aria-hidden
-              style={{
-                width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-                background:
-                  s.status === "completed" ? "var(--ok)"
-                    : s.status === "error" ? "var(--accent)"
-                    : "var(--warn)",
-              }}
-            />
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-              {s.fileName}
-            </span>
-          </div>
-          {s.status !== "completed" && (
-            <span className="mono" style={{ color: "var(--ink-40)" }}>{s.status}</span>
-          )}
-          {s.status === "error" && s.errorMessage && (
-            <p style={{ color: "var(--accent)", fontSize: "0.75rem", margin: "var(--space-1) 0 0" }}>{s.errorMessage}</p>
-          )}
-        </li>
+        <SourceRow key={s._id} source={s} notebookId={notebookId} />
       ))}
     </ul>
+  );
+}
+
+/** One source row: status dot + name, "Neue Version" re-import and a
+ *  "Versionen" toggle with the immutable version list (strategy 5A). The
+ *  inline result states the honest outcome: unchanged bytes, or the next
+ *  version number that the enqueued processing job will land. */
+function SourceRow({ source: s, notebookId }: { source: Source; notebookId: string }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  const reimport = useMutation({
+    mutationFn: async () => {
+      const picked = await pickFile();
+      if (!picked) throw new Error("Keine Datei gewählt (Dialog nur im Desktop-Fenster verfügbar)");
+      return desktopApi.reimportVersion(s._id, picked.path, picked.name);
+    },
+    onSuccess: async (r) => {
+      queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
+      queryClient.invalidateQueries({ queryKey: ["versions", s._id] });
+      if (r.unchanged) {
+        setResult("Unverändert");
+        return;
+      }
+      // the job lands version latest+1 when processing finishes
+      try {
+        const vs = await desktopApi.listVersions(s._id);
+        setResult(`Version ${(vs[vs.length - 1]?.version ?? 0) + 1} wird verarbeitet…`);
+      } catch {
+        setResult("Neue Version wird verarbeitet…");
+      }
+    },
+  });
+
+  const { data: versions } = useQuery({
+    queryKey: ["versions", s._id],
+    queryFn: () => desktopApi.listVersions(s._id),
+    enabled: open,
+    refetchInterval: open && s.status !== "completed" ? 3000 : false,
+  });
+
+  return (
+    <li
+      style={{
+        padding: "var(--space-2)",
+        border: "1px solid var(--rule)",
+        borderRadius: "var(--radius)",
+        fontSize: "0.85rem",
+      }}
+    >
+      <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
+        <span
+          aria-hidden
+          style={{
+            width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+            background:
+              s.status === "completed" ? "var(--ok)"
+                : s.status === "error" ? "var(--accent)"
+                : "var(--warn)",
+          }}
+        />
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {s.fileName}
+        </span>
+      </div>
+      {s.status !== "completed" && (
+        <span className="mono" style={{ color: "var(--ink-40)" }}>{s.status}</span>
+      )}
+      {s.status === "error" && s.errorMessage && (
+        <p style={{ color: "var(--accent)", fontSize: "0.75rem", margin: "var(--space-1) 0 0" }}>{s.errorMessage}</p>
+      )}
+      <div style={{ display: "flex", gap: "var(--space-1)", marginTop: "var(--space-1)" }}>
+        <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} disabled={reimport.isPending} onClick={() => reimport.mutate()}>
+          {reimport.isPending ? "Importiere…" : "Neue Version"}
+        </button>
+        <button
+          style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }}
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+        >
+          Versionen
+        </button>
+      </div>
+      {result && (
+        <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>{result}</p>
+      )}
+      {open && (
+        <div className="rule-top" style={{ marginTop: "var(--space-1)", paddingTop: "var(--space-1)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          {(versions ?? []).length === 0 ? (
+            <span className="muted" style={{ fontSize: "0.75rem" }}>Keine Versionen aufgezeichnet.</span>
+          ) : (
+            (versions ?? []).map((v) => (
+              <span key={v.id} className="mono" style={{ fontSize: "0.7rem" }}>
+                v{v.version} · {new Date(v.createdAt).toLocaleDateString("de-DE")} ·{" "}
+                {v.pageCount != null ? `${v.pageCount} S.` : "CSV"}
+              </span>
+            ))
+          )}
+          {s.status !== "completed" && (
+            <span className="muted" style={{ fontSize: "0.75rem" }}>Wird verarbeitet…</span>
+          )}
+        </div>
+      )}
+    </li>
   );
 }
 
@@ -360,12 +438,19 @@ function CitationList({
   );
 }
 
-/** Claims tab (versioned-evidence S4): status/origin chips, anchor chips with
- *  Öffnen, pending review badges with Übernehmen/Ablehnen, manual creation. */
+/** Claims tab (versioned-evidence S4): status/origin/resolution chips, anchor
+ *  chips opening the in-app EvidencePanel, pending review proposals with
+ *  Übernehmen/Ablehnen, manual creation. */
 function ClaimsPanel({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
-  const [openError, setOpenError] = useState<string | null>(null);
+  // the one open evidence panel - AnchorChip makes the anchor click open the
+  // in-app reader; "Extern öffnen" lives inside the panel
+  const [evidence, setEvidence] = useState<ClaimAnchorView | null>(null);
+  // resolutions made this session (claimId -> decision + time), shown next to
+  // the status badge: the engine keeps resolved proposals out of review.list
+  // (pending-only), so this is the visible resolution state for this session
+  const [resolutions, setResolutions] = useState<Map<string, { decision: "accepted" | "rejected"; at: number }>>(new Map());
 
   const { data: claims } = useQuery({
     queryKey: ["claims", notebookId],
@@ -390,9 +475,12 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
   });
 
   const resolve = useMutation({
-    mutationFn: (p: { proposalId: string; decision: "accepted" | "rejected" }) =>
+    mutationFn: (p: { claimId: string; proposalId: string; decision: "accepted" | "rejected" }) =>
       desktopApi.resolveReview(p.proposalId, p.decision),
-    onSuccess: invalidate,
+    onSuccess: (_data, p) => {
+      invalidate();
+      setResolutions((prev) => new Map(prev).set(p.claimId, { decision: p.decision, at: Date.now() }));
+    },
   });
 
   const proposalsByClaim = new Map((reviews ?? []).map((p) => [p.claimId, p]));
@@ -458,10 +546,20 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
                 <span className="muted" style={{ fontSize: "0.75rem" }}>
                   {c.origin === "chat" ? "Chat" : "Manuell"}
                 </span>
+                {(() => {
+                  const res = resolutions.get(c._id);
+                  if (!res) return null;
+                  return (
+                    <span className="muted" style={{ fontSize: "0.75rem" }}>
+                      {res.decision === "accepted" ? "Übernommen" : "Abgelehnt"} am{" "}
+                      {new Date(res.at).toLocaleString("de-DE")}
+                    </span>
+                  );
+                })()}
               </div>
               <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{c.text}</p>
               {c.anchors.map((a) => (
-                <AnchorChip key={a.id} anchor={a} onOpenError={setOpenError} />
+                <AnchorChip key={a.id} anchor={a} onOpen={setEvidence} />
               ))}
               {(() => {
                 const proposal = proposalsByClaim.get(c._id);
@@ -483,13 +581,13 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
                     <div style={{ display: "flex", gap: "var(--space-1)" }}>
                       <button
                         disabled={resolve.isPending}
-                        onClick={() => resolve.mutate({ proposalId: proposal.id, decision: "accepted" })}
+                        onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "accepted" })}
                       >
                         Übernehmen
                       </button>
                       <button
                         disabled={resolve.isPending}
-                        onClick={() => resolve.mutate({ proposalId: proposal.id, decision: "rejected" })}
+                        onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "rejected" })}
                       >
                         Ablehnen
                       </button>
@@ -502,68 +600,44 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
                   {c.pendingReviews} offene Überarbeitung(en)
                 </span>
               )}
-              {openError && (
-                <p style={{ color: "var(--accent)", fontSize: "0.75rem", margin: 0 }}>{openError}</p>
-              )}
             </li>
           ))}
         </ul>
       )}
+      {evidence && <EvidencePanel anchor={evidence} onClose={() => setEvidence(null)} />}
     </>
   );
 }
 
-/** German mm:ss for a time-range locator; minutes may exceed 59 - honest,
- * no hour rollover. Lives here because only the chip renders media anchors. */
-function formatTimeRange(locator: { startSec: number; endSec: number | null }): string {
-  const mmss = (sec: number) => {
-    const whole = Math.max(0, Math.floor(sec));
-    return `${String(Math.floor(whole / 60)).padStart(2, "0")}:${String(whole % 60).padStart(2, "0")}`;
-  };
-  return `${mmss(locator.startSec)}-${locator.endSec == null ? "?" : mmss(locator.endSec)}`;
-}
-
-/** One evidence anchor: locator chip + quote snippet + Öffnen (evidence.open,
- *  then the Rust open_external_file guard when a path exists). An original
- *  without stored bytes says so, honestly. */
-function AnchorChip({ anchor, onOpenError }: { anchor: ClaimAnchorView; onOpenError: (m: string | null) => void }) {
-  const [state, setState] = useState<"idle" | "opening" | "unavailable">("idle");
+/** One evidence anchor: locator + quote snippet as one chip; clicking opens
+ *  the in-app EvidencePanel (delivery mandate P2) instead of an external
+ *  viewer. "Extern öffnen" lives in the panel, gated on evidence.open's
+ *  absolutePath - only an existing stored file enables it. */
+function AnchorChip({ anchor, onOpen }: { anchor: ClaimAnchorView; onOpen: (a: ClaimAnchorView) => void }) {
   const locator = anchor.locator
     ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ${formatTimeRange(anchor.locator)}`
     : anchor.page != null
       ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · S.${anchor.page}`
       : `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ohne Seite`;
-  const open = async () => {
-    setState("opening");
-    onOpenError(null);
-    try {
-      const ev = await desktopApi.openEvidence(anchor.id);
-      if (!ev.absolutePath) {
-        setState("unavailable");
-        return;
-      }
-      await openExternalFile(ev.absolutePath);
-      setState("idle");
-    } catch {
-      setState("unavailable");
-    }
-  };
   return (
-    <span style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", flexWrap: "wrap", fontSize: "0.8rem" }}>
+    <button
+      title={anchor.quote}
+      onClick={() => onOpen(anchor)}
+      style={{ fontSize: "0.8rem", padding: "0 var(--space-1)", alignSelf: "flex-start" }}
+    >
       <span
-        className="muted"
-        title={anchor.quote}
-        style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 210 }}
+        style={{
+          display: "inline-block",
+          maxWidth: 250,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          verticalAlign: "bottom",
+        }}
       >
         {locator} — {anchor.quote.length > 60 ? `${anchor.quote.slice(0, 59)}…` : anchor.quote}
       </span>
-      <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} disabled={state === "opening"} onClick={open}>
-        Öffnen
-      </button>
-      {state === "unavailable" && (
-        <span className="muted" style={{ fontSize: "0.75rem" }}>Originaldatei nicht verfügbar</span>
-      )}
-    </span>
+    </button>
   );
 }
 
@@ -623,5 +697,195 @@ function NotesPanel({ notebookId }: { notebookId: string }) {
         ))}
       </ul>
     </>
+  );
+}
+
+/** Calculations tab (delivery mandate P2): deterministic sheet ops over an
+ *  immutable source version. The big result plus the exact inputs (version,
+ *  op, column, filter) underneath is the reproducibility record; a blocked op
+ *  shows the engine's typed German error verbatim and records nothing. */
+function CalcPanel({ notebookId, sources }: { notebookId: string; sources: Source[] }) {
+  const queryClient = useQueryClient();
+  // csv sources first - the default pick for the source select
+  const ordered = [...sources].sort((a, b) =>
+    a.fileType.includes("csv") === b.fileType.includes("csv") ? 0 : a.fileType.includes("csv") ? -1 : 1
+  );
+  // null = "auto": the first csv source until the user picks one
+  const [sourceId, setSourceId] = useState<string | null>(null);
+  const activeSourceId = sourceId ?? ordered[0]?._id ?? "";
+  const [versionId, setVersionId] = useState<string | null>(null);
+  const [op, setOp] = useState<"sum" | "avg" | "min" | "max" | "count">("sum");
+  const [col, setCol] = useState("");
+  const [fCol, setFCol] = useState("");
+  const [fVal, setFVal] = useState("");
+  const activeSource = ordered.find((s) => s._id === activeSourceId);
+  const isCsv = activeSource?.fileType.includes("csv") ?? false;
+
+  const { data: versions } = useQuery({
+    queryKey: ["versions", activeSourceId],
+    queryFn: () => desktopApi.listVersions(activeSourceId),
+    enabled: activeSourceId !== "",
+  });
+  const activeVersionId = versionId ?? versions?.[versions.length - 1]?.id ?? "";
+  const activeVersion = versions?.find((v) => v.id === activeVersionId);
+
+  const run = useMutation({
+    mutationFn: () => {
+      // digits = 0-based column index, anything else = header name
+      const parseCol = (raw: string): string | number =>
+        /^\d+$/.test(raw.trim()) ? Number(raw.trim()) : raw.trim();
+      return desktopApi.runCalculation({
+        notebookId,
+        sourceId: activeSourceId,
+        sourceVersionId: activeVersionId || undefined,
+        op,
+        column: parseCol(col),
+        filter: fCol.trim() && fVal.trim()
+          ? { column: parseCol(fCol), equals: fVal.trim() }
+          : undefined,
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["calculations", notebookId] }),
+  });
+
+  const { data: history } = useQuery({
+    queryKey: ["calculations", notebookId],
+    queryFn: () => desktopApi.listCalculations(notebookId),
+  });
+
+  // map versionId -> version number across this notebook's sources, so the
+  // history rows can say "v3" instead of a raw uuid
+  const { data: versionLabels } = useQuery({
+    queryKey: ["calc-version-labels", notebookId],
+    queryFn: async () => {
+      const lists = await Promise.all(sources.map((s) => desktopApi.listVersions(s._id)));
+      return new Map(lists.flat().map((v) => [v.id, v.version]));
+    },
+    enabled: sources.length > 0,
+  });
+
+  const OP_LABELS: Record<string, string> = {
+    sum: "Summe", avg: "Durchschnitt", min: "Minimum", max: "Maximum", count: "Anzahl",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", overflowY: "auto", minHeight: 0 }}>
+      {ordered.length === 0 ? (
+        <p className="muted" style={{ fontSize: "0.85rem" }}>
+          Berechnungen brauchen eine Quelle. Importiere zuerst eine CSV-Datei.
+        </p>
+      ) : (
+        <>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!run.isPending) run.mutate();
+            }}
+            style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}
+          >
+            <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
+              Quelle
+              <select
+                value={activeSourceId}
+                onChange={(e) => {
+                  setSourceId(e.target.value);
+                  setVersionId(null);
+                }}
+                aria-label="Quelle für die Berechnung"
+              >
+                {ordered.map((s) => (
+                  <option key={s._id} value={s._id}>{s.fileName}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
+              Version
+              <select
+                value={activeVersionId}
+                onChange={(e) => setVersionId(e.target.value)}
+                aria-label="Version für die Berechnung"
+                disabled={(versions ?? []).length === 0}
+              >
+                {(versions ?? []).map((v) => (
+                  <option key={v.id} value={v.id}>
+                    v{v.version} · {v.pageCount != null ? `${v.pageCount} S.` : "CSV"} · {new Date(v.createdAt).toLocaleDateString("de-DE")}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
+              Operation
+              <select value={op} onChange={(e) => setOp(e.target.value as typeof op)} aria-label="Berechnungsoperation">
+                <option value="sum">Summe</option>
+                <option value="avg">Durchschnitt</option>
+                <option value="min">Minimum</option>
+                <option value="max">Maximum</option>
+                <option value="count">Anzahl</option>
+              </select>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
+              Spalte (Name oder Nummer)
+              <input
+                value={col}
+                onChange={(e) => setCol(e.target.value)}
+                placeholder="z. B. Menge oder 2"
+                aria-label="Spalte"
+              />
+            </label>
+            <details>
+              <summary style={{ fontSize: "0.8rem", cursor: "pointer" }}>Filter (optional)</summary>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", marginTop: "var(--space-1)" }}>
+                <input value={fCol} onChange={(e) => setFCol(e.target.value)} placeholder="Spalte" aria-label="Filterspalte" />
+                <input value={fVal} onChange={(e) => setFVal(e.target.value)} placeholder="ist gleich" aria-label="Filterwert" />
+              </div>
+            </details>
+            <button className="primary" type="submit" disabled={!col.trim() || run.isPending}>
+              {run.isPending ? "Berechne…" : "Berechnen"}
+            </button>
+          </form>
+
+          {run.data && (
+            <div className="rule-top" style={{ paddingTop: "var(--space-2)" }}>
+              <div style={{ fontSize: "1.6rem", fontWeight: 700 }}>{run.data.result}</div>
+              <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>
+                {activeVersion ? `v${activeVersion.version}` : activeVersionId || "neueste Version"} · {OP_LABELS[run.data.operation] ?? run.data.operation} · Spalte{" "}
+                {String(JSON.parse(run.data.argsJson).column)}
+                {(() => {
+                  const f = JSON.parse(run.data.argsJson).filter;
+                  if (!f) return null;
+                  return <> · Filter {String(f.column)} = "{f.equals}"</>;
+                })()}
+              </p>
+            </div>
+          )}
+          {run.isError && (
+            <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{run.error.message}</p>
+          )}
+        </>
+      )}
+      {(history ?? []).length > 0 && (
+        <div className="rule-top" style={{ paddingTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          <span className="mono">Frühere Berechnungen</span>
+          {(history ?? []).slice().reverse().map((c) => {
+            let args: { op: string; column: string | number; filter: { column: string | number; equals: string } | null } | null = null;
+            try {
+              args = JSON.parse(c.argsJson);
+            } catch {
+              args = null;
+            }
+            return (
+              <div key={c.id} style={{ display: "flex", justifyContent: "space-between", gap: "var(--space-2)", fontSize: "0.8rem", alignItems: "baseline" }}>
+                <span>
+                  {OP_LABELS[c.operation] ?? c.operation} · Spalte {args ? String(args.column) : "?"}
+                  {args?.filter ? ` · Filter ${String(args.filter.column)} = "${args.filter.equals}"` : ""}
+                  {versionLabels?.get(c.sourceVersionId) != null ? ` · v${versionLabels.get(c.sourceVersionId)}` : ""}
+                </span>
+                <strong>{c.result ?? c.error}</strong>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
