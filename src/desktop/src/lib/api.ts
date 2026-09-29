@@ -30,12 +30,6 @@ export interface ReviewProposalView {
   id: string; claimId: string; reason: string; detail: string | null; createdAt: number;
   fromVersion: number; toVersion: number; status: string;
 }
-export interface EvidenceRef {
-  fileName: string | null; page: number | null;
-  /** Time-range locator of a time_range anchor; null otherwise. */
-  locator: { startSec: number; endSec: number | null } | null;
-  quote: string; storageId: string | null; absolutePath: string | null;
-}
 
 /** One immutable version of a source (sources.listVersions), oldest first. */
 export interface SourceVersionView { id: string; version: number; pageCount: number | null; createdAt: number }
@@ -154,11 +148,12 @@ export const desktopApi = {
     call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
   importNotebook: (sourceDir: string) =>
     call<{ notebookId: string; documents: number }>("notebook.import", { sourceDir }),
-  /** Optional explicit anchors (workspace redesign D1): the op accepts
-   *  {sourceId, page, quote} and binds each anchor to the source's LATEST
-   *  version - never to the version the user is currently reading. The UI
-   *  states that honestly when an older version is open. */
-  createClaim: (notebookId: string, text: string, anchors?: Array<{ sourceId: string; page?: number; quote?: string }>) =>
+  /** Optional explicit anchors (workspace redesign D1): {sourceId,
+   *  versionId?, page?, quote?}. versionId pins the anchor to that immutable
+   *  version - the reader captures it at selection time, so a reimport after
+   *  the selection cannot re-point the citation. Absent versionId -> the
+   *  source's latest version (engine fallback). */
+  createClaim: (notebookId: string, text: string, anchors?: Array<{ sourceId: string; versionId?: string; page?: number; quote?: string }>) =>
     call<{ id: string; anchorCount: number }>("claims.create", { notebookId, text, ...(anchors ? { anchors } : {}) }),
   createClaimFromMessage: (notebookId: string, messageId: string, text: string) =>
     call<{ id: string; anchorCount: number }>("claims.createFromMessage", { notebookId, messageId, text }),
@@ -166,12 +161,10 @@ export const desktopApi = {
   listReviews: (notebookId: string) => call<ReviewProposalView[]>("review.list", { notebookId }),
   resolveReview: (proposalId: string, decision: "accepted" | "rejected") =>
     call<{}>("review.resolve", { proposalId, decision }),
-  openEvidence: (anchorId: string) => call<EvidenceRef>("evidence.open", { anchorId }),
   listVersions: (sourceId: string) => call<SourceVersionView[]>("sources.listVersions", { sourceId }),
-  /** Open one source at a resolved version (latest, or versionId). Desktop
-   *  follow-up: the SourceReader panel currently opens files via evidence
-   *  anchors; wiring sources.open into it is a small hook for the desktop
-   *  agent — the API wrapper here is the only piece landed now. */
+  /** Open one source at a resolved version (latest, or versionId) - the
+   *  SourceReader's open path: absolutePath -> asset-protocol URL. Version
+   *  scope validation stays engine-side (typed errors arrive German). */
   openSource: (sourceId: string, versionId?: string) =>
     call<SourceOpenView>("sources.open", { sourceId, ...(versionId ? { versionId } : {}) }),
   /** Re-import as a new immutable version; identical bytes return

@@ -2,24 +2,33 @@
  * EvidenceInspector (workspace redesign): the right column - evidence
  * details, related refs, properties (section 5). Contents:
  * - the captured reader selection with the two D1 actions ("Als Beleg
- *   speichern" -> claims.create with anchors, "In Notiz einfügen" ->
- *   quote block via notes.create/notes.update),
+ *   speichern" -> claims.create with anchors, "In Notiz einfügen" -> quote
+ *   block + claim marker via notes.create/notes.update),
  * - the selected claim: status chips, anchor chips (each opens the stored
  *   original in the CENTER reader - no second viewer), review proposals
  *   with Übernehmen/Ablehnen.
+ *
+ * The two save actions are owned by the composition root and receive the
+ * selection's FROZEN identity ({sourceId, versionId} captured at selection
+ * time) - this component never re-resolves the version.
  */
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { desktopApi, type ClaimAnchorView, type ClaimView, type ReviewProposalView, type Source } from "../lib/api";
+import { desktopApi, type ClaimAnchorView, type ClaimView, type Source } from "../lib/api";
 import { formatTimeRange } from "../components/EvidencePanel";
 import type { NotebookUiState } from "../lib/uiState";
+import type { ReaderSelection } from "./SourceReader";
 
-/** What the reader currently has open (parent-owned, session state). */
+/** What the reader currently has open (parent-owned, session state): the
+ *  identity comes from the sources.open call, never from an anchor. */
 export interface ReaderContext {
   sourceId: string;
   fileName: string;
+  /** Immutable version row id of the opened version. */
+  versionId: string | null;
+  /** Display number of the opened version. */
   version: number | null;
-  selection: { page: number; quote: string } | null;
+  selection: ReaderSelection | null;
 }
 
 export function EvidenceInspector(props: {
@@ -29,9 +38,14 @@ export function EvidenceInspector(props: {
   update: (patch: Partial<NotebookUiState> | ((prev: NotebookUiState) => Partial<NotebookUiState>)) => void;
   reader: ReaderContext | null;
   openAnchor: (a: ClaimAnchorView) => void;
+  /** Save paths owned by the composition root (shared with the reader's
+   *  keyboard chooser); both take the frozen selection as-is. */
+  onSaveClaim: (sel: ReaderSelection) => void;
+  onInsertNote: (sel: ReaderSelection) => void;
+  actionError: string | null;
+  actionPending: boolean;
 }) {
   const queryClient = useQueryClient();
-  const [actionError, setActionError] = useState<string | null>(null);
   const claims = useQuery({ queryKey: ["claims", props.notebookId], queryFn: () => desktopApi.listClaims(props.notebookId) });
   const reviews = useQuery({ queryKey: ["reviews", props.notebookId], queryFn: () => desktopApi.listReviews(props.notebookId) });
   const notes = useQuery({ queryKey: ["notes", props.notebookId], queryFn: () => desktopApi.listNotes(props.notebookId) });
@@ -50,51 +64,7 @@ export function EvidenceInspector(props: {
     },
   });
 
-  // D1 action 1: save the captured passage as a claim bound to the source
-  // (claims.create accepts explicit anchors; the engine binds the anchor to
-  // the source's LATEST version - stated in the banner when reading older).
-  const saveEvidence = useMutation({
-    mutationFn: () => {
-      const sel = props.reader?.selection;
-      if (!props.reader || !sel) throw new Error("Keine Auswahl im Leserbereich");
-      return desktopApi.createClaim(props.notebookId, sel.quote, [
-        { sourceId: props.reader.sourceId, page: sel.page, quote: sel.quote },
-      ]);
-    },
-    onSuccess: () => {
-      setActionError(null);
-      queryClient.invalidateQueries({ queryKey: ["claims", props.notebookId] });
-    },
-    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
-  });
-
-  // D1 action 2: insert the passage as a quote block into a note (existing
-  // note via notes.update, otherwise a new note via notes.create). The
-  // reference names file + version + page; the version is the one the
-  // reader opened (anchor version), the insert is honest about that.
-  const insertIntoNote = useMutation({
-    mutationFn: async (noteId: string | null) => {
-      const sel = props.reader?.selection;
-      if (!props.reader || !sel) throw new Error("Keine Auswahl im Leserbereich");
-      const v = props.reader.version != null ? `v${props.reader.version}` : "ohne Version";
-      const block = `
-
-> „${sel.quote}“ — ${props.reader.fileName} · ${v} · S. ${sel.page}`;
-      if (noteId) {
-        const note = (notes.data ?? []).find((n) => n._id === noteId);
-        if (!note) throw new Error("Notiz nicht gefunden.");
-        return desktopApi.updateNote(noteId, note.title, note.content + block);
-      }
-      return desktopApi.createNote(props.notebookId, props.reader.fileName, `> „${sel.quote}“ — ${props.reader.fileName} · ${v} · S. ${sel.page}`).then((r) => r.id);
-    },
-    onSuccess: (noteId) => {
-      setActionError(null);
-      queryClient.invalidateQueries({ queryKey: ["notes", props.notebookId] });
-      props.update({ activeView: "note", selectedNoteId: typeof noteId === "string" ? noteId : props.ui.selectedNoteId });
-    },
-    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
-  });
-
+  const sel = props.reader?.selection ?? null;
   const notesList = notes.data ?? [];
   const targetNoteId = props.ui.selectedNoteId ?? notesList[0]?._id ?? null;
 
@@ -102,27 +72,26 @@ export function EvidenceInspector(props: {
     <div style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflowY: "auto" }}>
       <h2 id="inspector-heading" style={{ margin: 0, fontSize: "1rem" }}>Beleg &amp; Details</h2>
 
-      {props.reader?.selection && (
+      {sel && (
         <section aria-label="Auswahl im Dokument" style={{ border: "1px solid var(--accent)", borderRadius: "var(--radius)", padding: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-          <span className="mono" style={{ fontSize: "0.7rem" }}>Auswahl · {props.reader.fileName} · {props.reader.version != null ? `v${props.reader.version}` : "v?"} · S. {props.reader.selection.page}</span>
+          <span className="mono" style={{ fontSize: "0.7rem" }}>
+            Auswahl · {props.reader?.fileName} · {sel.version != null ? `v${sel.version}` : "Version offen"} · S. {sel.page}
+          </span>
           <blockquote style={{ margin: 0, padding: "0 0 0 var(--space-2)", borderLeft: "3px solid var(--accent-soft)", fontSize: "0.9rem", whiteSpace: "pre-wrap" }}>
-            {props.reader.selection.quote}
+            {sel.quote}
           </blockquote>
-          {props.reader.version != null && (
-            (() => {
-              const versionsNote = "Der Beleg bindet an die neueste Version der Quelle, nicht an die geöffnete.";
-              return <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>{versionsNote}</p>;
-            })()
-          )}
+          <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>
+            Der Beleg bindet an die Version der Auswahl{sel.version != null ? ` (v${sel.version})` : ""} - auch wenn zwischenzeitlich eine neuere Version importiert wird.
+          </p>
           <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
-            <button className="primary" disabled={saveEvidence.isPending} onClick={() => saveEvidence.mutate()}>
-              {saveEvidence.isPending ? "Speichere…" : "Als Beleg speichern"}
+            <button className="primary" disabled={props.actionPending} onClick={() => props.onSaveClaim(sel)}>
+              {props.actionPending ? "Speichere…" : "Als Beleg speichern"}
             </button>
-            <button disabled={insertIntoNote.isPending} onClick={() => insertIntoNote.mutate(targetNoteId)}>
-              {insertIntoNote.isPending ? "Einfügen…" : targetNoteId ? "In Notiz einfügen" : "Als neue Notiz einfügen"}
+            <button disabled={props.actionPending} onClick={() => props.onInsertNote(sel)}>
+              {props.actionPending ? "Einfügen…" : targetNoteId ? "In Notiz einfügen" : "Als neue Notiz einfügen"}
             </button>
           </div>
-          {actionError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{actionError}</p>}
+          {props.actionError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{props.actionError}</p>}
         </section>
       )}
 

@@ -122,5 +122,12 @@ input, textarea {
   cursor: text;
   transform-origin: 0% 0%;
 }
+/* keyboard path: the focused "quote block" gets a visible dashed outline +
+   a soft background so roving focus is locatable without a mouse */
+.text-layer span:focus {
+  outline: 1.5px dashed var(--accent);
+  outline-offset: 2px;
+  background: var(--accent-soft);
+}
 .text-layer ::selection { background: rgba(180, 71, 61, 0.32); }
 [data-theme="dark"] .text-layer ::selection { background: rgba(210, 112, 95, 0.4); }

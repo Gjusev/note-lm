@@ -3,28 +3,46 @@
  * Splits into WorkspaceShell (layout), SourceNavigator (left collections),
  * DocumentWorkspace (center work surface) and EvidenceInspector (right
  * evidence/actions). Data wiring stays here: sources list, job-driven
- * invalidation, the opened reader anchor and the captured selection.
+ * invalidation, the sources.open reader target, the captured selection and
+ * the two save paths (claim / note insert).
  *
- * Opening a source uses the only path the engine offers: an evidence anchor
- * (evidence.open). If a source has no anchored claim yet, the reader shows
- * the honest gap (missing sources.open op) instead of faking a viewer.
+ * Reader open path (priority 1): every open goes through
+ * sources.open {sourceId, versionId?} - no evidence anchor needed, so a
+ * freshly imported source is readable immediately. "Latest" is pinned to
+ * the concrete immutable version row id as soon as the open resolves, so a
+ * reimport never swaps the page under an open reader or an open selection.
+ *
+ * Provenance (the essential v1->v2 scenario): the selection object carries
+ * {sourceId, versionId, version, page, quote} frozen at capture time. Both
+ * save paths use that identity AS-IS - nothing here re-resolves the
+ * version, so "open v1 -> select -> publish v2 -> save" cites v1 by
+ * construction. Switching source or version clears the selection; page
+ * navigation within the same version keeps it.
+ *
+ * Note reference marker contract: "In Notiz einfügen" saves the passage as
+ * an anchor-bearing claim (the durable reference) and appends to the note
+ * content `> „quote" — file · vN · S. page [@claim:<claimId>]`; the
+ * NoteEditor renders the markers as navigable chips (zero engine changes).
  */
 import { useEffect, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type ClaimAnchorView } from "../lib/api";
 import { DEFAULT_UI_STATE, useNotebookUiState } from "../lib/uiState";
 import { WorkspaceShell } from "../workspace/WorkspaceShell";
 import { SourceNavigator } from "../workspace/SourceNavigator";
-import { DocumentWorkspace } from "../workspace/DocumentWorkspace";
+import { DocumentWorkspace, type ReaderBundle } from "../workspace/DocumentWorkspace";
 import { EvidenceInspector, type ReaderContext } from "../workspace/EvidenceInspector";
+import type { ReaderSelection } from "../workspace/SourceReader";
 
 export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
   const [ui, update] = useNotebookUiState(notebookId);
-  // The anchor the center reader was opened with (session state).
-  const [readerAnchor, setReaderAnchor] = useState<ClaimAnchorView | null>(null);
-  // Passage captured in the reader (session state; cleared on page change).
-  const [selection, setSelection] = useState<{ page: number; quote: string } | null>(null);
+  // What the center reader has open (session state): the source plus the
+  // immutable version row id (null = latest, pinned after the open).
+  const [readerTarget, setReaderTarget] = useState<{ sourceId: string; versionId: string | null } | null>(null);
+  // Passage captured in the reader - identity frozen at capture time.
+  const [selection, setSelection] = useState<ReaderSelection | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const { data: sources } = useQuery({
     queryKey: ["sources", notebookId],
@@ -56,54 +74,181 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   }, [jobs, notebookId, queryClient]);
 
   const claims = useQuery({ queryKey: ["claims", notebookId], queryFn: () => desktopApi.listClaims(notebookId) });
+  const notes = useQuery({ queryKey: ["notes", notebookId], queryFn: () => desktopApi.listNotes(notebookId) });
 
-  // A source opens through its first anchored claim (fileName join - anchors
-  // carry no sourceId over the wire today).
-  const anchorForSource = (sourceId: string): ClaimAnchorView | null => {
-    const source = (sources ?? []).find((s) => s._id === sourceId);
-    if (!source) return null;
-    for (const c of claims.data ?? []) {
-      const hit = c.anchors.find((a) => a.fileName === source.fileName);
-      if (hit) return hit;
-    }
-    return null;
+  // The reader's version list (dropdown) and the open result. Keys include
+  // the version id, so a pinned reader never silently refetches to a newer
+  // version when a reimport lands.
+  const versions = useQuery({
+    queryKey: ["versions", readerTarget?.sourceId ?? ""],
+    queryFn: () => desktopApi.listVersions(readerTarget!.sourceId),
+    enabled: !!readerTarget,
+  });
+  const opened = useQuery({
+    queryKey: ["source-open", readerTarget?.sourceId ?? "", readerTarget?.versionId ?? null],
+    queryFn: () => desktopApi.openSource(readerTarget!.sourceId, readerTarget!.versionId ?? undefined),
+    enabled: !!readerTarget,
+  });
+  // Row id of the OPENED version (sources.open reports the number; the
+  // claim anchors and the dropdown need the immutable row id).
+  const openedRowId = opened.data && versions.data
+    ? versions.data.find((v) => v.version === opened.data.version)?.id ?? null
+    : null;
+
+  // Pin "latest" to the concrete row id once resolved: the reader then
+  // holds an immutable version even while newer ones get imported.
+  useEffect(() => {
+    if (!readerTarget || readerTarget.versionId || !openedRowId) return;
+    setReaderTarget({ sourceId: readerTarget.sourceId, versionId: openedRowId });
+    update((prev) => ({
+      sources: {
+        ...prev.sources,
+        [readerTarget.sourceId]: {
+          versionId: openedRowId,
+          page: prev.sources[readerTarget.sourceId]?.page ?? 1,
+          scrollTop: prev.sources[readerTarget.sourceId]?.scrollTop ?? 0,
+        },
+      },
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [readerTarget, openedRowId]);
+
+  /** One open path for everything (navigator, chat citations, anchor/note
+   *  chips, version dropdown): sets the reader target and remembers the
+   *  position per source. Any source/version switch clears the captured
+   *  selection - an out-of-context selection must not be saveable against
+   *  the wrong version. */
+  const openAt = (sourceId: string, versionId: string | null, page = 1) => {
+    setSelection(null);
+    setReaderTarget({ sourceId, versionId });
+    update((prev) => ({
+      selectedSourceId: sourceId,
+      activeView: "source",
+      sources: { ...prev.sources, [sourceId]: { versionId, page, scrollTop: 0 } },
+    }));
   };
 
   const openSource = (sourceId: string) => {
-    update({ selectedSourceId: sourceId, activeView: "source" });
-    setReaderAnchor(anchorForSource(sourceId));
-    setSelection(null);
+    // Restore the last read version and page of this source; a fresh
+    // source opens the latest version (pinned right after the open).
+    openAt(
+      sourceId,
+      ui.sources[sourceId]?.versionId ?? null,
+      ui.sources[sourceId]?.page ?? 1
+    );
   };
 
   /** Follow a reference: open the stored original in the center at the
-   *  anchor's version and page (D1 "Verweis folgen"). */
+   *  anchor's version and page (D1 "Verweis folgen"). Anchors carry the
+   *  version NUMBER, the reader needs the immutable row id - resolved via
+   *  the shared versions query. */
   const openAnchor = (a: ClaimAnchorView) => {
     const source = (sources ?? []).find((s) => s.fileName === a.fileName);
-    if (source) {
-      update((prev) => ({
-        selectedSourceId: source._id,
-        activeView: "source",
-        sources: { ...prev.sources, [source._id]: { ...(prev.sources[source._id] ?? { versionId: null, page: 1, scrollTop: 0 }), page: a.page ?? 1 } },
-      }));
-      setReaderAnchor(a);
-      setSelection(null);
-    }
+    if (!source) return;
+    void (async () => {
+      let versionId: string | null = null;
+      try {
+        const vs = await queryClient.fetchQuery({
+          queryKey: ["versions", source._id],
+          queryFn: () => desktopApi.listVersions(source._id),
+        });
+        versionId = vs.find((v) => v.version === a.version)?.id ?? null;
+      } catch { /* version list unavailable -> open latest */ }
+      openAt(source._id, versionId, a.page ?? 1);
+    })();
+  };
+
+  /** Note reference chips: open the claim's first anchor in the reader at
+   *  ITS version; a claim without anchors just selects into the inspector. */
+  const openClaimRef = (claimId: string) => {
+    const anchor = (claims.data ?? []).find((c) => c._id === claimId)?.anchors[0];
+    if (anchor) openAnchor(anchor);
+    else update({ selectedClaimId: claimId, inspectorOpen: true });
   };
 
   const openNote = (noteId: string) => update({ selectedNoteId: noteId, activeView: "note" });
   const selectClaim = (claimId: string) => update({ selectedClaimId: claimId, inspectorOpen: true });
 
-  // What the inspector needs about the reader (evidence + selection).
-  const readerContext: ReaderContext | null = (() => {
-    const source = (sources ?? []).find((s) => s._id === ui.selectedSourceId);
-    if (!source) return null;
-    return {
-      sourceId: source._id,
-      fileName: source.fileName,
-      version: readerAnchor?.version ?? null,
-      selection,
-    };
-  })();
+  // Restore the persisted reader on mount (view-state mandate): the saved
+  // source/version/page reopen without a navigator click.
+  useEffect(() => {
+    if (readerTarget || !ui.selectedSourceId || ui.activeView !== "source") return;
+    openAt(
+      ui.selectedSourceId,
+      ui.sources[ui.selectedSourceId]?.versionId ?? null,
+      ui.sources[ui.selectedSourceId]?.page ?? 1
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* Both save paths use the selection's frozen identity: sel.sourceId and
+   * sel.versionId were captured at selection time and are used AS-IS. A
+   * reimport after the selection cannot re-point the citation because
+   * nothing here re-resolves the version. */
+  const saveEvidence = useMutation({
+    mutationFn: (sel: ReaderSelection) => desktopApi.createClaim(notebookId, sel.quote, [
+      { sourceId: sel.sourceId, ...(sel.versionId ? { versionId: sel.versionId } : {}), page: sel.page, quote: sel.quote },
+    ]),
+    onSuccess: () => {
+      setActionError(null);
+      queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
+    },
+    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
+  });
+
+  // D1 action 2 + note references: save the passage as an anchor-bearing
+  // claim (durable, navigable), then append the human-readable quote block
+  // with the [@claim:<id>] marker to the target note (or a new note).
+  const insertIntoNote = useMutation({
+    mutationFn: async (sel: ReaderSelection) => {
+      const claim = await desktopApi.createClaim(notebookId, sel.quote, [
+        { sourceId: sel.sourceId, ...(sel.versionId ? { versionId: sel.versionId } : {}), page: sel.page, quote: sel.quote },
+      ]);
+      const fileName = (sources ?? []).find((s) => s._id === sel.sourceId)?.fileName ?? "Quelle";
+      const v = sel.version != null ? `v${sel.version}` : "ohne Version";
+      const block = `\n\n> „${sel.quote}" — ${fileName} · ${v} · S. ${sel.page} [@claim:${claim.id}]`;
+      const targetId = ui.selectedNoteId ?? (notes.data ?? [])[0]?._id ?? null;
+      if (targetId) {
+        const note = (notes.data ?? []).find((n) => n._id === targetId);
+        if (!note) throw new Error("Notiz nicht gefunden.");
+        await desktopApi.updateNote(targetId, note.title, note.content + block);
+        return targetId;
+      }
+      const created = await desktopApi.createNote(notebookId, fileName, block.trim());
+      return created.id;
+    },
+    onSuccess: (noteId) => {
+      setActionError(null);
+      queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
+      queryClient.invalidateQueries({ queryKey: ["notes", notebookId] });
+      update({ activeView: "note", selectedNoteId: noteId });
+    },
+    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
+  });
+
+  const onSaveClaim = (sel: ReaderSelection) => saveEvidence.mutate(sel);
+  const onInsertNote = (sel: ReaderSelection) => insertIntoNote.mutate(sel);
+  const actionPending = saveEvidence.isPending || insertIntoNote.isPending;
+
+  // What the center reader needs (one bundle, flat props).
+  const readerBundle: ReaderBundle | null = readerTarget ? {
+    sourceId: readerTarget.sourceId,
+    versionId: openedRowId ?? readerTarget.versionId,
+    opened: opened.data ?? null,
+    openError: opened.isError ? (opened.error instanceof Error ? opened.error.message : String(opened.error)) : null,
+    versions: versions.data,
+  } : null;
+
+  // What the inspector needs about the reader (identity from the open
+  // call, never from an anchor) plus the frozen selection.
+  const readerSource = (sources ?? []).find((s) => s._id === readerTarget?.sourceId) ?? null;
+  const readerContext: ReaderContext | null = readerTarget && readerSource ? {
+    sourceId: readerTarget.sourceId,
+    fileName: readerSource.fileName,
+    versionId: openedRowId,
+    version: opened.data?.version ?? null,
+    selection,
+  } : null;
 
   return (
     <WorkspaceShell
@@ -134,8 +279,12 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           sources={sources ?? []}
           ui={ui}
           update={update}
-          readerAnchor={readerAnchor}
+          reader={readerBundle}
           onReaderSelect={setSelection}
+          onOpenVersion={(versionId) => { if (readerTarget) openAt(readerTarget.sourceId, versionId); }}
+          onSaveClaim={onSaveClaim}
+          onInsertNote={onInsertNote}
+          onOpenClaimRef={openClaimRef}
           onResetLayout={() => update({ navWidth: DEFAULT_UI_STATE.navWidth, inspectorWidth: DEFAULT_UI_STATE.inspectorWidth })}
           onToggleInspector={() => update((prev) => ({ inspectorOpen: !prev.inspectorOpen }))}
           onToggleNav={() => update({ navDrawerOpen: true })}
@@ -150,6 +299,10 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           update={update}
           reader={readerContext}
           openAnchor={openAnchor}
+          onSaveClaim={onSaveClaim}
+          onInsertNote={onInsertNote}
+          actionError={actionError}
+          actionPending={actionPending}
         />
       }
     />

@@ -3,17 +3,43 @@
  * persist per note id in the notebook UI state (mandate 3), saved content
  * goes through notes.update; the title only. Quote blocks inserted from the
  * inspector ("In Notiz einfügen") land here via the UI-state flow.
+ *
+ * Note reference markers (priority 1, marker contract): note content may
+ * embed `[@claim:<claimId>]` markers - "In Notiz einfügen" writes one next
+ * to each human-readable quote block (see NotebookWorkspace for the insert
+ * side). The editor content stays raw text; the markers render as
+ * navigable chips in the "Verweise" strip below: clicking a chip opens the
+ * claim's anchor in the center reader at ITS pinned version. The claim row
+ * is the durable reference - zero engine changes.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi } from "../lib/api";
 import type { NotebookUiState } from "../lib/uiState";
+
+/** `[@claim:<claimId>]` - ids are engine row ids ([A-Za-z0-9_-]+). */
+const CLAIM_REF_PATTERN = /\[@claim:([A-Za-z0-9_-]+)\]/g;
+
+/** Parse [@claim:<id>] markers (deduped, in order of first appearance).
+ *  Exported for the contract test in src/__tests__: the format spans two
+ *  files - written by NotebookWorkspace's insert path, parsed here - and
+ *  must not drift silently. */
+export function parseClaimRefs(content: string): string[] {
+  const ids: string[] = [];
+  for (const m of content.matchAll(CLAIM_REF_PATTERN)) {
+    const id = m[1];
+    if (id && !ids.includes(id)) ids.push(id);
+  }
+  return ids;
+}
 
 export function NoteEditor(props: {
   notebookId: string;
   noteId: string;
   ui: NotebookUiState;
   update: (patch: Partial<NotebookUiState> | ((prev: NotebookUiState) => Partial<NotebookUiState>)) => void;
+  /** Open a claim reference chip in the center reader (composition root). */
+  onOpenClaimRef: (claimId: string) => void;
 }) {
   const queryClient = useQueryClient();
   const { data: note } = useQuery({
@@ -43,6 +69,8 @@ export function NoteEditor(props: {
     },
   });
 
+  const claimIds = useMemo(() => parseClaimRefs(draft), [draft]);
+
   const setContent = (v: string) =>
     props.update((prev) => ({ drafts: { ...prev.drafts, [props.noteId]: v } }));
 
@@ -52,6 +80,16 @@ export function NoteEditor(props: {
         style={{ fontSize: "1.1rem", fontWeight: 600, border: "none", background: "transparent", padding: "var(--space-1) 0" }} />
       <textarea value={draft} onChange={(e) => setContent(e.target.value)} aria-label="Notiz-Inhalt"
         style={{ flex: 1, minHeight: 240, resize: "none", fontFamily: "var(--font-ui)", fontSize: "0.95rem", lineHeight: 1.6 }} />
+      {claimIds.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          <span className="mono" style={{ fontSize: "0.7rem" }}>Verweise in dieser Notiz</span>
+          <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
+            {claimIds.map((id) => (
+              <ClaimRefChip key={id} notebookId={props.notebookId} claimId={id} onOpen={props.onOpenClaimRef} />
+            ))}
+          </div>
+        </div>
+      )}
       <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
         <button className="primary" disabled={save.isPending || !title?.trim()} onClick={() => save.mutate()}>
           {save.isPending ? "Speichere…" : "Speichern"}
@@ -60,5 +98,27 @@ export function NoteEditor(props: {
       </div>
       {save.isError && <p role="alert" style={{ color: "var(--accent)", margin: 0, fontSize: "0.8rem" }}>{save.error.message}</p>}
     </div>
+  );
+}
+
+/** One navigable note reference: resolves [@claim:<id>] to the claim's
+ *  first anchor; clicking re-opens that anchor's original in the reader at
+ *  the anchor's own version. Unknown ids (deleted claim) degrade honestly. */
+function ClaimRefChip({ notebookId, claimId, onOpen }: { notebookId: string; claimId: string; onOpen: (claimId: string) => void }) {
+  const { data: claims } = useQuery({ queryKey: ["claims", notebookId], queryFn: () => desktopApi.listClaims(notebookId) });
+  const anchor = (claims ?? []).find((c) => c._id === claimId)?.anchors[0];
+  if (!anchor && claims != null) {
+    return (
+      <span className="muted" style={{ fontSize: "0.75rem", border: "1px dashed var(--rule)", borderRadius: "var(--radius)", padding: "0 var(--space-1)" }}>
+        Unbekannter Verweis
+      </span>
+    );
+  }
+  if (!anchor) return null;
+  return (
+    <button title={anchor.quote} onClick={() => onOpen(claimId)}
+      style={{ fontSize: "0.75rem", padding: "0 var(--space-1)", textAlign: "left" }}>
+      {anchor.fileName ?? "Quelle"} · v{anchor.version}{anchor.page != null ? ` · S. ${anchor.page}` : ""}
+    </button>
   );
 }

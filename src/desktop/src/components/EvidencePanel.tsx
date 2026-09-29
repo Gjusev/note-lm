@@ -20,8 +20,9 @@ export function formatTimeRange(locator: { startSec: number; endSec: number | nu
   return `${mmss(locator.startSec)}-${locator.endSec == null ? "?" : mmss(locator.endSec)}`;
 }
 
-/** Media kind of an evidence file. EvidenceRef/anchor carry no MIME type, so
- *  the extension decides - mirroring the ext->type table the importer used. */
+/** Media kind of an evidence file. The open result/anchor carry no MIME
+ *  type, so the extension decides - mirroring the ext->type table the
+ *  importer used. */
 export function mediaKind(fileName: string | null): "audio" | "video" | null {
   const ext = fileName?.split(".").pop()?.toLowerCase() ?? "";
   if (["mp3", "wav", "m4a", "aac", "ogg", "opus"].includes(ext)) return "audio";
@@ -35,19 +36,22 @@ export function isPdf(fileName: string | null, path: string): boolean {
   return ext === "pdf";
 }
 
-/** Inline media excerpt: <audio>/<video controls> served from the stored
- *  original over the asset protocol. Seeks to startSec once metadata is in;
- *  a present endSec pauses playback - the honest excerpt boundary. Used by
- *  the center reader for sources opened via a media anchor. */
+/** Inline media view: <audio>/<video controls> served from the stored
+ *  original over the asset protocol. With an anchor locator it seeks to
+ *  startSec once metadata is in and a present endSec pauses playback - the
+ *  honest excerpt boundary. Without a locator (sources.open path) it plays
+ *  the whole file. Used by the center reader. */
 export function MediaView({ src, kind, locator }: {
-  src: string; kind: "audio" | "video"; locator: { startSec: number; endSec: number | null };
+  src: string; kind: "audio" | "video";
+  locator?: { startSec: number; endSec: number | null } | null;
 }) {
   const seekAndClamp = (e: { currentTarget: HTMLMediaElement }) => {
+    if (!locator) return;
     const el = e.currentTarget;
     if (el.currentTime < locator.startSec) el.currentTime = locator.startSec;
   };
   const clamp = (e: { currentTarget: HTMLMediaElement }) => {
-    if (locator.endSec != null && e.currentTarget.currentTime >= locator.endSec) e.currentTarget.pause();
+    if (locator?.endSec != null && e.currentTarget.currentTime >= locator.endSec) e.currentTarget.pause();
   };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
@@ -61,10 +65,11 @@ export function MediaView({ src, kind, locator }: {
         />
       )}
       <span className="mono muted" style={{ fontSize: "0.75rem" }}>
-        Ausschnitt {formatTimeRange(locator)}
-        {locator.endSec == null
-          ? " - Ende offen, Wiedergabe hält nicht an"
-          : " - Wiedergabe hält am Ausschnittsende an"}
+        {locator
+          ? `Ausschnitt ${formatTimeRange(locator)}${locator.endSec == null
+              ? " - Ende offen, Wiedergabe hält nicht an"
+              : " - Wiedergabe hält am Ausschnittsende an"}`
+          : "Ganze Datei - Auswahl als Beleg bindet die aktuelle Zeitposition noch nicht"}
       </span>
     </div>
   );

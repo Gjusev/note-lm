@@ -5,7 +5,7 @@
  * zurücksetzen" resets the persisted column widths; the inspector
  * toggle stays reachable on every width.
  */
-import { type ClaimAnchorView, type Source } from "../lib/api";
+import { type Source, type SourceOpenView, type SourceVersionView } from "../lib/api";
 import { SourceReader, type ReaderSelection } from "./SourceReader";
 import { NoteEditor } from "./NoteEditor";
 import { ChatView } from "./ChatView";
@@ -20,13 +20,28 @@ const VIEW_LABELS: Record<CenterView, string> = {
   materials: "Materialien",
 };
 
+/** What the composition root resolved for the open reader: the target
+ *  version, the sources.open result, its error and the version list for
+ *  the dropdown. Passed as one object to keep the prop surface flat. */
+export interface ReaderBundle {
+  sourceId: string;
+  versionId: string | null;
+  opened: SourceOpenView | null;
+  openError: string | null;
+  versions: SourceVersionView[] | undefined;
+}
+
 export function DocumentWorkspace(props: {
   notebookId: string;
   sources: Source[];
   ui: NotebookUiState;
   update: (patch: Partial<NotebookUiState> | ((prev: NotebookUiState) => Partial<NotebookUiState>)) => void;
-  readerAnchor: ClaimAnchorView | null;
+  reader: ReaderBundle | null;
   onReaderSelect: (sel: ReaderSelection | null) => void;
+  onOpenVersion: (versionId: string | null) => void;
+  onSaveClaim: (sel: ReaderSelection) => void;
+  onInsertNote: (sel: ReaderSelection) => void;
+  onOpenClaimRef: (claimId: string) => void;
   onResetLayout: () => void;
   onToggleInspector: () => void;
   onToggleNav: () => void;
@@ -75,15 +90,24 @@ export function DocumentWorkspace(props: {
       {view === "source" && (
         selectedSource ? (
           <SourceReader
-            key={props.readerAnchor?.id ?? "no-anchor"}
+            key={`${selectedSource._id}:${props.reader?.versionId ?? "latest"}`}
             source={selectedSource}
-            anchor={props.readerAnchor}
+            openVersionId={props.reader?.versionId ?? null}
+            opened={props.reader?.opened ?? null}
+            openError={props.reader?.openError ?? null}
+            versions={props.reader?.versions}
             page={sourceUi?.page ?? 1}
             scrollTop={sourceUi?.scrollTop ?? 0}
             onPosition={(patch) => props.update((prev) => ({
-              sources: { ...prev.sources, [selectedSource._id]: { versionId: null, page: patch.page ?? prev.sources[selectedSource._id]?.page ?? 1, scrollTop: patch.scrollTop ?? prev.sources[selectedSource._id]?.scrollTop ?? 0 } },
+              sources: { ...prev.sources, [selectedSource._id]: {
+                versionId: prev.sources[selectedSource._id]?.versionId ?? null,
+                page: patch.page ?? prev.sources[selectedSource._id]?.page ?? 1,
+                scrollTop: patch.scrollTop ?? prev.sources[selectedSource._id]?.scrollTop ?? 0 } },
             }))}
             onSelect={props.onReaderSelect}
+            onOpenVersion={props.onOpenVersion}
+            onSaveClaim={props.onSaveClaim}
+            onInsertNote={props.onInsertNote}
           />
         ) : (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>
@@ -93,7 +117,7 @@ export function DocumentWorkspace(props: {
       )}
       {view === "note" && (
         props.ui.selectedNoteId ? (
-          <NoteEditor notebookId={props.notebookId} noteId={props.ui.selectedNoteId} ui={props.ui} update={props.update} />
+          <NoteEditor notebookId={props.notebookId} noteId={props.ui.selectedNoteId} ui={props.ui} update={props.update} onOpenClaimRef={props.onOpenClaimRef} />
         ) : (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>Wähle links eine Notiz.</p>
         )
