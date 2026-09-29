@@ -29,6 +29,7 @@ import {
 import { downloadPlan } from "@/lib/ingestion/download";
 import { runImportJob } from "@/engine/imports";
 import { startProcessingLoop } from "@/engine/jobs";
+import type { TranscribeFn } from "@/lib/ai/providers";
 
 const PAGE_HTML = `<html><head><title>Testseite</title></head><body>
 <h1>Kapitel eins</h1><p>${"Lorem ipsum dolor sit amet, consetetur sadipscing elitr. ".repeat(40)}</p>
@@ -37,24 +38,26 @@ const PAGE_HTML = `<html><head><title>Testseite</title></head><body>
 const AUDIO_BODY = Buffer.from("fake-audio-bytes-for-segmentation");
 
 /**
- * Controllable transcription fake (slice 3c), same seam as engine-pool.test.ts:
- * real transcription never runs offline. onSeg lets a test react right after a
- * segment's model call (that is how the mid-segment pause intent is recorded).
+ * Controllable transcription fake (slice 3c, S3 injection), same seam as
+ * engine-pool.test.ts: real transcription never runs offline. onSeg lets a
+ * test react right after a segment's model call (that is how the mid-segment
+ * pause intent is recorded). Injected per runImportJob call — the module-level
+ * @/lib/openai mock is gone.
  */
 const transcribe = vi.hoisted(() => ({
   calls: [] as string[],
   onSeg: null as null | ((segmentIndex: number) => void),
 }));
 
-vi.mock("@/lib/openai", () => ({
-  chatCompletion: vi.fn(async () => "chat"),
-  transcribeAudio: vi.fn(async (_buffer: Buffer, name: string) => {
+/** The injected TranscribeFn the runner receives (S3 seam). */
+function segmentingTranscribe(): TranscribeFn {
+  return async (_buffer: Buffer, name: string) => {
     const i = Number(/seg(\d+)/.exec(name)?.[1] ?? 0);
     transcribe.calls.push(name);
     transcribe.onSeg?.(i);
-    return `text${i}`;
-  }),
-}));
+    return { text: `text${i}` };
+  };
+}
 
 // segmentation seam (slice 3c): deterministic fake muxer — three tiny segment
 // files in the requested dir, no ffmpeg
@@ -400,7 +403,7 @@ describe("resumable transcription segments (desktop-workers-plan slice 3c)", () 
       segments: 3, doneSegments: 1, texts: ["segment-0-text"],
     });
 
-    const outcome = await runImportJob(ctx, job!);
+    const outcome = await runImportJob(ctx, job!, { transcribe: segmentingTranscribe() });
 
     expect(outcome).toBe("completed");
     // only the unconfirmed segments 1..2 reach the model, in order
@@ -422,7 +425,7 @@ describe("resumable transcription segments (desktop-workers-plan slice 3c)", () 
       if (i === 0) setJobIntent(db, "import", jobId, "pause");
     };
 
-    const outcome = await runImportJob(ctx, job!);
+    const outcome = await runImportJob(ctx, job!, { transcribe: segmentingTranscribe() });
     transcribe.onSeg = null;
 
     expect(outcome).toBe("paused");
@@ -443,7 +446,7 @@ describe("resumable transcription segments (desktop-workers-plan slice 3c)", () 
     setJobIntent(db, "import", jobId, "run"); // the resume action clears the pause intent
     const resumed = claimImportJob(db);
     expect(resumed?._id).toBe(jobId);
-    expect(await runImportJob(ctx, resumed!)).toBe("completed");
+    expect(await runImportJob(ctx, resumed!, { transcribe: segmentingTranscribe() })).toBe("completed");
     expect(transcribe.calls).toEqual(["seg001.mp3", "seg002.mp3"]);
     const text = sourceText();
     expect(text).toContain("text0");

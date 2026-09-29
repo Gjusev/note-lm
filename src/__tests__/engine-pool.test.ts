@@ -15,12 +15,13 @@ import { registerEmbeddingProfile } from "@/lib/services/embedding-profiles";
 import { setCapabilitiesForTests } from "@/engine/capabilities";
 import { startProcessingLoop } from "@/engine/jobs";
 import { runProcessingJob } from "@/engine/processing";
+import type { TranscribeFn } from "@/lib/ai/providers";
 
 /**
- * Controllable transcription fake (slice 3d): the loop's shared ffmpeg/
- * transcription cap is observed through enter/exit events - real ffmpeg and
- * real transcription never run offline. The text paths of the slice 3a tests
- * below are unaffected.
+ * Controllable transcription fake (slice 3d, S3 injection): the loop's shared
+ * ffmpeg/transcription cap is observed through enter/exit events - real ffmpeg
+ * and real transcription never run offline. Injected via the capabilities
+ * test seam; the module-level @/lib/openai mock is gone.
  */
 const transcribe = vi.hoisted(() => ({
   events: [] as string[],
@@ -29,9 +30,9 @@ const transcribe = vi.hoisted(() => ({
   release: null as null | (() => void),
 }));
 
-vi.mock("@/lib/openai", () => ({
-  chatCompletion: vi.fn(async () => "chat"),
-  transcribeAudio: vi.fn(async () => {
+/** The injected TranscribeFn the loop hands the runner (S3 seam). */
+function blockingTranscribe(): TranscribeFn {
+  return async () => {
     transcribe.events.push("enter");
     transcribe.active += 1;
     transcribe.maxActive = Math.max(transcribe.maxActive, transcribe.active);
@@ -40,9 +41,9 @@ vi.mock("@/lib/openai", () => ({
     });
     transcribe.active -= 1;
     transcribe.events.push("exit");
-    return "Reden ist Silber, Schweigen ist Gold.";
-  }),
-}));
+    return { text: "Reden ist Silber, Schweigen ist Gold." };
+  };
+}
 
 let dir: string;
 let db: LocalDb;
@@ -236,10 +237,12 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
     stop();
   });
 
-  it("the loop runs two uploads concurrently but never two ffmpeg extractions", async () => {
+  it("the loop runs two uploads concurrently but never two ffmpeg extractions (injected transcriber)", async () => {
     // a text upload held mid-run + two media uploads: the text upload and the
     // first audio file occupy the two upload lanes at once, while the shared
-    // ffmpeg/transcription cap holds the second audio file back
+    // ffmpeg/transcription cap holds the second audio file back. The fake
+    // transcriber rides the capabilities test seam — proof the runner uses the
+    // INJECTED transcribe, not a module import.
     const a = await createTextJobWithStorage("Textquelle laeuft parallel.");
     const m1 = await createMediaJob("ton-eins.mp3");
     const m2 = await createMediaJob("ton-zwei.mp3");
@@ -247,6 +250,12 @@ describe("engine job pool (desktop-workers-plan slice 3d)", () => {
     let releaseText: (() => void) | null = null;
     const textHeld = new Promise<void>((r) => {
       releaseText = r;
+    });
+    setCapabilitiesForTests({
+      chat: async () => ({ text: "chat", provider: "test", model: "test" }),
+      chatProvider: { kind: "remote", label: "Test" },
+      chatProviderKind: "remote",
+      transcribe: blockingTranscribe(),
     });
     const stop = startProcessingLoop(ctx, 40, {
       processingOpts: (id) => (id === a.jobId ? { beforeStage: async () => { await textHeld; } } : undefined),
