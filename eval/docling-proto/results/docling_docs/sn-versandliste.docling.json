@@ -1,0 +1,185 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "sn-versandliste",
+  "origin": {
+    "mimetype": "application/pdf",
+    "binary_hash": 6050324607944684460,
+    "filename": "sn-versandliste.pdf"
+  },
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/groups/0"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [
+    {
+      "self_ref": "#/groups/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [
+        {
+          "$ref": "#/texts/3"
+        }
+      ],
+      "content_layer": "body",
+      "name": "group",
+      "label": "key_value_area"
+    }
+  ],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 47.666666666666664,
+            "t": 785.8898,
+            "r": 224.66666666666666,
+            "b": 768.5564666666667,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            18
+          ]
+        }
+      ],
+      "orig": "Versandliste KW 38",
+      "text": "Versandliste KW 38",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 46.666666666666664,
+            "t": 753.2231333333334,
+            "r": 334.6666666666667,
+            "b": 535.5564666666667,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            378
+          ]
+        }
+      ],
+      "orig": "Ausgangslager Halle B, Ausgang 16:40 Uhr Pos 01Artikel VL-2043Menge 24 St\u00fcck Pos 02 Artikel VL-2098Menge 12 St\u00fcck Pos 03 Artikel RM-1170Menge 60 St\u00fcck Pos 04Artikel RM-1172Menge 8 St\u00fcck Pos 05Artikel TB-3301Menge 36 St\u00fcck Pos 06Artikel TB-3355Menge 18 St\u00fcck Pos 07Artikel HD-0114Menge 90 St\u00fcck Pos 08Artikel HD-0188Menge 45 St\u00fcck Kontrolle: Ladehof 2, Rampe 7, Beifahrer T. Wand",
+      "text": "Ausgangslager Halle B, Ausgang 16:40 Uhr Pos 01Artikel VL-2043Menge 24 St\u00fcck Pos 02 Artikel VL-2098Menge 12 St\u00fcck Pos 03 Artikel RM-1170Menge 60 St\u00fcck Pos 04Artikel RM-1172Menge 8 St\u00fcck Pos 05Artikel TB-3301Menge 36 St\u00fcck Pos 06Artikel TB-3355Menge 18 St\u00fcck Pos 07Artikel HD-0114Menge 90 St\u00fcck Pos 08Artikel HD-0188Menge 45 St\u00fcck Kontrolle: Ladehof 2, Rampe 7, Beifahrer T. Wand"
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 46.666666666666664,
+            "t": 786.5564666666667,
+            "r": 283.0,
+            "b": 767.2231333333334,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            26
+          ]
+        }
+      ],
+      "orig": "Versandliste KW 38, Teil 2",
+      "text": "Versandliste KW 38, Teil 2",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/groups/0"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 46.666666666666664,
+            "t": 752.8898,
+            "r": 357.6666666666667,
+            "b": 580.5564666666667,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            321
+          ]
+        }
+      ],
+      "orig": "Ziellager Erfurt, Inbound 17:05 Uhr Pos 09Artikel GS-2201Menge 30 St\u00fcck Pos 10Artikel GS-2244Menge 15 St\u00fcck Pos 11 Artikel KL-0091 Menge 72 St\u00fcck Pos 12 Artikel KL-0104Menge 6 St\u00fcck Begleitpapiere: 2 Frachtbriefe, 1 Gefahrgutdeklaration Abnahme durch: M. Behrend, Unterschrift erfolgt R\u00fcckfrage: Disposition Durchwahl 417",
+      "text": "Ziellager Erfurt, Inbound 17:05 Uhr Pos 09Artikel GS-2201Menge 30 St\u00fcck Pos 10Artikel GS-2244Menge 15 St\u00fcck Pos 11 Artikel KL-0091 Menge 72 St\u00fcck Pos 12 Artikel KL-0104Menge 6 St\u00fcck Begleitpapiere: 2 Frachtbriefe, 1 Gefahrgutdeklaration Abnahme durch: M. Behrend, Unterschrift erfolgt R\u00fcckfrage: Disposition Durchwahl 417"
+    }
+  ],
+  "pictures": [],
+  "tables": [],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 2
+    }
+  }
+}

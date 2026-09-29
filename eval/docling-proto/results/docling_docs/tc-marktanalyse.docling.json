@@ -1,0 +1,290 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "tc-marktanalyse",
+  "origin": {
+    "mimetype": "application/pdf",
+    "binary_hash": 4909405790849071186,
+    "filename": "tc-marktanalyse.pdf"
+  },
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/texts/3"
+      },
+      {
+        "$ref": "#/texts/4"
+      },
+      {
+        "$ref": "#/texts/5"
+      },
+      {
+        "$ref": "#/texts/6"
+      },
+      {
+        "$ref": "#/texts/7"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 784.8138,
+            "r": 273.06199999999995,
+            "b": 768.1638,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            24
+          ]
+        }
+      ],
+      "orig": "Marktanalyse Kleing\u00e4rten",
+      "text": "Marktanalyse Kleing\u00e4rten",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 725.4288,
+            "r": 539.2755960000002,
+            "b": 100.71629999999993,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            2187
+          ]
+        }
+      ],
+      "orig": "MKL1 Die Tagesordnung des Ausschusses MKR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL2 Die Tagesordnung des Ausschusses MKR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL3 Die Tagesordnung des Ausschusses MKR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. MKL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. MKL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der",
+      "text": "MKL1 Die Tagesordnung des Ausschusses MKR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL2 Die Tagesordnung des Ausschusses MKR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL3 Die Tagesordnung des Ausschusses MKR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MKR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MKL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. MKL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. MKL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 95.42876000000001,
+            "r": 285.0498,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            195
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 1",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 1"
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 541.8199989999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 784.8138,
+            "r": 329.096,
+            "b": 768.1638,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            32
+          ]
+        }
+      ],
+      "orig": "Marktanalyse Kleing\u00e4rten, Teil 2",
+      "text": "Marktanalyse Kleing\u00e4rten, Teil 2",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 725.4288,
+            "r": 539.2755960000002,
+            "b": 100.71629999999993,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            2187
+          ]
+        }
+      ],
+      "orig": "MYL1 Die Tagesordnung des Ausschusses MYR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL2 Die Tagesordnung des Ausschusses MYR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL3 Die Tagesordnung des Ausschusses MYR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. MYL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. MYL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der",
+      "text": "MYL1 Die Tagesordnung des Ausschusses MYR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL2 Die Tagesordnung des Ausschusses MYR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL3 Die Tagesordnung des Ausschusses MYR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig MYR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. MYL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. MYL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. MYL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+      "self_ref": "#/texts/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 95.42876000000001,
+            "r": 285.0498,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            195
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 2",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 2"
+    },
+    {
+      "self_ref": "#/texts/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 541.8199989999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    }
+  ],
+  "pictures": [],
+  "tables": [],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 2
+    }
+  }
+}

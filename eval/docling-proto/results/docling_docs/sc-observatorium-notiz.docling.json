@@ -1,0 +1,350 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "sc-observatorium-notiz",
+  "origin": {
+    "mimetype": "application/pdf",
+    "binary_hash": 15382553279598349897,
+    "filename": "sc-observatorium-notiz.pdf"
+  },
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/texts/3"
+      },
+      {
+        "$ref": "#/texts/4"
+      },
+      {
+        "$ref": "#/texts/5"
+      },
+      {
+        "$ref": "#/texts/6"
+      },
+      {
+        "$ref": "#/texts/7"
+      },
+      {
+        "$ref": "#/texts/8"
+      },
+      {
+        "$ref": "#/texts/9"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 784.8138,
+            "r": 347.05999999999995,
+            "b": 768.1638,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            30
+          ]
+        }
+      ],
+      "orig": "Notiz zum Observatoriumsausbau",
+      "text": "Notiz zum Observatoriumsausbau",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 749.4288,
+            "r": 521.7380000000003,
+            "b": 709.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            186
+          ]
+        }
+      ],
+      "orig": "Vorgeschlagen wird, das Nebengeb\u00e4ude des Observatoriums zu einem Arbeitsraum f\u00fcr die Fotoplatten-Sammlung umzubauen. Der Raum bietet konstante 18 Grad und eine Luftfeuchte um 45 Prozent.",
+      "text": "Vorgeschlagen wird, das Nebengeb\u00e4ude des Observatoriums zu einem Arbeitsraum f\u00fcr die Fotoplatten-Sammlung umzubauen. Der Raum bietet konstante 18 Grad und eine Luftfeuchte um 45 Prozent."
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 704.4288,
+            "r": 533.4035000000002,
+            "b": 679.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            180
+          ]
+        }
+      ],
+      "orig": "Die Plattenkataloge von 1911 bis 1974 liegen in sieben Schr\u00e4nken. F\u00fcr die Verkartung fehlt bisher eine feste Finanzierung; ein Antrag beim Fonds f\u00fcr Regionalkultur ist vorbereitet.",
+      "text": "Die Plattenkataloge von 1911 bis 1974 liegen in sieben Schr\u00e4nken. F\u00fcr die Verkartung fehlt bisher eine feste Finanzierung; ein Antrag beim Fonds f\u00fcr Regionalkultur ist vorbereitet."
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 29.744000000000028,
+            "r": 80.904,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            7
+          ]
+        }
+      ],
+      "orig": "Seite 1",
+      "text": "Seite 1"
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 539.2755999999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    },
+    {
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 782.6598,
+            "r": 261.04999999999995,
+            "b": 768.7848,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            28
+          ]
+        }
+      ],
+      "orig": "Risiken und n\u00e4chste Schritte",
+      "text": "Risiken und n\u00e4chste Schritte",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 752.4288,
+            "r": 518.1890000000005,
+            "b": 727.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            169
+          ]
+        }
+      ],
+      "orig": "Hauptrisiko bleibt die Bausubstanz des Daches. Eine Statikpr\u00fcfung im Februar ergab Tragreserven, aber Risse im Mauerwerk des S\u00fcdfl\u00fcgels sind nicht abschlie\u00dfend bewertet.",
+      "text": "Hauptrisiko bleibt die Bausubstanz des Daches. Eine Statikpr\u00fcfung im Februar ergab Tragreserven, aber Risse im Mauerwerk des S\u00fcdfl\u00fcgels sind nicht abschlie\u00dfend bewertet."
+    },
+    {
+      "self_ref": "#/texts/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 722.4288,
+            "r": 534.5270000000004,
+            "b": 697.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            127
+          ]
+        }
+      ],
+      "orig": "Als n\u00e4chster Schritt ist eine Begehung mit dem Denkmalamt am 3. Juni vereinbart. Danach entscheidet der Tr\u00e4ger \u00fcber den Antrag.",
+      "text": "Als n\u00e4chster Schritt ist eine Begehung mit dem Denkmalamt am 3. Juni vereinbart. Danach entscheidet der Tr\u00e4ger \u00fcber den Antrag."
+    },
+    {
+      "self_ref": "#/texts/8",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 29.744000000000028,
+            "r": 80.904,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            7
+          ]
+        }
+      ],
+      "orig": "Seite 2",
+      "text": "Seite 2"
+    },
+    {
+      "self_ref": "#/texts/9",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 539.2755999999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    }
+  ],
+  "pictures": [],
+  "tables": [],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 2
+    }
+  }
+}

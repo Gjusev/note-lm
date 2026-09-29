@@ -1,0 +1,714 @@
+{
+  "created_by": "generate_corpus.py (reportlab invariant=1, fixed content)",
+  "docs": [
+    {
+      "docId": "sc-hafen-logbuch",
+      "fileName": "sc-hafen-logbuch.pdf",
+      "pages": 3,
+      "class": "single-column",
+      "expectedPhrases": [
+        {
+          "text": "Grundlage für die Abstimmung mit der Hafenverwaltung",
+          "page": 1
+        },
+        {
+          "text": "mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb",
+          "page": 1
+        },
+        {
+          "text": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+          "page": 1
+        },
+        {
+          "text": "Werftkran außer Betrieb genommen",
+          "page": 1
+        },
+        {
+          "text": "Krankenstand sank auf 3,1 Prozent",
+          "page": 2
+        },
+        {
+          "text": "Nachtshift werden zwei weitere Staplerfahrer qualifiziert",
+          "page": 2
+        },
+        {
+          "text": "Betriebsrat wurde über die Verschiebung der Frühschicht informiert",
+          "page": 2
+        },
+        {
+          "text": "Staubmessung an der Kaimauer muss bis 30. April nachgereicht",
+          "page": 3
+        },
+        {
+          "text": "Ringanker am Schuppen D zu prüfen",
+          "page": 3
+        }
+      ],
+      "referenceParas": [
+        "Hafenlogbuch Nordkai 7",
+        "Dieses Logbuch fasst den Betrieb des Frachtkais Nordkai 7 im ersten Quartal zusammen und ist die Grundlage für die Abstimmung mit der Hafenverwaltung. Alle Angaben beziehen sich auf die Schichten vom 1. Januar bis 31. März.",
+        "Betrieb im März",
+        "Die beiden mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb und hoben zusammen 4 120 Tonnen Stückgut. Die mittlere Wartezeit vor dem Kai lag bei 38 Minuten, ein Viertel unter dem Vorquartal.",
+        "Am Kai 7a wurde der alte Werftkran außer Betrieb genommen. Sein Ersatzkran trifft Mitte April an und wird zunächst nur im Tagdienst eingesetzt.",
+        "Personaleinsatz",
+        "Der Planungenstermin der Frühjahrssaison sieht 42 Vollzeitkräfte und 9 Zeitarbeitskräfte vor. Krankenstand und Urlaub klaffen auseinander: Der Krankenstand sank auf 3,1 Prozent, während die Urlaubsreserve auf 210 Tage anwuchs.",
+        "Für die Nachtshift werden zwei weitere Staplerfahrer qualifiziert. Die Unterweisung nach Schriftwechsel mit der Berufsgenossenschaft ist für den 8. April terminiert.",
+        "Der Betriebsrat wurde über die Verschiebung der Frühschicht informiert und hat keinen Einspruch eingelegt. Die neue Schichtverteilung gilt ab dem 15. April.",
+        "Auflagen und Fristen",
+        "Die Staubmessung an der Kaimauer muss bis 30. April nachgereicht werden. Fehlende Messwerte aus Woche 11 werden vom Institut für Umweltanalytik nachgeliefert. Der Nachtrag geht direkt an die Hafenverwaltung.",
+        "Bis zur nächsten Begehung am 12. Mai sind die Ringanker am Schuppen D zu prüfen und das Ergebnis ins Logbuch einzutragen. Ohne Eintrag gilt die Prüfung als nicht erfolgt."
+      ]
+    },
+    {
+      "docId": "sc-observatorium-notiz",
+      "fileName": "sc-observatorium-notiz.pdf",
+      "pages": 2,
+      "class": "single-column",
+      "expectedPhrases": [
+        {
+          "text": "konstante 18 Grad und eine Luftfeuchte um 45 Prozent",
+          "page": 1
+        },
+        {
+          "text": "Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken",
+          "page": 1
+        },
+        {
+          "text": "Antrag beim Fonds für Regionalkultur ist vorbereitet",
+          "page": 1
+        },
+        {
+          "text": "Statikprüfung im Februar ergab Tragreserven",
+          "page": 2
+        },
+        {
+          "text": "Begehung mit dem Denkmalamt am 3. Juni vereinbart",
+          "page": 2
+        }
+      ],
+      "referenceParas": [
+        "Notiz zum Observatoriumsausbau",
+        "Vorgeschlagen wird, das Nebengebäude des Observatoriums zu einem Arbeitsraum für die Fotoplatten-Sammlung umzubauen. Der Raum bietet konstante 18 Grad und eine Luftfeuchte um 45 Prozent.",
+        "Die Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken. Für die Digitalisierung fehlt bisher eine feste Finanzierung; ein Antrag beim Fonds für Regionalkultur ist vorbereitet.",
+        "Risiken und nächste Schritte",
+        "Hauptrisiko bleibt die Bausubstanz des Daches. Eine Statikprüfung im Februar ergab Tragreserven, aber Risse im Mauerwerk des Südflügels sind nicht abschließend bewertet.",
+        "Als nächster Schritt ist eine Begehung mit dem Denkmalamt am 3. Juni vereinbart. Danach entscheidet der Träger über den Antrag."
+      ]
+    },
+    {
+      "docId": "tc-wochenbericht",
+      "fileName": "tc-wochenbericht.pdf",
+      "pages": 2,
+      "class": "two-column",
+      "readingOrder": {
+        "left": [
+          "WQL1",
+          "WQL2",
+          "WQL3",
+          "WQL4",
+          "WQL5",
+          "WQL6",
+          "WXL1",
+          "WXL2",
+          "WXL3",
+          "WXL4",
+          "WXL5",
+          "WXL6"
+        ],
+        "right": [
+          "WQR1",
+          "WQR2",
+          "WQR3",
+          "WQR4",
+          "WQR5",
+          "WQR6",
+          "WXR1",
+          "WXR2",
+          "WXR3",
+          "WXR4",
+          "WXR5",
+          "WXR6"
+        ]
+      },
+      "expectedPhrases": [
+        {
+          "text": "WQL1 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL2 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL3 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL4 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL5 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL6 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WXL1 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL2 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL3 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL4 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL5 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL6 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WQR1 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR2 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR3 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR4 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR5 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR6 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WXR1 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR2 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR3 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR4 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR5 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR6 Im Veranstaltungskalender",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "docId": "tc-marktanalyse",
+      "fileName": "tc-marktanalyse.pdf",
+      "pages": 2,
+      "class": "two-column",
+      "readingOrder": {
+        "left": [
+          "MKL1",
+          "MKL2",
+          "MKL3",
+          "MKL4",
+          "MKL5",
+          "MKL6",
+          "MYL1",
+          "MYL2",
+          "MYL3",
+          "MYL4",
+          "MYL5",
+          "MYL6"
+        ],
+        "right": [
+          "MKR1",
+          "MKR2",
+          "MKR3",
+          "MKR4",
+          "MKR5",
+          "MKR6",
+          "MYR1",
+          "MYR2",
+          "MYR3",
+          "MYR4",
+          "MYR5",
+          "MYR6"
+        ]
+      },
+      "expectedPhrases": [
+        {
+          "text": "MKL1 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MKL2 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MKL3 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MKL4 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MKL5 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MKL6 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "MYL1 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MYL2 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MYL3 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MYL4 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MYL5 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MYL6 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "MKR1 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MKR2 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MKR3 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MKR4 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MKR5 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MKR6 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "MYR1 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "MYR2 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "MYR3 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "MYR4 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "MYR5 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "MYR6 Im Veranstaltungskalender",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "docId": "tb-lieferschwelle",
+      "fileName": "tb-lieferschwelle.pdf",
+      "pages": 3,
+      "class": "table",
+      "expectedPhrases": [
+        {
+          "text": "FR-101 12,5 kW 2026-03-14",
+          "page": 2
+        },
+        {
+          "text": "FR-118 0,42 EUR/kWh 2026-03-17",
+          "page": 2
+        },
+        {
+          "text": "FR-204 148 m3/h 2026-03-19",
+          "page": 2
+        },
+        {
+          "text": "Nordmole offen 2026-03-25",
+          "page": 3
+        },
+        {
+          "text": "Schuppen D geprüft 2026-03-11",
+          "page": 3
+        }
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "rows": 6,
+          "cols": 4,
+          "cells": [
+            [
+              "Kennung",
+              "Schwelle",
+              "Einheit",
+              "Stand"
+            ],
+            [
+              "FR-101",
+              "12,5",
+              "kW",
+              "2026-03-14"
+            ],
+            [
+              "FR-118",
+              "0,42",
+              "EUR/kWh",
+              "2026-03-17"
+            ],
+            [
+              "FR-204",
+              "148",
+              "m3/h",
+              "2026-03-19"
+            ],
+            [
+              "FR-311",
+              "3,7",
+              "t/Tag",
+              "2026-03-21"
+            ],
+            [
+              "FR-402",
+              "91",
+              "%",
+              "2026-03-24"
+            ]
+          ]
+        },
+        {
+          "page": 3,
+          "rows": 3,
+          "cols": 3,
+          "cells": [
+            [
+              "Zone",
+              "Status",
+              "Datum"
+            ],
+            [
+              "Schuppen D",
+              "geprüft",
+              "2026-03-11"
+            ],
+            [
+              "Nordmole",
+              "offen",
+              "2026-03-25"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "docId": "tb-messreihe",
+      "fileName": "tb-messreihe.pdf",
+      "pages": 2,
+      "class": "table",
+      "expectedPhrases": [
+        {
+          "text": "M-01 Durchfluss 0,418 m3/s 0,010 gültig",
+          "page": 2
+        },
+        {
+          "text": "M-02 Druck 2,34 bar 0,05 gültig",
+          "page": 2
+        },
+        {
+          "text": "M-03 Temperatur 17,9 °C 0,4 geprüft",
+          "page": 2
+        },
+        {
+          "text": "M-04 Dichte 1,027 kg/l 0,002 geprüft",
+          "page": 2
+        },
+        {
+          "text": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig",
+          "page": 2
+        },
+        {
+          "text": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig",
+          "page": 2
+        },
+        {
+          "text": "M-07 pH-Wert 7,32 - 0,05 abgelehnt",
+          "page": 2
+        }
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "rows": 8,
+          "cols": 5,
+          "cells": [
+            [
+              "Messung",
+              "Wert",
+              "Einheit",
+              "Toleranz",
+              "Status"
+            ],
+            [
+              "M-01 Durchfluss",
+              "0,418",
+              "m3/s",
+              "0,010",
+              "gültig"
+            ],
+            [
+              "M-02 Druck",
+              "2,34",
+              "bar",
+              "0,05",
+              "gültig"
+            ],
+            [
+              "M-03 Temperatur",
+              "17,9",
+              "°C",
+              "0,4",
+              "geprüft"
+            ],
+            [
+              "M-04 Dichte",
+              "1,027",
+              "kg/l",
+              "0,002",
+              "geprüft"
+            ],
+            [
+              "M-05 Viskosität",
+              "1,86",
+              "mPa·s",
+              "0,03",
+              "vorläufig"
+            ],
+            [
+              "M-06 Leitfähigkeit",
+              "612",
+              "µS/cm",
+              "8",
+              "vorläufig"
+            ],
+            [
+              "M-07 pH-Wert",
+              "7,32",
+              "-",
+              "0,05",
+              "abgelehnt"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "docId": "sn-versandliste",
+      "fileName": "sn-versandliste.pdf",
+      "pages": 2,
+      "class": "scan-ocr",
+      "ocrOnly": true,
+      "expectedPhrases": [
+        {
+          "text": "Versandliste KW 38",
+          "page": 1
+        },
+        {
+          "text": "Artikel VL-2043",
+          "page": 1
+        },
+        {
+          "text": "Artikel RM-1170",
+          "page": 1
+        },
+        {
+          "text": "Artikel TB-3301",
+          "page": 1
+        },
+        {
+          "text": "Artikel HD-0114",
+          "page": 1
+        },
+        {
+          "text": "Ladehof 2, Rampe 7",
+          "page": 1
+        },
+        {
+          "text": "Versandliste KW 38, Teil 2",
+          "page": 2
+        },
+        {
+          "text": "Artikel GS-2201",
+          "page": 2
+        },
+        {
+          "text": "Artikel KL-0091",
+          "page": 2
+        },
+        {
+          "text": "Gefahrgutdeklaration",
+          "page": 2
+        },
+        {
+          "text": "Disposition Durchwahl",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "docId": "mx-projektbrief",
+      "fileName": "mx-projektbrief.pdf",
+      "pages": 3,
+      "class": "mixed",
+      "expectedPhrases": [
+        {
+          "text": "Verzug von zwei Wochen",
+          "page": 1
+        },
+        {
+          "text": "Endtermin bleibt bei November",
+          "page": 1
+        },
+        {
+          "text": "Budgetlage ist stabil",
+          "page": 1
+        },
+        {
+          "text": "Rohbau 612 598 14",
+          "page": 2
+        },
+        {
+          "text": "Technik 240 231 9",
+          "page": 2
+        },
+        {
+          "text": "Innenausbau 180 0 180",
+          "page": 2
+        },
+        {
+          "text": "Rücklage 60 0 60",
+          "page": 2
+        },
+        {
+          "text": "Kostenübersicht Q3",
+          "page": 3
+        },
+        {
+          "text": "Planung 42",
+          "page": 3
+        },
+        {
+          "text": "Bau 118",
+          "page": 3
+        },
+        {
+          "text": "Prüfung 17",
+          "page": 3
+        },
+        {
+          "text": "alle Werte in Tsd. EUR",
+          "page": 3
+        }
+      ],
+      "ocrOnlyPages": [
+        3
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "rows": 5,
+          "cols": 4,
+          "cells": [
+            [
+              "Posten",
+              "Plan",
+              "Ist",
+              "Rest"
+            ],
+            [
+              "Rohbau",
+              "612",
+              "598",
+              "14"
+            ],
+            [
+              "Technik",
+              "240",
+              "231",
+              "9"
+            ],
+            [
+              "Innenausbau",
+              "180",
+              "0",
+              "180"
+            ],
+            [
+              "Rücklage",
+              "60",
+              "0",
+              "60"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

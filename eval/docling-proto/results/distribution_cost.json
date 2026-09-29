@@ -1,0 +1,22 @@
+{
+  "venv_mb": 1406.6,
+  "weights_mb": 729.8,
+  "weights_breakdown_mb": {
+    "docling-project--docling-layout-heron": 163.8,
+    "docling-project--docling-layout-heron-onnx": 163.3,
+    "docling-project--docling-models": 341.6,
+    "RapidOcr": 61.0
+  },
+  "venv_top_packages_mb": {
+    "torch": 501.6,
+    "cv2": 112.4,
+    "scipy": 109.2,
+    "transformers": 98.5,
+    "sympy": 65.8,
+    "pandas": 60.0,
+    "onnxruntime": 43.8,
+    "docling_parse": 35.8
+  },
+  "docling_wheel_download_mb": 0.005,
+  "notes": "venv = installed footprint of the pinned stack on Windows/Python 3.12 (torch 2.14.0+cpu included); weights = what this pipeline config downloads/uses (layout heron onnx+torch variants, tableformer set, RapidOCR PP-OCRv6). Packaging could drop the unused torch variant of the layout model."
+}

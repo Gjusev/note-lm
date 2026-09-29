@@ -1,0 +1,590 @@
+{
+  "schema_name": "DoclingDocument",
+  "version": "1.10.0",
+  "name": "tc-wochenbericht",
+  "origin": {
+    "mimetype": "application/pdf",
+    "binary_hash": 9003611615996987513,
+    "filename": "tc-wochenbericht.pdf"
+  },
+  "furniture": {
+    "self_ref": "#/furniture",
+    "children": [],
+    "content_layer": "furniture",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "body": {
+    "self_ref": "#/body",
+    "children": [
+      {
+        "$ref": "#/texts/0"
+      },
+      {
+        "$ref": "#/texts/1"
+      },
+      {
+        "$ref": "#/texts/2"
+      },
+      {
+        "$ref": "#/texts/3"
+      },
+      {
+        "$ref": "#/texts/4"
+      },
+      {
+        "$ref": "#/texts/5"
+      },
+      {
+        "$ref": "#/texts/6"
+      },
+      {
+        "$ref": "#/texts/7"
+      },
+      {
+        "$ref": "#/texts/8"
+      },
+      {
+        "$ref": "#/texts/9"
+      },
+      {
+        "$ref": "#/texts/10"
+      },
+      {
+        "$ref": "#/texts/11"
+      },
+      {
+        "$ref": "#/texts/12"
+      },
+      {
+        "$ref": "#/texts/13"
+      },
+      {
+        "$ref": "#/texts/14"
+      },
+      {
+        "$ref": "#/texts/15"
+      },
+      {
+        "$ref": "#/texts/16"
+      },
+      {
+        "$ref": "#/texts/17"
+      }
+    ],
+    "content_layer": "body",
+    "name": "_root_",
+    "label": "unspecified"
+  },
+  "groups": [],
+  "texts": [
+    {
+      "self_ref": "#/texts/0",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 784.8138,
+            "r": 268.02200000000005,
+            "b": 768.1638,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            22
+          ]
+        }
+      ],
+      "orig": "Wochenbericht Kai-West",
+      "text": "Wochenbericht Kai-West",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/1",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 725.4288,
+            "r": 539.2755960000002,
+            "b": 100.71629999999993,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            2187
+          ]
+        }
+      ],
+      "orig": "WQL1 Die Tagesordnung des Ausschusses WQR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL2 Die Tagesordnung des Ausschusses WQR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL3 Die Tagesordnung des Ausschusses WQR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. WQL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. WQL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der",
+      "text": "WQL1 Die Tagesordnung des Ausschusses WQR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL2 Die Tagesordnung des Ausschusses WQR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL3 Die Tagesordnung des Ausschusses WQR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des f\u00fcr die Bewirtung wird eng getaktet. Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig WQR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan nachgetragen. f\u00fcr die Bewirtung wird eng getaktet. WQL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen. WQL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen. WQL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+      "self_ref": "#/texts/2",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 56.0,
+            "t": 95.42876000000001,
+            "r": 285.0498,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            195
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 1",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 1"
+    },
+    {
+      "self_ref": "#/texts/3",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 1,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 541.8199989999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    },
+    {
+      "self_ref": "#/texts/4",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "section_header",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 784.8138,
+            "r": 381.02600000000007,
+            "b": 768.1638,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            35
+          ]
+        }
+      ],
+      "orig": "Wochenbericht Kai-West, Fortsetzung",
+      "text": "Wochenbericht Kai-West, Fortsetzung",
+      "level": 1
+    },
+    {
+      "self_ref": "#/texts/5",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 725.4288,
+            "r": 539.2755960000001,
+            "b": 685.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            207
+          ]
+        }
+      ],
+      "orig": "WXL1 Die Tagesordnung des Ausschusses WXR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "WXL1 Die Tagesordnung des Ausschusses WXR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/6",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 665.4288,
+            "r": 539.2755960000001,
+            "b": 625.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            215
+          ]
+        }
+      ],
+      "orig": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Antr\u00e4ge zur Halle 1 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/7",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 695.4288,
+            "r": 285.0498,
+            "b": 625.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            95
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen.",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen."
+    },
+    {
+      "self_ref": "#/texts/8",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 605.4288,
+            "r": 539.2755960000001,
+            "b": 565.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            207
+          ]
+        }
+      ],
+      "orig": "WXL2 Die Tagesordnung des Ausschusses WXR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "WXL2 Die Tagesordnung des Ausschusses WXR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/9",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 545.4288,
+            "r": 539.2755960000001,
+            "b": 505.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            215
+          ]
+        }
+      ],
+      "orig": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Antr\u00e4ge zur Halle 2 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/10",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 575.4288,
+            "r": 285.0498,
+            "b": 505.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            95
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen.",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen."
+    },
+    {
+      "self_ref": "#/texts/11",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 485.42879999999997,
+            "r": 539.2755960000001,
+            "b": 445.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            207
+          ]
+        }
+      ],
+      "orig": "WXL3 Die Tagesordnung des Ausschusses WXR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "WXL3 Die Tagesordnung des Ausschusses WXR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/12",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 425.42879999999997,
+            "r": 539.2755960000001,
+            "b": 385.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            215
+          ]
+        }
+      ],
+      "orig": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet.",
+      "text": "Dachentw\u00e4sserung und Torantriebe gleichzeitig WXR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Antr\u00e4ge zur Halle 3 sind Termine mit je etwa 120 G\u00e4sten. Der Dienstplan f\u00fcr die Bewirtung wird eng getaktet."
+    },
+    {
+      "self_ref": "#/texts/13",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 455.42879999999997,
+            "r": 285.0498,
+            "b": 385.7163,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            95
+          ]
+        }
+      ],
+      "orig": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen.",
+      "text": "Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil nachgetragen."
+    },
+    {
+      "self_ref": "#/texts/14",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 365.42879999999997,
+            "r": 285.63779600000004,
+            "b": 265.71629999999993,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            271
+          ]
+        }
+      ],
+      "orig": "WXL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen.",
+      "text": "WXL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 4 sind nachgetragen."
+    },
+    {
+      "self_ref": "#/texts/15",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 245.42880000000002,
+            "r": 285.63779600000004,
+            "b": 145.71630000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            271
+          ]
+        }
+      ],
+      "orig": "WXL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen.",
+      "text": "WXL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 5 sind nachgetragen."
+    },
+    {
+      "self_ref": "#/texts/16",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "body",
+      "label": "text",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 56.0,
+            "t": 125.42880000000002,
+            "r": 285.63779600000004,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            279
+          ]
+        }
+      ],
+      "orig": "WXL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 2",
+      "text": "WXL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der Bauunterhalt beansprucht den gr\u00f6\u00dften Teil des Budgets f\u00fcr das kommende Jahr, weil Dachentw\u00e4sserung und Torantriebe gleichzeitig saniert werden. Zwei Antr\u00e4ge zur Halle 6 sind nachgetragen. Seite 2"
+    },
+    {
+      "self_ref": "#/texts/17",
+      "parent": {
+        "$ref": "#/body"
+      },
+      "children": [],
+      "content_layer": "furniture",
+      "label": "page_footer",
+      "prov": [
+        {
+          "page_no": 2,
+          "bbox": {
+            "l": 454.3636,
+            "t": 29.744000000000028,
+            "r": 541.8199989999998,
+            "b": 22.34400000000005,
+            "coord_origin": "BOTTOMLEFT"
+          },
+          "charspan": [
+            0,
+            23
+          ]
+        }
+      ],
+      "orig": "T1-Korpus (synthetisch)",
+      "text": "T1-Korpus (synthetisch)"
+    }
+  ],
+  "pictures": [],
+  "tables": [],
+  "key_value_items": [],
+  "form_items": [],
+  "pages": {
+    "1": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 1
+    },
+    "2": {
+      "size": {
+        "width": 595.2756,
+        "height": 841.8898
+      },
+      "page_no": 2
+    }
+  }
+}

@@ -1,0 +1,2237 @@
+{
+  "criteria": "t1-criteria.md (fixed before measurement)",
+  "tools": {
+    "baseline": "pdf-parse 2.4.5",
+    "docling": "docling 2.131.0"
+  },
+  "per_doc": {
+    "sc-hafen-logbuch.pdf": {
+      "class": "single-column",
+      "baseline": {
+        "phrases": {
+          "found": 9,
+          "total": 9,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "Grundlage für die Abstimmung mit der Hafenverwaltung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Werftkran außer Betrieb genommen",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Krankenstand sank auf 3,1 Prozent",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Nachtshift werden zwei weitere Staplerfahrer qualifiziert",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Betriebsrat wurde über die Verschiebung der Frühschicht informiert",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Staubmessung an der Kaimauer muss bis 30. April nachgereicht",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Ringanker am Schuppen D zu prüfen",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": 0.9705,
+        "ocr_recall": null,
+        "wall_ms": 48.0213
+      },
+      "docling": {
+        "phrases": {
+          "found": 9,
+          "total": 9,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "Grundlage für die Abstimmung mit der Hafenverwaltung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Werftkran außer Betrieb genommen",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Krankenstand sank auf 3,1 Prozent",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Nachtshift werden zwei weitere Staplerfahrer qualifiziert",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Betriebsrat wurde über die Verschiebung der Frühschicht informiert",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Staubmessung an der Kaimauer muss bis 30. April nachgereicht",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Ringanker am Schuppen D zu prüfen",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": 1.0,
+        "ocr_recall": null,
+        "wall_ms": 5987,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "sc-observatorium-notiz.pdf": {
+      "class": "single-column",
+      "baseline": {
+        "phrases": {
+          "found": 5,
+          "total": 5,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "konstante 18 Grad und eine Luftfeuchte um 45 Prozent",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Antrag beim Fonds für Regionalkultur ist vorbereitet",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Statikprüfung im Februar ergab Tragreserven",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Begehung mit dem Denkmalamt am 3. Juni vereinbart",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": 0.9454,
+        "ocr_recall": null,
+        "wall_ms": 2.6632000000000176
+      },
+      "docling": {
+        "phrases": {
+          "found": 5,
+          "total": 5,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "konstante 18 Grad und eine Luftfeuchte um 45 Prozent",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Antrag beim Fonds für Regionalkultur ist vorbereitet",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Statikprüfung im Februar ergab Tragreserven",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Begehung mit dem Denkmalamt am 3. Juni vereinbart",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": 0.9869,
+        "ocr_recall": null,
+        "wall_ms": 1623,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "tc-wochenbericht.pdf": {
+      "class": "two-column",
+      "baseline": {
+        "phrases": {
+          "found": 24,
+          "total": 24,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "WQL1 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL2 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL3 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL4 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL5 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL6 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL1 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL2 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL3 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL4 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL5 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL6 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR1 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR2 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR3 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR4 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR5 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR6 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR1 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR2 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR3 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR4 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR5 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR6 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 6.908199999999994
+      },
+      "docling": {
+        "phrases": {
+          "found": 24,
+          "total": 24,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "WQL1 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL2 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL3 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL4 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL5 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQL6 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL1 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL2 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL3 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL4 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL5 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXL6 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR1 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR2 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR3 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR4 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR5 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WQR6 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR1 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR2 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR3 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR4 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR5 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "WXR6 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 1630,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "tc-marktanalyse.pdf": {
+      "class": "two-column",
+      "baseline": {
+        "phrases": {
+          "found": 24,
+          "total": 24,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "MKL1 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL2 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL3 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL4 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL5 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL6 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL1 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL2 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL3 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL4 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL5 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL6 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR1 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR2 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR3 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR4 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR5 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR6 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR1 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR2 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR3 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR4 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR5 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR6 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 5.3034000000000106
+      },
+      "docling": {
+        "phrases": {
+          "found": 24,
+          "total": 24,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "MKL1 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL2 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL3 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL4 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL5 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKL6 Die Tagesordnung",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL1 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL2 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL3 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL4 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL5 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYL6 Die Tagesordnung",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR1 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR2 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR3 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR4 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR5 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MKR6 Im Veranstaltungskalender",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR1 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR2 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR3 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR4 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR5 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "MYR6 Im Veranstaltungskalender",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 1650,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "tb-lieferschwelle.pdf": {
+      "class": "table",
+      "baseline": {
+        "phrases": {
+          "found": 5,
+          "total": 5,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "FR-101 12,5 kW 2026-03-14",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "FR-118 0,42 EUR/kWh 2026-03-17",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "FR-204 148 m3/h 2026-03-19",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Nordmole offen 2026-03-25",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Schuppen D geprüft 2026-03-11",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 24,
+            "recovery": 0.0,
+            "table_pass": false
+          },
+          {
+            "page": 3,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 9,
+            "recovery": 0.0,
+            "table_pass": false
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 3.1988000000000056
+      },
+      "docling": {
+        "phrases": {
+          "found": 5,
+          "total": 5,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "FR-101 12,5 kW 2026-03-14",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "FR-118 0,42 EUR/kWh 2026-03-17",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "FR-204 148 m3/h 2026-03-19",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Nordmole offen 2026-03-25",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Schuppen D geprüft 2026-03-11",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": true,
+            "cells_found": 24,
+            "cells_total": 24,
+            "recovery": 1.0,
+            "table_pass": true
+          },
+          {
+            "page": 3,
+            "dims_ok": true,
+            "cells_found": 9,
+            "cells_total": 9,
+            "recovery": 1.0,
+            "table_pass": true
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 4749,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "tb-messreihe.pdf": {
+      "class": "table",
+      "baseline": {
+        "phrases": {
+          "found": 6,
+          "total": 7,
+          "recall": 0.8571
+        },
+        "recall_text_pages": 0.8571,
+        "detail": [
+          {
+            "text": "M-01 Durchfluss 0,418 m3/s 0,010 gültig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-02 Druck 2,34 bar 0,05 gültig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-03 Temperatur 17,9 °C 0,4 geprüft",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-04 Dichte 1,027 kg/l 0,002 geprüft",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "M-07 pH-Wert 7,32 - 0,05 abgelehnt",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 40,
+            "recovery": 0.0,
+            "table_pass": false
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 2.2783999999999764
+      },
+      "docling": {
+        "phrases": {
+          "found": 7,
+          "total": 7,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "M-01 Durchfluss 0,418 m3/s 0,010 gültig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-02 Druck 2,34 bar 0,05 gültig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-03 Temperatur 17,9 °C 0,4 geprüft",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-04 Dichte 1,027 kg/l 0,002 geprüft",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "M-07 pH-Wert 7,32 - 0,05 abgelehnt",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": true,
+            "cells_found": 40,
+            "cells_total": 40,
+            "recovery": 1.0,
+            "table_pass": true
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 4074,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "sn-versandliste.pdf": {
+      "class": "scan-ocr",
+      "baseline": {
+        "phrases": {
+          "found": 0,
+          "total": 11,
+          "recall": 0.0
+        },
+        "recall_text_pages": 0.0,
+        "detail": [
+          {
+            "text": "Versandliste KW 38",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel VL-2043",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel RM-1170",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel TB-3301",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel HD-0114",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Ladehof 2, Rampe 7",
+            "expected_page": 1,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Versandliste KW 38, Teil 2",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel GS-2201",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Artikel KL-0091",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Gefahrgutdeklaration",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Disposition Durchwahl",
+            "expected_page": 2,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          }
+        ],
+        "anchor_precision": 0.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": 0.0,
+        "wall_ms": 1.067700000000002
+      },
+      "docling": {
+        "phrases": {
+          "found": 11,
+          "total": 11,
+          "recall": 1.0
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "Versandliste KW 38",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel VL-2043",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel RM-1170",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel TB-3301",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel HD-0114",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Ladehof 2, Rampe 7",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Versandliste KW 38, Teil 2",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel GS-2201",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Artikel KL-0091",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Gefahrgutdeklaration",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Disposition Durchwahl",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [],
+        "char_similarity": null,
+        "ocr_recall": 1.0,
+        "wall_ms": 2266,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    },
+    "mx-projektbrief.pdf": {
+      "class": "mixed",
+      "baseline": {
+        "phrases": {
+          "found": 7,
+          "total": 12,
+          "recall": 0.5833
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "Verzug von zwei Wochen",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Endtermin bleibt bei November",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Budgetlage ist stabil",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Rohbau 612 598 14",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Technik 240 231 9",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Innenausbau 180 0 180",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Rücklage 60 0 60",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Kostenübersicht Q3",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Planung 42",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Bau 118",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Prüfung 17",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "alle Werte in Tsd. EUR",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 20,
+            "recovery": 0.0,
+            "table_pass": false
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 1.737099999999998
+      },
+      "docling": {
+        "phrases": {
+          "found": 9,
+          "total": 12,
+          "recall": 0.75
+        },
+        "recall_text_pages": 1.0,
+        "detail": [
+          {
+            "text": "Verzug von zwei Wochen",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Endtermin bleibt bei November",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Budgetlage ist stabil",
+            "expected_page": 1,
+            "found": true,
+            "anchor_page": 1,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Rohbau 612 598 14",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Technik 240 231 9",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Innenausbau 180 0 180",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Rücklage 60 0 60",
+            "expected_page": 2,
+            "found": true,
+            "anchor_page": 2,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Kostenübersicht Q3",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          },
+          {
+            "text": "Planung 42",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Bau 118",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "Prüfung 17",
+            "expected_page": 3,
+            "found": false,
+            "anchor_page": null,
+            "anchor_level": null,
+            "anchor_ok": false
+          },
+          {
+            "text": "alle Werte in Tsd. EUR",
+            "expected_page": 3,
+            "found": true,
+            "anchor_page": 3,
+            "anchor_level": "item",
+            "anchor_ok": true
+          }
+        ],
+        "anchor_precision": 1.0,
+        "order": null,
+        "tables": [
+          {
+            "page": 2,
+            "dims_ok": true,
+            "cells_found": 20,
+            "cells_total": 20,
+            "recovery": 1.0,
+            "table_pass": true
+          }
+        ],
+        "char_similarity": null,
+        "ocr_recall": null,
+        "wall_ms": 4036,
+        "invented": {
+          "invented": 0,
+          "prov_missing": 0
+        }
+      }
+    }
+  },
+  "class_summary": {
+    "single-column": {
+      "docs": 2,
+      "baseline_recall": 1.0,
+      "baseline_anchor_precision": 1.0,
+      "baseline_char_similarity": 0.9454,
+      "docling_recall": 1.0,
+      "docling_anchor_precision": 1.0,
+      "docling_char_similarity": 0.9869
+    },
+    "two-column": {
+      "docs": 2,
+      "baseline_recall": 1.0,
+      "baseline_anchor_precision": 1.0,
+      "baseline_order_pass": 0,
+      "docling_recall": 1.0,
+      "docling_anchor_precision": 1.0,
+      "docling_order_pass": 0
+    },
+    "table": {
+      "docs": 2,
+      "baseline_recall": 0.9285,
+      "baseline_anchor_precision": 1.0,
+      "baseline_table_pass": 0,
+      "baseline_table_dims_ok": 0,
+      "baseline_table_cells": [
+        0,
+        73
+      ],
+      "docling_recall": 1.0,
+      "docling_anchor_precision": 1.0,
+      "docling_table_pass": 3,
+      "docling_table_dims_ok": 3,
+      "docling_table_cells": [
+        73,
+        73
+      ]
+    },
+    "scan-ocr": {
+      "docs": 1,
+      "baseline_recall": 0.0,
+      "baseline_anchor_precision": 0.0,
+      "baseline_ocr": 0.0,
+      "docling_recall": 1.0,
+      "docling_anchor_precision": 1.0,
+      "docling_ocr": 1.0
+    },
+    "mixed": {
+      "docs": 1,
+      "baseline_recall": 0.5833,
+      "baseline_anchor_precision": 1.0,
+      "baseline_table_pass": 0,
+      "baseline_table_dims_ok": 0,
+      "baseline_table_cells": [
+        0,
+        20
+      ],
+      "docling_recall": 0.75,
+      "docling_anchor_precision": 1.0,
+      "docling_table_pass": 1,
+      "docling_table_dims_ok": 1,
+      "docling_table_cells": [
+        20,
+        20
+      ]
+    }
+  },
+  "gates": {
+    "C1_text_fidelity": {
+      "rule": "phrase recall >= 0.98 on every SC/MX text page AND no regression vs baseline > 1 pp",
+      "per_doc_recall_docling": {
+        "sc-hafen-logbuch.pdf": 1.0,
+        "sc-observatorium-notiz.pdf": 1.0,
+        "mx-projektbrief.pdf": 1.0
+      },
+      "per_doc_regression_vs_baseline": {
+        "sc-hafen-logbuch.pdf": 0.0,
+        "sc-observatorium-notiz.pdf": 0.0,
+        "mx-projektbrief.pdf": 0.0
+      },
+      "pass": true
+    },
+    "C2_reading_order": {
+      "rule": "all left sentinels before all right sentinels, both TC docs (docling)",
+      "per_doc": {
+        "tc-wochenbericht.pdf": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tc-marktanalyse.pdf": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        }
+      },
+      "baseline_reference": {
+        "tc-wochenbericht.pdf": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        },
+        "tc-marktanalyse.pdf": {
+          "missing_tokens": [],
+          "pass": false,
+          "left_before_right_pairs": 2,
+          "pairs": 12
+        }
+      },
+      "pass": false
+    },
+    "C3_tables": {
+      "rule": "both TB fixtures: grid dims exact AND cell recovery >= 0.90 (docling)",
+      "per_doc": {
+        "tb-lieferschwelle.pdf": [
+          {
+            "page": 2,
+            "dims_ok": true,
+            "cells_found": 24,
+            "cells_total": 24,
+            "recovery": 1.0,
+            "table_pass": true
+          },
+          {
+            "page": 3,
+            "dims_ok": true,
+            "cells_found": 9,
+            "cells_total": 9,
+            "recovery": 1.0,
+            "table_pass": true
+          }
+        ],
+        "tb-messreihe.pdf": [
+          {
+            "page": 2,
+            "dims_ok": true,
+            "cells_found": 40,
+            "cells_total": 40,
+            "recovery": 1.0,
+            "table_pass": true
+          }
+        ]
+      },
+      "baseline_reference": {
+        "tb-lieferschwelle.pdf": [
+          {
+            "page": 2,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 24,
+            "recovery": 0.0,
+            "table_pass": false
+          },
+          {
+            "page": 3,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 9,
+            "recovery": 0.0,
+            "table_pass": false
+          }
+        ],
+        "tb-messreihe.pdf": [
+          {
+            "page": 2,
+            "dims_ok": false,
+            "cells_found": 0,
+            "cells_total": 40,
+            "recovery": 0.0,
+            "table_pass": false
+          }
+        ]
+      },
+      "pass": true
+    },
+    "C4_ocr": {
+      "rule": "phrase recall >= 0.90 on scan fixture (docling OCR)",
+      "recall": 1.0,
+      "baseline_reference": 0.0,
+      "pass": true
+    },
+    "C5_anchors": {
+      "rule": "matched quote->page precision 100%, invented regions = 0 (docling)",
+      "anchor_precision": {
+        "sc-hafen-logbuch.pdf": 1.0,
+        "sc-observatorium-notiz.pdf": 1.0,
+        "tc-wochenbericht.pdf": 1.0,
+        "tc-marktanalyse.pdf": 1.0,
+        "tb-lieferschwelle.pdf": 1.0,
+        "tb-messreihe.pdf": 1.0,
+        "sn-versandliste.pdf": 1.0,
+        "mx-projektbrief.pdf": 1.0
+      },
+      "invented_regions": 0,
+      "prov_missing": 0,
+      "baseline_page_precision": {
+        "sc-hafen-logbuch.pdf": 1.0,
+        "sc-observatorium-notiz.pdf": 1.0,
+        "tc-wochenbericht.pdf": 1.0,
+        "tc-marktanalyse.pdf": 1.0,
+        "tb-lieferschwelle.pdf": 1.0,
+        "tb-messreihe.pdf": 1.0,
+        "sn-versandliste.pdf": 0.0,
+        "mx-projektbrief.pdf": 1.0
+      },
+      "pass": true
+    },
+    "C6_time": {
+      "rule": "median wall <= 60 s/doc (docling, run2 steady state)",
+      "median_s": 3.15,
+      "per_doc_s": {
+        "sc-hafen-logbuch.pdf": 5.99,
+        "sc-observatorium-notiz.pdf": 1.62,
+        "tc-wochenbericht.pdf": 1.63,
+        "tc-marktanalyse.pdf": 1.65,
+        "tb-lieferschwelle.pdf": 4.75,
+        "tb-messreihe.pdf": 4.07,
+        "sn-versandliste.pdf": 2.27,
+        "mx-projektbrief.pdf": 4.04
+      },
+      "pass": true
+    },
+    "C7_ram": {
+      "rule": "peak working set <= 8 GB",
+      "peak_mb": 1770.8,
+      "pass": true
+    },
+    "C8_managed_runtime": {
+      "rule": "venv + weights <= 2 GB, OCR backend pip-only, cold start <= 120 s, warm <= 10 s/doc",
+      "venv_mb": 1406.6,
+      "weights_mb": 729.8,
+      "weights_breakdown_mb": {
+        "docling-project--docling-layout-heron": 163.8,
+        "docling-project--docling-layout-heron-onnx": 163.3,
+        "docling-project--docling-models": 341.6,
+        "RapidOcr": 61.0
+      },
+      "venv_top_packages_mb": {
+        "torch": 501.6,
+        "cv2": 112.4,
+        "scipy": 109.2,
+        "transformers": 98.5,
+        "sympy": 65.8,
+        "pandas": 60.0,
+        "onnxruntime": 43.8,
+        "docling_parse": 35.8
+      },
+      "docling_wheel_download_mb": 0.005,
+      "notes": "venv = installed footprint of the pinned stack on Windows/Python 3.12 (torch 2.14.0+cpu included); weights = what this pipeline config downloads/uses (layout heron onnx+torch variants, tableformer set, RapidOCR PP-OCRv6). Packaging could drop the unused torch variant of the layout model.",
+      "cold_start_s_run2": 5.99,
+      "first_run_incl_download_s_run1": 6.03,
+      "warm_median_s": 2.27,
+      "ocr_backend": "RapidOcrOptions",
+      "ocr_backend_external_binary": false,
+      "pass": false
+    }
+  },
+  "decision": {
+    "outcome": "DEFER",
+    "driving_criterion": "hard gate(s) failed: ['C8_managed_runtime']",
+    "gate_values": {
+      "C1_text_fidelity": true,
+      "C2_reading_order": false,
+      "C3_tables": true,
+      "C4_ocr": true,
+      "C5_anchors": true,
+      "C6_time": true,
+      "C7_ram": true,
+      "C8_managed_runtime": false
+    }
+  }
+}
