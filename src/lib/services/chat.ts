@@ -4,6 +4,11 @@
  * hybrid when an active embedding profile AND an embedder are available;
  * otherwise textual, with an honest vectorStatus. Citations only reference
  * evidence that was actually in the model's context (evidence service).
+ *
+ * Provenance (priority-1 fix): citations are stamped with the source version
+ * retrieval actually read (sourceVersionId) at RETRIEVAL time, so a claim
+ * saved later from an old message anchors to the bytes the answer was really
+ * built from - never to whatever happens to be latest at save time.
  */
 import type { LocalDb } from "@/db/local";
 import { createMessage } from "./messages";
@@ -33,6 +38,10 @@ export interface ChatCitation {
   chunkIndex: number;
   text: string;
   fileName: string;
+  /** Provenance (priority-1 fix): the source_versions row retrieval actually
+   * read, stamped at retrieval time so a re-import during generation can
+   * never re-point the persisted citation. */
+  sourceVersionId?: string;
   startSec?: number;
   endSec?: number | null;
 }
@@ -91,6 +100,18 @@ export async function sendChatMessage(
     return { response, citations: [], mode: retrieval.mode, vectorStatus: retrieval.vectorStatus };
   }
 
+  // Provenance (priority-1 fix): the version id each hit source was in at
+  // RETRIEVAL time. Citations are stamped with THIS id - a re-import that
+  // lands while generation is still running can never re-point the persisted
+  // citation away from the bytes the answer was actually built from.
+  const retrievalVersions = new Map<string, string>();
+  for (const hit of retrieval.hits) {
+    if (!retrievalVersions.has(hit.sourceId)) {
+      const version = getLatestVersion(db, hit.sourceId);
+      if (version) retrievalVersions.set(hit.sourceId, version.id);
+    }
+  }
+
   // strategy 5A: media transcript segments give cited chunks a real time
   // range (chunkIndex == segment index by construction); sources without a
   // media sidecar contribute no range - none is invented.
@@ -125,14 +146,21 @@ export async function sendChatMessage(
   ).text;
   const { response, citations } = resolveEvidenceReferences(completion, evidence);
 
+  // stamp the retrieval-time version onto every built citation (provenance)
+  const stampedCitations = citations.map((citation) => {
+    const versionId = retrievalVersions.get(citation.sourceId);
+    return versionId ? { ...citation, sourceVersionId: versionId } : citation;
+  });
+
   if (!opts.skipUserMessage) {
     await createMessage(db, {
       ownerId: opts.ownerId, notebookId: opts.notebookId, role: "user", content: opts.message,
     });
   }
   await createMessage(db, {
-    ownerId: opts.ownerId, notebookId: opts.notebookId, role: "assistant", content: response, citations,
+    ownerId: opts.ownerId, notebookId: opts.notebookId, role: "assistant", content: response,
+    citations: stampedCitations,
   });
 
-  return { response, citations, mode: retrieval.mode, vectorStatus: retrieval.vectorStatus };
+  return { response, citations: stampedCitations, mode: retrieval.mode, vectorStatus: retrieval.vectorStatus };
 }

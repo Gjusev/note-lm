@@ -154,7 +154,7 @@ describe("media time-range evidence (open-source-innovation-strategy 5A)", () =>
   it("saveClaimFromMessage creates a time_range anchor with locator and page null", async () => {
     const { db, store } = getLocalContext();
     const sourceId = await makeAudioSource("zeugenaussage.mp3");
-    await recordVersion(db, store, {
+    const version = await recordVersion(db, store, {
       sourceId,
       mediaSegments: [
         { startSec: 192, endSec: 225, text: "Der Zeuge beschreibt den Ablauf." },
@@ -165,7 +165,8 @@ describe("media time-range evidence (open-source-innovation-strategy 5A)", () =>
       notebookId,
       role: "assistant",
       content: "Der Zeuge beschreibt den Ablauf [1].",
-      citations: [{ sourceId, chunkIndex: 0, text: "Der Zeuge beschreibt den Ablauf.", startSec: 192, endSec: 225 }],
+      // the citation is stamped with the retrieval-time version (provenance fix)
+      citations: [{ sourceId, chunkIndex: 0, text: "Der Zeuge beschreibt den Ablauf.", sourceVersionId: version.id, startSec: 192, endSec: 225 }],
     });
 
     const saved = await saveClaimFromMessage(db, { notebookId, messageId, text: "Der Zeuge beschreibt den Ablauf." });

@@ -15,6 +15,10 @@ afterEach(async () => {
   const { closeLocalDb } = await import("@/db/local");
   closeLocalDb(getLocalContext().db); // releases WAL locks on Windows
   fs.rmSync(dir, { recursive: true, force: true });
+  // the capabilities test seam is global module state: reset it so a failing
+  // test never leaks a fake provider into the next test
+  const { setCapabilitiesForTests } = await import("@/engine/capabilities");
+  setCapabilitiesForTests(null);
 });
 
 describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
@@ -270,11 +274,11 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     const sourceId = await createSource(db, {
       ownerId: "local", notebookId, fileName: "fundstelle.txt", fileType: "text/plain", fileSize: 50,
     });
-    await recordVersion(db, store, { sourceId, pageTexts: ["Fundstelle auf der ersten Seite."] });
+    const v1 = await recordVersion(db, store, { sourceId, pageTexts: ["Fundstelle auf der ersten Seite."] });
 
     const messageId = await createMessage(db, {
       ownerId: "local", notebookId, role: "assistant", content: "Antwort [1]",
-      citations: [{ sourceId, chunkIndex: 0, text: "Fundstelle auf der ersten Seite." }],
+      citations: [{ sourceId, chunkIndex: 0, text: "Fundstelle auf der ersten Seite.", sourceVersionId: v1.id }],
     });
     const created = await handleEngineRequest("claims.createFromMessage", {
       notebookId, messageId, text: "Die Fundstelle steht auf Seite eins.",
@@ -282,7 +286,7 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect(created.ok).toBe(true);
 
     // changing the source fires the deterministic staleness scan
-    await recordVersion(db, store, {
+    const v2 = await recordVersion(db, store, {
       sourceId, pageTexts: ["Neue erste Seite.", "Fundstelle auf der ersten Seite."],
     });
 
@@ -303,6 +307,13 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
 
     const opened = await handleEngineRequest("evidence.open", { anchorId: claim.anchors[0].id });
     expect((opened as { result: { page: number | null } }).result.page).toBe(2);
+
+    const versions = await handleEngineRequest("sources.listVersions", { sourceId });
+    expect((versions as { result: Array<{ id: string; version: number; pageCount: number | null; createdAt: number }> }).result)
+      .toEqual([
+        { id: v1.id, version: 1, pageCount: 1, createdAt: expect.any(Number) },
+        { id: v2.id, version: 2, pageCount: 2, createdAt: expect.any(Number) },
+      ]);
 
     const after = await handleEngineRequest("review.list", { notebookId });
     expect((after as { result: unknown[] }).result).toHaveLength(0);
@@ -334,5 +345,86 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     const split = entries.find((e) => e.id === "qwen2.5-7b-instruct-q4-k-m");
     expect(split).toBeDefined();
     expect(split!.url).toBeNull();
+  });
+
+  it("materials.request enqueues generation exactly once and the engine loop processes it", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { setCapabilitiesForTests } = await import("@/engine/capabilities");
+    const { startProcessingLoop } = await import("@/engine/jobs");
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "Material Loop" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const { db } = getLocalContext();
+    const { createSource, replaceChunks } = await import("@/lib/services/sources");
+    const { rawClient } = await import("@/db/local");
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "stoff.txt", fileType: "text/plain", fileSize: 40,
+    });
+    // generateMaterial needs at least one chunk in the notebook
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId }, ["Lernstoff für die Zusammenfassung."]);
+
+    let chatCalls = 0;
+    let release: (() => void) | null = null;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
+    setCapabilitiesForTests({
+      chat: async () => {
+        chatCalls += 1;
+        await gate; // generation held mid-flight so the busy guard is observable
+        return { text: "# Zusammenfassung", provider: "test", model: "test" };
+      },
+      chatProvider: { kind: "remote", label: "Test" },
+      chatProviderKind: "remote",
+    });
+
+    const first = await handleEngineRequest("materials.request", { notebookId, type: "summary" });
+    expect(first.ok).toBe(true);
+    const materialId = (first as { result: { id: string } }).result.id;
+
+    // a SECOND identical request while the first is queued: typed busy, no
+    // second row, no second queue entry
+    const second = await handleEngineRequest("materials.request", { notebookId, type: "summary" });
+    expect(second).toEqual({
+      ok: false,
+      error: { code: "busy", message: expect.stringContaining("bereits") },
+    });
+    const materialRow = () =>
+      (rawClient(db).prepare(
+        `SELECT status FROM learning_materials WHERE id = ?`
+      ).get(materialId) as { status: string });
+    expect(materialRow().status).toBe("pending");
+    expect(
+      (rawClient(db).prepare(
+        `SELECT COUNT(*) AS n FROM learning_materials WHERE notebook_id = ? AND type = 'summary'`
+      ).get(notebookId) as { n: number }).n
+    ).toBe(1);
+
+    // the engine loop drains the in-memory FIFO: pending -> generating -> completed
+    const stop = startProcessingLoop(getLocalContext(), 40);
+    const waitUntil = async (cond: () => boolean, what: string) => {
+      const t0 = Date.now();
+      while (!cond()) {
+        if (Date.now() - t0 > 4000) throw new Error(`Zeitueberschreitung beim Warten auf: ${what}`);
+        await new Promise((r) => setTimeout(r, 10));
+      }
+    };
+    await waitUntil(() => materialRow().status === "generating", "Generierung übernommen");
+
+    // busy also while the generation is mid-flight
+    const third = await handleEngineRequest("materials.request", { notebookId, type: "summary" });
+    expect(third.ok).toBe(false);
+
+    release!();
+    await waitUntil(() => materialRow().status === "completed", "Generierung abgeschlossen");
+    stop();
+    expect(chatCalls).toBe(1); // enqueued exactly once, one model call
+
+    const materials = await handleEngineRequest("materials.list", { notebookId });
+    const [row] = (materials as { result: Array<{ _id: string; status: string; content: string | null }> }).result;
+    expect(row._id).toBe(materialId);
+    expect(row.status).toBe("completed");
+    expect(row.content).toBe("# Zusammenfassung");
   });
 });

@@ -9,10 +9,11 @@ import { closeLocalDb } from "@/db/local";
 import { getLocalContext } from "@/lib/storage/local";
 import { createNotebook } from "@/lib/services/notebooks";
 import { createSource } from "@/lib/services/sources";
-import { recordVersion } from "@/lib/services/source-versions";
+import { recordVersion, listVersions, readVersionPages } from "@/lib/services/source-versions";
 import { createClaim, listClaims, resolveReview } from "@/lib/services/claims";
 import { listPendingReviews, scanForStaleness } from "@/lib/services/change-review";
-import { claims as claimsTable, reviewProposals as proposalsTable, learningMaterials } from "@/db/local/schema";
+import { claims as claimsTable, reviewProposals as proposalsTable, learningMaterials, reviewScans as reviewScansTable } from "@/db/local/schema";
+import { eq } from "drizzle-orm";
 
 let dir: string;
 let notebookId: string;
@@ -505,3 +506,192 @@ describe("E2 accept/reject roundtrip (fixture corpus version-pairs-v1)", () => {
     expect(acceptedProposal.resolvedAt).not.toBeNull();
   });
 });
+
+/* ------------------------------------------------------------------------- */
+/* Persistent idempotent review (priority-1 fix WPB): a durable review_scans */
+/* ledger plus terminal decisions - a rescan never resurrects or duplicates  */
+/* a decided proposal, and reconcile fills in what a crash left missing.     */
+/* ------------------------------------------------------------------------- */
+
+describe("persistent idempotent review (priority-1 fix WPB)", () => {
+  it("rescanning after accept does not recreate a proposal", async () => {
+    const ctx = getLocalContext();
+    const { sourceId, v1, claimId } = await seedStaleClaim("Der Kernsatz steht auf dieser Seite.");
+    const v2 = await recordVersion(ctx.db, ctx.store, {
+      sourceId,
+      pageTexts: ["Zweite Seite mit Fülltext", "Der Kernsatz steht auf dieser Seite."],
+    });
+    const [proposal] = listPendingReviews(ctx.db, notebookId);
+    await resolveReview(ctx.db, ctx.store, { proposalId: proposal.id, decision: "accepted" });
+
+    // the anchor's CURRENT version (v2) is considered, not its history
+    await scanForStaleness(ctx.db, ctx.store, { sourceId, fromVersion: v1.version, toVersionId: v2.id });
+    expect(listPendingReviews(ctx.db, notebookId)).toHaveLength(0);
+    expect(listClaims(ctx.db, notebookId).find((c) => c._id === claimId)!.anchors[0]).toMatchObject({
+      sourceVersionId: v2.id,
+      page: 2,
+    });
+  });
+
+  it("rejecting then rescanning does not resurrect the anchor or the proposal", async () => {
+    const ctx = getLocalContext();
+    const { sourceId, v1, claimId } = await seedStaleClaim("Der Kernsatz steht auf der ersten Seite.");
+    const v2 = await recordVersion(ctx.db, ctx.store, {
+      sourceId,
+      pageTexts: ["Andere erste Seite ohne den Kernsatz.", "Der Kernsatz steht auf der ersten Seite."],
+    });
+    const [proposal] = listPendingReviews(ctx.db, notebookId);
+    await resolveReview(ctx.db, ctx.store, { proposalId: proposal.id, decision: "rejected", note: "So gewollt." });
+
+    // the rescan is terminal: the rejected proposal is never recreated
+    await scanForStaleness(ctx.db, ctx.store, { sourceId, fromVersion: v1.version, toVersionId: v2.id });
+    expect(listPendingReviews(ctx.db, notebookId)).toHaveLength(0);
+    const all = ctx.db.select().from(proposalsTable).all();
+    expect(all).toHaveLength(1); // no duplicate, the decision stands
+    expect(all[0]).toMatchObject({ status: "rejected" });
+    // and the anchor is untouched: it still resolves the v1 bytes
+    expect(listClaims(ctx.db, notebookId).find((c) => c._id === claimId)!.anchors[0]).toMatchObject({
+      sourceVersionId: v1.id,
+      version: 1,
+    });
+  });
+
+  it("multiple anchors across multiple versions keep their provenance", async () => {
+    const ctx = getLocalContext();
+    const a = await seedStaleClaim("Satz der Quelle A.");
+    const b = await seedStaleClaim("Satz der Quelle B.");
+
+    // only source A is re-imported with changed content
+    const a2 = await recordVersion(ctx.db, ctx.store, {
+      sourceId: a.sourceId,
+      pageTexts: ["Neuer Inhalt.", "Satz der Quelle A."],
+    });
+
+    // only source A's dependents get proposals; source B's anchor is untouched
+    const pending = listPendingReviews(ctx.db, notebookId);
+    expect(pending).toHaveLength(1);
+    expect(pending[0]).toMatchObject({ claimId: a.claimId, sourceId: a.sourceId, fromVersion: 1, toVersion: 2 });
+
+    await scanForStaleness(ctx.db, ctx.store, { sourceId: a.sourceId, fromVersion: 1, toVersionId: a2.id });
+    expect(listPendingReviews(ctx.db, notebookId)).toHaveLength(1); // still exactly one
+    const bClaim = listClaims(ctx.db, notebookId).find((c) => c._id === b.claimId)!;
+    expect(bClaim.anchors).toHaveLength(1);
+    expect(bClaim.anchors[0]).toMatchObject({ sourceVersionId: b.v1.id, version: 1 });
+  });
+
+  it("resolveReview of an old proposal never rewinds an anchor to an older version", async () => {
+    const ctx = getLocalContext();
+    const { sourceId, claimId } = await seedStaleClaim("Der Kernsatz steht auf dieser Seite.");
+    const v2 = await recordVersion(ctx.db, ctx.store, {
+      sourceId,
+      pageTexts: ["Zweite Seite mit Fülltext", "Der Kernsatz steht auf dieser Seite."],
+    });
+    const [proposal] = listPendingReviews(ctx.db, notebookId);
+    await resolveReview(ctx.db, ctx.store, { proposalId: proposal.id, decision: "accepted", note: "geprüft" });
+
+    // anchor now sits on v2 page 2
+    const anchorAfterAccept = listClaims(ctx.db, notebookId).find((c) => c._id === claimId)!.anchors[0];
+    expect(anchorAfterAccept).toMatchObject({ sourceVersionId: v2.id, page: 2 });
+    const anchorId = anchorAfterAccept.id;
+
+    // craft a v0->v1 era proposal for the SAME anchor: resolving it must not rewind
+    const now = Date.now();
+    ctx.db.insert(proposalsTable).values({
+      id: "stale-v01", claimId, sourceId, fromVersion: 0, toVersion: 1,
+      reason: "quote_moved", detail: "veraltet", anchorId, status: "pending", createdAt: now,
+    }).run();
+
+    const staleOutcome = await resolveReview(ctx.db, ctx.store, { proposalId: "stale-v01", decision: "accepted" });
+    expect(staleOutcome).toEqual({ status: "conflict", anchorVersion: 2 });
+    // anchor NOT rewound, stale proposal stays pending for an honest manual reject
+    expect(listClaims(ctx.db, notebookId).find((c) => c._id === claimId)!.anchors[0]).toMatchObject({
+      sourceVersionId: v2.id,
+      page: 2,
+    });
+
+    // a proposal whose target IS the current version is already resolved
+    ctx.db.insert(proposalsTable).values({
+      id: "already-v2", claimId, sourceId, fromVersion: 1, toVersion: 2,
+      reason: "quote_moved", detail: "doppelt", anchorId, status: "pending", createdAt: now,
+    }).run();
+    const alreadyOutcome = await resolveReview(ctx.db, ctx.store, { proposalId: "already-v2", decision: "accepted" });
+    expect(alreadyOutcome).toEqual({ status: "already_resolved" });
+    expect(listClaims(ctx.db, notebookId).find((c) => c._id === claimId)!.anchors[0]).toMatchObject({ sourceVersionId: v2.id });
+  });
+
+  it("a partially failed scan leaves no half-applied decision", async () => {
+    const ctx = getLocalContext();
+    const sourceId = await createSource(ctx.db, {
+      ownerId: "local", notebookId, fileName: "zwei-quellen.txt", fileType: "text/plain", fileSize: 10,
+    });
+    await recordVersion(ctx.db, ctx.store, { sourceId, pageTexts: ["Erster Satz.", "Zweiter Satz."] });
+    for (const quote of ["Erster Satz.", "Zweiter Satz."]) {
+      await createClaim(ctx.db, {
+        notebookId, ownerId: "local", text: `Behauptung: ${quote}`, origin: "user",
+        anchors: [{ sourceId, quote }],
+      });
+    }
+    // a healthy scan lands both proposals + one ledger row
+    const v2 = await recordVersion(ctx.db, ctx.store, {
+      sourceId,
+      pageTexts: ["Zweite Seite mit Fülltext", "Erster Satz.", "Zweiter Satz."],
+    });
+
+    // simulate a crash AFTER one proposal: delete the second one and rewind
+    // the ledger row into the stuck 'pending' state the crash would leave
+    const after = ctx.db.select().from(proposalsTable).all();
+    expect(after).toHaveLength(2);
+    ctx.db.delete(proposalsTable).where(eq(proposalsTable.id, after[1].id)).run();
+    // one ledger row per appended version (v1 scan + v2 scan); rewind the v2
+    // row into the stuck 'pending' state a mid-scan crash leaves behind
+    const ledger = ctx.db.select().from(reviewScansTable).all();
+    expect(ledger).toHaveLength(2);
+    const v2Row = ledger.find((row) => row.toVersionId === v2.id)!;
+    ctx.db.update(reviewScansTable)
+      .set({ status: "pending", createdAt: Date.now() - 61_000 })
+      .where(eq(reviewScansTable.id, v2Row.id))
+      .run();
+
+    // reconcile re-runs the scan: missing proposal filled in, existing one NOT duplicated
+    const { reconcileReviewScans } = await import("@/lib/services/change-review");
+    const { rescanned } = await reconcileReviewScans(ctx.db, ctx.store);
+    expect(rescanned).toBe(1);
+    expect(ctx.db.select().from(proposalsTable).all()).toHaveLength(2);
+
+    // second reconcile: the ledger row is 'ok' now, nothing left to do
+    expect((await reconcileReviewScans(ctx.db, ctx.store)).rescanned).toBe(0);
+    expect(ctx.db.select().from(proposalsTable).all()).toHaveLength(2);
+  });
+
+  it("concurrent reimports do not mix files/chunks/versions", async () => {
+    const ctx = getLocalContext();
+    const sourceId = await createSource(ctx.db, {
+      ownerId: "local", notebookId, fileName: "paralelo.txt", fileType: "text/plain", fileSize: 20,
+    });
+
+    // two racing recordVersion calls with DIFFERENT buffers: the max(version)
+    // query and the insert are adjacent (no await between), so the sync
+    // driver serializes them and the UNIQUE(source_id, version) holds
+    const [a, b] = await Promise.all([
+      recordVersion(ctx.db, ctx.store, { sourceId, pageTexts: ["Fassung Alpha."] }),
+      recordVersion(ctx.db, ctx.store, { sourceId, pageTexts: ["Fassung Beta."] }),
+    ]);
+
+    const all = listVersions(ctx.db, sourceId);
+    expect(all.map((v) => v.version)).toEqual([1, 2]);
+    expect(all.map((v) => v.id).sort()).toEqual([a.id, b.id].sort());
+
+    // no file mixing: each version's sidecar carries exactly its own content
+    const pa = await readVersionPages(ctx.store, a.id);
+    const pb = await readVersionPages(ctx.store, b.id);
+    const texts = [pa![0].text, pb![0].text].sort();
+    expect(texts).toEqual(["Fassung Alpha.", "Fassung Beta."]);
+
+    // exactly one scan-ledger row per appended version, both finished ok
+    const scans = ctx.db.select().from(reviewScansTable).all();
+    expect(scans).toHaveLength(2);
+    expect(new Set(scans.map((s) => s.toVersionId))).toEqual(new Set([a.id, b.id]));
+    expect(scans.every((s) => s.status === "ok")).toBe(true);
+  });
+});
+

@@ -11,6 +11,7 @@ import { stopLlamaHelpers } from "./capabilities";
 import { setSecretRequester } from "@/lib/ai/providers";
 import { getLocalContext } from "@/lib/storage/local";
 import { reconcileStartupArtifacts } from "@/lib/services/job-control";
+import { reconcileReviewScans } from "@/lib/services/change-review";
 import { pruneProviderRuns } from "@/lib/services/provider-runs";
 
 // stdout is the protocol channel - ALL other output (job logs, warnings)
@@ -78,6 +79,12 @@ const bootCtx = getLocalContext();
 // slice 3b: one reconcile pass at startup - orphan partial dirs and terminal
 // checkpoints are dropped, live jobs' partials survive for their next attempt
 reconcileStartupArtifacts(bootCtx.db, bootCtx.dataDir);
+// priority-1 fix: re-run change-review scans a crash left pending/failed in
+// the review_scans ledger - decided proposals are never resurrected, missing
+// ones are filled in (idempotent per anchor + target version)
+void reconcileReviewScans(bootCtx.db, bootCtx.store).catch((err) =>
+  console.error("[REVIEW] ledger reconcile failed:", err instanceof Error ? err.message : err)
+);
 // provider telemetry (S3): opportunistic retention pruning on engine start
 pruneProviderRuns(bootCtx.db);
 startProcessingLoop(bootCtx);

@@ -411,6 +411,26 @@ CREATE INDEX calculations_by_notebook ON calculations (notebook_id);
   `
 ALTER TABLE evidence_anchors ADD COLUMN locator TEXT;
 `,
+  // 0012 — durable review-scan ledger (priority-1 fix): every appended
+  // version writes one review_scans row BEFORE scanning, so a crashed or
+  // failed scan survives the process and is re-run at engine startup
+  // (reconcileReviewScans). The partial unique index makes a pending proposal
+  // per (anchor, target version) a DB-level invariant, not just an app check.
+  `
+CREATE TABLE review_scans (
+  id TEXT PRIMARY KEY,
+  source_id TEXT NOT NULL,
+  from_version INTEGER NOT NULL,
+  to_version_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending',
+  error TEXT,
+  created_at INTEGER NOT NULL,
+  completed_at INTEGER
+);
+CREATE INDEX review_scans_by_source ON review_scans (source_id);
+CREATE UNIQUE INDEX proposals_unique_pending
+  ON review_proposals (anchor_id, to_version) WHERE status = 'pending';
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

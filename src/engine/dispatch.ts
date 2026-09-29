@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { getLocalContext } from "@/lib/storage/local";
 import { getOrCreateProfile } from "@/lib/services/profile";
 import { createNotebook, listNotebooks } from "@/lib/services/notebooks";
@@ -19,7 +19,7 @@ import {
   removeSource,
   updateSourceStorage,
 } from "@/lib/services/sources";
-import { getLatestVersion } from "@/lib/services/source-versions";
+import { getLatestVersion, listVersions } from "@/lib/services/source-versions";
 import { clearMessagesByNotebook, createMessage, listMessagesByNotebook } from "@/lib/services/messages";
 import { removeMaterial } from "@/lib/services/learning-materials";
 import {
@@ -52,6 +52,7 @@ import {
   type CalcOp,
 } from "@/lib/services/calculations";
 import { evidenceAnchors, parseTimeLocator, sourceVersions, sources as sourcesTable } from "@/db/local/schema";
+import { learningMaterials } from "@/db/local/schema";
 import {
   generateMaterial,
   listMaterialsByNotebook,
@@ -194,6 +195,26 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         return { ok: true, result: getChunksBySource(db, sourceId) };
       }
 
+      case "sources.listVersions": {
+        // immutable version history for the versions UI: id + number + page
+        // count + createdAt (the request-time "unchanged" flag is not stored,
+        // so it is not reported)
+        const { sourceId } = args as { sourceId?: string };
+        if (!sourceId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId is required" } };
+        }
+        const { db } = getLocalContext();
+        return {
+          ok: true,
+          result: listVersions(db, sourceId).map(({ id, version, pageCount, createdAt }) => ({
+            id,
+            version,
+            pageCount,
+            createdAt,
+          })),
+        };
+      }
+
       case "sources.delete": {
         const { sourceId } = args as { sourceId?: string };
         if (!sourceId) {
@@ -322,6 +343,10 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
       }
 
       case "materials.request": {
+        // queue generation; the engine job loop executes it with the
+        // configured provider (local llama or remote). One generation per
+        // notebook+type: a second request while one is pending/generating is
+        // a typed busy error, never a duplicate row/queue entry.
         const { notebookId, type } = args as { notebookId?: string; type?: string };
         const VALID_TYPES: MaterialType[] = [
           "summary", "flashcards", "quiz", "studyGuide", "keyInsights", "podcastSummary", "slides",
@@ -330,11 +355,39 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           return { ok: false, error: { code: "bad_args", message: "notebookId and a valid type are required" } };
         }
         const { db } = getLocalContext();
+        const running = db
+          .select({ id: learningMaterials.id })
+          .from(learningMaterials)
+          .where(
+            and(
+              eq(learningMaterials.notebookId, notebookId),
+              eq(learningMaterials.type, type as MaterialType),
+              inArray(learningMaterials.status, ["pending", "generating"])
+            )
+          )
+          .get();
+        if (running) {
+          return {
+            ok: false,
+            error: { code: "busy", message: "Für diesen Materialtyp läuft bereits eine Erstellung." },
+          };
+        }
         const profile = await getOrCreateProfile(db);
-        const id = await requestGeneration(db, {
-          ownerId: profile.id, notebookId, type: type as MaterialType,
-        });
-        return { ok: true, result: { id } };
+        try {
+          const materialId = await requestGeneration(db, {
+            ownerId: profile.id,
+            notebookId,
+            type: type as MaterialType,
+          });
+          const { enqueueMaterialGeneration } = await import("./jobs");
+          enqueueMaterialGeneration(materialId, notebookId, type as MaterialType);
+          return { ok: true, result: { id: materialId } };
+        } catch (err) {
+          return {
+            ok: false,
+            error: { code: "bad_args", message: err instanceof Error ? err.message : String(err) },
+          };
+        }
       }
 
       case "materials.list": {
@@ -538,41 +591,6 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           return {
             ok: false,
             error: { code: "download_failed", message: err instanceof Error ? err.message : String(err) },
-          };
-        }
-      }
-
-      case "materials.list": {
-        const { notebookId } = args as { notebookId?: string };
-        if (!notebookId) {
-          return { ok: false, error: { code: "bad_args", message: "notebookId is required" } };
-        }
-        const { db } = getLocalContext();
-        return { ok: true, result: await listMaterialsByNotebook(db, notebookId) };
-      }
-
-      case "materials.request": {
-        // queue generation; the engine job loop executes it with the
-        // configured provider (local llama or remote)
-        const { notebookId, type } = args as { notebookId?: string; type?: string };
-        if (!notebookId || !type) {
-          return { ok: false, error: { code: "bad_args", message: "notebookId and type are required" } };
-        }
-        const { db } = getLocalContext();
-        const profile = await getOrCreateProfile(db);
-        try {
-          const materialId = await requestGeneration(db, {
-            ownerId: profile.id,
-            notebookId,
-            type: type as "summary",
-          });
-          const { enqueueMaterialGeneration } = await import("./jobs");
-          enqueueMaterialGeneration(materialId, notebookId, type as "summary");
-          return { ok: true, result: { id: materialId } };
-        } catch (err) {
-          return {
-            ok: false,
-            error: { code: "bad_args", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }
@@ -795,18 +813,18 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         }
         const { db, store } = getLocalContext();
         try {
-          await resolveReview(db, store, {
+          const outcome = await resolveReview(db, store, {
             proposalId,
             decision,
             ...(note !== undefined && { note }),
           });
+          return { ok: true, result: outcome };
         } catch (err) {
           return {
             ok: false,
             error: { code: "not_found", message: err instanceof Error ? err.message : String(err) },
           };
         }
-        return { ok: true, result: {} };
       }
 
       case "evidence.open": {

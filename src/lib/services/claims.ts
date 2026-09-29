@@ -30,6 +30,9 @@ import type { LocalStore } from "@/lib/storage/local";
 
 export interface ClaimAnchorInput {
   sourceId: string;
+  /** Pin the anchor to THIS immutable version (chat citations stamp the
+   * retrieval-time version). Absent -> the source's latest version. */
+  versionId?: string;
   page?: number | null;
   /** Time-range locator (strategy 5A) for media evidence: only stored when
    * truly provided - page and locator are never both required. */
@@ -49,18 +52,35 @@ export interface ClaimDoc {
   unresolved: UnresolvedAnchor[];
 }
 
-/** Persist one anchor bound to the source's LATEST version. A citation page
- * is kept only when the saver/citation truly carries one - never invented.
- * A source without any recorded version produces an honest "unresolved"
- * entry instead of a fabricated anchor. */
-async function insertAnchoredToLatest(
+/** Persist one anchor. A citation page/locator is kept only when the
+ * saver/citation truly carries one - never invented. Resolution order: an
+ * explicitly pinned version id (chat citations stamp the retrieval-time
+ * version) if that row still exists, else the source's LATEST version; a
+ * source without any recorded version produces an honest "unresolved" entry
+ * instead of a fabricated anchor. */
+async function insertAnchor(
   db: LocalDb,
   ownerId: string,
   anchor: ClaimAnchorInput
 ): Promise<{ id: string } | { unresolved: UnresolvedAnchor }> {
-  const latest = getLatestVersion(db, anchor.sourceId);
-  if (!latest) {
-    return { unresolved: { sourceId: anchor.sourceId, reason: "no version recorded" } };
+  let version: { id: string; sourceId: string } | null;
+  if (anchor.versionId) {
+    const row = db
+      .select({ id: sourceVersions.id, sourceId: sourceVersions.sourceId })
+      .from(sourceVersions)
+      .where(eq(sourceVersions.id, anchor.versionId))
+      .get();
+    version = row && row.sourceId === anchor.sourceId ? row : null;
+  } else {
+    version = getLatestVersion(db, anchor.sourceId);
+  }
+  if (!version) {
+    return {
+      unresolved: {
+        sourceId: anchor.sourceId,
+        reason: anchor.versionId ? "anchored version no longer exists" : "no version recorded",
+      },
+    };
   }
   const id = randomUUID();
   await db
@@ -68,7 +88,7 @@ async function insertAnchoredToLatest(
     .values({
       id,
       ownerId,
-      sourceVersionId: latest.id,
+      sourceVersionId: version.id,
       page: anchor.page ?? null,
       locator: anchor.locator ? JSON.stringify(anchor.locator) : null,
       kind: anchor.locator ? "time_range" : "pdf_page",
@@ -110,7 +130,7 @@ export async function createClaim(
   let anchorCount = 0;
   const unresolved: UnresolvedAnchor[] = [];
   for (const anchor of args.anchors ?? []) {
-    const result = await insertAnchoredToLatest(db, args.ownerId, anchor);
+    const result = await insertAnchor(db, args.ownerId, anchor);
     if ("unresolved" in result) {
       unresolved.push(result.unresolved);
       continue;
@@ -128,27 +148,55 @@ export async function createClaim(
   return { id: claimId, anchorCount, unresolved };
 }
 
-/** Save a claim from a persisted chat message: its stored citations (sourceId
- * + chunkIndex + chunk text) map to anchors; citations carry no page, so the
- * anchor page is null - never invented. Sources without any version are
- * reported as unresolved, honestly. */
+/** A citation whose version could not be resolved to an anchor: legacy
+ * messages recorded no version, or the recorded version row is gone. The UI
+ * shows "Referenz nicht aufloesbar (Version unbekannt)" - never an invented
+ * anchor to whatever version is latest now. */
+export interface UnresolvedReference {
+  sourceId: string;
+  fileName: string | null;
+  quote: string;
+}
+
+export interface SaveClaimResult extends ClaimDoc {
+  unresolvedReferences: UnresolvedReference[];
+}
+
+/** Save a claim from a persisted chat message: a citation stamped with its
+ * retrieval-time sourceVersionId anchors to THAT immutable version (the bytes
+ * the answer actually used); a LEGACY citation without a stamp is never
+ * defaulted to latest - it is reported in unresolvedReferences, honestly. */
 export async function saveClaimFromMessage(
   db: LocalDb,
   args: { notebookId: string; messageId: string; text: string }
-): Promise<ClaimDoc> {
+): Promise<SaveClaimResult> {
   const message = db.select().from(messages).where(eq(messages.id, args.messageId)).get();
   if (!message || message.notebookId !== args.notebookId) {
     throw new Error("Nachricht nicht gefunden.");
   }
-  const anchors: ClaimAnchorInput[] = (message.citations ?? []).map((citation: MessageCitation) => ({
-    sourceId: citation.sourceId,
-    quote: citation.text,
-    // a media citation carries its real segment range; a text one stays null
-    ...(citation.startSec !== undefined && {
-      locator: { startSec: citation.startSec, endSec: citation.endSec ?? null },
-    }),
-  }));
-  return createClaim(db, {
+  const anchors: ClaimAnchorInput[] = [];
+  const unresolvedReferences: UnresolvedReference[] = [];
+  for (const citation of message.citations ?? []) {
+    const base = {
+      sourceId: citation.sourceId,
+      quote: citation.text,
+      // a media citation carries its real segment range; a text one stays null
+      ...(citation.startSec !== undefined && {
+        locator: { startSec: citation.startSec, endSec: citation.endSec ?? null },
+      }),
+    };
+    if (citation.sourceVersionId) {
+      anchors.push({ ...base, versionId: citation.sourceVersionId });
+    } else {
+      // old message: the version the answer actually used was never recorded
+      unresolvedReferences.push({
+        sourceId: citation.sourceId,
+        fileName: citation.fileName ?? null,
+        quote: citation.text,
+      });
+    }
+  }
+  const doc = await createClaim(db, {
     notebookId: args.notebookId,
     ownerId: message.ownerId,
     text: args.text,
@@ -156,6 +204,7 @@ export async function saveClaimFromMessage(
     originMessageId: args.messageId,
     anchors,
   });
+  return { ...doc, unresolvedReferences };
 }
 
 /** A claim row joined with its anchors (doc fileName, version number, page,
@@ -236,18 +285,28 @@ export function listClaims(db: LocalDb, notebookId: string): ClaimView[] {
   });
 }
 
+/** Outcome of deciding a review proposal: normal resolution, or a typed
+ * no-op when the proposal is STALE - the anchor already sits at/beyond the
+ * proposal's target version, and an anchor is never rewound to older bytes. */
+export type ResolveReviewOutcome =
+  | { status: "resolved" }
+  | { status: "already_resolved" }
+  | { status: "conflict"; anchorVersion: number };
+
 /** Decide a review proposal. Accepting a quote_moved finding re-anchors the
  * anchor to the confirmed new version + page (the proposal row keeps
  * from/to versions, so the history of the move survives); accepting
- * quote_missing marks the claim reviewed with the human note recorded in the
+ * quote_missing marks the claim used with the human note recorded in the
  * proposal. Rejecting changes nothing - the anchor stays on the old version
- * bytes, still resolvable. Human notes are recorded verbatim, never
+ * bytes, still resolvable. A STALE proposal (target version <= the anchor's
+ * current version) is answered typed without any write: an anchor is never
+ * rewound to an older version. Human notes are recorded verbatim, never
  * overwritten. */
 export async function resolveReview(
   db: LocalDb,
   store: LocalStore,
   args: { proposalId: string; decision: "accepted" | "rejected"; note?: string }
-): Promise<void> {
+): Promise<ResolveReviewOutcome> {
   const proposal = db
     .select()
     .from(reviewProposals)
@@ -255,6 +314,36 @@ export async function resolveReview(
     .get();
   if (!proposal) throw new Error("Revisionsvorschlag nicht gefunden.");
   if (proposal.status !== "pending") throw new Error("Revisionsvorschlag wurde bereits entschieden.");
+
+  // STALE GUARD (before any write): an outdated proposal never rewinds the
+  // anchor - if the anchor already sits at or beyond the proposal's target,
+  // the human decision is answered typed and nothing is written.
+  if (args.decision === "accepted" && proposal.reason === "quote_moved" && proposal.anchorId) {
+    const target = db
+      .select()
+      .from(sourceVersions)
+      .where(
+        and(
+          eq(sourceVersions.sourceId, proposal.sourceId),
+          eq(sourceVersions.version, proposal.toVersion)
+        )
+      )
+      .get();
+    const anchor = proposal.anchorId
+      ? db.select().from(evidenceAnchors).where(eq(evidenceAnchors.id, proposal.anchorId)).get()
+      : null;
+    const current = anchor
+      ? db.select().from(sourceVersions).where(eq(sourceVersions.id, anchor.sourceVersionId)).get()
+      : null;
+    if (target && current) {
+      if (current.version > target.version) {
+        return { status: "conflict", anchorVersion: current.version };
+      }
+      if (current.version === target.version) {
+        return { status: "already_resolved" };
+      }
+    }
+  }
 
   const now = Date.now();
   await db
@@ -269,7 +358,7 @@ export async function resolveReview(
 
   if (args.decision === "rejected") {
     // nothing else changes: the anchor stays on the old version bytes
-    return;
+    return { status: "resolved" };
   }
 
   if (proposal.reason === "quote_moved" && proposal.anchorId) {
@@ -311,4 +400,5 @@ export async function resolveReview(
     .set({ status: "reviewed", updatedAt: now })
     .where(eq(claims.id, proposal.claimId))
     .run();
+  return { status: "resolved" };
 }

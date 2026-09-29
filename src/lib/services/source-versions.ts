@@ -14,7 +14,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { asc, desc, eq, sql } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
-import { sourceVersions } from "@/db/local/schema";
+import { reviewScans, sourceVersions } from "@/db/local/schema";
 import { PDFParse } from "pdf-parse";
 import type { LocalStore } from "@/lib/storage/local";
 import type { MediaSegment } from "@/lib/ingestion/process";
@@ -172,14 +172,11 @@ export async function recordVersion(
 
   const now = Date.now();
   const id = randomUUID();
-  // append after the current max: versions are numbered 1, 2, 3, ... per source
-  const maxRows = db
-    .select({ maxV: sql<number>`coalesce(max(version), 0)` })
-    .from(sourceVersions)
-    .where(eq(sourceVersions.sourceId, args.sourceId))
-    .all();
-  const version = (maxRows[0]?.maxV ?? 0) + 1;
 
+  // sidecars are keyed by the version's immutable id, so they are written
+  // BEFORE the row: the version number is decided and inserted in ONE
+  // synchronous block (better-sqlite3 serializes synchronous statements), so
+  // two racing reimports can never grab the same (source_id, version) number
   let pageCount: number | null = null;
   if (sheetRows) {
     const target = sidecarPath(store, id);
@@ -196,6 +193,16 @@ export async function recordVersion(
     await fs.writeFile(target, JSON.stringify({ pages }));
   }
 
+  // append after the current max: versions are numbered 1, 2, 3, ... per
+  // source. The max query and the insert are deliberately ADJACENT (no await
+  // between them) so concurrent recordVersion calls serialize.
+  const maxRows = db
+    .select({ maxV: sql<number>`coalesce(max(version), 0)` })
+    .from(sourceVersions)
+    .where(eq(sourceVersions.sourceId, args.sourceId))
+    .all();
+  const version = (maxRows[0]?.maxV ?? 0) + 1;
+
   db.insert(sourceVersions)
     .values({
       id,
@@ -210,15 +217,44 @@ export async function recordVersion(
 
   // 5B hook: a newly appended version is a deterministic trigger for change
   // review. Dynamic import breaks the module cycle (change-review reads
-  // versions back); non-fatal by design - a failed scan must never fail the
+  // versions back). The scan runs under a durable ledger row (review_scans,
+  // migration 0012): 'pending' before, 'ok' or 'failed'+error after - so a
+  // crashed scan is re-run at engine startup (reconcileReviewScans) instead
+  // of being lost. Non-fatal by design - a failed scan must never fail the
   // import that just landed.
   try {
     const { scanForStaleness } = await import("./change-review");
-    await scanForStaleness(db, store, {
-      sourceId: args.sourceId,
-      fromVersion: version - 1,
-      toVersionId: id,
-    });
+    const scanId = randomUUID();
+    db.insert(reviewScans)
+      .values({
+        id: scanId,
+        sourceId: args.sourceId,
+        fromVersion: version - 1,
+        toVersionId: id,
+        status: "pending",
+        createdAt: Date.now(),
+      })
+      .run();
+    try {
+      await scanForStaleness(db, store, {
+        sourceId: args.sourceId,
+        fromVersion: version - 1,
+        toVersionId: id,
+      });
+      db.update(reviewScans)
+        .set({ status: "ok", completedAt: Date.now() })
+        .where(eq(reviewScans.id, scanId))
+        .run();
+    } catch (scanErr) {
+      db.update(reviewScans)
+        .set({
+          status: "failed",
+          error: scanErr instanceof Error ? scanErr.message : String(scanErr),
+          completedAt: Date.now(),
+        })
+        .where(eq(reviewScans.id, scanId))
+        .run();
+    }
   } catch (err) {
     console.warn(
       "[source-versions] change review skipped:",

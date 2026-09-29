@@ -12,7 +12,7 @@
  * needs_review=1; legacy rows without provenance are skipped, honest.
  */
 import { randomUUID } from "node:crypto";
-import { and, desc, eq, like } from "drizzle-orm";
+import { and, desc, eq, like, lt, or } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import {
   claims,
@@ -20,6 +20,7 @@ import {
   evidenceLinks,
   learningMaterials,
   reviewProposals,
+  reviewScans,
   sources,
   sourceVersions,
 } from "@/db/local/schema";
@@ -104,15 +105,16 @@ export async function scanForStaleness(db: LocalDb, store: LocalStore, args: Sta
   }
 
   for (const dep of dependents) {
-    // one pending proposal per anchor and target version, not per re-scan
+    // one proposal per anchor and target version, DECIDED or pending: an
+    // accepted/rejected proposal is terminal - a rescan (import, or the
+    // ledger reconcile) must never resurrect or duplicate it
     const already = db
       .select({ id: reviewProposals.id })
       .from(reviewProposals)
       .where(
         and(
           eq(reviewProposals.anchorId, dep.anchorId),
-          eq(reviewProposals.toVersion, toVersion.version),
-          eq(reviewProposals.status, "pending")
+          eq(reviewProposals.toVersion, toVersion.version)
         )
       )
       .get();
@@ -206,4 +208,54 @@ export function listPendingReviews(db: LocalDb, notebookId: string): ReviewPropo
     .where(and(eq(claims.notebookId, notebookId), eq(reviewProposals.status, "pending")))
     .orderBy(desc(reviewProposals.createdAt))
     .all();
+}
+
+/** How long a ledger row must be unresolved before reconcile considers it
+ * stuck: a scan running RIGHT NOW may legitimately still be pending. */
+const RECONCILE_GRACE_MS = 60_000;
+
+/** Recovery (priority-1 fix): re-run change-review scans a crashed engine
+ * left stuck 'pending' or 'failed' in the review_scans ledger. The scan is
+ * idempotent per (anchor, target version) - decided proposals are never
+ * resurrected, missing ones are filled in - so a partially applied scan ends
+ * up complete after reconcile, never double-reported. */
+export async function reconcileReviewScans(
+  db: LocalDb,
+  store: LocalStore
+): Promise<{ rescanned: number }> {
+  const stuck = db
+    .select()
+    .from(reviewScans)
+    .where(
+      and(
+        or(eq(reviewScans.status, "pending"), eq(reviewScans.status, "failed")),
+        lt(reviewScans.createdAt, Date.now() - RECONCILE_GRACE_MS)
+      )
+    )
+    .all();
+  let rescanned = 0;
+  for (const row of stuck) {
+    try {
+      await scanForStaleness(db, store, {
+        sourceId: row.sourceId,
+        fromVersion: row.fromVersion,
+        toVersionId: row.toVersionId,
+      });
+      db.update(reviewScans)
+        .set({ status: "ok", completedAt: Date.now() })
+        .where(eq(reviewScans.id, row.id))
+        .run();
+      rescanned++;
+    } catch (err) {
+      db.update(reviewScans)
+        .set({
+          status: "failed",
+          error: err instanceof Error ? err.message : String(err),
+          completedAt: Date.now(),
+        })
+        .where(eq(reviewScans.id, row.id))
+        .run();
+    }
+  }
+  return { rescanned };
 }

@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /**
@@ -40,6 +41,10 @@ export interface MessageCitation {
   chunkIndex: number;
   text: string;
   fileName?: string;
+  /** Provenance (priority-1 fix): the source_versions row retrieval actually
+   * read, stamped at retrieval time so a re-import during generation can
+   * never re-point the persisted citation. Absent on legacy citations. */
+  sourceVersionId?: string;
   /** Media time range (strategy 5A) when the cited chunk is a transcript
    * segment: carried through evidence context into the persisted citation. */
   startSec?: number;
@@ -390,7 +395,33 @@ export const reviewProposals = sqliteTable(
     resolvedAt: integer("resolved_at"),
     createdAt: integer("created_at").notNull(),
   },
-  (t) => [index("proposals_by_claim").on(t.claimId), index("proposals_by_status").on(t.status)]
+  (t) => [
+    index("proposals_by_claim").on(t.claimId),
+    index("proposals_by_status").on(t.status),
+    // priority-1 fix: one PENDING proposal per (anchor, target version) at the
+    // DB level; decided proposals are terminal and never resurrected
+    uniqueIndex("proposals_unique_pending").on(t.anchorId, t.toVersion)
+      .where(sql`${t.status} = 'pending'`),
+  ]
+);
+
+/** Durable ledger of change-review scans (migration 0012, priority-1 fix):
+ * one row per appended version, written BEFORE the scan runs. A crashed or
+ * failed scan is re-run at engine startup via reconcileReviewScans instead
+ * of being lost with a console.error. */
+export const reviewScans = sqliteTable(
+  "review_scans",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id").notNull(), // ledger is a log: no FK, sources may go away
+    fromVersion: integer("from_version").notNull(),
+    toVersionId: text("to_version_id").notNull(),
+    status: text("status").$type<"pending" | "ok" | "failed">().notNull().default("pending"),
+    error: text("error"),
+    createdAt: integer("created_at").notNull(),
+    completedAt: integer("completed_at"),
+  },
+  (t) => [index("review_scans_by_source").on(t.sourceId)]
 );
 
 // ── Inspectable calculations (open-source-innovation-strategy 5C, migration 0010)
