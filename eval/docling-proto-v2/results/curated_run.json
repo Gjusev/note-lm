@@ -1,0 +1,3384 @@
+{
+ "tool": "docling 2.131.0",
+ "run": "curated-v2",
+ "pipeline": {
+  "ocr_backend": "RapidOcrOptions",
+  "ocr_enabled": true,
+  "table_structure": true,
+  "table_cell_matching": true,
+  "artifacts_path": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\curated\\models",
+  "hf_hub_offline": "1",
+  "cache_env": {
+   "HF_HOME": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches\\hf_home",
+   "HF_HUB_CACHE": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches\\hf_hub",
+   "TRANSFORMERS_CACHE": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches\\transformers",
+   "TORCH_HOME": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches\\torch",
+   "XDG_CACHE_HOME": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches\\xdg"
+  },
+  "docling_version": "2.131.0"
+ },
+ "docs": {
+  "sc-hafen-logbuch.pdf": {
+   "docId": "sc-hafen-logbuch",
+   "class": "single-column",
+   "wall_ms": 5656,
+   "page_count": 3,
+   "units": 13,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ],
+    "3": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      263.0,
+      768.2
+     ],
+     "text": "Hafenlogbuch Nordkai 7"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      749.4,
+      533.4,
+      709.7
+     ],
+     "text": "Dieses Logbuch fasst den Betrieb des Frachtkais Nordkai 7 im ersten Quartal zusammen und ist die Grundlage für die Abstimmung mit der Hafenverwaltung. Alle Angaben beziehen sich auf die Schichten vom 1. Januar bis 31. März."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      699.7,
+      166.9,
+      685.8
+     ],
+     "text": "Betrieb im März"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      669.4,
+      535.7,
+      629.7
+     ],
+     "text": "Die beiden mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb und hoben zusammen 4 120 Tonnen Stückgut. Die mittlere Wartezeit vor dem Kai lag bei 38 Minuten, ein Viertel unter dem Vorquartal."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      624.4,
+      529.3,
+      599.7
+     ],
+     "text": "Am Kai 7a wurde der alte Werftkran außer Betrieb genommen. Sein Ersatzkran trifft Mitte April an und wird zunächst nur im Tagdienst eingesetzt."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      782.7,
+      170.2,
+      768.8
+     ],
+     "text": "Personaleinsatz"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      752.4,
+      484.9,
+      742.7
+     ],
+     "text": "Der Planungenstermin der Frühjahrssaison sieht 42 Vollzeitkräfte und 9 Zeitarbeitskräfte vor."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      737.4,
+      521.7,
+      712.7
+     ],
+     "text": "Krankenstand und Urlaub klaffen auseinander: Der Krankenstand sank auf 3,1 Prozent, während die Urlaubsreserve auf 210 Tage anwuchs."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      707.4,
+      534.5,
+      682.7
+     ],
+     "text": "Für die Nachtshift werden zwei weitere Staplerfahrer qualifiziert. Die Unterweisung nach Schriftwechsel mit der Berufsgenossenschaft ist für den 8. April terminiert."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      677.4,
+      508.3,
+      652.7
+     ],
+     "text": "Der Betriebsrat wurde über die Verschiebung der Frühschicht informiert und hat keinen Einspruch eingelegt. Die neue Schichtverteilung gilt ab dem 15. April."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 3,
+     "bbox": [
+      56.0,
+      782.7,
+      206.0,
+      768.8
+     ],
+     "text": "Auflagen und Fristen"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      56.0,
+      752.4,
+      534.5,
+      712.7
+     ],
+     "text": "Die Staubmessung an der Kaimauer muss bis 30. April nachgereicht werden. Fehlende Messwerte aus Woche 11 werden vom Institut für Umweltanalytik nachgeliefert. Der Nachtrag geht direkt an die Hafenverwaltung."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      56.0,
+      707.4,
+      537.5,
+      682.7
+     ],
+     "text": "Bis zur nächsten Begehung am 12. Mai sind die Ringanker am Schuppen D zu prüfen und das Ergebnis ins Logbuch einzutragen. Ohne Eintrag gilt die Prüfung als nicht erfolgt."
+    }
+   ]
+  },
+  "sc-observatorium-notiz.pdf": {
+   "docId": "sc-observatorium-notiz",
+   "class": "single-column",
+   "wall_ms": 1696,
+   "page_count": 2,
+   "units": 6,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      347.1,
+      768.2
+     ],
+     "text": "Notiz zum Observatoriumsausbau"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      749.4,
+      521.7,
+      709.7
+     ],
+     "text": "Vorgeschlagen wird, das Nebengebäude des Observatoriums zu einem Arbeitsraum für die Fotoplatten-Sammlung umzubauen. Der Raum bietet konstante 18 Grad und eine Luftfeuchte um 45 Prozent."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      704.4,
+      533.4,
+      679.7
+     ],
+     "text": "Die Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken. Für die Verkartung fehlt bisher eine feste Finanzierung; ein Antrag beim Fonds für Regionalkultur ist vorbereitet."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      782.7,
+      261.0,
+      768.8
+     ],
+     "text": "Risiken und nächste Schritte"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      752.4,
+      518.2,
+      727.7
+     ],
+     "text": "Hauptrisiko bleibt die Bausubstanz des Daches. Eine Statikprüfung im Februar ergab Tragreserven, aber Risse im Mauerwerk des Südflügels sind nicht abschließend bewertet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      722.4,
+      534.5,
+      697.7
+     ],
+     "text": "Als nächster Schritt ist eine Begehung mit dem Denkmalamt am 3. Juni vereinbart. Danach entscheidet der Träger über den Antrag."
+    }
+   ]
+  },
+  "tc-wochenbericht.pdf": {
+   "docId": "tc-wochenbericht",
+   "class": "two-column",
+   "wall_ms": 1496,
+   "page_count": 2,
+   "units": 16,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      268.0,
+      768.2
+     ],
+     "text": "Wochenbericht Kai-West"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      725.4,
+      539.3,
+      100.7
+     ],
+     "text": "WQL1 Die Tagesordnung des Ausschusses WQR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. WQL2 Die Tagesordnung des Ausschusses WQR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. WQL3 Die Tagesordnung des Ausschusses WQR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. WQL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen. WQL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen. WQL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      95.4,
+      285.0,
+      22.3
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen. Seite 1"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      784.8,
+      381.0,
+      768.2
+     ],
+     "text": "Wochenbericht Kai-West, Fortsetzung"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      725.4,
+      539.3,
+      685.7
+     ],
+     "text": "WXL1 Die Tagesordnung des Ausschusses WXR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      665.4,
+      539.3,
+      625.7
+     ],
+     "text": "Dachentwässerung und Torantriebe gleichzeitig WXR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      695.4,
+      285.0,
+      625.7
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      605.4,
+      539.3,
+      565.7
+     ],
+     "text": "WXL2 Die Tagesordnung des Ausschusses WXR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      545.4,
+      539.3,
+      505.7
+     ],
+     "text": "Dachentwässerung und Torantriebe gleichzeitig WXR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      575.4,
+      285.0,
+      505.7
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      485.4,
+      539.3,
+      445.7
+     ],
+     "text": "WXL3 Die Tagesordnung des Ausschusses WXR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      425.4,
+      539.3,
+      385.7
+     ],
+     "text": "Dachentwässerung und Torantriebe gleichzeitig WXR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      455.4,
+      285.0,
+      385.7
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      365.4,
+      285.6,
+      265.7
+     ],
+     "text": "WXL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      245.4,
+      285.6,
+      145.7
+     ],
+     "text": "WXL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      125.4,
+      285.6,
+      22.3
+     ],
+     "text": "WXL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen. Seite 2"
+    }
+   ]
+  },
+  "tc-marktanalyse.pdf": {
+   "docId": "tc-marktanalyse",
+   "class": "two-column",
+   "wall_ms": 1497,
+   "page_count": 2,
+   "units": 6,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      273.1,
+      768.2
+     ],
+     "text": "Marktanalyse Kleingärten"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      725.4,
+      539.3,
+      100.7
+     ],
+     "text": "MKL1 Die Tagesordnung des Ausschusses MKR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MKR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MKL2 Die Tagesordnung des Ausschusses MKR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MKR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MKL3 Die Tagesordnung des Ausschusses MKR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MKR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MKL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen. MKL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen. MKL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      95.4,
+      285.0,
+      22.3
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen. Seite 1"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      784.8,
+      329.1,
+      768.2
+     ],
+     "text": "Marktanalyse Kleingärten, Teil 2"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      725.4,
+      539.3,
+      100.7
+     ],
+     "text": "MYL1 Die Tagesordnung des Ausschusses MYR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MYR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MYL2 Die Tagesordnung des Ausschusses MYR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MYR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MYL3 Die Tagesordnung des Ausschusses MYR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig MYR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan nachgetragen. für die Bewirtung wird eng getaktet. MYL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen. MYL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen. MYL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      95.4,
+      285.0,
+      22.3
+     ],
+     "text": "Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen. Seite 2"
+    }
+   ]
+  },
+  "tb-lieferschwelle.pdf": {
+   "docId": "tb-lieferschwelle",
+   "class": "table",
+   "wall_ms": 4497,
+   "page_count": 3,
+   "units": 9,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ],
+    "3": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      287.1,
+      768.2
+     ],
+     "text": "Lieferschwellen Bericht Q1"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      749.4,
+      521.7,
+      709.7
+     ],
+     "text": "Die Tabelle auf der nächsten Seite listet die vereinbarten Lieferschwellen für das erste Quartal. Kennungen verweisen auf die Rahmenverträge der Hafenspedition. Auffällig ist die Streuung bei den Energiepreisen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      704.4,
+      517.6,
+      679.7
+     ],
+     "text": "Nachträge werden nur wirksam, wenn Schwelle und Einheit beide bestätigt sind. Der Stand gibt das Datum der letzten Bestätigung wieder."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      784.8,
+      263.1,
+      768.2
+     ],
+     "text": "Haupttabelle: Schwellen"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      54.9,
+      743.4,
+      547.1,
+      621.4
+     ],
+     "rows": 6,
+     "cols": 4,
+     "grid": [
+      [
+       "Kennung",
+       "Schwelle",
+       "Einheit",
+       "Stand"
+      ],
+      [
+       "FR-101",
+       "12,5",
+       "kW",
+       "2026-03-14"
+      ],
+      [
+       "FR-118",
+       "0,42",
+       "EUR/kWh",
+       "2026-03-17"
+      ],
+      [
+       "FR-204",
+       "148",
+       "m3/h",
+       "2026-03-19"
+      ],
+      [
+       "FR-311",
+       "3,7",
+       "t/Tag",
+       "2026-03-21"
+      ],
+      [
+       "FR-402",
+       "91",
+       "%",
+       "2026-03-24"
+      ]
+     ],
+     "text": "Kennung Schwelle Einheit Stand FR-101 12,5 kW 2026-03-14 FR-118 0,42 EUR/kWh 2026-03-17 FR-204 148 m3/h 2026-03-19 FR-311 3,7 t/Tag 2026-03-21 FR-402 91 % 2026-03-24"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      609.4,
+      530.4,
+      584.7
+     ],
+     "text": "Die Werte für FR-204 und FR-311 liegen im erwarteten Band. Eine Nachverhandlung zu FR-118 ist für April angesetzt."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 3,
+     "bbox": [
+      56.0,
+      784.8,
+      252.0,
+      768.2
+     ],
+     "text": "Nachtrag: Zonenstatus"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 3,
+     "bbox": [
+      55.1,
+      743.1,
+      456.6,
+      681.5
+     ],
+     "rows": 3,
+     "cols": 3,
+     "grid": [
+      [
+       "Zone",
+       "Status",
+       "Datum"
+      ],
+      [
+       "Schuppen D",
+       "geprüft",
+       "2026-03-11"
+      ],
+      [
+       "Nordmole",
+       "offen",
+       "2026-03-25"
+      ]
+     ],
+     "text": "Zone Status Datum Schuppen D geprüft 2026-03-11 Nordmole offen 2026-03-25"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      56.0,
+      669.4,
+      389.8,
+      659.7
+     ],
+     "text": "Für die offene Zone Nordmole wird eine Begehung im April vorgesehen."
+    }
+   ]
+  },
+  "tb-messreihe.pdf": {
+   "docId": "tb-messreihe",
+   "class": "table",
+   "wall_ms": 3405,
+   "page_count": 2,
+   "units": 5,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      255.1,
+      768.2
+     ],
+     "text": "Messreihe Pumpwerk 4"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      749.4,
+      509.4,
+      709.7
+     ],
+     "text": "Die Messreihe vom 18. März erfasst sieben Kenngrößen des Pumpwerks 4. Alle Werte wurden im Labor des Wasserzweckverbands bestimmt; die Toleranzen stammen aus den zugehörigen Prüfblättern."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      784.8,
+      228.1,
+      768.2
+     ],
+     "text": "Messwerte im Detail"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      54.7,
+      743.3,
+      536.9,
+      581.3
+     ],
+     "rows": 8,
+     "cols": 5,
+     "grid": [
+      [
+       "Messung",
+       "Wert",
+       "Einheit",
+       "Toleranz",
+       "Status"
+      ],
+      [
+       "M-01 Durchfluss",
+       "0,418",
+       "m3/s",
+       "0,010",
+       "gültig"
+      ],
+      [
+       "M-02 Druck",
+       "2,34",
+       "bar",
+       "0,05",
+       "gültig"
+      ],
+      [
+       "M-03 Temperatur",
+       "17,9",
+       "°C",
+       "0,4",
+       "geprüft"
+      ],
+      [
+       "M-04 Dichte",
+       "1,027",
+       "kg/l",
+       "0,002",
+       "geprüft"
+      ],
+      [
+       "M-05 Viskosität",
+       "1,86",
+       "mPa·s",
+       "0,03",
+       "vorläufig"
+      ],
+      [
+       "M-06 Leitfähigkeit",
+       "612",
+       "µS/cm",
+       "8",
+       "vorläufig"
+      ],
+      [
+       "M-07 pH-Wert",
+       "7,32",
+       "-",
+       "0,05",
+       "abgelehnt"
+      ]
+     ],
+     "text": "Messung Wert Einheit Toleranz Status M-01 Durchfluss 0,418 m3/s 0,010 gültig M-02 Druck 2,34 bar 0,05 gültig M-03 Temperatur 17,9 °C 0,4 geprüft M-04 Dichte 1,027 kg/l 0,002 geprüft M-05 Viskosität 1,86 mPa·s 0,03 vorläufig M-06 Leitfähigkeit 612 µS/cm 8 vorläufig M-07 pH-Wert 7,32 - 0,05 abgelehnt"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      56.0,
+      569.4,
+      535.7,
+      544.7
+     ],
+     "text": "Der abgelehnte pH-Wert wird am 2. April wiederholt. Alle übrigen Messungen gehen unverändert in den Quartalsbericht ein."
+    }
+   ]
+  },
+  "sn-versandliste.pdf": {
+   "docId": "sn-versandliste",
+   "class": "scan-ocr",
+   "wall_ms": 2186,
+   "page_count": 2,
+   "units": 4,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      47.7,
+      785.9,
+      224.7,
+      768.6
+     ],
+     "text": "Versandliste KW 38"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      46.7,
+      753.2,
+      334.7,
+      535.6
+     ],
+     "text": "Ausgangslager Halle B, Ausgang 16:40 Uhr Pos 01Artikel VL-2043Menge 24 Stück Pos 02 Artikel VL-2098Menge 12 Stück Pos 03 Artikel RM-1170Menge 60 Stück Pos 04Artikel RM-1172Menge 8 Stück Pos 05Artikel TB-3301Menge 36 Stück Pos 06Artikel TB-3355Menge 18 Stück Pos 07Artikel HD-0114Menge 90 Stück Pos 08Artikel HD-0188Menge 45 Stück Kontrolle: Ladehof 2, Rampe 7, Beifahrer T. Wand"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      46.7,
+      786.6,
+      283.0,
+      767.2
+     ],
+     "text": "Versandliste KW 38, Teil 2"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      46.7,
+      752.9,
+      357.7,
+      580.6
+     ],
+     "text": "Ziellager Erfurt, Inbound 17:05 Uhr Pos 09Artikel GS-2201Menge 30 Stück Pos 10Artikel GS-2244Menge 15 Stück Pos 11 Artikel KL-0091 Menge 72 Stück Pos 12 Artikel KL-0104Menge 6 Stück Begleitpapiere: 2 Frachtbriefe, 1 Gefahrgutdeklaration Abnahme durch: M. Behrend, Unterschrift erfolgt Rückfrage: Disposition Durchwahl 417"
+    }
+   ]
+  },
+  "mx-projektbrief.pdf": {
+   "docId": "mx-projektbrief",
+   "class": "mixed",
+   "wall_ms": 4208,
+   "page_count": 3,
+   "units": 7,
+   "page_sizes": {
+    "1": [
+     595.2756,
+     841.8898
+    ],
+    "2": [
+     595.2756,
+     841.8898
+    ],
+    "3": [
+     595.2756,
+     841.8898
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      56.0,
+      784.8,
+      279.1,
+      768.2
+     ],
+     "text": "Projektbrief Hallenneubau"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      56.0,
+      749.4,
+      534.6,
+      694.7
+     ],
+     "text": "Der Neubau der Halle 3 startet mit Verzug von zwei Wochen. Grund ist die späte Freigabe der Baugrube durch die Stadt. Der Endtermin bleibt bei November, der Puffer schrumpft auf drei Wochen. Die Budgetlage ist stabil. Details stehen in der Tabelle auf Seite 2, die Kostenverteilung zeigt die Grafik auf Seite 3."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      56.0,
+      784.8,
+      274.0,
+      768.2
+     ],
+     "text": "Budgetposten (Tsd. EUR)"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      54.9,
+      743.2,
+      486.9,
+      641.3
+     ],
+     "rows": 5,
+     "cols": 4,
+     "grid": [
+      [
+       "Posten",
+       "Plan",
+       "Ist",
+       "Rest"
+      ],
+      [
+       "Rohbau",
+       "612",
+       "598",
+       "14"
+      ],
+      [
+       "Technik",
+       "240",
+       "231",
+       "9"
+      ],
+      [
+       "Innenausbau",
+       "180",
+       "0",
+       "180"
+      ],
+      [
+       "Rücklage",
+       "60",
+       "0",
+       "60"
+      ]
+     ],
+     "text": "Posten Plan Ist Rest Rohbau 612 598 14 Technik 240 231 9 Innenausbau 180 0 180 Rücklage 60 0 60"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 3,
+     "bbox": [
+      126.7,
+      789.6,
+      358.3,
+      751.6
+     ],
+     "text": "Kostenübersicht Q3"
+    },
+    {
+     "kind": "PictureItem",
+     "label": "picture",
+     "page": 3,
+     "bbox": [
+      95.2,
+      603.2,
+      594.3,
+      126.6
+     ]
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      246.3,
+      93.9,
+      445.0,
+      69.9
+     ],
+     "text": "alle Werte in Tsd. EUR"
+    }
+   ]
+  },
+  "rot-sc-hafen-logbuch-180.pdf": {
+   "docId": "rot-sc-hafen-logbuch-180",
+   "class": "rotate-180",
+   "wall_ms": 2215,
+   "page_count": 3,
+   "units": 9,
+   "page_sizes": {
+    "1": [
+     595.2755999999999,
+     841.8898000000002
+    ],
+    "2": [
+     595.2755999999999,
+     841.8898000000002
+    ],
+    "3": [
+     595.2755999999999,
+     841.8898000000002
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      59.6,
+      242.2,
+      539.3,
+      172.5
+     ],
+     "text": "Die beiden mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb und hoben zusammen 4 120 Tonnen Stückgut. Die mittlere Wartezeit vor dem Kai lag bei 38 Minuten, ein Viertel unter dem Vorquartal. Am Kai 7a wurde der alte Werftkran außer Betrieb genommen. Sein Ersatzkran trifft Mitte April an und wird zunächst nur im Tagdienst eingesetzt."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      428.4,
+      156.1,
+      539.3,
+      142.2
+     ],
+     "text": "Betrieb im März"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      61.9,
+      132.2,
+      539.3,
+      92.5
+     ],
+     "text": "Dieses Logbuch fasst den Betrieb des Frachtkais Nordkai 7 im ersten Quartal zusammen und ist die Grundlage für die Abstimmung mit der Hafenverwaltung. Alle Angaben beziehen sich auf die Schichten vom 1. Januar bis 31. März."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      332.2,
+      73.7,
+      539.3,
+      57.1
+     ],
+     "text": "Hafenlogbuch Nordkai 7"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      60.8,
+      189.2,
+      539.3,
+      89.5
+     ],
+     "text": "Der Planungenstermin der Frühjahrssaison sieht 42 Vollzeitkräfte und 9 Zeitarbeitskräfte vor. Krankenstand und Urlaub klaffen auseinander: Der Krankenstand sank auf 3,1 Prozent, während die Urlaubsreserve auf 210 Tage anwuchs. Für die Nachtshift werden zwei weitere Staplerfahrer qualifiziert. Die Unterweisung nach Schriftwechsel mit der Berufsgenossenschaft ist für den 8. April terminiert. Der Betriebsrat wurde über die Verschiebung der Frühschicht informiert und hat keinen Einspruch eingelegt. Die neue Schichtverteilung gilt ab dem 15. April."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      425.1,
+      73.1,
+      539.3,
+      59.2
+     ],
+     "text": "Personaleinsatz"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      57.8,
+      159.2,
+      539.3,
+      104.5
+     ],
+     "text": "Woche 11 werden vom Institut für Umweltanalytik nachgeliefert. Der Nachtrag geht direkt an die Hafenverwaltung. Bis zur nächsten Begehung am 12. Mai sind die Ringanker am Schuppen D zu prüfen und das Ergebnis ins Logbuch einzutragen. Ohne Eintrag gilt die Prüfung als nicht erfolgt."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 3,
+     "bbox": [
+      60.7,
+      99.2,
+      539.3,
+      89.5
+     ],
+     "text": "Die Staubmessung an der Kaimauer muss bis 30. April nachgereicht werden. Fehlende Messwerte aus"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 3,
+     "bbox": [
+      389.3,
+      73.1,
+      539.3,
+      59.2
+     ],
+     "text": "Auflagen und Fristen"
+    }
+   ]
+  },
+  "rot-tc-wochenbericht-270.pdf": {
+   "docId": "rot-tc-wochenbericht-270",
+   "class": "rotate-270",
+   "wall_ms": 1651,
+   "page_count": 2,
+   "units": 22,
+   "page_sizes": {
+    "1": [
+     841.8898000000002,
+     595.2755999999999
+    ],
+    "2": [
+     841.8898000000002,
+     595.2755999999999
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      116.5,
+      539.3,
+      171.2,
+      56.0
+     ],
+     "text": "WQL1 Die Tagesordnung des Ausschusses WQR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR2 Im Veranstaltungskalender stehen 2 saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      206.5,
+      123.1,
+      216.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      236.5,
+      539.3,
+      321.2,
+      56.0
+     ],
+     "text": "WQL2 Die Tagesordnung des Ausschusses WQR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      326.5,
+      123.1,
+      336.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      356.5,
+      539.3,
+      441.2,
+      56.0
+     ],
+     "text": "WQL3 Die Tagesordnung des Ausschusses WQR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WQR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      446.5,
+      123.1,
+      456.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      476.5,
+      285.6,
+      576.2,
+      56.0
+     ],
+     "text": "WQL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      596.5,
+      285.6,
+      696.2,
+      56.0
+     ],
+     "text": "WQL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      716.5,
+      285.6,
+      756.2,
+      56.0
+     ],
+     "text": "WQL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      812.1,
+      83.4,
+      819.5,
+      56.0
+     ],
+     "text": "Seite 1"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      57.1,
+      381.0,
+      73.7,
+      56.0
+     ],
+     "text": "Wochenbericht Kai-West, Fortsetzung"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      116.5,
+      539.3,
+      171.2,
+      56.0
+     ],
+     "text": "WXL1 Die Tagesordnung des Ausschusses WXR1 Im Veranstaltungskalender stehen 1 beginnt mit dem Bauunterhalt der Halle 1. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WXR2 Im Veranstaltungskalender stehen 2"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      191.5,
+      538.7,
+      201.2,
+      56.0
+     ],
+     "text": "saniert werden. Zwei Anträge zur Halle 1 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      206.5,
+      123.1,
+      216.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      236.5,
+      539.3,
+      321.2,
+      56.0
+     ],
+     "text": "WXL2 Die Tagesordnung des Ausschusses WXR3 Im Veranstaltungskalender stehen 3 beginnt mit dem Bauunterhalt der Halle 2. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WXR4 Im Veranstaltungskalender stehen 4 saniert werden. Zwei Anträge zur Halle 2 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      326.5,
+      123.1,
+      336.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      356.5,
+      539.3,
+      441.2,
+      56.0
+     ],
+     "text": "WXL3 Die Tagesordnung des Ausschusses WXR5 Im Veranstaltungskalender stehen 5 beginnt mit dem Bauunterhalt der Halle 3. Der Termine mit je etwa 120 Gästen. Der Dienstplan Bauunterhalt beansprucht den größten Teil des für die Bewirtung wird eng getaktet. Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig WXR6 Im Veranstaltungskalender stehen 6 saniert werden. Zwei Anträge zur Halle 3 sind Termine mit je etwa 120 Gästen. Der Dienstplan für die Bewirtung wird eng getaktet."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      446.5,
+      123.1,
+      456.2,
+      56.0
+     ],
+     "text": "nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      476.5,
+      285.6,
+      561.2,
+      56.0
+     ],
+     "text": "WXL4 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 4. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 4 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      596.5,
+      285.6,
+      696.2,
+      56.0
+     ],
+     "text": "WXL5 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 5. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 5 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      716.5,
+      285.6,
+      756.2,
+      56.0
+     ],
+     "text": "WXL6 Die Tagesordnung des Ausschusses beginnt mit dem Bauunterhalt der Halle 6. Der Bauunterhalt beansprucht den größten Teil des Budgets für das kommende Jahr, weil Dachentwässerung und Torantriebe gleichzeitig saniert werden. Zwei Anträge zur Halle 6 sind nachgetragen."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      812.1,
+      83.4,
+      819.5,
+      56.0
+     ],
+     "text": "Seite 2"
+    }
+   ]
+  },
+  "rot-tb-messreihe-90.pdf": {
+   "docId": "rot-tb-messreihe-90",
+   "class": "rotate-90",
+   "wall_ms": 3658,
+   "page_count": 2,
+   "units": 7,
+   "page_sizes": {
+    "1": [
+     841.8898,
+     595.2756
+    ],
+    "2": [
+     841.8898,
+     595.2756
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      709.7,
+      539.3,
+      734.4,
+      114.4
+     ],
+     "text": "Labor des Wasserzweckverbands bestimmt; die Toleranzen stammen aus den zugehörigen Prüfblättern."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      739.7,
+      539.3,
+      749.4,
+      85.9
+     ],
+     "text": "Die Messreihe vom 18. März erfasst sieben Kenngrößen des Pumpwerks 4. Alle Werte wurden im"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      768.2,
+      539.3,
+      784.8,
+      340.2
+     ],
+     "text": "Messreihe Pumpwerk 4"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      544.7,
+      539.3,
+      554.4,
+      448.2
+     ],
+     "text": "Quartalsbericht ein."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      559.7,
+      539.3,
+      569.4,
+      59.6
+     ],
+     "text": "Der abgelehnte pH-Wert wird am 2. April wiederholt. Alle übrigen Messungen gehen unverändert in den"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      582.7,
+      539.6,
+      742.3,
+      59.0
+     ],
+     "rows": 5,
+     "cols": 8,
+     "grid": [
+      [
+       "M-07 pH-Wert",
+       "M-06 Leitfähigkeit",
+       "M-05 Viskosität",
+       "M-04 Dichte",
+       "M-03 Temperatur",
+       "M-02 Druck",
+       "M-01 Durchfluss",
+       "Messung"
+      ],
+      [
+       "612 7,32",
+       "1,86",
+       "1,027",
+       "17,9",
+       "2,34",
+       "0,418",
+       "Wert",
+       ""
+      ],
+      [
+       "µS/cm -",
+       "mPa·s",
+       "kg/l",
+       "°C",
+       "bar",
+       "m3/s",
+       "",
+       "Einheit"
+      ],
+      [
+       "8 0,05",
+       "0,03",
+       "0,002",
+       "0,4",
+       "0,05",
+       "",
+       "0,010",
+       "Toleranz"
+      ],
+      [
+       "vorläufig abgelehnt",
+       "vorläufig",
+       "geprüft",
+       "geprüft",
+       "gültig",
+       "",
+       "gültig",
+       "Status"
+      ]
+     ],
+     "text": "M-07 pH-Wert M-06 Leitfähigkeit M-05 Viskosität M-04 Dichte M-03 Temperatur M-02 Druck M-01 Durchfluss Messung 612 7,32 1,86 1,027 17,9 2,34 0,418 Wert  µS/cm - mPa·s kg/l °C bar m3/s  Einheit 8 0,05 0,03 0,002 0,4 0,05  0,010 Toleranz vorläufig abgelehnt vorläufig geprüft geprüft gültig  gültig Status"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      768.2,
+      539.3,
+      784.8,
+      367.2
+     ],
+     "text": "Messwerte im Detail"
+    }
+   ]
+  },
+  "rscan-sc-observatorium-90.pdf": {
+   "docId": "rscan-sc-observatorium-90",
+   "class": "rotscan-90",
+   "wall_ms": 8774,
+   "page_count": 2,
+   "units": 5,
+   "page_sizes": {
+    "1": [
+     1754.25,
+     1240.5
+    ],
+    "2": [
+     1754.25,
+     1240.5
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      731.5,
+      158.7,
+      109.8
+     ],
+     "text": "Observatoriumsausbau Notiz zum"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      186.4,
+      1091.7,
+      247.5,
+      110.2
+     ],
+     "text": "Fot n tn  n n a   n n nn u-tn5 Voi n      n w  ie Prozent."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      281.5,
+      1119.4,
+      309.2,
+      113.3
+     ],
+     "text": "Di       s   b  b   n in fes         itet."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      111.0,
+      554.5,
+      158.7,
+      108.8
+     ],
+     "text": "Schritte nächste 1 pun 二 Risiken"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      181.1,
+      1083.2,
+      208.6,
+      112.4
+     ],
+     "text": "HHae qaee ae e vs  ee ep g i e sven Aln r e d  n  u  B  se i  sdt aber Risse im Mauerwerk des Südflügels sind nicht abschließend bewertet. der Träger über den Antrag."
+    }
+   ]
+  },
+  "rscan-tb-lieferschwelle-90.pdf": {
+   "docId": "rscan-tb-lieferschwelle-90",
+   "class": "rotscan-90",
+   "wall_ms": 7614,
+   "page_count": 1,
+   "units": 4,
+   "page_sizes": {
+    "1": [
+     1754.25,
+     1240.5
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      107.0,
+      556.5,
+      160.7,
+      109.8
+     ],
+     "text": "Schwellen Haupttabelle:"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 1,
+     "bbox": [
+      206.9,
+      1139.5,
+      460.1,
+      117.3
+     ],
+     "rows": 4,
+     "cols": 6,
+     "grid": [
+      [
+       "Stand",
+       "2026-03-14",
+       "2026-03-17",
+       "2026-03-19",
+       "2026-03-21",
+       "2026-03-24"
+      ],
+      [
+       "Einheit",
+       "W",
+       "EUR/kWh",
+       "m3/h",
+       "t/Tag",
+       "%"
+      ],
+      [
+       "Schwelle",
+       "12,5",
+       "20",
+       "148",
+       "37",
+       "6"
+      ],
+      [
+       "Kennung",
+       "FR-101",
+       "FR-118",
+       "FR-204",
+       "FR-311",
+       "FR-402"
+      ]
+     ],
+     "text": "Stand 2026-03-14 2026-03-17 2026-03-19 2026-03-21 2026-03-24 Einheit W EUR/kWh m3/h t/Tag % Schwelle 12,5 20 148 37 6 Kennung FR-101 FR-118 FR-204 FR-311 FR-402"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      475.9,
+      1116.0,
+      511.8,
+      111.1
+     ],
+     "text": "Die s -g  t  tg   tg nn -g n t ir"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      509.5,
+      271.1,
+      540.9,
+      109.6
+     ],
+     "text": "April angesetzt."
+    }
+   ]
+  },
+  "real-attn-arxiv.pdf": {
+   "docId": "real-attn-arxiv",
+   "class": "real-twocolumn-tables",
+   "wall_ms": 5348,
+   "page_count": 2,
+   "units": 25,
+   "page_sizes": {
+    "1": [
+     612.0,
+     792.0
+    ],
+    "2": [
+     612.0,
+     792.0
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 1,
+     "bbox": [
+      117.5,
+      680.2,
+      494.4,
+      604.7
+     ],
+     "rows": 5,
+     "cols": 4,
+     "grid": [
+      [
+       "Layer Type",
+       "Complexity per Layer",
+       "Sequential Operations",
+       "Maximum Path Length"
+      ],
+      [
+       "Self-Attention",
+       "O(n2 · d)",
+       "O(1)",
+       "O(1)"
+      ],
+      [
+       "Recurrent",
+       "O(n · d2 )",
+       "O(n)",
+       "O(n)"
+      ],
+      [
+       "Convolutional",
+       "O(k · n · d2 )",
+       "O(1)",
+       "O(logk(n))"
+      ],
+      [
+       "Self-Attention (restricted)",
+       "O(r · n · d)",
+       "O(1)",
+       "O(n/r)"
+      ]
+     ],
+     "text": "Layer Type Complexity per Layer Sequential Operations Maximum Path Length Self-Attention O(n2 · d) O(1) O(1) Recurrent O(n · d2 ) O(n) O(n) Convolutional O(k · n · d2 ) O(1) O(logk(n)) Self-Attention (restricted) O(r · n · d) O(1) O(n/r)"
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 1,
+     "bbox": [
+      107.7,
+      719.7,
+      504.0,
+      689.4
+     ],
+     "text": "Table 1: Maximum path lengths, per-layer complexity and minimum number of sequential operations for different layer types. n is the sequence length, d is the representation dimension, k is the kernel size of convolutions and r the size of the neighborhood in restricted self-attention."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      577.4,
+      215.2,
+      568.5
+     ],
+     "text": "3.5 Positional Encoding"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      557.1,
+      505.2,
+      494.0
+     ],
+     "text": "Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence. To this end, we add \"positional encodings\" to the input embeddings at the bottoms of the encoder and decoder stacks. The positional encodings have the same dimension dmodel as the embeddings, so that the two can be summed. There are many choices of positional encodings, learned and fixed [9]."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      486.1,
+      389.9,
+      477.6
+     ],
+     "text": "In this work, we use sine and cosine functions of different frequencies:"
+    },
+    {
+     "kind": "FormulaItem",
+     "label": "formula",
+     "page": 1,
+     "bbox": [
+      225.7,
+      455.1,
+      386.3,
+      426.3
+     ],
+     "text": ""
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      107.6,
+      413.7,
+      504.3,
+      360.5
+     ],
+     "text": "where pos is the position and i is the dimension. That is, each dimension of the positional encoding corresponds to a sinusoid. The wavelengths form a geometric progression from 2π to 10000 · 2π. We chose this function because we hypothesized it would allow the model to easily learn to attend by relative positions, since for any fixed offset k, PEpos+k can be represented as a linear function of P Epos."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      107.5,
+      353.4,
+      504.0,
+      312.1
+     ],
+     "text": "We also experimented with using learned positional embeddings [9] instead, and found that the two versions produced nearly identical results (see Table 3 row (E)). We chose the sinusoidal version because it may allow the model to extrapolate to sequence lengths longer than the ones encountered during training."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      294.2,
+      225.0,
+      283.4
+     ],
+     "text": "4 Why Self-Attention"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      106.8,
+      269.5,
+      505.7,
+      217.3
+     ],
+     "text": "In this section we compare various aspects of self-attention layers to the recurrent and convolutional layers commonly used for mapping one variable-length sequence of symbol representations (x1, ..., xn) to another sequence of equal length (z1, ..., zn), with xi, zi ∈ Rd , such as a hidden layer in a typical sequence transduction encoder or decoder. Motivating our use of self-attention we consider three desiderata."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      209.4,
+      504.0,
+      190.0
+     ],
+     "text": "One is the total computational complexity per layer. Another is the amount of computation that can be parallelized, as measured by the minimum number of sequential operations required."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      107.7,
+      182.1,
+      504.0,
+      108.1
+     ],
+     "text": "The third is the path length between long-range dependencies in the network. Learning long-range dependencies is a key challenge in many sequence transduction tasks. One key factor affecting the ability to learn such dependencies is the length of the paths forward and backward signals have to traverse in the network. The shorter these paths between any combination of positions in the input and output sequences, the easier it is to learn long-range dependencies [12]. Hence we also compare the maximum path length between any two input and output positions in networks composed of the different layer types."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      107.6,
+      100.3,
+      504.3,
+      69.9
+     ],
+     "text": "As noted in Table 1, a self-attention layer connects all positions with a constant number of sequentially executed operations, whereas a recurrent layer requires O(n) sequential operations. In terms of computational complexity, self-attention layers are faster than recurrent layers when the sequence Residual Dropout We apply dropout [33] to the output of each sub-layer, before it is added to the sub-layer input and normalized. In addition, we apply dropout to the sums of the embeddings and the positional encodings in both the encoder and decoder stacks. For the base model, we use a rate of Pdrop = 0.1."
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      129.6,
+      696.9,
+      482.1,
+      547.6
+     ],
+     "rows": 12,
+     "cols": 5,
+     "grid": [
+      [
+       "Model",
+       "BLEU",
+       "BLEU",
+       "Training Cost (FLOPs)",
+       "Training Cost (FLOPs)"
+      ],
+      [
+       "",
+       "EN-DE",
+       "EN-FR",
+       "EN-DE",
+       "EN-FR"
+      ],
+      [
+       "ByteNet [18]",
+       "23.75",
+       "",
+       "",
+       ""
+      ],
+      [
+       "Deep-Att + PosUnk [39]",
+       "",
+       "39.2",
+       "",
+       "1.0 · 1020"
+      ],
+      [
+       "GNMT + RL [38]",
+       "24.6",
+       "39.92",
+       "2.3 · 1019",
+       "1.4 · 1020"
+      ],
+      [
+       "ConvS2S [9]",
+       "25.16",
+       "40.46",
+       "9.6 · 1018",
+       "1.5 · 1020"
+      ],
+      [
+       "MoE [32]",
+       "26.03",
+       "40.56",
+       "2.0 · 1019",
+       "1.2 · 1020"
+      ],
+      [
+       "Deep-Att + PosUnk Ensemble [39]",
+       "",
+       "40.4",
+       "",
+       "8.0 · 1020"
+      ],
+      [
+       "GNMT + RL Ensemble [38]",
+       "26.30",
+       "41.16",
+       "1.8 · 1020",
+       "1.1 · 1021"
+      ],
+      [
+       "ConvS2S Ensemble [9]",
+       "26.36",
+       "41.29",
+       "7.7 · 1019",
+       "1.2 · 1021"
+      ],
+      [
+       "Transformer (base model)",
+       "27.3",
+       "38.1",
+       "3.3 · 1018",
+       "3.3 · 1018"
+      ],
+      [
+       "Transformer (big)",
+       "28.4",
+       "41.8",
+       "2.3 · 1019",
+       "2.3 · 1019"
+      ]
+     ],
+     "text": "Model BLEU BLEU Training Cost (FLOPs) Training Cost (FLOPs)  EN-DE EN-FR EN-DE EN-FR ByteNet [18] 23.75    Deep-Att + PosUnk [39]  39.2  1.0 · 1020 GNMT + RL [38] 24.6 39.92 2.3 · 1019 1.4 · 1020 ConvS2S [9] 25.16 40.46 9.6 · 1018 1.5 · 1020 MoE [32] 26.03 40.56 2.0 · 1019 1.2 · 1020 Deep-Att + PosUnk Ensemble [39]  40.4  8.0 · 1020 GNMT + RL Ensemble [38] 26.30 41.16 1.8 · 1020 1.1 · 1021 ConvS2S Ensemble [9] 26.36 41.29 7.7 · 1019 1.2 · 1021 Transformer (base model) 27.3 38.1 3.3 · 1018 3.3 · 1018 Transformer (big) 28.4 41.8 2.3 · 1019 2.3 · 1019"
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 2,
+     "bbox": [
+      107.7,
+      719.7,
+      504.0,
+      700.3
+     ],
+     "text": "Table 2: The Transformer achieves better BLEU scores than previous state-of-the-art models on the English-to-German and English-to-French newstest2014 tests at a fraction of the training cost."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      108.0,
+      459.9,
+      504.0,
+      440.1
+     ],
+     "text": "Label Smoothing During training, we employed label smoothing of value ϵls = 0.1 [36]. This hurts perplexity, as the model learns to be more unsure, but improves accuracy and BLEU score."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      108.0,
+      419.8,
+      163.1,
+      409.0
+     ],
+     "text": "6 Results"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      108.0,
+      394.0,
+      219.1,
+      385.0
+     ],
+     "text": "6.1 Machine Translation"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      108.0,
+      372.7,
+      504.7,
+      309.6
+     ],
+     "text": "On the WMT 2014 English-to-German translation task, the big transformer model (Transformer (big) in Table 2) outperforms the best previously reported models (including ensembles) by more than 2.0 BLEU, establishing a new state-of-the-art BLEU score of 28.4. The configuration of this model is listed in the bottom line of Table 3. Training took 3.5 days on 8 P100 GPUs. Even our base model surpasses all previously published models and ensembles, at a fraction of the training cost of any of the competitive models."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      108.0,
+      302.1,
+      505.2,
+      259.7
+     ],
+     "text": "On the WMT 2014 English-to-French translation task, our big model achieves a BLEU score of 41.0, outperforming all of the previously published single models, at less than 1/4 the training cost of the previous state-of-the-art model. The Transformer (big) model trained for English-to-French used dropout rate Pdrop = 0.1, instead of 0.3."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      107.6,
+      252.7,
+      504.0,
+      200.5
+     ],
+     "text": "For the base models, we used a single model obtained by averaging the last 5 checkpoints, which were written at 10-minute intervals. For the big models, we averaged the last 20 checkpoints. We used beam search with a beam size of 4 and length penalty α = 0.6 [38]. These hyperparameters were chosen after experimentation on the development set. We set the maximum output length during inference to input length + 50, but terminate early when possible [38]."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      107.7,
+      192.6,
+      504.0,
+      151.4
+     ],
+     "text": "Table 2 summarizes our results and compares our translation quality and training costs to other model architectures from the literature. We estimate the number of floating point operations used to train a model by multiplying the training time, the number of GPUs used, and an estimate of the sustained single-precision floating-point capacity of each GPU 5 ."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      108.0,
+      133.6,
+      203.9,
+      124.6
+     ],
+     "text": "6.2 Model Variations"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      107.7,
+      112.3,
+      504.0,
+      92.9
+     ],
+     "text": "To evaluate the importance of different components of the Transformer, we varied our base model in different ways, measuring the change in performance on English-to-German translation on the"
+    },
+    {
+     "kind": "TextItem",
+     "label": "footnote",
+     "page": 2,
+     "bbox": [
+      120.7,
+      79.7,
+      453.6,
+      70.1
+     ],
+     "text": "5 We used values of 2.8, 3.7, 6.0 and 9.5 TFLOPS for K80, K40, M40 and P100, respectively."
+    }
+   ]
+  },
+  "real-docling-tr.pdf": {
+   "docId": "real-docling-tr",
+   "class": "real-mixed-tables",
+   "wall_ms": 11280,
+   "page_count": 2,
+   "units": 33,
+   "page_sizes": {
+    "1": [
+     612.0,
+     792.0
+    ],
+    "2": [
+     612.0,
+     792.0
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      716.5,
+      504.0,
+      697.1
+     ],
+     "text": "torch runtimes backing the Docling pipeline. We will deliver updates on this topic at in a future version of this report."
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 1,
+     "bbox": [
+      133.5,
+      635.0,
+      478.3,
+      542.4
+     ],
+     "rows": 4,
+     "cols": 8,
+     "grid": [
+      [
+       "CPU",
+       "Thread budget",
+       "native backend",
+       "native backend",
+       "native backend",
+       "pypdfium backend",
+       "pypdfium backend",
+       "pypdfium backend"
+      ],
+      [
+       "",
+       "",
+       "TTS",
+       "Pages/s",
+       "Mem",
+       "TTS",
+       "Pages/s",
+       "Mem"
+      ],
+      [
+       "Apple M3 Max",
+       "4 16",
+       "177 s 167 s",
+       "1.27 1.34",
+       "6.20 GB",
+       "103 s 92 s",
+       "2.18 2.45",
+       "2.56 GB"
+      ],
+      [
+       "(16 cores) Intel(R) Xeon E5-2690 (16 cores)",
+       "4 16",
+       "375 s 244 s",
+       "0.60 0.92",
+       "6.16 GB",
+       "239 s 143 s",
+       "0.94 1.57",
+       "2.42 GB"
+      ]
+     ],
+     "text": "CPU Thread budget native backend native backend native backend pypdfium backend pypdfium backend pypdfium backend   TTS Pages/s Mem TTS Pages/s Mem Apple M3 Max 4 16 177 s 167 s 1.27 1.34 6.20 GB 103 s 92 s 2.18 2.45 2.56 GB (16 cores) Intel(R) Xeon E5-2690 (16 cores) 4 16 375 s 244 s 0.60 0.92 6.16 GB 239 s 143 s 0.94 1.57 2.42 GB"
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 1,
+     "bbox": [
+      108.0,
+      685.3,
+      504.0,
+      644.1
+     ],
+     "text": "Table 1: Runtime characteristics of Docling with the standard model pipeline and settings, on our test dataset of 225 pages, on two different systems. OCR is disabled. We show the time-to-solution (TTS), computed throughput in pages per second, and the peak memory used (resident set size) for both the Docling-native PDF backend and for the pypdfium backend, using 4 and 16 threads."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      528.6,
+      190.1,
+      517.9
+     ],
+     "text": "5 Applications"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      504.0,
+      504.0,
+      364.6
+     ],
+     "text": "Thanks to the high-quality, richly structured document conversion achieved by Docling, its output qualifies for numerous downstream applications. For example, Docling can provide a base for detailed enterprise document search, passage retrieval or classification use-cases, or support knowledge extraction pipelines, allowing specific treatment of different structures in the document, such as tables, figures, section structure or references. For popular generative AI application patterns, such as retrieval-augmented generation (RAG), we provide quackling, an open-source package which capitalizes on Docling's feature-rich document output to enable document-native optimized vector embedding and chunking. It plugs in seamlessly with LLM frameworks such as LlamaIndex [8]. Since Docling is fast, stable and cheap to run, it also makes for an excellent choice to build document-derived datasets. With its powerful table structure recognition, it provides significant benefit to automated knowledge-base construction [11, 10]. Docling is also integrated within the open IBM data prep kit [6], which implements scalable data transforms to build large-scale multi-modal training datasets."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      346.8,
+      283.8,
+      336.0
+     ],
+     "text": "6 Future work and contributions"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      322.2,
+      504.0,
+      259.1
+     ],
+     "text": "Docling is designed to allow easy extension of the model library and pipelines. In the future, we plan to extend Docling with several more models, such as a figure-classifier model, an equationrecognition model, a code-recognition model and more. This will help improve the quality of conversion for specific types of content, as well as augment extracted document metadata with additional information. Further investment into testing and optimizing GPU acceleration as well as improving the Docling-native PDF backend are on our roadmap, too."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      108.0,
+      251.7,
+      504.0,
+      199.1
+     ],
+     "text": "We encourage everyone to propose or implement additional features and models, and will gladly take your inputs and contributions under review. The codebase of Docling is open for use and contribution, under the MIT license agreement and in alignment with our contributing guidelines included in the Docling repository. If you use Docling in your projects, please consider citing this technical report."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 1,
+     "bbox": [
+      108.0,
+      181.3,
+      163.5,
+      170.5
+     ],
+     "text": "References"
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 1,
+     "bbox": [
+      113.0,
+      162.2,
+      504.0,
+      142.6
+     ],
+     "text": "J. AI. Easyocr: Ready-to-use ocr with 80+ supported languages. https://github.com/ JaidedAI/EasyOCR, 2024. Version: 1.7.0."
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 1,
+     "bbox": [
+      113.0,
+      133.0,
+      504.0,
+      69.9
+     ],
+     "text": "J. Ansel, E. Yang, H. He, N. Gimelshein, A. Jain, M. Voznesensky, B. Bao, P. Bell, D. Berard, E. Burovski, G. Chauhan, A. Chourdia, W. Constable, A. Desmaison, Z. DeVito, E. Ellison, W. Feng, J. Gong, M. Gschwind, B. Hirsh, S. Huang, K. Kalambarkar, L. Kirsch, M. Lazos, M. Lezcano, Y. Liang, J. Liang, Y. Lu, C. Luk, B. Maher, Y. Pan, C. Puhrsch, M. Reso, M. Saroufim, M. Y. Siraichi, H. Suk, M. Suo, P. Tillet, E. Wang, X. Wang, W. Wen, S. Zhang, X. Zhao, K. Zhou, R. Zou, A. Mathews, G. Chanan, P. Wu, and S. Chintala. Pytorch 2: Faster"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      123.0,
+      563.1,
+      338.6,
+      558.7
+     ],
+     "text": "KDD '22, August 14-18, 2022, Washington, DC, USA Birgit Pfitzmann, Christoph Auer, Michele Dolfi, Ahmed S. Nassar, and Peter Staar"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      125.1,
+      505.2,
+      222.9,
+      437.7
+     ],
+     "rows": 2,
+     "cols": 6,
+     "grid": [
+      [
+       "",
+       "human",
+       "MRCNN R50 R101",
+       "MRCNN R50 R101",
+       "FRCNN R101",
+       "YOLO v5x6"
+      ],
+      [
+       "Caption Footnote Formula List-item Page-footer Page-header Picture Section-header Table Text Title All",
+       "84-89 83-91 83-85 87-88 93-94 85-89 69-71 83-84 77-81 84-86 60-72 82-83",
+       "68.4 70.9 60.1 81.2 61.6 71.9 71.7 67.6 82.2 84.6 76.7 72.4",
+       "71.5 71.8 63.4 80.8 59.3 70.0 72.7 69.3 82.9 85.8 80.4 73.5",
+       "70.1 73.7 63.5 81.0 58.9 72.0 72.0 68.4 82.2 85.4 79.9 73.4",
+       "77.7 77.2 66.2 86.2 61.1 67.9 77.1 74.6 86.3 88.1 82.7 76.8"
+      ]
+     ],
+     "text": " human MRCNN R50 R101 MRCNN R50 R101 FRCNN R101 YOLO v5x6 Caption Footnote Formula List-item Page-footer Page-header Picture Section-header Table Text Title All 84-89 83-91 83-85 87-88 93-94 85-89 69-71 83-84 77-81 84-86 60-72 82-83 68.4 70.9 60.1 81.2 61.6 71.9 71.7 67.6 82.2 84.6 76.7 72.4 71.5 71.8 63.4 80.8 59.3 70.0 72.7 69.3 82.9 85.8 80.4 73.5 70.1 73.7 63.5 81.0 58.9 72.0 72.0 68.4 82.2 85.4 79.9 73.4 77.7 77.2 66.2 86.2 61.1 67.9 77.1 74.6 86.3 88.1 82.7 76.8"
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 2,
+     "bbox": [
+      122.9,
+      552.1,
+      226.4,
+      509.5
+     ],
+     "text": "Table 2: Prediction performance (mAP@0.5-0.95) of object detection networks on DocLayNet test set. The MRCNN (Mask R-CNN) and FRCNN (Faster R-CNN) models with ResNet-50 or ResNet-101 backbone were trained based on the network architectures from the detectron2 model zoo (Mask R-CNN R50, R101-FPN 3x, Faster R-CNN R101-FPN 3x), with default con￿gurations. The YOLO implementation utilized was YOLOv5x6 [13]. All models were initialised using pre-trained weights from the COCO 2017 dataset."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      122.9,
+      431.2,
+      226.3,
+      341.5
+     ],
+     "text": "to avoid this at any cost in order to have clear, unbiased baseline numbers for human document-layout annotation. Third, we introduced the feature of snapping boxes around text segments to obtain a pixel-accurate annotation and again reduce time and e￿ort. The CCS annotation tool automatically shrinks every user-drawn box to the minimum bounding-box around the enclosed text-cells for all purely text-based segments, which excludes only Table and Picture. For the latter, we instructed annotation sta￿ to minimise inclusion of surrounding whitespace while including all graphical lines. A downside of snapping boxes to enclosed text cells is that some wrongly parsed PDF pages cannot be annotated correctly and need to be skipped. Fourth, we established a way to ￿ag pages as rejected for cases where no valid annotation according to the label guidelines could be achieved. Example cases for this would be PDF pages that render incorrectly or contain layouts that are impossible to capture with non-overlapping rectangles. Such rejected pages are not contained in the ￿nal dataset. With all these measures in place, experienced annotation sta￿ managed to annotate a single page in a typical timeframe of 20s to 60s, depending on its complexity."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      123.0,
+      338.1,
+      163.0,
+      331.8
+     ],
+     "text": "5 EXPERIMENTS"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      122.9,
+      327.6,
+      226.3,
+      284.8
+     ],
+     "text": "The primary goal of DocLayNet is to obtain high-quality ML models capable of accurate document-layout analysis on a wide variety of challenging layouts. As discussed in Section 2, object detection models are currently the easiest to use, due to the standardisation of ground-truth data in COCO format [16] and the availability of general frameworks such as detectron2 [17]. Furthermore, baseline numbers in PubLayNet and DocBank were obtained using standard object detection models such as Mask R-CNN and Faster R-CNN. As such, we will relate to these object detection methods in this paper and leave the detailed evaluation of more recent methods mentioned in Section 2 for future work."
+    },
+    {
+     "kind": "PictureItem",
+     "label": "picture",
+     "page": 2,
+     "bbox": [
+      237.6,
+      550.6,
+      337.7,
+      476.3
+     ]
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 2,
+     "bbox": [
+      235.9,
+      470.0,
+      339.3,
+      441.4
+     ],
+     "text": "Figure 5: Prediction performance (mAP@0.5-0.95) of a Mask R-CNN network with ResNet50 backbone trained on increasing fractions of the DocLayNet dataset. The learning curve ￿attens around the 80% mark, indicating that increasing the size of the DocLayNet dataset with similar data will not yield signi￿cantly better predictions."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      235.8,
+      416.2,
+      338.7,
+      382.8
+     ],
+     "text": "In this section, we will present several aspects related to the performance of object detection models on DocLayNet. Similarly as in PubLayNet, we will evaluate the quality of their predictions using mean average precision (mAP) with 10 overlaps that range from 0.5 to 0.95 in steps of 0.05 (mAP@0.5-0.95). These scores are computed by leveraging the evaluation code provided by the COCO API [16]."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      235.9,
+      377.1,
+      299.6,
+      370.9
+     ],
+     "text": "Baselines for Object Detection"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      235.8,
+      370.9,
+      338.7,
+      285.9
+     ],
+     "text": "In Table 2, we present baseline experiments (given in mAP) on Mask R-CNN [12], Faster R-CNN [11], and YOLOv5 [13]. Both training and evaluation were performed on RGB images with dimensions of 1025⇥1025 pixels. For training, we only used one annotation in case of redundantly annotated pages. As one can observe, the variation in mAP between the models is rather low, but overall between 6 and 10% lower than the mAP computed from the pairwise human annotations on triple-annotated pages. This gives a good indication that the DocLayNet dataset poses a worthwhile challenge for the research community to close the gap between human recognition and ML approaches. It is interesting to see that Mask R-CNN and Faster R-CNN produce very comparable mAP scores, indicating that pixel-based image segmentation derived from bounding-boxes does not help to obtain better predictions. On the other hand, the more recent Yolov5x model does very well and even out-performs humans on selected labels such as Text, Table and Picture. This is not entirely surprising, as Text, Table and Picture are abundant and the most visually distinctive in a document."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.7,
+      563.7,
+      527.3,
+      546.3
+     ],
+     "text": "Table 2: Prediction performance (mAP@0.5-0.95) of object detection networks on DocLayNet test set. The MRCNN (Mask R-CNN) and FRCNN (Faster R-CNN) models with ResNet-50 or ResNet-101 backbone were trained based on the network architectures from the implementation utilized was YOLOv5x6 [13]. All models were initialised using pre-trained weights from the COCO 2017 dataset. detectron2 model zoo (Mask R-CNN R50, R101-FPN 3x, Faster R-CNN R101-FPN 3x), with default configurations. The YOLO"
+    },
+    {
+     "kind": "TableItem",
+     "label": "table",
+     "page": 2,
+     "bbox": [
+      366.9,
+      542.8,
+      461.2,
+      450.7
+     ],
+     "rows": 13,
+     "cols": 5,
+     "grid": [
+      [
+       "",
+       "human human",
+       "R50 MRCNN",
+       "R101 MRCNN",
+       "R101 FRCNN v5x6 YOLO"
+      ],
+      [
+       "Caption",
+       "84-89",
+       "68.4",
+       "71.5",
+       "70°1 77.7"
+      ],
+      [
+       "Footnote",
+       "83-91",
+       "70.9",
+       "71.8",
+       "77.2"
+      ],
+      [
+       "Formula",
+       "83-85",
+       "60.1",
+       "63.4",
+       "63.5 66.2"
+      ],
+      [
+       "List-item",
+       "87-88",
+       "81.2",
+       "80.8",
+       "81.0 86.2"
+      ],
+      [
+       "Page-footer",
+       "93-94",
+       "61.6",
+       "59.3",
+       "58.9 61.1"
+      ],
+      [
+       "Page-header",
+       "85-89",
+       "71.9",
+       "70.0",
+       "72.0 67.9"
+      ],
+      [
+       "Picture",
+       "69-71",
+       "71.7",
+       "72.7",
+       "720 77.1"
+      ],
+      [
+       "Sect-der",
+       "83-84",
+       "67.6",
+       "69.3",
+       "68.4 74.6"
+      ],
+      [
+       "Table",
+       "77-81",
+       "82.2",
+       "82.9",
+       "82.2 86.3"
+      ],
+      [
+       "",
+       "84-86",
+       "84.6",
+       "85.8",
+       "85.4 88.1"
+      ],
+      [
+       "Title",
+       "60-72",
+       "76.7",
+       "80.4",
+       "82.7"
+      ],
+      [
+       "All",
+       "82-83",
+       "72.4",
+       "73.5",
+       "73.4 76.8"
+      ]
+     ],
+     "text": " human human R50 MRCNN R101 MRCNN R101 FRCNN v5x6 YOLO Caption 84-89 68.4 71.5 70°1 77.7 Footnote 83-91 70.9 71.8 77.2 Formula 83-85 60.1 63.4 63.5 66.2 List-item 87-88 81.2 80.8 81.0 86.2 Page-footer 93-94 61.6 59.3 58.9 61.1 Page-header 85-89 71.9 70.0 72.0 67.9 Picture 69-71 71.7 72.7 720 77.1 Sect-der 83-84 67.6 69.3 68.4 74.6 Table 77-81 82.2 82.9 82.2 86.3  84-86 84.6 85.8 85.4 88.1 Title 60-72 76.7 80.4 82.7 All 82-83 72.4 73.5 73.4 76.8"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.7,
+      447.3,
+      531.0,
+      404.7
+     ],
+     "text": "the feature of snapping boxes around text segments to obtain a pixel-accurate annotation and again reduce time and effort. The CCS to avoid this at any cost in order to have clear, unbiased baseline numbers for human document-layout annotation. Third, we introduced annotation tool automatically shrinks every user-drawn box to the minimum bounding-box around the enclosed text-cells for all purely textbased segments, which excludes only Table and Picture . For the latter, we instructed annotation staff o minimise inclusion of surrounding whitespace while including all graphical lines. A downside of snapping boxes to enclosed text cells is that some wrongly parsed PDF pages cannot be annotated correctly and need to be skipped. Fourth, we established a way to flag pages as rejected for cases where no valid annotation according to the label guidelines could be achieved. Example cases for this would be PDF pages that render incorrectly or contain layouts that are impossible to capture with non-overlapping rectangles. Such rejected pages are not contained in the final to 60s, depending on its complexity. dataset. With all these measures in place, experienced annotation staff managed to annotate a single page in a typical timeframe of 20s"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      365.7,
+      401.0,
+      404.3,
+      395.3
+     ],
+     "text": "5 EXPERIMENTS"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.7,
+      391.7,
+      531.0,
+      370.3
+     ],
+     "text": "The primary goal of DocLayNet is to obtain high-quality ML models capable of accurate document-Iayout analysis on a wide variety of challenging layouts. As discussed in Section 2, object detection models are currently the easiest to use, due to the standardisation of ground-truth data in COCO format [16] and the availability of general frameworks such as detectron2 [17]. Furthemore, baseline numbers in PubLayNet and DocBank were obtained using standard object detection models such as Mask R-CNN and Faster R-CNN. As such, we will relate to these object detection methods in this"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.7,
+      367.7,
+      529.3,
+      354.7
+     ],
+     "text": "the DocLayNet dataset. The learning curve flattens around the 80% mark, indicating that increasing the size of the DocLayNet dataset Figure 5: Prediction performance (mAP @0.5-0.95) of a Mask R-CNN network with ResNet50 backbone trained on increasing fractions of with similar data will not yield significantly better predictions."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      366.0,
+      352.0,
+      489.7,
+      347.7
+     ],
+     "text": "paper and leave the detailed evaluation of more recent methods mentioned in Section 2 for future work."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.3,
+      346.0,
+      527.7,
+      331.7
+     ],
+     "text": "In this section, we wil present several aspects related to the performance of object detection models on DocLayNet. Similarly as in 0.95 in steps of 0.05 (mAP@0.5-0.95). These scores are computed by leveraging the evaluation code provided by the COCO API [16]. PubLayNet, we will evaluate the quality of their predictions using mean average precision (mAP) with 10 overlaps that range from 0.5 to"
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      366.3,
+      327.7,
+      433.7,
+      322.3
+     ],
+     "text": "Baselines for Object Detection"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      365.3,
+      319.0,
+      529.7,
+      280.3
+     ],
+     "text": "In Table 2, we present baseline experiments (given in mAP) on Mask R-CNN [12], Faster R-CNN [11], and YOLOv5 [13]. Both training of redundantly annotated pages. As one can observe, the variation in mAP between the models is rather low, but overall between 6 and DocLayNet dataset poses a worthwhile challenge for the research community to close the gap between human recognition and ML bases       d e   ee  ee e   s  eoet Yolov5x model does very well and even out-performs humans on selected labels such as Text , Table and Picture . This is not entirely and evaluation were performed on RGB images with dimensions of 1025 × 1025 pixels. For training, we only used one annotation in case approaches. It is interesting to see that Mask R-CNN and Faster R-CNN produce very comparable mAP scores, indicating that pixel10% lower than the mAP computed from the pairwise human annotations on triple-annotated pages. This gives a good indication that the surprising, as Text , Table and Picture are abundant and the most visually distinctive in a document."
+    },
+    {
+     "kind": "TextItem",
+     "label": "caption",
+     "page": 2,
+     "bbox": [
+      108.0,
+      266.4,
+      504.0,
+      225.1
+     ],
+     "text": "Figure 3: Page 6 of the DocLayNet paper. If recognized, metadata such as authors are appearing first under the title. Elements recognized as page headers or footers are suppressed in Markdown to deliver uninterrupted content in reading order. Tables are inserted in reading order. The paragraph in \"5. Experiments\" wrapping over the column end is broken up in two and interrupted by the table."
+    }
+   ]
+  },
+  "real-bookscan.pdf": {
+   "docId": "real-bookscan",
+   "class": "real-scan",
+   "wall_ms": 1872,
+   "page_count": 2,
+   "units": 24,
+   "page_sizes": {
+    "1": [
+     343.0,
+     485.0
+    ],
+    "2": [
+     343.0,
+     485.0
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "PictureItem",
+     "label": "picture",
+     "page": 1,
+     "bbox": [
+      28.2,
+      412.7,
+      339.0,
+      1.6
+     ]
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      60.9,
+      443.2,
+      282.2,
+      437.8
+     ],
+     "text": "sirAmorcfie] Colore fiaffini, poflobcn dire, che patird"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      60.9,
+      434.1,
+      282.7,
+      428.3
+     ],
+     "text": "pcna i noil vcdetui>cotne cro folica &c. t c dandoui vn'amoc"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      62.5,
+      425.0,
+      283.0,
+      419.0
+     ],
+     "text": "rofo baciO)refto quale fcmpre fui fuifcerarifsiRia Amancc . e"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      63.6,
+      414.6,
+      130.7,
+      410.0
+     ],
+     "text": "fcdclifsima Serua."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      35.3,
+      406.7,
+      77.7,
+      235.0
+     ],
+     "text": "1"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      132.3,
+      340.7,
+      203.1,
+      335.3
+     ],
+     "text": "Cariflimo mioBene"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      66.2,
+      230.7,
+      284.8,
+      224.0
+     ],
+     "text": "iapcrcjche il gelofo d ito k Souara^ $'10 \\ri potcfli parlare i ma"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      66.4,
+      220.2,
+      285.1,
+      214.8
+     ],
+     "text": "il Confcffore non vuole in conro ncflTuncc per quefto io non"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      66.5,
+      210.7,
+      285.2,
+      205.4
+     ],
+     "text": "Tici faccio venire, che hora non Hapte pjiirvfciodi ftradai"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      66.9,
+      202.7,
+      285.4,
+      196.0
+     ],
+     "text": "ma potrete aprire quello dcUa Rimeda &c. Ma quel Fracc^"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      67.5,
+      192.6,
+      285.1,
+      186.5
+     ],
+     "text": "non v6» e non vole . La ringratio delli Baci , che m'inuiatci"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      67.2,
+      184.1,
+      285.7,
+      177.2
+     ],
+     "text": "ma fe me li daffiuo da voi , gli hauerei cari , & io vc ne do al-"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      67.4,
+      174.0,
+      241.3,
+      167.6
+     ],
+     "text": "tri) c canci miliioni di quanci me ne dare voi &c."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      191.2,
+      154.8,
+      267.1,
+      149.6
+     ],
+     "text": "FedchTima Araantc."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      58.5,
+      136.6,
+      286.5,
+      130.5
+     ],
+     "text": "Io oon SO} che oome mi dare 6 Vienna » 6 Amarilli , 6 Dorinda,"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      68.1,
+      127.4,
+      286.7,
+      121.3
+     ],
+     "text": "6 Lillaj ma vogliodirmi Ariannajquale credo d'hauere a e(^"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      67.6,
+      118.7,
+      286.8,
+      112.1
+     ],
+     "text": "fere ) voglio dirmi tale , fe pure voi non fete vn Tcfcoi ma vn"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      67.8,
+      109.4,
+      287.0,
+      102.9
+     ],
+     "text": "cafto Giufeppe J 6 vn caro Narcifo, 6 vn Ilagoso Fcdonei ma"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      68.1,
+      100.4,
+      287.4,
+      93.7
+     ],
+     "text": "Adone fiipictofo con Vencrcj ma io non fono talei ma bcnsi"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      68.4,
+      90.6,
+      287.1,
+      84.4
+     ],
+     "text": "vna Meduia . onde merico 8cc, Se voi haueccletco il TafTo Io"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      68.5,
+      80.5,
+      160.0,
+      75.2
+     ],
+     "text": "fiipeicie chi fu qucAo &c."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      64.3,
+      46.3,
+      85.2,
+      41.4
+     ],
+     "text": "[xcw)"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      252.8,
+      71.9,
+      277.9,
+      66.0
+     ],
+     "text": "Amaco"
+    }
+   ]
+  },
+  "real-bookscan-notext.pdf": {
+   "docId": "real-bookscan-notext",
+   "class": "real-scan-notext",
+   "wall_ms": 9126,
+   "page_count": 2,
+   "units": 13,
+   "page_sizes": {
+    "1": [
+     1072.5,
+     1515.75
+    ],
+    "2": [
+     1072.5,
+     1515.75
+    ]
+   },
+   "units_data": [
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      113.7,
+      1211.7,
+      863.5,
+      623.6
+     ],
+     "text": "The present volume has grown from an interest in The Ring and the Book, originating years ago in the instruction of Professor Hiram Corson. Under his direction I undertook a more intensive study of the spiritual significance of the poem, and embodied the result in my thesis for the doctorate, printed in 1894. The throbbing reality of the Franceschini tragedy in the poem raised persistent questioning. How far was it historical fact, how far the imagination of the poet? What were the contents of the book, so vividly described by the poet? Fleeting glimpses of the volume in two subsequent visits to England only served to strengthen my purpose to know Browning's Book in detail. Later on, by the courtesy of Balliol College, I was accorded the privilege of free access to the poet's treasure-trove. The significance of the mastery of Robert Browning and the vital humanity of his great work have grown upon me with each year of this study. I trust that this volume may have something of the same effect upon others, and I feel that it is an important document in any future elaboration of the theory of creative genius in literature."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      115.8,
+      435.9,
+      412.3,
+      407.3
+     ],
+     "text": "book to its present issue."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      112.6,
+      624.7,
+      860.3,
+      434.8
+     ],
+     "text": "When it became apparent that the work, if published with due completeness, must be issued by a subsidized press, I turned to the Carnegie Institution of Washington.  The generous interest of its officers has enabled me to plan and execute the work without abridgment, and I am indebted to them for unceasing courtesies and assistance in bringing the"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      112.6,
+      408.9,
+      858.2,
+      251.9
+     ],
+     "text": "As the book might be approached from various points of It is not to present a study of medieval criminal jurisprudence, though I have reason to believe that the book contains much to repay a student in this field ; I have accordingly left without"
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 1,
+     "bbox": [
+      111.5,
+      375.5,
+      856.1,
+      191.0
+     ],
+     "text": "view, my purpose in publishing should be definitely stated. explanation all matters of this nature. Nor is the purpose to elucidate the fact of the Franceschini murder as a matter of"
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 2,
+     "bbox": [
+      183.9,
+      1406.6,
+      890.4,
+      1281.1
+     ],
+     "text": "sì l'Amore nel dolore fi affina, poffo ben dire , che patirò pena à non vederui,come ero folita &c. , e dandoui vn'amot rofo bacio,refto quale fempre fui fuifcerarifsima Amante. e tedelifsima Serua."
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 2,
+     "bbox": [
+      161.0,
+      1171.4,
+      890.4,
+      1104.1
+     ],
+     "text": "Sabato mattina tornò il Sig. Guido, e lei porrà paffare la fera à quattr'hore, ò prima, che vedrà il lume in Camera &c."
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 2,
+     "bbox": [
+      159.5,
+      1285.1,
+      889.2,
+      1160.4
+     ],
+     "text": "Mi fi era fcordato auuifarui,che ftò nella medema ftanza di prima , e Giouedi fera andai à letto à due hore di notte , e perciò lei non mi fenti entrar in Camera . Dilfi alla Serua , che faceffe li fegui, che era reftato di fare &c."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      405.0,
+      1086.4,
+      654.3,
+      1042.1
+     ],
+     "text": "Cariffimo Bene· mio"
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 2,
+     "bbox": [
+      69.5,
+      1024.2,
+      899.1,
+      518.8
+     ],
+     "text": "20. Riceuo la fua à me gratiffima, come tutte l'altre mandatemi &c. Sento, che lei hà hauuto caro il Paftor Fido. Mà vorrei , che lei lo imitaffe , & io imitarò vn' altra Vienna . Sento da lei, che vorrà venire à vederıi alla Villa &c. che vorrei poter fare io , vi farei più volontieri per Spofo , che per Seruo. Lei mi dice, che il Conti non vuol portarui più lettere, vi fò fapere , che io li fò due vezzi, e mi abalta l'animo di fare , che ve le porti , perche io gli dico due buone parole , e lui s'incanta, e farrà quello che io vorrò. Mi dice, che li mandi la corda per la Gelofia, mà non ıi dice la fera &c. Li faccio fapere,che il gelofo è ito à Souara, s'io vı poteffi parlare ; mà il Confeffore non vuole ir conto neffuno,e per quefto io non vi ci faccio venire, che hora non fi apie più I'vfio di ftrada; mà potrete aprire quello della Rımèffa &c. Mà quel Fratc non vò, e non vole. La ringratio delli Baci , che m'inuiateı mà fe me li daffiuo da voi , gi hauerei cari , & io ve ne dò altri, e tanti millioni di quanti me ne date voi &c."
+    },
+    {
+     "kind": "SectionHeaderItem",
+     "label": "section_header",
+     "page": 2,
+     "bbox": [
+      588.3,
+      504.1,
+      847.7,
+      457.8
+     ],
+     "text": "Fedcliffma Amante."
+    },
+    {
+     "kind": "ListItem",
+     "label": "list_item",
+     "page": 2,
+     "bbox": [
+      176.5,
+      441.7,
+      904.0,
+      230.4
+     ],
+     "text": "Io pon sò, che nome mi dare ò Vienna , ò Amarilli , ò Dorinda, ò Lilla, mà voglio dirmi Arianna,quale credo d'hauere à effere , voglio dirmi tale , fe pure voi non fete vo Tefeo, mà vn cafto Giufeppe, ò vn caro Narcifo, ò vn Ilago, ò Fcdone; mà Adone fù pietofo con Venere, mà io non fono tale; mà bensi vaa Meduia . onde merito &c. Se voi hauete letto il Taffo lo faperete chi fù quefto &c."
+    },
+    {
+     "kind": "TextItem",
+     "label": "text",
+     "page": 2,
+     "bbox": [
+      787.9,
+      236.7,
+      873.4,
+      204.7
+     ],
+     "text": "Amato"
+    }
+   ]
+  }
+ },
+ "fresh_cache_test": {
+  "fresh_dir": "C:\\Code Main\\note-lm\\eval\\docling-proto-v2\\results\\fresh_caches",
+  "new_files": {},
+  "changed_files": {},
+  "socket_events": [],
+  "no_download_pass": true
+ },
+ "first_doc_ms": 5656,
+ "peak_rss_mb": 2433.1,
+ "socket_events": []
+}

@@ -1,0 +1,1087 @@
+{
+ "per_doc": {
+  "sc-hafen-logbuch": {
+   "class": "single-column",
+   "comparable_blocks": 9,
+   "median_iou": 0.1381,
+   "median_containment": 0.9864,
+   "min_iou": 0.1166,
+   "max_iou": 0.2695,
+   "block_level": {
+    "n": 8,
+    "median_iou": 0.9914,
+    "p25": 0.9906,
+    "min": 0.9432
+   },
+   "detail": [
+    {
+     "phrase": "Grundlage für die Abstimmung mit der Hafenverwaltu",
+     "iou": 0.1338,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "mobilen Kräne an der Nordmole liefen im März im Zw",
+     "iou": 0.1278,
+     "containment": 0.9828,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+     "iou": 0.1166,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Werftkran außer Betrieb genommen",
+     "iou": 0.1381,
+     "containment": 0.9864,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Krankenstand sank auf 3,1 Prozent",
+     "iou": 0.1273,
+     "containment": 0.9853,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Nachtshift werden zwei weitere Staplerfahrer quali",
+     "iou": 0.2084,
+     "containment": 0.9862,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Betriebsrat wurde über die Verschiebung der Frühsc",
+     "iou": 0.2695,
+     "containment": 0.9864,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Staubmessung an der Kaimauer muss bis 30. April na",
+     "iou": 0.1523,
+     "containment": 0.9864,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Ringanker am Schuppen D zu prüfen",
+     "iou": 0.1394,
+     "containment": 0.9864,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "sc-observatorium-notiz": {
+   "class": "single-column",
+   "comparable_blocks": 5,
+   "median_iou": 0.2052,
+   "median_containment": 0.996,
+   "min_iou": 0.1776,
+   "max_iou": 0.5723,
+   "block_level": {
+    "n": 4,
+    "median_iou": 0.9918,
+    "p25": 0.9442,
+    "min": 0.3898
+   },
+   "detail": [
+    {
+     "phrase": "konstante 18 Grad und eine Luftfeuchte um 45 Proze",
+     "iou": 0.5723,
+     "containment": 0.9999,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Plattenkataloge von 1911 bis 1974 liegen in sieben",
+     "iou": 0.2367,
+     "containment": 0.9864,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Antrag beim Fonds für Regionalkultur ist vorbereit",
+     "iou": 0.1999,
+     "containment": 0.9995,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Statikprüfung im Februar ergab Tragreserven",
+     "iou": 0.1776,
+     "containment": 0.9864,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Begehung mit dem Denkmalamt am 3. Juni vereinbart",
+     "iou": 0.2052,
+     "containment": 0.996,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "tc-wochenbericht": {
+   "class": "two-column",
+   "comparable_blocks": 24,
+   "median_iou": 0.0535,
+   "median_containment": 0.9992,
+   "min_iou": 0.0042,
+   "max_iou": 0.0871,
+   "block_level": {
+    "n": 10,
+    "median_iou": 0.5688,
+    "p25": 0.2476,
+    "min": 0.0395
+   },
+   "detail": [
+    {
+     "phrase": "WQL1 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 0.9854,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL2 Die Tagesordnung",
+     "iou": 0.0043,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL3 Die Tagesordnung",
+     "iou": 0.0043,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL4 Die Tagesordnung",
+     "iou": 0.0043,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL5 Die Tagesordnung",
+     "iou": 0.0043,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL6 Die Tagesordnung",
+     "iou": 0.0043,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL1 Die Tagesordnung",
+     "iou": 0.0661,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL2 Die Tagesordnung",
+     "iou": 0.0661,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL3 Die Tagesordnung",
+     "iou": 0.066,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL4 Die Tagesordnung",
+     "iou": 0.0554,
+     "containment": 0.9992,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL5 Die Tagesordnung",
+     "iou": 0.0554,
+     "containment": 0.9992,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL6 Die Tagesordnung",
+     "iou": 0.0535,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR1 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 0.9854,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR2 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR3 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR4 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR5 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR6 Im Veranstaltungskalender",
+     "iou": 0.0056,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR1 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR2 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR3 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR4 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.9992,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR5 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.9992,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR6 Im Veranstaltungskalender",
+     "iou": 0.0871,
+     "containment": 0.996,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "tc-marktanalyse": {
+   "class": "two-column",
+   "comparable_blocks": 24,
+   "median_iou": 0.0055,
+   "median_containment": 1.0,
+   "min_iou": 0.0042,
+   "max_iou": 0.0055,
+   "block_level": {
+    "n": 2,
+    "median_iou": 0.0395,
+    "p25": 0.0395,
+    "min": 0.0395
+   },
+   "detail": [
+    {
+     "phrase": "MKL1 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKL2 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKL3 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKL4 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKL5 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKL6 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL1 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL2 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL3 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL4 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL5 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYL6 Die Tagesordnung",
+     "iou": 0.0042,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR1 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR2 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR3 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR4 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR5 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MKR6 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR1 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 0.996,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR2 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR3 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR4 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR5 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "MYR6 Im Veranstaltungskalender",
+     "iou": 0.0055,
+     "containment": 1.0,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "tb-lieferschwelle": {
+   "class": "table",
+   "comparable_blocks": 5,
+   "median_iou": 0.0637,
+   "median_containment": 1.0,
+   "min_iou": 0.0542,
+   "max_iou": 0.1246,
+   "block_level": {
+    "n": 4,
+    "median_iou": 0.9916,
+    "p25": 0.9902,
+    "min": 0.9825
+   },
+   "detail": [
+    {
+     "phrase": "FR-101 12,5 kW 2026-03-14",
+     "iou": 0.063,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "FR-118 0,42 EUR/kWh 2026-03-17",
+     "iou": 0.0637,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "FR-204 148 m3/h 2026-03-19",
+     "iou": 0.0542,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "Nordmole offen 2026-03-25",
+     "iou": 0.0987,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "Schuppen D geprüft 2026-03-11",
+     "iou": 0.1246,
+     "containment": 1.0,
+     "item": "TableItem"
+    }
+   ]
+  },
+  "tb-messreihe": {
+   "class": "table",
+   "comparable_blocks": 7,
+   "median_iou": 0.0504,
+   "median_containment": 1.0,
+   "min_iou": 0.0491,
+   "max_iou": 0.0515,
+   "block_level": {
+    "n": 1,
+    "median_iou": 0.9299,
+    "p25": 0.9299,
+    "min": 0.9299
+   },
+   "detail": [
+    {
+     "phrase": "M-01 Durchfluss 0,418 m3/s 0,010 gültig",
+     "iou": 0.0495,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-02 Druck 2,34 bar 0,05 gültig",
+     "iou": 0.0491,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-03 Temperatur 17,9 °C 0,4 geprüft",
+     "iou": 0.0504,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-04 Dichte 1,027 kg/l 0,002 geprüft",
+     "iou": 0.0504,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig",
+     "iou": 0.0511,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig",
+     "iou": 0.0511,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "M-07 pH-Wert 7,32 - 0,05 abgelehnt",
+     "iou": 0.0515,
+     "containment": 1.0,
+     "item": "TableItem"
+    }
+   ]
+  },
+  "sn-versandliste": {
+   "class": "scan-ocr",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 0,
+    "median_iou": null,
+    "p25": null,
+    "min": null
+   },
+   "detail": []
+  },
+  "mx-projektbrief": {
+   "class": "mixed",
+   "comparable_blocks": 7,
+   "median_iou": 0.0573,
+   "median_containment": 1.0,
+   "min_iou": 0.0343,
+   "max_iou": 0.0738,
+   "block_level": {
+    "n": 1,
+    "median_iou": 0.9591,
+    "p25": 0.9591,
+    "min": 0.9591
+   },
+   "detail": [
+    {
+     "phrase": "Verzug von zwei Wochen",
+     "iou": 0.0436,
+     "containment": 0.9992,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Endtermin bleibt bei November",
+     "iou": 0.0418,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Budgetlage ist stabil",
+     "iou": 0.0343,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Rohbau 612 598 14",
+     "iou": 0.058,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "Technik 240 231 9",
+     "iou": 0.0573,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "Innenausbau 180 0 180",
+     "iou": 0.0589,
+     "containment": 1.0,
+     "item": "TableItem"
+    },
+    {
+     "phrase": "Rücklage 60 0 60",
+     "iou": 0.0738,
+     "containment": 1.0,
+     "item": "TableItem"
+    }
+   ]
+  },
+  "rot-sc-hafen-logbuch-180": {
+   "class": "rotate-180",
+   "comparable_blocks": 9,
+   "median_iou": 0.0642,
+   "median_containment": 1.0,
+   "min_iou": 0.0312,
+   "max_iou": 0.6183,
+   "block_level": {
+    "n": 5,
+    "median_iou": 0.9822,
+    "p25": 0.9427,
+    "min": 0.0848
+   },
+   "detail": [
+    {
+     "phrase": "Grundlage für die Abstimmung mit der Hafenverwaltu",
+     "iou": 0.1338,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "mobilen Kräne an der Nordmole liefen im März im Zw",
+     "iou": 0.0727,
+     "containment": 0.9814,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+     "iou": 0.0664,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Werftkran außer Betrieb genommen",
+     "iou": 0.049,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Krankenstand sank auf 3,1 Prozent",
+     "iou": 0.0312,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Nachtshift werden zwei weitere Staplerfahrer quali",
+     "iou": 0.0525,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Betriebsrat wurde über die Verschiebung der Frühsc",
+     "iou": 0.0642,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Staubmessung an der Kaimauer muss bis 30. April na",
+     "iou": 0.6183,
+     "containment": 0.9854,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Ringanker am Schuppen D zu prüfen",
+     "iou": 0.0639,
+     "containment": 1.0,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "rot-tc-wochenbericht-270": {
+   "class": "rotate-270",
+   "comparable_blocks": 24,
+   "median_iou": 0.0416,
+   "median_containment": 0.9949,
+   "min_iou": 0.0,
+   "max_iou": 0.1392,
+   "block_level": {
+    "n": 19,
+    "median_iou": 0.2913,
+    "p25": 0.2472,
+    "min": 0.0
+   },
+   "detail": [
+    {
+     "phrase": "WQL1 Die Tagesordnung",
+     "iou": 0.0481,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL2 Die Tagesordnung",
+     "iou": 0.0311,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL3 Die Tagesordnung",
+     "iou": 0.0311,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL4 Die Tagesordnung",
+     "iou": 0.0555,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL5 Die Tagesordnung",
+     "iou": 0.0555,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQL6 Die Tagesordnung",
+     "iou": 0.1392,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL1 Die Tagesordnung",
+     "iou": 0.0479,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL2 Die Tagesordnung",
+     "iou": 0.0309,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL3 Die Tagesordnung",
+     "iou": 0.0309,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL4 Die Tagesordnung",
+     "iou": 0.0651,
+     "containment": 0.9981,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL5 Die Tagesordnung",
+     "iou": 0.0553,
+     "containment": 0.9981,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXL6 Die Tagesordnung",
+     "iou": 0.1388,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR1 Im Veranstaltungskalender",
+     "iou": 0.0633,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR2 Im Veranstaltungskalender",
+     "iou": 0.0,
+     "containment": 0.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR3 Im Veranstaltungskalender",
+     "iou": 0.0409,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR4 Im Veranstaltungskalender",
+     "iou": 0.0416,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR5 Im Veranstaltungskalender",
+     "iou": 0.0409,
+     "containment": 0.9843,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WQR6 Im Veranstaltungskalender",
+     "iou": 0.0416,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR1 Im Veranstaltungskalender",
+     "iou": 0.0632,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR2 Im Veranstaltungskalender",
+     "iou": 0.0,
+     "containment": 0.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR3 Im Veranstaltungskalender",
+     "iou": 0.0408,
+     "containment": 0.9949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR4 Im Veranstaltungskalender",
+     "iou": 0.0409,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR5 Im Veranstaltungskalender",
+     "iou": 0.0408,
+     "containment": 0.9981,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "WXR6 Im Veranstaltungskalender",
+     "iou": 0.041,
+     "containment": 1.0,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "rot-tb-messreihe-90": {
+   "class": "rotate-90",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 2,
+    "median_iou": 0.9917,
+    "p25": 0.8089,
+    "min": 0.8089
+   },
+   "detail": []
+  },
+  "rscan-sc-observatorium-90": {
+   "class": "rotscan-90",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 0,
+    "median_iou": null,
+    "p25": null,
+    "min": null
+   },
+   "detail": []
+  },
+  "rscan-tb-lieferschwelle-90": {
+   "class": "rotscan-90",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 0,
+    "median_iou": null,
+    "p25": null,
+    "min": null
+   },
+   "detail": []
+  },
+  "real-attn-arxiv": {
+   "class": "real-twocolumn-tables",
+   "comparable_blocks": 6,
+   "median_iou": 0.2619,
+   "median_containment": 1.0,
+   "min_iou": 0.0575,
+   "max_iou": 0.7668,
+   "block_level": {
+    "n": 16,
+    "median_iou": 0.9757,
+    "p25": 0.5714,
+    "min": 0.0951
+   },
+   "detail": [
+    {
+     "phrase": "we must inject some information about the relative",
+     "iou": 0.1004,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "we use sine and cosine functions of different freq",
+     "iou": 0.7668,
+     "containment": 0.949,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Learning long-range dependencies is a key challeng",
+     "iou": 0.2619,
+     "containment": 0.9816,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "The Transformer achieves better BLEU scores than p",
+     "iou": 0.3677,
+     "containment": 0.961,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Training took 3.5 days on 8 P100 GPUs",
+     "iou": 0.0575,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "outperforming all of the previously published sing",
+     "iou": 0.1262,
+     "containment": 1.0,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "real-docling-tr": {
+   "class": "real-mixed-tables",
+   "comparable_blocks": 6,
+   "median_iou": 0.0726,
+   "median_containment": 1.0,
+   "min_iou": 0.0276,
+   "max_iou": 0.2822,
+   "block_level": {
+    "n": 19,
+    "median_iou": 0.1541,
+    "p25": 0.0,
+    "min": 0.0
+   },
+   "detail": [
+    {
+     "phrase": "Runtime characteristics of Docling with the standa",
+     "iou": 0.1446,
+     "containment": 0.9591,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "test dataset of 225 pages",
+     "iou": 0.0537,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "OCR is disabled",
+     "iou": 0.0276,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Prediction performance (mAP@0.5-0.95) of object",
+     "iou": 0.0726,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "detection networks on DocLayNet test set",
+     "iou": 0.0617,
+     "containment": 1.0,
+     "item": "TextItem"
+    },
+    {
+     "phrase": "Birgit Pfitzmann, Christoph Auer, Michele Dolfi",
+     "iou": 0.2822,
+     "containment": 1.0,
+     "item": "TextItem"
+    }
+   ]
+  },
+  "real-bookscan": {
+   "class": "real-scan",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 19,
+    "median_iou": 0.865,
+    "p25": 0.785,
+    "min": 0.637
+   },
+   "detail": []
+  },
+  "real-bookscan-notext": {
+   "class": "real-scan-notext",
+   "comparable_blocks": 0,
+   "median_iou": null,
+   "median_containment": null,
+   "min_iou": null,
+   "max_iou": null,
+   "block_level": {
+    "n": 0,
+    "median_iou": null,
+    "p25": null,
+    "min": null
+   },
+   "detail": []
+  }
+ },
+ "method": "IoU(docling prov bbox, text-layer charbox union) in PDF points; max-IoU matching item",
+ "aggregate_metric_A_phrase_level": {
+  "t1-synth": {
+   "n": 81,
+   "median": 0.0495,
+   "p25": 0.0055,
+   "min": 0.0042
+  },
+  "real": {
+   "n": 12,
+   "median": 0.1262,
+   "p25": 0.0617,
+   "min": 0.0276
+  },
+  "rotated": {
+   "n": 33,
+   "median": 0.0481,
+   "p25": 0.0408,
+   "min": 0.0
+  }
+ },
+ "aggregate_metric_B_block_level": {
+  "t1-synth": {
+   "n": 30,
+   "median": 0.9442,
+   "p25": 0.5688,
+   "min": 0.0395
+  },
+  "real": {
+   "n": 54,
+   "median": 0.8625,
+   "p25": 0.165,
+   "min": 0.0
+  },
+  "rotated": {
+   "n": 26,
+   "median": 0.45,
+   "p25": 0.2472,
+   "min": 0.0
+  }
+ },
+ "aggregate_containment_A": {
+  "t1-synth": {
+   "n": 81,
+   "median": 1.0,
+   "p25": 0.996,
+   "min": 0.9828
+  },
+  "real": {
+   "n": 12,
+   "median": 1.0,
+   "p25": 0.9816,
+   "min": 0.949
+  },
+  "rotated": {
+   "n": 33,
+   "median": 0.9949,
+   "p25": 0.9843,
+   "min": 0.0
+  }
+ }
+}

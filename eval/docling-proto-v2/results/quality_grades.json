@@ -1,0 +1,535 @@
+[
+ {
+  "docId": "sc-hafen-logbuch",
+  "class": "single-column",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "wall_ms": 5656
+ },
+ {
+  "docId": "sc-observatorium-notiz",
+  "class": "single-column",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "wall_ms": 1696
+ },
+ {
+  "docId": "tc-wochenbericht",
+  "class": "two-column",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "column_order_p1": {
+   "rule": "all left sentinels before all right sentinels",
+   "pass": false,
+   "left_found": 6,
+   "right_found": 6
+  },
+  "column_order_p2": {
+   "rule": "all left sentinels before all right sentinels",
+   "pass": false,
+   "left_found": 6,
+   "right_found": 6
+  },
+  "wall_ms": 1496
+ },
+ {
+  "docId": "tc-marktanalyse",
+  "class": "two-column",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "column_order_p1": {
+   "rule": "all left sentinels before all right sentinels",
+   "pass": false,
+   "left_found": 6,
+   "right_found": 6
+  },
+  "column_order_p2": {
+   "rule": "all left sentinels before all right sentinels",
+   "pass": false,
+   "left_found": 6,
+   "right_found": 6
+  },
+  "wall_ms": 1497
+ },
+ {
+  "docId": "tb-lieferschwelle",
+  "class": "table",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "tables": [
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 1.0,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 24,
+    "missing_cells": [],
+    "dims_expected": [
+     6,
+     4
+    ],
+    "dims_found": [
+     6,
+     4
+    ],
+    "dims_exact": true,
+    "tables_on_page": 1
+   },
+   {
+    "page": 3,
+    "found": true,
+    "cell_recall": 1.0,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 9,
+    "missing_cells": [],
+    "dims_expected": [
+     3,
+     3
+    ],
+    "dims_found": [
+     3,
+     3
+    ],
+    "dims_exact": true,
+    "tables_on_page": 1
+   }
+  ],
+  "table_cell_recall_agg": 1.0,
+  "wall_ms": 4497
+ },
+ {
+  "docId": "tb-messreihe",
+  "class": "table",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "tables": [
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 1.0,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 40,
+    "missing_cells": [],
+    "dims_expected": [
+     8,
+     5
+    ],
+    "dims_found": [
+     8,
+     5
+    ],
+    "dims_exact": true,
+    "tables_on_page": 1
+   }
+  ],
+  "table_cell_recall_agg": 1.0,
+  "wall_ms": 3405
+ },
+ {
+  "docId": "sn-versandliste",
+  "class": "scan-ocr",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "wall_ms": 2186
+ },
+ {
+  "docId": "mx-projektbrief",
+  "class": "mixed",
+  "phrase_recall": 0.75,
+  "phrase_misses": [
+   {
+    "page": 3,
+    "text": "Planung 42"
+   },
+   {
+    "page": 3,
+    "text": "Bau 118"
+   },
+   {
+    "page": 3,
+    "text": "Prüfung 17"
+   }
+  ],
+  "tables": [
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 1.0,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 20,
+    "missing_cells": [],
+    "dims_expected": [
+     5,
+     4
+    ],
+    "dims_found": [
+     5,
+     4
+    ],
+    "dims_exact": true,
+    "tables_on_page": 1
+   }
+  ],
+  "table_cell_recall_agg": 1.0,
+  "wall_ms": 4208
+ },
+ {
+  "docId": "rot-sc-hafen-logbuch-180",
+  "class": "rotate-180",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "wall_ms": 2215
+ },
+ {
+  "docId": "rot-tc-wochenbericht-270",
+  "class": "rotate-270",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "wall_ms": 1651
+ },
+ {
+  "docId": "rot-tb-messreihe-90",
+  "class": "rotate-90",
+  "phrase_recall": 0.0,
+  "phrase_misses": [
+   {
+    "page": 2,
+    "text": "M-01 Durchfluss 0,418 m3/s 0,010 gültig"
+   },
+   {
+    "page": 2,
+    "text": "M-02 Druck 2,34 bar 0,05 gültig"
+   },
+   {
+    "page": 2,
+    "text": "M-03 Temperatur 17,9 °C 0,4 geprüft"
+   },
+   {
+    "page": 2,
+    "text": "M-04 Dichte 1,027 kg/l 0,002 geprüft"
+   },
+   {
+    "page": 2,
+    "text": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig"
+   },
+   {
+    "page": 2,
+    "text": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig"
+   },
+   {
+    "page": 2,
+    "text": "M-07 pH-Wert 7,32 - 0,05 abgelehnt"
+   }
+  ],
+  "tables": [
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 0.85,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 40,
+    "missing_cells": [
+     "612",
+     "μs/cm",
+     "8",
+     "7,32",
+     "-",
+     "abgelehnt"
+    ],
+    "dims_expected": [
+     8,
+     5
+    ],
+    "dims_found": [
+     5,
+     8
+    ],
+    "dims_exact": false,
+    "tables_on_page": 1
+   }
+  ],
+  "table_cell_recall_agg": 0.85,
+  "wall_ms": 3658
+ },
+ {
+  "docId": "rscan-sc-observatorium-90",
+  "class": "rotscan-90",
+  "phrase_recall": 0.0,
+  "phrase_misses": [
+   {
+    "page": 1,
+    "text": "konstante 18 Grad und eine Luftfeuchte um 45 Prozent"
+   },
+   {
+    "page": 1,
+    "text": "Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken"
+   },
+   {
+    "page": 1,
+    "text": "Antrag beim Fonds für Regionalkultur ist vorbereitet"
+   },
+   {
+    "page": 2,
+    "text": "Statikprüfung im Februar ergab Tragreserven"
+   },
+   {
+    "page": 2,
+    "text": "Begehung mit dem Denkmalamt am 3. Juni vereinbart"
+   }
+  ],
+  "wall_ms": 8774
+ },
+ {
+  "docId": "rscan-tb-lieferschwelle-90",
+  "class": "rotscan-90",
+  "phrase_recall": 0.0,
+  "phrase_misses": [
+   {
+    "page": 2,
+    "text": "FR-101 12,5 kW 2026-03-14"
+   },
+   {
+    "page": 2,
+    "text": "FR-118 0,42 EUR/kWh 2026-03-17"
+   },
+   {
+    "page": 2,
+    "text": "FR-204 148 m3/h 2026-03-19"
+   }
+  ],
+  "tables": [
+   {
+    "page": 2,
+    "found": false,
+    "cell_recall": 0.0,
+    "dims": null,
+    "tables_on_page": 0
+   }
+  ],
+  "table_cell_recall_agg": 0.0,
+  "wall_ms": 7614
+ },
+ {
+  "docId": "real-attn-arxiv",
+  "class": "real-twocolumn-tables",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "tables": [
+   {
+    "page": 1,
+    "found": true,
+    "cell_recall": 1.0,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 20,
+    "missing_cells": [],
+    "dims_expected": [
+     4,
+     4
+    ],
+    "dims_found": [
+     5,
+     4
+    ],
+    "dims_exact": false,
+    "tables_on_page": 1
+   },
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 0.8049,
+    "cell_recall_substring": 1.0,
+    "expected_cells": 41,
+    "missing_cells": [
+     "bytenet",
+     "deep-att+posunk",
+     "gnmt+rl",
+     "convs2s",
+     "moe",
+     "deep-att+posunkensemble",
+     "gnmt+rlensemble",
+     "convs2sensemble"
+    ],
+    "dims_expected": [
+     10,
+     5
+    ],
+    "dims_found": [
+     12,
+     5
+    ],
+    "dims_exact": false,
+    "tables_on_page": 1
+   }
+  ],
+  "table_cell_recall_agg": 0.9024,
+  "column_order_real": {
+   "rule": "all left-column phrases before all right-column phrases (p1)",
+   "left_classified": 2,
+   "right_classified": 1,
+   "pass": false
+  },
+  "wall_ms": 5348
+ },
+ {
+  "docId": "real-docling-tr",
+  "class": "real-mixed-tables",
+  "phrase_recall": 1.0,
+  "phrase_misses": [],
+  "tables": [
+   {
+    "page": 1,
+    "found": true,
+    "cell_recall": 0.1429,
+    "cell_recall_substring": 0.9286,
+    "expected_cells": 28,
+    "missing_cells": [
+     "applem3max(16cores)",
+     "4",
+     "177s",
+     "1.27",
+     "103s",
+     "2.18",
+     "applem3max(16cores)",
+     "16",
+     "167s",
+     "1.34",
+     "92s",
+     "2.45",
+     "intel(r)xeone5-2690(16cores)",
+     "4",
+     "375s",
+     "0.60",
+     "239s",
+     "0.94",
+     "intel(r)xeone5-2690(16cores)",
+     "16",
+     "244s",
+     "0.92",
+     "143s",
+     "1.57"
+    ],
+    "dims_expected": [
+     2,
+     8
+    ],
+    "dims_found": [
+     4,
+     8
+    ],
+    "dims_exact": false,
+    "tables_on_page": 1
+   },
+   {
+    "page": 2,
+    "found": true,
+    "cell_recall": 0.6579,
+    "cell_recall_substring": 0.9342,
+    "expected_cells": 76,
+    "missing_cells": [
+     "human",
+     "mrcnn",
+     "frcnn",
+     "yolo",
+     "70.1",
+     "77.7",
+     "73.7",
+     "63.5",
+     "66.2",
+     "81.0",
+     "86.2",
+     "58.9",
+     "61.1",
+     "72.0",
+     "67.9",
+     "72.0",
+     "77.1",
+     "section-header",
+     "74.6",
+     "86.3",
+     "text",
+     "85.4",
+     "88.1",
+     "79.9",
+     "73.4",
+     "76.8"
+    ],
+    "dims_expected": [
+     13,
+     6
+    ],
+    "dims_found": [
+     13,
+     5
+    ],
+    "dims_exact": false,
+    "tables_on_page": 2
+   }
+  ],
+  "table_cell_recall_agg": 0.4004,
+  "wall_ms": 11280
+ },
+ {
+  "docId": "real-bookscan",
+  "class": "real-scan",
+  "phrase_recall": 0.0,
+  "phrase_misses": [
+   {
+    "page": 1,
+    "text": "GENERAL PREFACE"
+   },
+   {
+    "page": 1,
+    "text": "The present volume has grown from an interest in"
+   },
+   {
+    "page": 1,
+    "text": "originating years ago in the instruction of"
+   },
+   {
+    "page": 1,
+    "text": "Professor Hiram Corson"
+   },
+   {
+    "page": 1,
+    "text": "The throbbing reality of the Franceschini tragedy"
+   },
+   {
+    "page": 1,
+    "text": "How far was it historical fact"
+   },
+   {
+    "page": 1,
+    "text": "by the courtesy of Balliol College"
+   },
+   {
+    "page": 1,
+    "text": "I turned to the Carnegie Institution of Washington"
+   },
+   {
+    "page": 1,
+    "text": "and embodied the result in my thesis for the doctorate"
+   },
+   {
+    "page": 1,
+    "text": "It is not to present a study of medieval criminal jurisprude"
+   },
+   {
+    "page": 1,
+    "text": "Nor is the purpose to elucidate the fact of the Franceschini"
+   }
+  ],
+  "wall_ms": 1872
+ },
+ {
+  "docId": "real-bookscan-notext",
+  "class": "real-scan-notext",
+  "phrase_recall": 0.9091,
+  "phrase_misses": [
+   {
+    "page": 1,
+    "text": "GENERAL PREFACE"
+   }
+  ],
+  "wall_ms": 9126
+ }
+]

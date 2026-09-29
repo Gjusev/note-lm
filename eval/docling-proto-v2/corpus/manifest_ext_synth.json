@@ -1,0 +1,351 @@
+{
+  "docs": [
+    {
+      "docId": "rot-sc-hafen-logbuch-180",
+      "fileName": "rot-sc-hafen-logbuch-180.pdf",
+      "derivedFrom": "sc-hafen-logbuch.pdf",
+      "class": "rotate-180",
+      "pages": 3,
+      "expectedPhrases": [
+        {
+          "text": "Grundlage für die Abstimmung mit der Hafenverwaltung",
+          "page": 1
+        },
+        {
+          "text": "mobilen Kräne an der Nordmole liefen im März im Zweischichtbetrieb",
+          "page": 1
+        },
+        {
+          "text": "mittlere Wartezeit vor dem Kai lag bei 38 Minuten",
+          "page": 1
+        },
+        {
+          "text": "Werftkran außer Betrieb genommen",
+          "page": 1
+        },
+        {
+          "text": "Krankenstand sank auf 3,1 Prozent",
+          "page": 2
+        },
+        {
+          "text": "Nachtshift werden zwei weitere Staplerfahrer qualifiziert",
+          "page": 2
+        },
+        {
+          "text": "Betriebsrat wurde über die Verschiebung der Frühschicht informiert",
+          "page": 2
+        },
+        {
+          "text": "Staubmessung an der Kaimauer muss bis 30. April nachgereicht",
+          "page": 3
+        },
+        {
+          "text": "Ringanker am Schuppen D zu prüfen",
+          "page": 3
+        }
+      ]
+    },
+    {
+      "docId": "rot-tc-wochenbericht-270",
+      "fileName": "rot-tc-wochenbericht-270.pdf",
+      "derivedFrom": "tc-wochenbericht.pdf",
+      "class": "rotate-270",
+      "pages": 2,
+      "expectedPhrases": [
+        {
+          "text": "WQL1 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL2 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL3 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL4 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL5 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WQL6 Die Tagesordnung",
+          "page": 1
+        },
+        {
+          "text": "WXL1 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL2 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL3 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL4 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL5 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WXL6 Die Tagesordnung",
+          "page": 2
+        },
+        {
+          "text": "WQR1 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR2 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR3 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR4 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR5 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WQR6 Im Veranstaltungskalender",
+          "page": 1
+        },
+        {
+          "text": "WXR1 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR2 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR3 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR4 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR5 Im Veranstaltungskalender",
+          "page": 2
+        },
+        {
+          "text": "WXR6 Im Veranstaltungskalender",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "docId": "rot-tb-messreihe-90",
+      "fileName": "rot-tb-messreihe-90.pdf",
+      "derivedFrom": "tb-messreihe.pdf",
+      "class": "rotate-90",
+      "pages": 2,
+      "expectedPhrases": [
+        {
+          "text": "M-01 Durchfluss 0,418 m3/s 0,010 gültig",
+          "page": 2
+        },
+        {
+          "text": "M-02 Druck 2,34 bar 0,05 gültig",
+          "page": 2
+        },
+        {
+          "text": "M-03 Temperatur 17,9 °C 0,4 geprüft",
+          "page": 2
+        },
+        {
+          "text": "M-04 Dichte 1,027 kg/l 0,002 geprüft",
+          "page": 2
+        },
+        {
+          "text": "M-05 Viskosität 1,86 mPa·s 0,03 vorläufig",
+          "page": 2
+        },
+        {
+          "text": "M-06 Leitfähigkeit 612 µS/cm 8 vorläufig",
+          "page": 2
+        },
+        {
+          "text": "M-07 pH-Wert 7,32 - 0,05 abgelehnt",
+          "page": 2
+        }
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "rows": 8,
+          "cols": 5,
+          "cells": [
+            [
+              "Messung",
+              "Wert",
+              "Einheit",
+              "Toleranz",
+              "Status"
+            ],
+            [
+              "M-01 Durchfluss",
+              "0,418",
+              "m3/s",
+              "0,010",
+              "gültig"
+            ],
+            [
+              "M-02 Druck",
+              "2,34",
+              "bar",
+              "0,05",
+              "gültig"
+            ],
+            [
+              "M-03 Temperatur",
+              "17,9",
+              "°C",
+              "0,4",
+              "geprüft"
+            ],
+            [
+              "M-04 Dichte",
+              "1,027",
+              "kg/l",
+              "0,002",
+              "geprüft"
+            ],
+            [
+              "M-05 Viskosität",
+              "1,86",
+              "mPa·s",
+              "0,03",
+              "vorläufig"
+            ],
+            [
+              "M-06 Leitfähigkeit",
+              "612",
+              "µS/cm",
+              "8",
+              "vorläufig"
+            ],
+            [
+              "M-07 pH-Wert",
+              "7,32",
+              "-",
+              "0,05",
+              "abgelehnt"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "docId": "rscan-sc-observatorium-90",
+      "fileName": "rscan-sc-observatorium-90.pdf",
+      "derivedFrom": "sc-observatorium-notiz.pdf",
+      "class": "rotscan-90",
+      "pages": 2,
+      "expectedPhrases": [
+        {
+          "text": "konstante 18 Grad und eine Luftfeuchte um 45 Prozent",
+          "page": 1
+        },
+        {
+          "text": "Plattenkataloge von 1911 bis 1974 liegen in sieben Schränken",
+          "page": 1
+        },
+        {
+          "text": "Antrag beim Fonds für Regionalkultur ist vorbereitet",
+          "page": 1
+        },
+        {
+          "text": "Statikprüfung im Februar ergab Tragreserven",
+          "page": 2
+        },
+        {
+          "text": "Begehung mit dem Denkmalamt am 3. Juni vereinbart",
+          "page": 2
+        }
+      ]
+    },
+    {
+      "docId": "rscan-tb-lieferschwelle-90",
+      "fileName": "rscan-tb-lieferschwelle-90.pdf",
+      "derivedFrom": "tb-lieferschwelle.pdf",
+      "class": "rotscan-90",
+      "pages": 1,
+      "expectedPhrases": [
+        {
+          "text": "FR-101 12,5 kW 2026-03-14",
+          "page": 2
+        },
+        {
+          "text": "FR-118 0,42 EUR/kWh 2026-03-17",
+          "page": 2
+        },
+        {
+          "text": "FR-204 148 m3/h 2026-03-19",
+          "page": 2
+        }
+      ],
+      "tables": [
+        {
+          "page": 2,
+          "rows": 6,
+          "cols": 4,
+          "cells": [
+            [
+              "Kennung",
+              "Schwelle",
+              "Einheit",
+              "Stand"
+            ],
+            [
+              "FR-101",
+              "12,5",
+              "kW",
+              "2026-03-14"
+            ],
+            [
+              "FR-118",
+              "0,42",
+              "EUR/kWh",
+              "2026-03-17"
+            ],
+            [
+              "FR-204",
+              "148",
+              "m3/h",
+              "2026-03-19"
+            ],
+            [
+              "FR-311",
+              "3,7",
+              "t/Tag",
+              "2026-03-21"
+            ],
+            [
+              "FR-402",
+              "91",
+              "%",
+              "2026-03-24"
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

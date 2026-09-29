@@ -1,0 +1,146 @@
+{
+  "note": "Hand-authored ground truth for the real external docs, written BEFORE any docling run on them (T5 criteria: transcription recorded before extraction). Superscript/subscript typography is flattened the way the PDF text layer flattens it (e.g. 10^20 -> 1020); the grader normalizes by casefolding and stripping ALL whitespace, and maps unicode superscripts to digits, so '1.0·1020' matches '1.0 · 10^20' and '1.0·10²⁰'.",
+  "docs": [
+    {
+      "docId": "real-attn-arxiv",
+      "fileName": "real-attn-arxiv.pdf",
+      "pages": 2,
+      "class": "real-twocolumn-tables",
+      "source": "arXiv 1706.03762 (Attention Is All You Need), pages 6 and 8; arXiv non-exclusive distribution license",
+      "expectedPhrases": [
+        {"text": "we must inject some information about the relative or absolute position", "page": 1},
+        {"text": "we use sine and cosine functions of different frequencies", "page": 1},
+        {"text": "Learning long-range dependencies is a key challenge", "page": 1},
+        {"text": "The Transformer achieves better BLEU scores than previous state-of-the-art models", "page": 2},
+        {"text": "Training took 3.5 days on 8 P100 GPUs", "page": 2},
+        {"text": "outperforming all of the previously published single models", "page": 2}
+      ],
+      "tables": [
+        {
+          "page": 1,
+          "caption": "Table 1: Maximum path lengths, per-layer complexity and minimum number of sequential operations",
+          "rows": 4,
+          "cols": 4,
+          "cells": [
+            ["Layer Type", "Complexity per Layer", "Sequential Operations", "Maximum Path Length"],
+            ["Self-Attention", "O(n2 · d)", "O(1)", "O(1)"],
+            ["Recurrent", "O(n · d2)", "O(n)", "O(n)"],
+            ["Convolutional", "O(k · n · d2)", "O(1)", "O(logk(n))"],
+            ["Self-Attention (restricted)", "O(r · n · d)", "O(1)", "O(n/r)"]
+          ]
+        },
+        {
+          "page": 2,
+          "caption": "Table 2: BLEU scores and training cost",
+          "rows": 10,
+          "cols": 5,
+          "cells": [
+            ["ByteNet", "23.75"],
+            ["Deep-Att + PosUnk", "39.2", "1.0 · 1020"],
+            ["GNMT + RL", "24.6", "39.92", "2.3 · 1019", "1.4 · 1020"],
+            ["ConvS2S", "25.16", "40.46", "9.6 · 1018", "1.5 · 1020"],
+            ["MoE", "26.03", "40.56", "2.0 · 1019", "1.2 · 1020"],
+            ["Deep-Att + PosUnk Ensemble", "40.4", "8.0 · 1020"],
+            ["GNMT + RL Ensemble", "26.30", "41.16", "1.8 · 1020", "1.1 · 1021"],
+            ["ConvS2S Ensemble", "26.36", "41.29", "7.7 · 1019", "1.2 · 1021"],
+            ["Transformer (base model)", "27.3", "38.1", "3.3 · 1018"],
+            ["Transformer (big)", "28.4", "41.8", "2.3 · 1019"]
+          ]
+        }
+      ]
+    },
+    {
+      "docId": "real-docling-tr",
+      "fileName": "real-docling-tr.pdf",
+      "pages": 2,
+      "class": "real-mixed-tables",
+      "source": "arXiv 2408.09869 (Docling Technical Report), pages 5 and 8; arXiv non-exclusive distribution license",
+      "expectedPhrases": [
+        {"text": "Runtime characteristics of Docling with the standard model pipeline", "page": 1},
+        {"text": "test dataset of 225 pages", "page": 1},
+        {"text": "OCR is disabled", "page": 1},
+        {"text": "Prediction performance (mAP@0.5-0.95) of object", "page": 2},
+        {"text": "detection networks on DocLayNet test set", "page": 2},
+        {"text": "Birgit Pfitzmann, Christoph Auer, Michele Dolfi", "page": 2}
+      ],
+      "tables": [
+        {
+          "page": 1,
+          "caption": "Table 1: Runtime characteristics (nested header, merged cells)",
+          "rows": 2,
+          "cols": 8,
+          "cells": [
+            ["Apple M3 Max (16 cores)", "4", "177 s", "1.27", "6.20 GB", "103 s", "2.18", "2.56 GB"],
+            ["Apple M3 Max (16 cores)", "16", "167 s", "1.34", "92 s", "2.45"],
+            ["Intel(R) Xeon E5-2690 (16 cores)", "4", "375 s", "0.60", "6.16 GB", "239 s", "0.94", "2.42 GB"],
+            ["Intel(R) Xeon E5-2690 (16 cores)", "16", "244 s", "0.92", "143 s", "1.57"]
+          ]
+        },
+        {
+          "page": 2,
+          "caption": "Table 2: DocLayNet mAP",
+          "rows": 13,
+          "cols": 6,
+          "cells": [
+            ["human", "MRCNN", "FRCNN", "YOLO"],
+            ["Caption", "84-89", "68.4", "71.5", "70.1", "77.7"],
+            ["Footnote", "83-91", "70.9", "71.8", "73.7", "77.2"],
+            ["Formula", "83-85", "60.1", "63.4", "63.5", "66.2"],
+            ["List-item", "87-88", "81.2", "80.8", "81.0", "86.2"],
+            ["Page-footer", "93-94", "61.6", "59.3", "58.9", "61.1"],
+            ["Page-header", "85-89", "71.9", "70.0", "72.0", "67.9"],
+            ["Picture", "69-71", "71.7", "72.7", "72.0", "77.1"],
+            ["Section-header", "83-84", "67.6", "69.3", "68.4", "74.6"],
+            ["Table", "77-81", "82.2", "82.9", "82.2", "86.3"],
+            ["Text", "84-86", "84.6", "85.8", "85.4", "88.1"],
+            ["Title", "60-72", "76.7", "80.4", "79.9", "82.7"],
+            ["All", "82-83", "72.4", "73.5", "73.4", "76.8"]
+          ]
+        }
+      ]
+    },
+    {
+      "docId": "real-bookscan",
+      "fileName": "real-bookscan.pdf",
+      "pages": 2,
+      "class": "real-scan",
+      "source": "Wikimedia Commons scan 'The old yellow book, source of Browning's The ring and the book' (Carnegie Institution, 1911), public domain; pages 21 and 130",
+      "expectedPhrases": [
+        {"text": "GENERAL PREFACE", "page": 1},
+        {"text": "The present volume has grown from an interest in", "page": 1},
+        {"text": "originating years ago in the instruction of", "page": 1},
+        {"text": "Professor Hiram Corson", "page": 1},
+        {"text": "The throbbing reality of the Franceschini tragedy", "page": 1},
+        {"text": "How far was it historical fact", "page": 1},
+        {"text": "by the courtesy of Balliol College", "page": 1},
+        {"text": "I turned to the Carnegie Institution of Washington", "page": 1},
+        {"text": "and embodied the result in my thesis for the doctorate", "page": 1},
+        {"text": "It is not to present a study of medieval criminal jurisprudence", "page": 1},
+        {"text": "Nor is the purpose to elucidate the fact of the Franceschini murder", "page": 1}
+      ],
+      "tables": [],
+      "note": "Page 2 (book p.130) has no graded phrases: transcription tooling timed out twice; the page is kept as an ungraded OCR stress page and this is stated in the report."
+    },
+    {
+      "docId": "real-bookscan-notext",
+      "fileName": "real-bookscan-notext.pdf",
+      "pages": 2,
+      "class": "real-scan-notext",
+      "source": "image-only 300-dpi rebuild of the same real scan pages (embedded IA OCR text layer stripped); same ground truth transcription",
+      "expectedPhrases": [
+        {"text": "GENERAL PREFACE", "page": 1},
+        {"text": "The present volume has grown from an interest in", "page": 1},
+        {"text": "originating years ago in the instruction of", "page": 1},
+        {"text": "Professor Hiram Corson", "page": 1},
+        {"text": "The throbbing reality of the Franceschini tragedy", "page": 1},
+        {"text": "How far was it historical fact", "page": 1},
+        {"text": "by the courtesy of Balliol College", "page": 1},
+        {"text": "I turned to the Carnegie Institution of Washington", "page": 1},
+        {"text": "and embodied the result in my thesis for the doctorate", "page": 1},
+        {"text": "It is not to present a study of medieval criminal jurisprudence", "page": 1},
+        {"text": "Nor is the purpose to elucidate the fact of the Franceschini murder", "page": 1}
+      ],
+      "tables": []
+    }
+  ]
+}

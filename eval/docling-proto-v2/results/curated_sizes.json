@@ -1,0 +1,36 @@
+{
+  "audit_proven_kept": [
+    "docling-project--docling-layout-heron\\config.json",
+    "docling-project--docling-layout-heron\\preprocessor_config.json",
+    "docling-project--docling-layout-heron\\model.safetensors",
+    "docling-project--docling-models\\model_artifacts\\tableformer\\accurate\\tableformer_accurate.safetensors",
+    "docling-project--docling-models\\model_artifacts\\tableformer\\accurate\\tm_config.json",
+    "RapidOcr\\PP-OCRv6_det_small.onnx",
+    "RapidOcr\\PP-OCRv6_rec_small.onnx",
+    "RapidOcr\\ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+    "RapidOcr\\ppocrv6_dict.txt"
+  ],
+  "dropped_rationale": {
+    "docling-project--docling-layout-heron-onnx": "never opened in any audited class; runtime loads the TORCH heron (audit-proven; contradicts the T1 report's assumption)",
+    "model_artifacts/tableformer/fast/": "never opened; pipeline uses TableFormerMode.ACCURATE (default)",
+    ".pth twins in RapidOcr": "never opened; RapidOCR runtime is onnxruntime",
+    ".cache/huggingface metadata trees + README/.gitattributes/sample png": "download-time artifacts; not read at inference (audit); not needed when loading from a fixed local artifacts path"
+  },
+  "sizes_bytes": {
+    "source_models_logical": 765217887,
+    "curated_models_logical": 416252612,
+    "curated_zip": 384107456,
+    "curated_7z": 375169523
+  },
+  "sizes_mib": {
+    "source_models_logical": 729.8,
+    "curated_models_logical": 397.0,
+    "curated_zip": 366.3,
+    "curated_7z": 357.8,
+    "source_models_du": 729.9,
+    "curated_models_du": 397.0,
+    "venv_du_today": 1272.4,
+    "venv_logical_today": 1196.9,
+    "t1_reported_venv_mb": 1406.6
+  }
+}

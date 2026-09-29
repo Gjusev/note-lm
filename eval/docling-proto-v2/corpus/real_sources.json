@@ -1,0 +1,48 @@
+[
+  {
+    "docId": "real-attn-arxiv",
+    "url": "https://arxiv.org/pdf/1706.03762",
+    "source_sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "source_bytes": 2215244,
+    "source_pages": 15,
+    "selected_pages_1based": [
+      6,
+      8
+    ],
+    "derived_sha256": "8d1afc27f58b1dcff39332c7ecbc6321a83c751a6c1f17c817f11febde14043e",
+    "derived_bytes": 162509
+  },
+  {
+    "docId": "real-docling-tr",
+    "url": "https://arxiv.org/pdf/2408.09869",
+    "source_sha256": "82dd470712ce8389f19f20eb9330475e2166a281f8c7990a9f1d0763d73b4d22",
+    "source_bytes": 5566575,
+    "source_pages": 9,
+    "selected_pages_1based": [
+      5,
+      8
+    ],
+    "derived_sha256": "0193db53e5512ba37d6a7f876b95543a64a75bed4483ec0d9048e00047757948",
+    "derived_bytes": 3388575
+  },
+  {
+    "docId": "real-bookscan-notext",
+    "derived_from": "real-bookscan.pdf",
+    "derived_sha256": "60fe2c949855fed24417afc773612c6d10edff2c1637bca0fb3404a465eb9709",
+    "derived_bytes": 2128616,
+    "note": "image-only rebuild of the real scan raster at 300 dpi; no text layer; deterministic given source"
+  },
+  {
+    "docId": "real-bookscan",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/e1/The_old_yellow_book%2C_source_of_Browning%27s_The_ring_and_the_book.._%28IA_oldyellowbooksou00np%29.pdf",
+    "source_sha256": "7a2171b037c07d34bc2da4a5f3aea33a3d50854ca3b0a1d57e8483038651d74c",
+    "source_bytes": 35741342,
+    "source_pages": 666,
+    "selected_pages_1based": [
+      21,
+      130
+    ],
+    "derived_sha256": "56ace6a1e5e44cbfb6e6ca63ac1c45d88484023197f834441ab75ba9036fde3f",
+    "derived_bytes": 106708
+  }
+]
