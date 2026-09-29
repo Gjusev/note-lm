@@ -180,7 +180,7 @@ describe("ai providers", () => {
       embed: async () => Array.from({ length: 4 }, () => 0.5),
       stop: async () => undefined,
     };
-    const localChat = makeLocalChat(handle, "modell.gguf");
+    const localChat = makeLocalChat(db, handle, "modell.gguf");
     await setOfflineMode(db, true);
     const result = await localChat([{ role: "user", content: "hi" }]);
     expect(result.text).toBe("lokal beantwortet");
