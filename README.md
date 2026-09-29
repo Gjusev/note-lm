@@ -94,3 +94,25 @@ Docker remains an alternative packaging (`Dockerfile`).
 **Youssef Ouhaghi Ahmian** — [mokka-agentur.de](https://mokka-agentur.de) · [GitHub](https://github.com/Gjusev)
 
 MIT License — see [LICENSE](LICENSE).
+
+## Development & benchmark
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — setup, tests, TDD-at-the-seams
+  workflow, commit conventions and the contribution areas currently wanted.
+- [ARCHITECTURE.md](ARCHITECTURE.md) — one-page map: engine over stdio,
+  SQLite, job queues, the versioned evidence model and the provider seam.
+- [SECURITY.md](SECURITY.md) — how to report vulnerabilities privately.
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant v2.1.
+
+The open benchmark (synthetic, redistributable corpora + published results,
+negative ones included) runs with one command:
+
+```bash
+npm run eval:benchmark
+```
+
+It regenerates and validates both eval corpora, runs the retrieval eval
+(FTS; hybrid when the local llama.cpp embedding artifacts are present) and
+the E1/E2 change-review suite, then writes `eval/reports/benchmark-summary.md`.
+Details and provenance: [eval/README.md](eval/README.md). MIT — see
+[LICENSE](LICENSE).

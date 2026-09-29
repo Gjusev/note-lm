@@ -20,6 +20,7 @@
     "fetch:ffmpeg": "node scripts/fetch-ffmpeg.mjs",
     "verify:desktop": "node scripts/desktop-verify.mjs",
     "eval:retrieval": "tsx scripts/eval-retrieval.ts",
+    "eval:benchmark": "node scripts/run-benchmark.mjs",
     "fetch:llama": "node scripts/fetch-llama.mjs",
     "build:desktop": "vite build --config src/desktop/vite.config.ts"
   },
