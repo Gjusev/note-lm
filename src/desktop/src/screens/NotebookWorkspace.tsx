@@ -13,7 +13,7 @@ import { EvidencePanel, formatTimeRange } from "../components/EvidencePanel";
  *  narrow windows (plan B4) — tabs at <900px via CSS. */
 export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"sources" | "claims" | "notes" | "calculations">("sources");
+  const [tab, setTab] = useState<"sources" | "claims" | "notes" | "calculations" | "materials">("sources");
 
   const { data: sources } = useQuery({
     queryKey: ["sources", notebookId],
@@ -78,7 +78,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
         aria-label="Quellen und Notizen"
       >
         <div style={{ display: "flex", gap: "var(--space-1)" }}>
-          {(["sources", "claims", "notes", "calculations"] as const).map((t) => (
+          {(["sources", "claims", "notes", "calculations", "materials"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -87,10 +87,18 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
                 flex: 1,
                 borderColor: tab === t ? "var(--accent)" : "var(--rule)",
                 color: tab === t ? "var(--accent)" : "inherit",
-                fontSize: "0.75rem",
+                fontSize: "0.7rem",
               }}
             >
-              {t === "sources" ? "Quellen" : t === "claims" ? "Aussagen" : t === "notes" ? "Notizen" : "Berechnungen"}
+              {t === "sources"
+                ? "Quellen"
+                : t === "claims"
+                  ? "Aussagen"
+                  : t === "notes"
+                    ? "Notizen"
+                    : t === "calculations"
+                      ? "Berechnungen"
+                      : "Materialien"}
             </button>
           ))}
         </div>
@@ -143,6 +151,8 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
           <ClaimsPanel notebookId={notebookId} />
         ) : tab === "calculations" ? (
           <CalcPanel notebookId={notebookId} sources={sources ?? []} />
+        ) : tab === "materials" ? (
+          <MaterialsPanel notebookId={notebookId} />
         ) : (
           <NotesPanel notebookId={notebookId} />
         )}
@@ -438,19 +448,18 @@ function CitationList({
   );
 }
 
-/** Claims tab (versioned-evidence S4): status/origin/resolution chips, anchor
- *  chips opening the in-app EvidencePanel, pending review proposals with
- *  Übernehmen/Ablehnen, manual creation. */
+/** Claims tab (versioned-evidence S4): status/origin chips, anchor chips
+ *  opening the in-app EvidencePanel, EVERY proposal of a claim (pending with
+ *  Übernehmen/Ablehnen; decided rows render decision + versions once the
+ *  engine serves them - review.list is pending-only today), manual creation.
+ *  No session decision memory: resolution state comes from query invalidation
+ *  only. */
 function ClaimsPanel({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
   // the one open evidence panel - AnchorChip makes the anchor click open the
   // in-app reader; "Extern öffnen" lives inside the panel
   const [evidence, setEvidence] = useState<ClaimAnchorView | null>(null);
-  // resolutions made this session (claimId -> decision + time), shown next to
-  // the status badge: the engine keeps resolved proposals out of review.list
-  // (pending-only), so this is the visible resolution state for this session
-  const [resolutions, setResolutions] = useState<Map<string, { decision: "accepted" | "rejected"; at: number }>>(new Map());
 
   const { data: claims } = useQuery({
     queryKey: ["claims", notebookId],
@@ -477,13 +486,11 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
   const resolve = useMutation({
     mutationFn: (p: { claimId: string; proposalId: string; decision: "accepted" | "rejected" }) =>
       desktopApi.resolveReview(p.proposalId, p.decision),
-    onSuccess: (_data, p) => {
+    onSuccess: () => {
+      // no session memory: the refetch brings back the persisted decision
       invalidate();
-      setResolutions((prev) => new Map(prev).set(p.claimId, { decision: p.decision, at: Date.now() }));
     },
   });
-
-  const proposalsByClaim = new Map((reviews ?? []).map((p) => [p.claimId, p]));
 
   return (
     <>
@@ -546,60 +553,82 @@ function ClaimsPanel({ notebookId }: { notebookId: string }) {
                 <span className="muted" style={{ fontSize: "0.75rem" }}>
                   {c.origin === "chat" ? "Chat" : "Manuell"}
                 </span>
-                {(() => {
-                  const res = resolutions.get(c._id);
-                  if (!res) return null;
-                  return (
-                    <span className="muted" style={{ fontSize: "0.75rem" }}>
-                      {res.decision === "accepted" ? "Übernommen" : "Abgelehnt"} am{" "}
-                      {new Date(res.at).toLocaleString("de-DE")}
-                    </span>
-                  );
-                })()}
               </div>
               <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{c.text}</p>
               {c.anchors.map((a) => (
                 <AnchorChip key={a.id} anchor={a} onOpen={setEvidence} />
               ))}
               {(() => {
-                const proposal = proposalsByClaim.get(c._id);
-                if (!proposal) return null;
+                // EVERY proposal of this claim, oldest first; pending rows
+                // carry the decision buttons, decided rows (once the engine
+                // serves them - pending-only today) render the recorded
+                // decision instead. No session fallback: query data only.
+                const proposals = (reviews ?? [])
+                  .filter((p) => p.claimId === c._id)
+                  .sort((a, b) => a.createdAt - b.createdAt);
+                const renderedPending = proposals.filter((p) => p.status === "pending").length;
                 return (
-                  <div
-                    style={{
-                      border: "1px solid var(--warn)",
-                      borderRadius: "var(--radius)",
-                      padding: "var(--space-1) var(--space-2)",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "var(--space-1)",
-                    }}
-                  >
-                    <span style={{ fontSize: "0.75rem" }}>
-                      Überarbeitung vorgeschlagen — {proposal.detail ?? proposal.reason}
-                    </span>
-                    <div style={{ display: "flex", gap: "var(--space-1)" }}>
-                      <button
-                        disabled={resolve.isPending}
-                        onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "accepted" })}
-                      >
-                        Übernehmen
-                      </button>
-                      <button
-                        disabled={resolve.isPending}
-                        onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "rejected" })}
-                      >
-                        Ablehnen
-                      </button>
-                    </div>
-                  </div>
+                  <>
+                    {proposals.map((proposal) =>
+                      proposal.status === "pending" ? (
+                        <div
+                          key={proposal.id}
+                          style={{
+                            border: "1px solid var(--warn)",
+                            borderRadius: "var(--radius)",
+                            padding: "var(--space-1) var(--space-2)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "var(--space-1)",
+                          }}
+                        >
+                          <span style={{ fontSize: "0.75rem" }}>
+                            Überarbeitung vorgeschlagen · v{proposal.fromVersion} → v{proposal.toVersion} —{" "}
+                            {proposal.detail ?? proposal.reason}
+                          </span>
+                          <div style={{ display: "flex", gap: "var(--space-1)" }}>
+                            <button
+                              disabled={resolve.isPending}
+                              onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "accepted" })}
+                            >
+                              Übernehmen
+                            </button>
+                            <button
+                              disabled={resolve.isPending}
+                              onClick={() => resolve.mutate({ claimId: c._id, proposalId: proposal.id, decision: "rejected" })}
+                            >
+                              Ablehnen
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // decided row: decision + versions + the finding, once
+                        // review.list serves non-pending rows (pending-only today)
+                        <div
+                          key={proposal.id}
+                          style={{
+                            border: "1px solid var(--rule)",
+                            borderRadius: "var(--radius)",
+                            padding: "var(--space-1) var(--space-2)",
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          <span className="muted">
+                            {proposal.status === "accepted" ? "Übernommen" : "Abgelehnt"}
+                            {" · "}v{proposal.fromVersion} → v{proposal.toVersion} —{" "}
+                            {proposal.detail ?? proposal.reason}
+                          </span>
+                        </div>
+                      )
+                    )}
+                    {c.pendingReviews > 0 && renderedPending === 0 && (
+                      <span className="muted" style={{ fontSize: "0.75rem" }}>
+                        {c.pendingReviews} offene Überarbeitung(en)
+                      </span>
+                    )}
+                  </>
                 );
               })()}
-              {c.pendingReviews > 0 && !proposalsByClaim.has(c._id) && (
-                <span className="muted" style={{ fontSize: "0.75rem" }}>
-                  {c.pendingReviews} offene Überarbeitung(en)
-                </span>
-              )}
             </li>
           ))}
         </ul>
@@ -884,6 +913,124 @@ function CalcPanel({ notebookId, sources }: { notebookId: string; sources: Sourc
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** German labels for the engine's material types (dispatch materials.request
+ *  VALID_TYPES); order = the select's order. */
+const MATERIAL_TYPES: ReadonlyArray<{ id: string; label: string }> = [
+  { id: "summary", label: "Zusammenfassung" },
+  { id: "flashcards", label: "Lernkarten" },
+  { id: "quiz", label: "Quiz" },
+  { id: "studyGuide", label: "Lernleitfaden" },
+  { id: "keyInsights", label: "Kernpunkte" },
+  { id: "podcastSummary", label: "Podcast-Zusammenfassung" },
+  { id: "slides", label: "Folien" },
+];
+
+/** Materials tab: pick a type, request generation (a typed busy error shows
+ *  verbatim), list every material of the notebook with polling while any row
+ *  is non-terminal. Completed content renders as a pre-wrap text block (no
+ *  markdown dependency); error rows show the engine message. */
+function MaterialsPanel({ notebookId }: { notebookId: string }) {
+  const queryClient = useQueryClient();
+  const [type, setType] = useState("summary");
+
+  const { data: materials } = useQuery({
+    queryKey: ["materials", notebookId],
+    queryFn: () => desktopApi.listMaterials(notebookId),
+    refetchInterval: (q) =>
+      q.state.data?.some((m) => m.status === "pending" || m.status === "generating") ? 3000 : false,
+  });
+
+  const request = useMutation({
+    mutationFn: () => desktopApi.requestMaterial(notebookId, type),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["materials", notebookId] }),
+  });
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", overflowY: "auto", minHeight: 0 }}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!request.isPending) request.mutate();
+        }}
+        style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}
+      >
+        <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
+          Materialtyp
+          <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Materialtyp">
+            {MATERIAL_TYPES.map((t) => (
+              <option key={t.id} value={t.id}>{t.label}</option>
+            ))}
+          </select>
+        </label>
+        <button className="primary" type="submit" disabled={request.isPending}>
+          {request.isPending ? "Wird erstellt…" : "Erstellen"}
+        </button>
+        {request.isError && (
+          <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{request.error.message}</p>
+        )}
+      </form>
+      {(materials ?? []).length === 0 ? (
+        <p className="muted" style={{ fontSize: "0.85rem" }}>
+          Noch keine Materialien. Typ wählen und „Erstellen“ drücken.
+        </p>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          {(materials ?? []).map((m) => (
+            <div
+              key={m._id}
+              style={{
+                padding: "var(--space-2)",
+                border: "1px solid var(--rule)",
+                borderRadius: "var(--radius)",
+                fontSize: "0.85rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1)",
+              }}
+            >
+              <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "baseline" }}>
+                <strong>
+                  {MATERIAL_TYPES.find((t) => t.id === m.type)?.label ?? m.type}
+                </strong>
+                <span
+                  className="mono"
+                  style={{ fontSize: "0.7rem", color: m.status === "error" ? "var(--accent)" : "var(--ink-40)" }}
+                >
+                  {m.status === "completed"
+                    ? new Date(m.updatedAt).toLocaleDateString("de-DE")
+                    : m.status === "error"
+                      ? "Fehler"
+                      : "wird erstellt…"}
+                </span>
+                {m.needsReview === 1 && (
+                  <span
+                    className="mono"
+                    style={{ fontSize: "0.7rem", color: "var(--warn)" }}
+                    title="Eine versionierte Quelle, aus der dieses Material erstellt wurde, wurde geändert."
+                  >
+                    Quelle geändert - Inhalt prüfen
+                  </span>
+                )}
+              </div>
+              {m.status === "error" && m.errorMessage && (
+                <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{m.errorMessage}</p>
+              )}
+              {m.status === "completed" && m.content && (
+                <p style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>{m.content}</p>
+              )}
+              {(m.status === "pending" || m.status === "generating") && (
+                <p className="muted" style={{ margin: 0, fontSize: "0.8rem" }}>
+                  {m.status === "pending" ? "In der Warteschlange…" : "Wird generiert…"}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>

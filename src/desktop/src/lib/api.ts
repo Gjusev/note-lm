@@ -23,8 +23,12 @@ export interface ClaimView {
   _id: string; text: string; origin: "chat" | "user"; status: "active" | "reviewed" | "withdrawn";
   createdAt: number; anchors: ClaimAnchorView[]; pendingReviews: number; reviewReasons: string[];
 }
+/** Wire shape of review.list (listPendingReviews): from/to versions and the
+ *  status come with every proposal; today only pending rows are served, so
+ *  decided rows have no wire source yet (noted gap, not fabricated here). */
 export interface ReviewProposalView {
   id: string; claimId: string; reason: string; detail: string | null; createdAt: number;
+  fromVersion: number; toVersion: number; status: string;
 }
 export interface EvidenceRef {
   fileName: string | null; page: number | null;
@@ -83,6 +87,15 @@ export interface CatalogModelView {
   notes: string;
 }
 
+/** One learning material row (materials.list = full learning_materials row
+ *  wired with _id). providerLabel is NOT part of the row (no such column in
+ *  the schema) - no provider attribution is available per material today. */
+export interface MaterialView {
+  _id: string; type: string; status: "pending" | "generating" | "completed" | "error";
+  content: string | null; errorMessage: string | null;
+  needsReview: number; createdAt: number; updatedAt: number;
+}
+
 export const desktopApi = {
   listNotebooks: () => call<Notebook[]>("notebooks.list"),
   createNotebook: (title: string) => call<{ id: string }>("notebooks.create", { title }),
@@ -115,8 +128,7 @@ export const desktopApi = {
       fileName: entry.url!.split("/").pop(),
       sha256: entry.sha256,
     }),
-  listMaterials: (notebookId: string) =>
-    call<Array<{ _id: string; type: string; status: string; content?: string | null; errorMessage?: string | null }>>("materials.list", { notebookId }),
+  listMaterials: (notebookId: string) => call<MaterialView[]>("materials.list", { notebookId }),
   requestMaterial: (notebookId: string, type: string) =>
     call<{ id: string }>("materials.request", { notebookId, type }),
   listJobs: () => call<{ jobs: Array<{ kind: "processing" | "import" | "material"; id: string; notebookId: string; title: string; status: string; intent: "run" | "pause" | "cancel"; updatedAt: number }>; schedulerPaused: boolean }>("jobs.list", {}),
@@ -175,6 +187,16 @@ export async function pickFile(): Promise<{ path: string; name: string } | null>
   if (!path || typeof path !== "string") return null;
   const name = path.split(/[\\/]/).pop() || "datei";
   return { path, name };
+}
+
+/** Tauri asset-protocol URL for a stored file path (asset:// on macOS/Linux,
+ *  http://asset.localhost on Windows). Null in browser dev: no Rust host, no
+ *  asset protocol - callers keep the quote-only view instead of a broken src. */
+export function assetUrl(path: string): string | null {
+  if (typeof window === "undefined" || !("__TAURI__" in window)) return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const convert = (window as any).__TAURI__.core?.convertFileSrc as ((p: string) => string) | undefined;
+  return typeof convert === "function" ? convert(path) : null;
 }
 
 /** Onboarding sample (strategy §9): the Rust command composes the engine ops

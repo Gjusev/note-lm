@@ -44,6 +44,7 @@
     "nodemailer": "^8.0.7",
     "openai": "^6.39.0",
     "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^4.10.38",
     "pg": "^8.21.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
