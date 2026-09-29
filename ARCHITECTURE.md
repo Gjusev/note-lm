@@ -85,7 +85,7 @@ negative ones, e.g. the recorded PI-2 "do not adopt" decision — live under
 ## Implementation status
 
 Three delivery levels: **PROBADO DESDE INSTALADOR** (asserted against the
-packaged app by `npm run verify:desktop` — `scripts/desktop-verify.mjs`, 16
+packaged app by `npm run verify:desktop` — `scripts/desktop-verify.mjs`, 17
 gates from typecheck through NSIS silent install/uninstall, all on a PATH
 stripped of Node), **IMPLEMENTADO** (in code and covered by unit/e2e suites,
 not yet asserted from the installer), **PENDIENTE**.
@@ -106,6 +106,14 @@ not yet asserted from the installer), **PENDIENTE**.
 - Interruption recovery: kill mid-download leaves a resumable partial, restart
   completes the import; a paused job survives restart and resumes to
   completion — gates `installed recovery`, `installed pause survives restart`.
+- Full user walkthrough end to end: URL import (source + chunks + immutable
+  v1), anchored claim, changed re-import of the SAME url appends v2 and
+  raises the staleness proposal, typed `not_a_sheet` over the page source,
+  CSV import + deterministic sum calculation, engine killed mid-download and
+  resumed after restart, export/import round trip into a fresh data dir
+  (claims, versions, proposals, calculation ride along), chat without a
+  configured provider answers the typed `no_provider` — gate `installed
+  walkthrough`.
 - NSIS silent install/uninstall with full engine process teardown — gates
   `silent install`, `uninstall + process teardown`.
 
@@ -117,6 +125,16 @@ not yet asserted from the installer), **PENDIENTE**.
 - Calculations engine ops — `src/__tests__/calculations.test.ts`.
 - Time-range media anchors — `src/__tests__/media-evidence.test.ts`.
 - Portable packages, formatVersion 2 incl. metadata-only — `src/__tests__/notebook-transfer.test.ts`.
+- Reliability: worker shutdown drains in-flight lanes before closing SQLite —
+  engine-pool regression test + zero-occurrence greps
+  (`src/__tests__/engine-pool.test.ts`); import confinement + staged atomic
+  rollback on restore — `src/__tests__/notebook-transfer.test.ts`; chunk
+  provenance (chunks carry the version that produced them, migration 0013) —
+  `src/__tests__/chunk-provenance.test.ts`.
+- In-app evidence reader and materials UI wired in the desktop frontend
+  (`vite build` green) — `src/desktop/src/components/EvidencePanel.tsx`,
+  `src/desktop/src/screens/NotebookWorkspace.tsx`; manual click-through
+  verification still pending as before.
 - Versioned-source UI (Neue Version, Versions expander, Berechnungen tab,
   EvidencePanel) — `src/desktop/src/screens/NotebookWorkspace.tsx`,
   `src/desktop/src/components/EvidencePanel.tsx`; ops underneath in
@@ -131,8 +149,6 @@ not yet asserted from the installer), **PENDIENTE**.
 
 - In-app PDF page rendering — the evidence panel shows quote + locator, no
   page image (`src/desktop/src/components/EvidencePanel.tsx`).
-- Materials UI in desktop — engine ops + label data ready (`materials.request`
-  in `src/engine/dispatch.ts`).
 - Local ASR/TTS — `transcribe`/`tts` capabilities typed but unresolvable
   (`src/lib/ai/providers.ts`).
 - E3 human pilot; I5/I6 gated experiments (adaptive router, visual retrieval,

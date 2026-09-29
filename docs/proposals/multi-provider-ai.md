@@ -1,9 +1,14 @@
 # Multi-provider AI layer (config-driven capability resolution)
 
-> **Status: DECIDED — adopt with adjustments. S1 in progress.** The owner adopted the
-> design with binding adjustments, folded into this document in place (Sep 2026).
-> Product specs under `docs/specs/` remain the user-authored source of truth.
-> Derived from a design + critique + library-verdict research pass over the current
+> **Status: DECIDED — adopt with adjustments. IMPLEMENTED: S1–S3, per owner decision B.** The owner adopted the
+> design with binding adjustments, folded into this document in place (Sep 2026). All three migration
+> slices are implemented and tested:
+> - **S1** — connections model + config-driven capability resolution + presets catalog + offline call-time blocking + client-cache fix + normalized ChatResult/AbortSignal + typed `no_provider` (`src/lib/ai/providers.ts`, `src/engine/capabilities.ts`).
+> - **S2** — `secret_request`/`secret_response` stdio channel (Rust keyring grant policy + demux in both hosts) + side-effect-free `providers.test` + settings UI.
+> - **S3** — transcribe injection + egress disclosure chips + `provider_runs` telemetry (honest nulls, retention pruning).
+>
+> Remaining in the current scope: none. Product specs under `docs/specs/` remain the user-authored
+> source of truth. Derived from a design + critique + library-verdict research pass over the current
 > tree (`src/engine/capabilities.ts`, `src/lib/openai.ts`, `src/engine/protocol.ts`,
 > `src-tauri/src/engine.rs`, `src/engine/main.ts`).
 
