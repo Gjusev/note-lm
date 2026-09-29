@@ -1,0 +1,43 @@
+{
+  "docId": "de-erzgebirge-holzmanufaktur",
+  "fileName": "de-erzgebirge-holzmanufaktur.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Erzgebirge Holzmanufaktur"
+      ],
+      "firstWords": "Erzgebirge Holzmanufaktur"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Überblick"
+      ],
+      "firstWords": "Überblick"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Anlagen"
+      ],
+      "firstWords": "Anlagen"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Zahlen und Kennzahlen"
+      ],
+      "firstWords": "Zahlen und Kennzahlen"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Ausblick"
+      ],
+      "firstWords": "Ausblick"
+    }
+  ],
+  "notes": []
+}

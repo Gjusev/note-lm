@@ -1,0 +1,43 @@
+{
+  "docId": "es-guadalquivir-azud",
+  "fileName": "es-guadalquivir-azud.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Azud de Villanueva"
+      ],
+      "firstWords": "Azud de Villanueva"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Resumen general"
+      ],
+      "firstWords": "Resumen general"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Instalaciones"
+      ],
+      "firstWords": "Instalaciones"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Cifras de la campaña"
+      ],
+      "firstWords": "Cifras de la campaña"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Planificación"
+      ],
+      "firstWords": "Planificación"
+    }
+  ],
+  "notes": []
+}

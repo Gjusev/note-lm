@@ -1,0 +1,43 @@
+{
+  "docId": "es-montseny-reserva",
+  "fileName": "es-montseny-reserva.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Reserva de la Biosfera del Montseny"
+      ],
+      "firstWords": "Reserva de la Biosfera del Montseny"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Resumen general"
+      ],
+      "firstWords": "Resumen general"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Programa del tritón"
+      ],
+      "firstWords": "Programa del tritón"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Cifras del territorio"
+      ],
+      "firstWords": "Cifras del territorio"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Planificación"
+      ],
+      "firstWords": "Planificación"
+    }
+  ],
+  "notes": []
+}

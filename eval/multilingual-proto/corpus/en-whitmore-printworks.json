@@ -1,0 +1,43 @@
+{
+  "docId": "en-whitmore-printworks",
+  "fileName": "en-whitmore-printworks.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Whitmore Printworks"
+      ],
+      "firstWords": "Whitmore Printworks"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Overview"
+      ],
+      "firstWords": "Overview"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Facilities"
+      ],
+      "firstWords": "Facilities"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Figures"
+      ],
+      "firstWords": "Figures"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Plans"
+      ],
+      "firstWords": "Plans"
+    }
+  ],
+  "notes": []
+}

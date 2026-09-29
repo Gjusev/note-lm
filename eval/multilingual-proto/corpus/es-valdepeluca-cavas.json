@@ -1,0 +1,43 @@
+{
+  "docId": "es-valdepeluca-cavas",
+  "fileName": "es-valdepeluca-cavas.pdf",
+  "language": "es",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Bodegas Valdepeluca"
+      ],
+      "firstWords": "Bodegas Valdepeluca"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Resumen general"
+      ],
+      "firstWords": "Resumen general"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Sala de barricas"
+      ],
+      "firstWords": "Sala de barricas"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Cifras de la vendimia"
+      ],
+      "firstWords": "Cifras de la vendimia"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Planificación"
+      ],
+      "firstWords": "Planificación"
+    }
+  ],
+  "notes": []
+}

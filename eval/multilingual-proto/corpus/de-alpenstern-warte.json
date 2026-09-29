@@ -1,0 +1,43 @@
+{
+  "docId": "de-alpenstern-warte",
+  "fileName": "de-alpenstern-warte.pdf",
+  "language": "de",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Alpenstern-Warte"
+      ],
+      "firstWords": "Alpenstern-Warte"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Überblick"
+      ],
+      "firstWords": "Überblick"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Anlagen"
+      ],
+      "firstWords": "Anlagen"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Zahlen und Kennzahlen"
+      ],
+      "firstWords": "Zahlen und Kennzahlen"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Ausblick"
+      ],
+      "firstWords": "Ausblick"
+    }
+  ],
+  "notes": []
+}

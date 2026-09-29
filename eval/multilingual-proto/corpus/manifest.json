@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "corpus": "multilingual-proto-v1",
+  "generator": "generate-corpus.mjs",
+  "pdfLib": "1.17.1",
+  "deterministic": true,
+  "docs": [
+    {
+      "docId": "en-brightwater-marina",
+      "fileName": "en-brightwater-marina.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-harrow-glassworks",
+      "fileName": "en-harrow-glassworks.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-larkfield-seedbank",
+      "fileName": "en-larkfield-seedbank.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "en-whitmore-printworks",
+      "fileName": "en-whitmore-printworks.pdf",
+      "language": "en",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-guadalquivir-azud",
+      "fileName": "es-guadalquivir-azud.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-montseny-reserva",
+      "fileName": "es-montseny-reserva.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-valdepeluca-cavas",
+      "fileName": "es-valdepeluca-cavas.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "es-almeria-granos",
+      "fileName": "es-almeria-granos.pdf",
+      "language": "es",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-havel-trockendock",
+      "fileName": "de-havel-trockendock.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-erzgebirge-holzmanufaktur",
+      "fileName": "de-erzgebirge-holzmanufaktur.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-ruhr-filterwerk",
+      "fileName": "de-ruhr-filterwerk.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    },
+    {
+      "docId": "de-alpenstern-warte",
+      "fileName": "de-alpenstern-warte.pdf",
+      "language": "de",
+      "pages": 5,
+      "sectionCount": 4
+    }
+  ],
+  "totals": {
+    "docs": 12,
+    "pages": 60
+  },
+  "languageCounts": {
+    "en": 4,
+    "es": 4,
+    "de": 4
+  }
+}

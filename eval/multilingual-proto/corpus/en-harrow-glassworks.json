@@ -1,0 +1,43 @@
+{
+  "docId": "en-harrow-glassworks",
+  "fileName": "en-harrow-glassworks.pdf",
+  "language": "en",
+  "pages": [
+    {
+      "pageIndex": 1,
+      "sectionTitles": [
+        "Harrow Glassworks"
+      ],
+      "firstWords": "Harrow Glassworks"
+    },
+    {
+      "pageIndex": 2,
+      "sectionTitles": [
+        "Overview"
+      ],
+      "firstWords": "Overview"
+    },
+    {
+      "pageIndex": 3,
+      "sectionTitles": [
+        "Facilities"
+      ],
+      "firstWords": "Facilities"
+    },
+    {
+      "pageIndex": 4,
+      "sectionTitles": [
+        "Figures"
+      ],
+      "firstWords": "Figures"
+    },
+    {
+      "pageIndex": 5,
+      "sectionTitles": [
+        "Plans"
+      ],
+      "firstWords": "Plans"
+    }
+  ],
+  "notes": []
+}

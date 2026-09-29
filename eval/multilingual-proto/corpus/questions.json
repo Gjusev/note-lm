@@ -1,0 +1,724 @@
+{
+  "version": 1,
+  "corpus": "multilingual-proto-v1",
+  "counts": {
+    "total": 40,
+    "dev": 16,
+    "eval": 24
+  },
+  "types": {
+    "exact-fact": 12,
+    "cross-lingual-fact": 20,
+    "unanswerable": 8
+  },
+  "pairCounts": {
+    "es-es": 4,
+    "es-de": 4,
+    "es-en": 3,
+    "none": 8,
+    "de-de": 4,
+    "de-es": 4,
+    "de-en": 3,
+    "en-en": 4,
+    "en-es": 3,
+    "en-de": 3
+  },
+  "questions": [
+    {
+      "id": "mono-es-azud-desde",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Desde qué año opera la Confederación el azud de Villanueva?",
+      "docIds": [
+        "es-guadalquivir-azud"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 2,
+          "section": "Resumen general",
+          "quoteSnippet": "desde 1972"
+        }
+      ]
+    },
+    {
+      "id": "mono-es-azud-caudal",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuál fue el caudal medio durante la campaña de aforos de 2024?",
+      "docIds": [
+        "es-guadalquivir-azud"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 4,
+          "section": "Cifras de la campaña",
+          "quoteSnippet": "82 m³/s"
+        }
+      ]
+    },
+    {
+      "id": "mono-es-valdepeluca-barricas",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuántas barricas de roble alberga la sala de barricas de Valdepeluca?",
+      "docIds": [
+        "es-valdepeluca-cavas"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-valdepeluca-cavas",
+          "page": 3,
+          "section": "Sala de barricas",
+          "quoteSnippet": "4.200 barricas"
+        }
+      ]
+    },
+    {
+      "id": "mono-es-almeria-cinta",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "es",
+      "pair": "es-es",
+      "question": "¿Cuál es la capacidad de la cinta transportadora principal de la terminal de granos de Almería?",
+      "docIds": [
+        "es-almeria-granos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "850 toneladas por hora"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-alpenstern-altitude",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿A qué altitud sobre el nivel del mar está situado el observatorio astronómico alpino?",
+      "docIds": [
+        "de-alpenstern-warte"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpenstern-warte",
+          "page": 2,
+          "section": "Überblick",
+          "quoteSnippet": "2.120 Metern Seehöhe"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-erzgebirge-fundacion",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿En qué año se fundó el aserradero histórico de las montañas?",
+      "docIds": [
+        "de-erzgebirge-holzmanufaktur"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-erzgebirge-holzmanufaktur",
+          "page": 2,
+          "section": "Überblick",
+          "quoteSnippet": "1908 als Sägemühle gegründet"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-ruhr-poros",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿De qué tamaño son los poros de los filtros de la planta de agua potable?",
+      "docIds": [
+        "de-ruhr-filterwerk"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "0,02 Mikrometer"
+        }
+      ]
+    },
+    {
+      "id": "x-es-de-havel-barcos",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-de",
+      "question": "¿Cuántos buques recibe al año el dique seco de la zona Este?",
+      "docIds": [
+        "de-havel-trockendock"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-havel-trockendock",
+          "page": 4,
+          "section": "Zahlen und Kennzahlen",
+          "quoteSnippet": "90 Schiffe pro Jahr"
+        }
+      ]
+    },
+    {
+      "id": "x-es-en-brightwater-atraques",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántos atraques tiene el puerto deportivo del suroeste?",
+      "docIds": [
+        "en-brightwater-marina"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-brightwater-marina",
+          "page": 2,
+          "section": "Overview",
+          "quoteSnippet": "385 berths"
+        }
+      ]
+    },
+    {
+      "id": "x-es-en-harrow-horno",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuánto costó la reconstrucción del segundo horno de la fábrica de vidrio?",
+      "docIds": [
+        "en-harrow-glassworks"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-harrow-glassworks",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "1.8 million pounds"
+        }
+      ]
+    },
+    {
+      "id": "x-es-en-whitmore-empleados",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "es",
+      "pair": "es-en",
+      "question": "¿Cuántas personas trabajan en la imprenta familiar?",
+      "docIds": [
+        "en-whitmore-printworks"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 2,
+          "section": "Overview",
+          "quoteSnippet": "63 people"
+        }
+      ]
+    },
+    {
+      "id": "ua-es-acuario",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Cuánto cuesta la entrada al acuario de Sevilla?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "acuario de Sevilla"
+    },
+    {
+      "id": "ua-es-zarza",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Qué coche eléctrico presenta la marca Zarza en 2027?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Zarza"
+    },
+    {
+      "id": "ua-es-apnea",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "es",
+      "pair": "none",
+      "question": "¿Cuál es el récord mundial de apnea estática en piscina?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "apnea estática"
+    },
+    {
+      "id": "mono-de-havel-dock",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie lang ist das Trockendock der Havelwerft?",
+      "docIds": [
+        "de-havel-trockendock"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-havel-trockendock",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "145 Meter lang"
+        }
+      ]
+    },
+    {
+      "id": "mono-de-erzgebirge-saege",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viel Kubikmeter Fichtenholz verarbeitet das Sägewerk der Erzgebirge Holzmanufaktur pro Jahr?",
+      "docIds": [
+        "de-erzgebirge-holzmanufaktur"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-erzgebirge-holzmanufaktur",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "12.500 Kubikmeter"
+        }
+      ]
+    },
+    {
+      "id": "mono-de-ruhr-abgabe",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Wie viel Trinkwasser liefert das Ruhr-Filterwerk täglich ins Netz?",
+      "docIds": [
+        "de-ruhr-filterwerk"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 4,
+          "section": "Zahlen und Kennzahlen",
+          "quoteSnippet": "140.000 Kubikmeter Trinkwasser"
+        }
+      ]
+    },
+    {
+      "id": "mono-de-alpenstern-spiegel",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "de",
+      "pair": "de-de",
+      "question": "Welchen Durchmesser hat der Hauptspiegel der Alpenstern-Warte?",
+      "docIds": [
+        "de-alpenstern-warte"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpenstern-warte",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "2,4 Meter Durchmesser"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-azud-caudal",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie hoch war der mittlere Abfluss am Wehr während der Messkampagne 2024?",
+      "docIds": [
+        "es-guadalquivir-azud"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 4,
+          "section": "Cifras de la campaña",
+          "quoteSnippet": "82 m³/s"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-montseny-gipfel",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie hoch ist der höchste Gipfel des Naturschutzgebiets?",
+      "docIds": [
+        "es-montseny-reserva"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-montseny-reserva",
+          "page": 4,
+          "section": "Cifras del territorio",
+          "quoteSnippet": "1.706 metros"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-almeria-schiffe",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Schiffe hat der Getreidehafen im Jahr 2024 abgefertigt?",
+      "docIds": [
+        "es-almeria-granos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 4,
+          "section": "Cifras del ejercicio",
+          "quoteSnippet": "46 buques"
+        }
+      ]
+    },
+    {
+      "id": "x-de-es-azud-reforestacion",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-es",
+      "question": "Wie viele Hektar Auwald sollen am Flusswehr aufgeforstet werden?",
+      "docIds": [
+        "es-guadalquivir-azud"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-guadalquivir-azud",
+          "page": 5,
+          "section": "Planificación",
+          "quoteSnippet": "90 hectáreas de ribera"
+        }
+      ]
+    },
+    {
+      "id": "x-de-en-brightwater-baggerung",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wie viel Schlamm hat die Baggerkampagne im Sportboothafen 2024 entfernt?",
+      "docIds": [
+        "en-brightwater-marina"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-brightwater-marina",
+          "page": 4,
+          "section": "Figures",
+          "quoteSnippet": "11,200 cubic metres of silt"
+        }
+      ]
+    },
+    {
+      "id": "x-de-en-larkfield-akzessionen",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "de",
+      "pair": "de-en",
+      "question": "Wie viele Akzessionen umfasst die Sammlung der Saatgutbank?",
+      "docIds": [
+        "en-larkfield-seedbank"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-larkfield-seedbank",
+          "page": 2,
+          "section": "Overview",
+          "quoteSnippet": "41,300 accessions"
+        }
+      ]
+    },
+    {
+      "id": "x-de-en-whitmore-bogen",
+      "language": "de",
+      "pair": "de-en",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "question": "Wie viele Bogen pro Stunde schafft die größte Druckmaschine der Buchdruckerei?",
+      "docIds": [
+        "en-whitmore-printworks"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "12,000 sheets per hour"
+        }
+      ]
+    },
+    {
+      "id": "ua-de-erfurt",
+      "subset": "dev",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie hoch fällt die Tariferhöhung der Straßenbahn in Erfurt 2027 aus?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Erfurt"
+    },
+    {
+      "id": "ua-de-schwarm",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Welches Startup baut Schwarmdrohnen in Rostock?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Schwarmdrohnen"
+    },
+    {
+      "id": "ua-de-bitcoin",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "de",
+      "pair": "none",
+      "question": "Wie viele Bitcoin-Miner stehen im Harz?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Bitcoin"
+    },
+    {
+      "id": "mono-en-brightwater-berths",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How many berths does the Brightwater Marina Trust manage?",
+      "docIds": [
+        "en-brightwater-marina"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-brightwater-marina",
+          "page": 2,
+          "section": "Overview",
+          "quoteSnippet": "385 berths"
+        }
+      ]
+    },
+    {
+      "id": "mono-en-larkfield-temperature",
+      "subset": "dev",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "At what temperature is the main vault of the Larkfield Seed Bank held?",
+      "docIds": [
+        "en-larkfield-seedbank"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-larkfield-seedbank",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "-18 °C"
+        }
+      ]
+    },
+    {
+      "id": "mono-en-harrow-output",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much container glass does Harrow Glassworks deliver per year?",
+      "docIds": [
+        "en-harrow-glassworks"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-harrow-glassworks",
+          "page": 3,
+          "section": "Facilities",
+          "quoteSnippet": "14,000 tonnes of container glass"
+        }
+      ]
+    },
+    {
+      "id": "mono-en-whitmore-paper",
+      "subset": "eval",
+      "type": "exact-fact",
+      "language": "en",
+      "pair": "en-en",
+      "question": "How much paper did Whitmore Printworks consume in 2025?",
+      "docIds": [
+        "en-whitmore-printworks"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "en-whitmore-printworks",
+          "page": 4,
+          "section": "Figures",
+          "quoteSnippet": "1,900 tonnes of paper"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-montseny-declaracion",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "In which year was the biosphere reserve designated?",
+      "docIds": [
+        "es-montseny-reserva"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-montseny-reserva",
+          "page": 2,
+          "section": "Resumen general",
+          "quoteSnippet": "en 1978"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-valdepeluca-vendimia",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How many tonnes of grapes were harvested at the Rioja winery in 2024?",
+      "docIds": [
+        "es-valdepeluca-cavas"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-valdepeluca-cavas",
+          "page": 4,
+          "section": "Cifras de la vendimia",
+          "quoteSnippet": "2.900 toneladas de uva"
+        }
+      ]
+    },
+    {
+      "id": "x-en-es-almeria-calado",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-es",
+      "question": "How deep is the berth at the grain terminal?",
+      "docIds": [
+        "es-almeria-granos"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "es-almeria-granos",
+          "page": 3,
+          "section": "Instalaciones",
+          "quoteSnippet": "9,5 metros"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-havel-hebekraft",
+      "subset": "dev",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "What is the lifting capacity of the dry dock?",
+      "docIds": [
+        "de-havel-trockendock"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-havel-trockendock",
+          "page": 3,
+          "section": "Anlagen",
+          "quoteSnippet": "3.800 Tonnen"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-ruhr-rueckgewinnung",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "What is the water recovery rate at the drinking water plant?",
+      "docIds": [
+        "de-ruhr-filterwerk"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-ruhr-filterwerk",
+          "page": 4,
+          "section": "Zahlen und Kennzahlen",
+          "quoteSnippet": "96 Prozent"
+        }
+      ]
+    },
+    {
+      "id": "x-en-de-alpenstern-naechte",
+      "subset": "eval",
+      "type": "cross-lingual-fact",
+      "language": "en",
+      "pair": "en-de",
+      "question": "How many clear nights per year does the alpine observatory record?",
+      "docIds": [
+        "de-alpenstern-warte"
+      ],
+      "expectedEvidence": [
+        {
+          "docId": "de-alpenstern-warte",
+          "page": 4,
+          "section": "Zahlen und Kennzahlen",
+          "quoteSnippet": "210 klare Nächte"
+        }
+      ]
+    },
+    {
+      "id": "ua-en-jorvik",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "What is the ticket price for the Jorvik Viking festival?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Jorvik"
+    },
+    {
+      "id": "ua-en-reykjavik",
+      "subset": "eval",
+      "type": "unanswerable",
+      "language": "en",
+      "pair": "none",
+      "question": "Which airline flies direct from Leeds to Reykjavik?",
+      "docIds": [],
+      "expectedEvidence": [],
+      "probeTerm": "Reykjavik"
+    }
+  ]
+}

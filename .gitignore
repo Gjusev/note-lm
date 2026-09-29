@@ -55,3 +55,9 @@ src/desktop/dist/
 eval/pageindex-proto/.venv/
 eval/pageindex-proto/pi_store/
 eval/pageindex-proto/*.log
+
+# docling eval prototype (T1): venv, downloaded model weights, run logs
+eval/docling-proto/.venv/
+eval/docling-proto/docling_models/
+eval/docling-proto/easyocr_models/
+eval/docling-proto/*.log
