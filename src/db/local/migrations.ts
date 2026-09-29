@@ -431,6 +431,21 @@ CREATE INDEX review_scans_by_source ON review_scans (source_id);
 CREATE UNIQUE INDEX proposals_unique_pending
   ON review_proposals (anchor_id, to_version) WHERE status = 'pending';
 `,
+  // 0013 — chunk provenance: every chunk row carries the source_version id of
+  // the run that produced it, so citations resolve to the version FROM THE
+  // CHUNK instead of guessing at retrieval time. Nullable: legacy writers
+  // (fetch-url/search routes) and pre-0013 rows stay null and keep the
+  // latest-version fallback. Backfill: existing chunks get their source's
+  // CURRENT latest version id (best available estimate; sources without any
+  // version stay null).
+  `
+ALTER TABLE chunks ADD COLUMN source_version_id TEXT;
+UPDATE chunks SET source_version_id = (
+  SELECT v.id FROM source_versions v
+  WHERE v.source_id = chunks.source_id
+  ORDER BY v.version DESC LIMIT 1
+);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

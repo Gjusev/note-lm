@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import { chunks, sources, type MessageCitation, type SourceStatus } from "@/db/local/schema";
 import { purgeOrphanVectors } from "./vector-index";
@@ -82,11 +82,19 @@ export async function updateSourceStorage(
     .where(eq(sources.id, sourceId));
 }
 
-/** Replace all chunks of a source idempotently (upload/search/fetch paths). */
+/**
+ * Replace all chunks of a source idempotently (upload/search/fetch paths).
+ * `sourceVersionId` (migration 0013) stamps every chunk with the version that
+ * produced it, so citations resolve provenance from the chunk. Omit it only
+ * for writers that have no version at hand (fetch-url / search routes write
+ * chunks before any version is recorded — legacy null, resolved to latest at
+ * retrieval time).
+ */
 export function replaceChunks(
   db: LocalDb,
   args: { ownerId: string; sourceId: string; notebookId: string },
-  chunkTexts: string[]
+  chunkTexts: string[],
+  sourceVersionId?: string
 ): number {
   const now = Date.now();
   const result = db.transaction((tx) => {
@@ -105,6 +113,9 @@ export function replaceChunks(
             content,
             chunkIndex: i + j,
             embeddingId: `emb_${args.sourceId}_${i + j}`,
+            // chunk provenance (migration 0013): the version that produced
+            // this chunk; null only for writers without a version at hand
+            sourceVersionId: sourceVersionId ?? null,
             createdAt: now,
           }))
         )
@@ -116,6 +127,19 @@ export function replaceChunks(
   // never consume KNN slots (finding 4)
   purgeOrphanVectors(db);
   return result;
+}
+
+/**
+ * Tag chunks that were published before their version row existed (URL-import
+ * path: completeImportJob commits chunks before recordVersion lands). Only
+ * NULL rows are touched — a chunk that already carries its producing version
+ * is never rewritten.
+ */
+export function backfillChunkVersion(db: LocalDb, sourceId: string, sourceVersionId: string): void {
+  db.update(chunks)
+    .set({ sourceVersionId })
+    .where(and(eq(chunks.sourceId, sourceId), isNull(chunks.sourceVersionId)))
+    .run();
 }
 
 export function getChunksBySource(db: LocalDb, sourceId: string) {

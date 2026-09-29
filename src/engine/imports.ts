@@ -38,6 +38,7 @@ import {
   updateImportJobPhase,
 } from "@/lib/services/import-jobs";
 import { recordVersion } from "@/lib/services/source-versions";
+import { backfillChunkVersion } from "@/lib/services/sources";
 import {
   deleteJobCheckpoints,
   emitJobEvent,
@@ -366,7 +367,7 @@ export async function runImportJob(
       // break on version bookkeeping. No persisted original → no bytes → an
       // honest unresolvable version (no sidecar, page_count null).
       try {
-        await recordVersion(ctx.db, ctx.store, {
+        const version = await recordVersion(ctx.db, ctx.store, {
           sourceId: res.sourceId!,
           ...(storageId !== undefined && { storageId }),
           fileName,
@@ -374,6 +375,12 @@ export async function runImportJob(
           ...(mediaSegments.length && { mediaSegments }),
           ...(storageId !== undefined && { buffer: download.buffer }),
         });
+        // chunk provenance (migration 0013): completeImportJob had to publish
+        // the chunks before the version existed (source row + version are
+        // created inside its atomic completion). Tag them now — only NULL
+        // rows are touched, a chunk already carrying its version is never
+        // rewritten.
+        backfillChunkVersion(ctx.db, res.sourceId!, version.id);
       } catch (err) {
         console.error("[IMPORT] version not recorded:", err);
       }

@@ -155,6 +155,10 @@ export const chunks = sqliteTable(
     content: text("content").notNull(),
     chunkIndex: integer("chunk_index").notNull(),
     embeddingId: text("embedding_id"),
+    // Provenance (migration 0013): the source_versions row of the run that
+    // produced this chunk. Citations resolve the version FROM THE CHUNK;
+    // null on legacy rows / legacy writers (latest-version fallback in chat).
+    sourceVersionId: text("source_version_id"),
     createdAt: integer("created_at").notNull(),
   },
   (t) => [

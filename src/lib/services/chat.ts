@@ -53,6 +53,21 @@ export interface ChatReply {
   vectorStatus: VectorStatus;
 }
 
+/**
+ * Stamp a citation with provenance (chunk provenance, migration 0013): the
+ * CHUNK's own source_version_id wins — it IS the version that produced the
+ * cited text. Only legacy chunks (null) fall back to the retrieval-time
+ * latest version; when neither exists the citation stays unstamped.
+ */
+export function stampCitationVersion(
+  citation: ChatCitation,
+  chunkVersionId: string | null | undefined,
+  latestVersionId?: string | null
+): ChatCitation {
+  const versionId = chunkVersionId ?? latestVersionId ?? undefined;
+  return versionId ? { ...citation, sourceVersionId: versionId } : citation;
+}
+
 export async function sendChatMessage(
   db: LocalDb,
   opts: {
@@ -100,15 +115,19 @@ export async function sendChatMessage(
     return { response, citations: [], mode: retrieval.mode, vectorStatus: retrieval.vectorStatus };
   }
 
-  // Provenance (priority-1 fix): the version id each hit source was in at
-  // RETRIEVAL time. Citations are stamped with THIS id - a re-import that
-  // lands while generation is still running can never re-point the persisted
-  // citation away from the bytes the answer was actually built from.
-  const retrievalVersions = new Map<string, string>();
+  // Provenance (migration 0013 + priority-1 fix): a chunk carries the version
+  // that produced it (chunks.source_version_id) — the citation is stamped with
+  // THAT id, never with whatever happens to be latest at stamp time. Only
+  // legacy chunks (null, pre-0013 rows or writers without a version) fall
+  // back to the retrieval-time latest version of their source.
+  const chunkVersions = new Map<string, string | null>();
+  const latestVersions = new Map<string, string | null>();
   for (const hit of retrieval.hits) {
-    if (!retrievalVersions.has(hit.sourceId)) {
+    const key = `${hit.sourceId}:${hit.chunkIndex}`;
+    if (!chunkVersions.has(key)) chunkVersions.set(key, hit.sourceVersionId ?? null);
+    if (!latestVersions.has(hit.sourceId)) {
       const version = getLatestVersion(db, hit.sourceId);
-      if (version) retrievalVersions.set(hit.sourceId, version.id);
+      latestVersions.set(hit.sourceId, version?.id ?? null);
     }
   }
 
@@ -146,11 +165,16 @@ export async function sendChatMessage(
   ).text;
   const { response, citations } = resolveEvidenceReferences(completion, evidence);
 
-  // stamp the retrieval-time version onto every built citation (provenance)
-  const stampedCitations = citations.map((citation) => {
-    const versionId = retrievalVersions.get(citation.sourceId);
-    return versionId ? { ...citation, sourceVersionId: versionId } : citation;
-  });
+  // stamp provenance FROM THE CHUNK (migration 0013): a re-import that lands
+  // while generation is still running can never re-point a citation built
+  // from an older chunk away from the bytes the answer was really built from
+  const stampedCitations = citations.map((citation) =>
+    stampCitationVersion(
+      citation,
+      chunkVersions.get(`${citation.sourceId}:${citation.chunkIndex}`),
+      latestVersions.get(citation.sourceId)
+    )
+  );
 
   if (!opts.skipUserMessage) {
     await createMessage(db, {

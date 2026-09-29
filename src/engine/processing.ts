@@ -224,10 +224,37 @@ export async function runProcessingJob(
     }
 
     const previousTranscriptId = source.transcriptStorageId ?? undefined;
+
+    // Provenance order (chunk provenance, migration 0013): the version row is
+    // recorded BEFORE its chunks are published, so every chunk can carry the
+    // id of the version that produced it — a citation can never claim a newer
+    // version than the bytes the answer was built from. Non-fatal by design:
+    // a failed record publishes chunks with a null version and chat.ts falls
+    // back to the retrieval-time latest (completion never breaks here).
+    let versionId: string | undefined;
+    try {
+      const isMedia = resolvedType.startsWith("audio/") || resolvedType.startsWith("video/");
+      const version = await recordVersion(ctx.db, ctx.store, {
+        sourceId,
+        ...(source.storageId ? { storageId: source.storageId } : {}),
+        fileName: source.fileName,
+        contentType: resolvedType,
+        ...(originalBuffer ? { buffer: originalBuffer } : {}),
+        ...(isMedia
+          ? mediaSegments.length
+            ? { mediaSegments } // real per-segment times from the segmenter
+            : { pageTexts: [text] } // direct single-call transcription: no times knowable, honest page fallback
+          : {}),
+      });
+      versionId = version.id;
+    } catch (err) {
+      console.error("[PROCESS] version not recorded:", err);
+    }
+
     // strategy 5A: one chunk per transcript segment - chunkIndex IS the
     // segment index, so citations resolve to a time range directly
     const chunks = mediaSegments.length ? mediaSegments.map((s) => s.text) : chunkText(text);
-    replaceChunks(ctx.db, { ownerId: source.ownerId, sourceId, notebookId: source.notebookId }, chunks);
+    replaceChunks(ctx.db, { ownerId: source.ownerId, sourceId, notebookId: source.notebookId }, chunks, versionId);
     updateSourceStatus(ctx.db, sourceId, {
       status: "completed",
       ...(transcriptFileId && { transcriptStorageId: transcriptFileId }),
@@ -243,27 +270,6 @@ export async function runProcessingJob(
     // slice 3c terminal bookkeeping: completed — discard media checkpoint + seg files
     await fs.promises.rm(segDir, { recursive: true, force: true }).catch(() => {});
     deleteJobCheckpoints(ctx.db, "processing", jobId);
-
-    // versioned evidence (strategy 5A): snapshot the original bytes as an
-    // immutable version; media versions carry the transcript as their page
-    // text. Non-fatal — completion must never break on version bookkeeping.
-    try {
-      const isMedia = resolvedType.startsWith("audio/") || resolvedType.startsWith("video/");
-      await recordVersion(ctx.db, ctx.store, {
-        sourceId,
-        ...(source.storageId ? { storageId: source.storageId } : {}),
-        fileName: source.fileName,
-        contentType: resolvedType,
-        ...(originalBuffer ? { buffer: originalBuffer } : {}),
-        ...(isMedia
-          ? mediaSegments.length
-            ? { mediaSegments } // real per-segment times from the segmenter
-            : { pageTexts: [text] } // direct single-call transcription: no times knowable, honest page fallback
-          : {}),
-      });
-    } catch (err) {
-      console.error("[PROCESS] version not recorded:", err);
-    }
 
     log("DONE", `${chunks.length} Chunks, ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 

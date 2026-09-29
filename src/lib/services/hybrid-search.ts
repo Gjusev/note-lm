@@ -22,6 +22,10 @@ export interface HybridHit {
   sourceId: string;
   chunkIndex: number;
   content: string;
+  /** Provenance (migration 0013): the source_versions row this chunk came
+   * from, as written by the producing run. null on legacy chunks — the
+   * citation stamper falls back to the retrieval-time latest version. */
+  sourceVersionId?: string | null;
   score: number;
   branches: Array<"fts" | "vector">;
 }
@@ -95,6 +99,7 @@ export async function searchHybrid(
       sourceId: chunk.sourceId,
       chunkIndex: chunk.chunkIndex,
       content: chunk.content,
+      sourceVersionId: chunk.sourceVersionId ?? null,
       score: f.score,
       branches: f.branches,
     });
