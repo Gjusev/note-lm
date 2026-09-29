@@ -81,3 +81,62 @@ FTS, hybrid and PageIndex arms plug in), the E1/E2 change-review suite, and
 `npm run eval:benchmark` as the single entry point. Results — including the
 negative ones, e.g. the recorded PI-2 "do not adopt" decision — live under
 `eval/reports/` and `eval/harness/results/`.
+
+## Implementation status
+
+Three delivery levels: **PROBADO DESDE INSTALADOR** (asserted against the
+packaged app by `npm run verify:desktop` — `scripts/desktop-verify.mjs`, 16
+gates from typecheck through NSIS silent install/uninstall, all on a PATH
+stripped of Node), **IMPLEMENTADO** (in code and covered by unit/e2e suites,
+not yet asserted from the installer), **PENDIENTE**.
+
+**PROBADO DESDE INSTALADOR** (all via the `--smoke` self-check in
+`src-tauri/src/main.rs` plus the headless engine gates in the verify script):
+
+- Engine/SQLite/typed errors: protocol round trip, sqlite-vec loaded, unknown
+  op answers `unknown_op` — gate `installed smoke`.
+- Claims flow roundtrip: create → list → empty reviews → fabricated anchor
+  answers `not_found` — gate `installed smoke`.
+- Provider/model flow: curated catalog and presets ship in the bundle, the
+  offline probe answers `offline_blocked`, a refused loopback endpoint answers
+  `bad_base_url` from packaged resources; the keyring channel is exercised on
+  this same probe path — gate `installed smoke`.
+- Samples bundled (the two redistributable sample PDFs) +
+  `sources.reimportVersion` op presence — gate `installed smoke`.
+- Interruption recovery: kill mid-download leaves a resumable partial, restart
+  completes the import; a paused job survives restart and resumes to
+  completion — gates `installed recovery`, `installed pause survives restart`.
+- NSIS silent install/uninstall with full engine process teardown — gates
+  `silent install`, `uninstall + process teardown`.
+
+**IMPLEMENTADO** (unit/e2e-tested, not asserted from the installer):
+
+- Claim provenance stamping at retrieval time — `src/__tests__/claims.test.ts`.
+- Durable review scans + reconciliation ledger — `src/__tests__/change-review.test.ts`.
+- Materials dispatch consolidation + busy guard — `src/__tests__/engine-dispatch.test.ts`.
+- Calculations engine ops — `src/__tests__/calculations.test.ts`.
+- Time-range media anchors — `src/__tests__/media-evidence.test.ts`.
+- Portable packages, formatVersion 2 incl. metadata-only — `src/__tests__/notebook-transfer.test.ts`.
+- Versioned-source UI (Neue Version, Versions expander, Berechnungen tab,
+  EvidencePanel) — `src/desktop/src/screens/NotebookWorkspace.tsx`,
+  `src/desktop/src/components/EvidencePanel.tsx`; ops underneath in
+  `src/__tests__/source-reimport.test.ts`.
+- Multi-provider S1–S3 resolution/offline/telemetry (keyring covered above
+  from the installer; the rest unit-level) — `src/__tests__/providers.test.ts`,
+  `providers-protocol.test.ts`, `provider-runs.test.ts`.
+- Change-review experiments E1/E2 — fixture-level, synthetic; real-document
+  precision NOT demonstrated (`eval/reports/e1-e2-change-review.md`).
+
+**PENDIENTE:**
+
+- In-app PDF page rendering — the evidence panel shows quote + locator, no
+  page image (`src/desktop/src/components/EvidencePanel.tsx`).
+- Materials UI in desktop — engine ops + label data ready (`materials.request`
+  in `src/engine/dispatch.ts`).
+- Local ASR/TTS — `transcribe`/`tts` capabilities typed but unresolvable
+  (`src/lib/ai/providers.ts`).
+- E3 human pilot; I5/I6 gated experiments (adaptive router, visual retrieval,
+  RLM, collaboration — each behind registered criteria) —
+  [docs/specs/open-source-innovation-strategy.md](docs/specs/open-source-innovation-strategy.md).
+- VM-clean run + code-signing for distribution — the verify script's stripped
+  PATH is the current stand-in for a clean machine.

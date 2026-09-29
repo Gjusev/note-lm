@@ -101,6 +101,9 @@ MIT License — see [LICENSE](LICENSE).
   workflow, commit conventions and the contribution areas currently wanted.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — one-page map: engine over stdio,
   SQLite, job queues, the versioned evidence model and the provider seam.
+  Its "Implementation status" section tracks the three delivery levels
+  (PROBADO DESDE INSTALADOR / IMPLEMENTADO / PENDIENTE) with a proof pointer
+  per capability.
 - [SECURITY.md](SECURITY.md) — how to report vulnerabilities privately.
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant v2.1.
 
