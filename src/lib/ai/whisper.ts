@@ -139,8 +139,11 @@ export async function toWav16kMono(
   ffmpegPath: string | undefined
 ): Promise<{ wavPath: string; dir: string }> {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "nolm-whisper-wav-"));
+  // distinct input/output names: ffmpeg refuses in-place edits, which the
+  // old `extHint === "wav"` shortcut hit (same path for both) the first time
+  // a REAL .wav took the direct path
   const inputPath = path.join(tmpDir, `input.${extHint || "mp3"}`);
-  const wavPath = extHint === "wav" ? inputPath : path.join(tmpDir, "input.wav");
+  const wavPath = path.join(tmpDir, "16k.wav");
   await fs.promises.writeFile(inputPath, audio);
   try {
     await execFileAsync(
@@ -173,9 +176,12 @@ function recordQuietly(db: LocalDb, run: {
 }
 
 /**
- * Local TranscribeFn factory for the whisper-local preset: mp3 segment to
- * 16k wav (ffmpeg) to runWhisper to {text}. One provider_runs row per call,
- * fire-and-forget (a failing telemetry write never breaks the transcription).
+ * Local TranscribeFn factory for the whisper-local preset: audio to 16k wav
+ * (ffmpeg) to runWhisper to {text, segments} — whisper's OWN temporal
+ * segments ride along so a direct single-call transcription (<=24 MB) also
+ * preserves real times, not just the segmented path. One provider_runs row
+ * per call, fire-and-forget (a failing telemetry write never breaks the
+ * transcription).
  */
 export function makeLocalTranscribe(
   db: LocalDb,
@@ -196,7 +202,7 @@ export function makeLocalTranscribe(
         capability: "transcribe", provider: "whisper-local", model: cfg.model,
         latencyMs: Date.now() - t0, ok: true,
       });
-      return { text: result.text };
+      return { text: result.text, segments: result.segments };
     } catch (err) {
       recordQuietly(db, {
         capability: "transcribe", provider: "whisper-local", model: cfg.model,

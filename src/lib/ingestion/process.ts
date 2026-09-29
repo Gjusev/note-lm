@@ -12,9 +12,11 @@ const DIRECT_AUDIO_EXTS = ["mp3", "wav", "m4a", "mp4", "webm", "ogg", "flac"];
 export interface ProcessResult {
   text: string;
   processedAs: "document" | "audio" | "html";
-  /** Per-segment timing (strategy 5A) for media processed in segments;
-   * undefined when no time information is knowable (documents, direct
-   * single-call transcription). chunkIndex == segment index downstream. */
+  /** Per-segment timing (strategy 5A) for media: real times from the muxed
+   * segments (long files) OR from the provider's own JSON (direct single
+   * call, e.g. local whisper -oj); undefined when no time information is
+   * knowable (documents, a provider reporting no times). chunkIndex ==
+   * segment index downstream. */
   segments?: MediaSegment[];
 }
 
@@ -28,15 +30,18 @@ export interface MediaSegment {
 
 export interface MediaTranscription {
   text: string;
-  /** Empty when no per-segment times are knowable (direct single-call
-   * transcription of a small file): no times are invented. */
+  /** Empty when no per-segment times are knowable (a provider that reports
+   * no times, e.g. remote APIs): no times are invented. */
   segments: MediaSegment[];
 }
 
 /**
  * Transcribe media with the caller-INJECTED transcriber (S3: the runner
  * resolves the provider from explicit config; this module never imports one).
- * Segments when the file exceeds the provider limit. Order is preserved.
+ * Segments when the file exceeds the provider limit. The DIRECT path (single
+ * call, <= limit) threads the provider's OWN temporal segments when it
+ * reports them (local whisper -oj) — so both paths preserve whisper's real
+ * times. Order is preserved.
  */
 export async function transcribeMedia(
   buffer: Buffer,
@@ -46,7 +51,11 @@ export async function transcribeMedia(
 ): Promise<MediaTranscription> {
   const ext = fileNameHint.split(".").pop()?.toLowerCase() || "";
   if (buffer.length <= DIRECT_TRANSCRIBE_LIMIT && DIRECT_AUDIO_EXTS.includes(ext)) {
-    return { text: (await transcribe(buffer, fileNameHint)).text, segments: [] };
+    const out = await transcribe(buffer, fileNameHint);
+    // provider-reported times only (whisper's own offsets); empty-text
+    // segments are dropped, no times are invented
+    const segments = (out.segments ?? []).filter((s) => s.text.trim() !== "");
+    return { text: out.text, segments };
   }
   // Without a caller-owned segDir the mux dir is private and removed with the
   // transcription; the engine passes <dataDir>/tmp/jobs/<jobId> so segments

@@ -14,6 +14,10 @@
  *   NOTELM_CHAT_MODEL       — chat GGUF path
  *   NOTELM_EMBED_MODEL      — embeddings GGUF path
  *   NOTELM_EMBED_DIMENSION  — dimension of the embeddings model
+ *
+ * Whisper runtime (S5): resolved from <dataDir>/runtimes/whisper/<tag> FIRST
+ * (app-managed, runtimes.whisper op); NOTELM_WHISPER_DIR is a dev/test
+ * fallback only.
  */
 import path from "node:path";
 import fs from "node:fs";
@@ -38,6 +42,7 @@ import {
   type TranscribeFn,
 } from "@/lib/ai/providers";
 import { makeLocalTranscribe } from "@/lib/ai/whisper";
+import { whisperRuntimeDir } from "@/lib/ai/whisper-runtime";
 
 export type { ChatFn, ChatResult, EmbedFn, ProviderLabel, TranscribeFn } from "@/lib/ai/providers";
 
@@ -220,8 +225,14 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
     if ("connection" in trRes && trRes.preset.id === "whisper-local") {
       const modelPath = await resolveTranscribeModel();
       const { dataDir } = getLocalContext();
-      const whisperDir = process.env.NOTELM_WHISPER_DIR
-        || (modelPath ? path.resolve(dataDir, "..", "resources", "whisper") : undefined);
+      // App-managed runtime first: <dataDir>/runtimes/whisper/<tag> (installed
+      // via the runtimes.whisper op — the runtime comes from the app's own
+      // download, never from an evaluator's checkout). NOTELM_WHISPER_DIR is
+      // only a dev/test fallback (browser-dev, vitest with .probe-downloads).
+      const managed = whisperRuntimeDir(dataDir);
+      const whisperDir = fs.existsSync(path.join(managed, "whisper-cli.exe"))
+        ? managed
+        : process.env.NOTELM_WHISPER_DIR;
       const runtimeReady = !!whisperDir
         && fs.existsSync(path.join(whisperDir, "whisper-cli.exe"));
       if (runtimeReady && modelPath) {
@@ -232,7 +243,7 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
         });
         transcribeProvider = { kind: "local", label: `Auf diesem Computer · whisper ${capCfg.transcribe.model}` };
       } else if (!runtimeReady) {
-        transcribeReason = "Lokale Transkription: das Whisper-Programm (whisper.cpp) wurde auf diesem Computer nicht gefunden.";
+        transcribeReason = "Lokale Transkription: das Whisper-Programm (whisper.cpp) wurde auf diesem Computer nicht gefunden — bitte in den Einstellungen installieren.";
       } else {
         transcribeReason = "Lokale Transkription: das Whisper-Modell ist nicht heruntergeladen — bitte in den Einstellungen herunterladen.";
       }

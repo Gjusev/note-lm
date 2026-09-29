@@ -41,9 +41,25 @@ export type ChatFn = (
 
 export type EmbedFn = (texts: string[]) => Promise<Buffer[]>;
 
+/** One transcript segment with its REAL time range in the media file, when
+ *  the provider reports one (local whisper -oj). Structurally identical to
+ *  ingestion/process MediaSegment — kept here so providers.ts never imports
+ *  the ingestion graph. */
+export interface TranscribeSegment {
+  startSec: number;
+  endSec: number;
+  text: string;
+}
+
 /** Media transcription: injected from resolveCapabilities (S3) instead of a
- *  hardcoded module import — the call site never knows the provider. */
-export type TranscribeFn = (audio: Buffer, fileName: string) => Promise<{ text: string }>;
+ *  hardcoded module import — the call site never knows the provider.
+ *  `segments` is optional and honest: only providers that report real times
+ *  (local whisper's own JSON) fill it — a provider without times returns
+ *  {text} and callers fall back to their no-times path. */
+export type TranscribeFn = (
+  audio: Buffer,
+  fileName: string
+) => Promise<{ text: string; segments?: TranscribeSegment[] }>;
 
 export type ProviderCapability = "chat" | "embed" | "transcribe" | "tts";
 

@@ -1,26 +1,24 @@
 #!/usr/bin/env node
 /**
  * Fetch the pinned whisper.cpp runtime for local transcription (win-x64 CPU
- * build). Pinned to the newest STABLE release that actually ships binaries:
- * the "latest" v1.9.4 release carries no assets (same probe finding as
- * llama.cpp), so the pin is v1.9.2. whisper.cpp releases publish NO checksum
- * file, so the asset digest observed at pin time is recorded here and in
- * .probe-downloads/whisper-checksums.md — the script verifies every download
- * against it. Extracts to .probe-downloads/whisper-bin (whisper-cli.exe +
- * ggml DLLs, ~8 MB). Models come separately from the model catalog
- * (ggml-tiny.bin / ggml-base.bin via Hugging Face, HF-LFS-verified).
+ * build). The pin (tag + URL + sha256, whisper.cpp MIT) lives in the shared
+ * module src/lib/ai/whisper-pin.mjs — the app-managed download
+ * (runtimes.whisper op) and this dev script fetch the exact same bytes.
+ * Extracts to .probe-downloads/whisper-bin (whisper-cli.exe + ggml DLLs,
+ * ~8 MB). Models come separately from the model catalog (ggml-tiny.bin /
+ * ggml-base.bin via Hugging Face, HF-LFS-verified).
  */
 import fs from "node:fs";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-
-const TAG = process.env.NOTELM_WHISPER_TAG || "v1.9.2";
-const ASSET = "whisper-bin-x64.zip";
-const BASE = `https://github.com/ggml-org/whisper.cpp/releases/download/${TAG}`;
-// digest of whisper-bin-x64.zip observed at pin time (no upstream sums)
-const EXPECTED_SHA256 = "49dcc16de826f20bd53d44f947a1ae49dfa81f86cad67a64d80820cb192d674a";
+import {
+  WHISPER_TAG as TAG,
+  WHISPER_ASSET as ASSET,
+  whisperZipUrl,
+  WHISPER_ZIP_SHA256 as EXPECTED_SHA256,
+} from "../src/lib/ai/whisper-pin.mjs";
 
 const scratch = path.resolve(".probe-downloads");
 const outDir = path.join(scratch, "whisper-bin");
@@ -34,8 +32,8 @@ if (fs.existsSync(marker) && fs.existsSync(path.join(outDir, "whisper-cli.exe"))
 
 const zipPath = path.join(scratch, ASSET);
 if (!fs.existsSync(zipPath)) {
-  console.log(`downloading ${BASE}/${ASSET} (~8 MB) ...`);
-  const res = await fetch(`${BASE}/${ASSET}`);
+  console.log(`downloading ${whisperZipUrl()} (~8 MB) ...`);
+  const res = await fetch(whisperZipUrl());
   if (!res.ok) throw new Error(`download failed: ${res.status}`);
   await pipeline(res.body, fs.createWriteStream(zipPath));
 }

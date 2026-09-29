@@ -16,6 +16,7 @@ import { createMessage, listMessagesByNotebook } from "@/lib/services/messages";
 import { sendChatMessage } from "@/lib/services/chat";
 import { saveClaimFromMessage, createClaim, listClaims } from "@/lib/services/claims";
 import { buildEvidenceContext, resolveEvidenceReferences, formatMmss, formatTimeRange } from "@/lib/services/evidence";
+import { transcribeMedia, processContent } from "@/lib/ingestion/process";
 import type { TranscribeFn } from "@/lib/ai/providers";
 
 /**
@@ -248,5 +249,55 @@ describe("media time-range evidence (open-source-innovation-strategy 5A)", () =>
     expect(formatMmss(3675)).toBe("61:15"); // minutes may exceed 59 - honest mm:ss
     expect(formatTimeRange({ startSec: 192, endSec: 225 })).toBe("03:12-03:45");
     expect(formatTimeRange({ startSec: 0, endSec: null })).toBe("00:00-?");
+  });
+
+  it("the DIRECT single call (small wav) threads the provider's own temporal segments through", async () => {
+    // small buffer + real .wav extension -> the direct branch (no muxer)
+    const audio = Buffer.alloc(1024);
+    const transcribe: TranscribeFn = async () => ({
+      text: "Willkommen. Zweiter Satz.",
+      // whisper's own -oj offsets (ms / 1000), exactly as makeLocalTranscribe reports them
+      segments: [
+        { startSec: 0, endSec: 2.26, text: "Willkommen." },
+        { startSec: 2.26, endSec: 9.76, text: "Zweiter Satz." },
+      ],
+    });
+    const out = await transcribeMedia(audio, "aufnahme.wav", transcribe);
+    expect(out).toEqual({
+      text: "Willkommen. Zweiter Satz.",
+      segments: [
+        { startSec: 0, endSec: 2.26, text: "Willkommen." },
+        { startSec: 2.26, endSec: 9.76, text: "Zweiter Satz." },
+      ],
+    });
+    // processContent forwards them, so the version sidecar becomes media
+    const processed = await processContent(audio, "audio/wav", "aufnahme.wav", undefined, transcribe);
+    expect(processed).toEqual({
+      text: "Willkommen. Zweiter Satz.",
+      processedAs: "audio",
+      segments: out.segments,
+    });
+  });
+
+  it("a provider without times (remote APIs) honestly yields no direct-path segments", async () => {
+    const audio = Buffer.alloc(1024);
+    const transcribe: TranscribeFn = async () => ({ text: "Nur Text." });
+    const out = await transcribeMedia(audio, "aufnahme.wav", transcribe);
+    expect(out).toEqual({ text: "Nur Text.", segments: [] });
+    const processed = await processContent(audio, "audio/wav", "aufnahme.wav", undefined, transcribe);
+    expect(processed).toEqual({ text: "Nur Text.", processedAs: "audio" }); // no segments key
+  });
+
+  it("direct-path segments with empty text are dropped (no invented times for silence)", async () => {
+    const audio = Buffer.alloc(1024);
+    const transcribe: TranscribeFn = async () => ({
+      text: "Ein Satz.",
+      segments: [
+        { startSec: 0, endSec: 1, text: "Ein Satz." },
+        { startSec: 1, endSec: 4, text: "   " },
+      ],
+    });
+    const out = await transcribeMedia(audio, "aufnahme.wav", transcribe);
+    expect(out.segments).toEqual([{ startSec: 0, endSec: 1, text: "Ein Satz." }]);
   });
 });

@@ -42,8 +42,17 @@ import { downloadModel, listModels } from "@/lib/services/models";
 import { MODEL_CATALOG } from "@/lib/ai/model-catalog";
 import { setOfflineMode } from "@/lib/ai/providers";
 import { makeLocalTranscribe, parseWhisperJson, runWhisper } from "@/lib/ai/whisper";
+import {
+  installWhisperRuntime,
+  whisperRuntimeDir,
+  whisperRuntimeStatus,
+} from "@/lib/ai/whisper-runtime";
+import { WHISPER_TAG } from "@/lib/ai/whisper-pin.mjs";
 import { resolveCapabilities, setCapabilitiesForTests } from "@/engine/capabilities";
 import { getLocalContext } from "@/lib/storage/local";
+import { createSource } from "@/lib/services/sources";
+import { recordVersion, readVersionMediaSegments } from "@/lib/services/source-versions";
+import { transcribeMedia } from "@/lib/ingestion/process";
 
 const REPO = path.resolve(import.meta.dirname, "..", "..");
 const PROBE = path.join(REPO, ".probe-downloads");
@@ -269,6 +278,133 @@ describe("whisper-local resolution", () => {
     expect(caps.transcribe).toBeNull();
     expect(caps.transcribeReason).toMatch(/heruntergeladen/);
   });
+
+  it("resolves the app-managed runtime dir first — env is only a dev fallback", async () => {
+    // managed runtime under the DATA dir (as runtimes.whisper install lays it
+    // out); NOTELM_WHISPER_DIR points nowhere — the managed dir must win
+    const managed = whisperRuntimeDir(dir);
+    fs.mkdirSync(managed, { recursive: true });
+    fs.writeFileSync(path.join(managed, "whisper-cli.exe"), "MZ");
+    process.env.NOTELM_WHISPER_DIR = path.join(dir, "does-not-exist");
+    await seedTranscribeModel("a".repeat(64));
+    await configureWhisperLocal();
+
+    const caps = await resolveCapabilities(db);
+    expect(caps.transcribe).toBeTypeOf("function");
+    expect(caps.transcribeReason).toBeUndefined();
+  });
+});
+
+describe("whisper runtime install (app-managed, S5)", () => {
+  /** Real zip (bsdtar) nested under Release/ like the release asset. */
+  async function makeRuntimeZip(outPath: string): Promise<Buffer> {
+    const stage = fs.mkdtempSync(path.join(os.tmpdir(), "nolm-zip-"));
+    try {
+      fs.mkdirSync(path.join(stage, "Release"), { recursive: true });
+      fs.writeFileSync(path.join(stage, "Release", "whisper-cli.exe"), "MZ fake exe");
+      fs.writeFileSync(path.join(stage, "Release", "ggml.dll"), "fake dll bytes");
+      await execFileAsync("C:/Windows/System32/tar.exe", ["-a", "-cf", outPath, "Release"], {
+        cwd: stage,
+      });
+      return fs.promises.readFile(outPath);
+    } finally {
+      fs.rmSync(stage, { recursive: true, force: true });
+    }
+  }
+
+  /** Local server serving the zip (counts hits; no Range needed for units). */
+  function serveZip(body: Buffer) {
+    const hits = { n: 0 };
+    const server = http.createServer((req, res) => {
+      hits.n += 1;
+      res.writeHead(200, { "content-length": body.length });
+      res.end(body);
+    });
+    return {
+      hits,
+      start: () => new Promise<void>((r) => server.listen(0, "127.0.0.1", r)),
+      url: () => `http://127.0.0.1:${(server.address() as AddressInfo).port}/whisper-bin-x64.zip`,
+      // closeAllConnections first: undici's keep-alive socket would keep a
+      // plain close() pending past the test timeout
+      close: () => {
+        server.closeAllConnections();
+        return new Promise<void>((r) => server.close(() => r()));
+      },
+    };
+  }
+
+  it("status: not installed on a fresh data dir, version from the pin", () => {
+    const st = whisperRuntimeStatus(dir);
+    expect(st).toEqual({ installed: false, version: WHISPER_TAG, path: null, partialBytes: 0 });
+    expect(WHISPER_TAG).toBe("v1.9.2");
+  });
+
+  it("install: downloads, sha-verifies BEFORE extraction, flattens Release/, promotes atomically", async () => {
+    const zip = path.join(dir, "runtime.zip");
+    const body = await makeRuntimeZip(zip);
+    const srv = serveZip(body);
+    await srv.start();
+    try {
+      const out = await installWhisperRuntime(dir, { url: srv.url(), sha256: sha256(body) });
+      expect(out.installed).toBe(true);
+      expect(out.version).toBe(WHISPER_TAG);
+      const target = whisperRuntimeDir(dir);
+      expect(out.path).toBe(target);
+      // exe + DLL at TOP level (Release/ flattened, fetch-whisper pattern)
+      expect(fs.existsSync(path.join(target, "whisper-cli.exe"))).toBe(true);
+      expect(fs.existsSync(path.join(target, "ggml.dll"))).toBe(true);
+      expect(fs.existsSync(path.join(target, "Release"))).toBe(false);
+      // the data dir stays lean: zip + partial + tmp are gone
+      expect(fs.readdirSync(path.join(dir, "runtimes", "whisper")).sort()).toEqual([WHISPER_TAG]);
+      // status agrees
+      expect(whisperRuntimeStatus(dir)).toMatchObject({ installed: true, path: target });
+      // idempotent: a second install does not hit the server again
+      const again = await installWhisperRuntime(dir, { url: srv.url(), sha256: sha256(body) });
+      expect(again.installed).toBe(true);
+      expect(srv.hits.n).toBe(1);
+    } finally {
+      await srv.close();
+    }
+  });
+
+  it("install: a sha mismatch deletes the partial and installs nothing", async () => {
+    const srv = serveZip(Buffer.from("corrupt bytes"));
+    await srv.start();
+    try {
+      await expect(
+        installWhisperRuntime(dir, { url: srv.url(), sha256: "0".repeat(64) })
+      ).rejects.toThrow(/SHA-256/);
+      const st = whisperRuntimeStatus(dir);
+      expect(st.installed).toBe(false);
+      expect(st.partialBytes).toBe(0); // bad partial removed
+      expect(fs.existsSync(whisperRuntimeDir(dir))).toBe(false);
+    } finally {
+      await srv.close();
+    }
+  });
+
+  it("runtimes.whisper op: status + install + typed bad_args", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const bad = await handleEngineRequest("runtimes.whisper", {});
+    expect(bad).toEqual({ ok: false, error: { code: "bad_args", message: expect.any(String) } });
+
+    const zip = path.join(dir, "runtime.zip");
+    const body = await makeRuntimeZip(zip);
+    const srv = serveZip(body);
+    await srv.start();
+    try {
+      const st = await handleEngineRequest("runtimes.whisper", { action: "status" });
+      expect(st).toEqual({
+        ok: true,
+        result: { installed: false, version: WHISPER_TAG, path: null, partialBytes: 0 },
+      });
+    } finally {
+      await srv.close();
+    }
+    // the op's install path always uses the PINNED url+sha — proven end to end
+    // against the real release server by the installed voice walkthrough gate
+    // (scripts/desktop-verify.mjs), not re-mocked here.
+  });
 });
 
 describe("runWhisper", () => {
@@ -368,6 +504,48 @@ describe("makeLocalTranscribe (factory over real ffmpeg + fake cli)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ capability: "transcribe", provider: "whisper-local", ok: 0 });
   });
+});
+
+describe("direct-path media segments (real binary + real wav, artifact-gated)", () => {
+  // fixture: 25 s German SAPI sample copied from eval/audio-proto/samples
+  // (probed with the pinned tiny model: 4 segments, first offset 0, last end
+  // 24.72 s, language de)
+  const FIXTURE = path.join(import.meta.dirname, "fixtures", "de-zahlen.wav");
+  const fixtureReady = realArtifacts && fs.existsSync(FIXTURE);
+
+  it.skipIf(!fixtureReady)(
+    "a small wav goes through the DIRECT single call and still yields whisper-true segments + a media sidecar",
+    async () => {
+      const { db, store } = getLocalContext();
+      const audio = fs.readFileSync(FIXTURE);
+      expect(audio.length).toBeLessThanOrEqual(24 * 1024 * 1024); // direct path
+
+      // the exact factory the whisper-local capability resolves
+      const transcribe = makeLocalTranscribe(db, {
+        whisperDir: REAL_WHISPER_DIR,
+        modelPath: REAL_TINY_MODEL,
+        model: "ggml-tiny",
+      });
+      // fileName carries the REAL .wav extension — the direct branch must take it
+      const out = await transcribeMedia(audio, "de-zahlen.wav", transcribe);
+      expect(out.text).toContain("Prozent");
+      expect(out.segments.length).toBeGreaterThanOrEqual(3);
+      expect(out.segments[0].startSec).toBe(0); // whisper's own first offset
+      expect(out.segments.at(-1)!.endSec).toBeGreaterThan(20);
+      for (const s of out.segments) expect(s.endSec).toBeGreaterThan(s.startSec);
+
+      // the sidecar becomes {kind:'media'} — no pages fallback
+      const { createNotebook } = await import("@/lib/services/notebooks");
+      const notebookId = await createNotebook(db, { ownerId: "local", title: "Direkt" });
+      const sourceId = await createSource(db, {
+        ownerId: "local", notebookId, fileName: "de-zahlen.wav",
+        fileType: "audio/wav", fileSize: audio.length,
+      });
+      const version = await recordVersion(db, store, { sourceId, mediaSegments: out.segments });
+      const sidecar = await readVersionMediaSegments(store, version.id);
+      expect(sidecar).toEqual(out.segments);
+    }
+  );
 });
 
 describe("whisper.cpp real binary (artifact-gated)", () => {
