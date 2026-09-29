@@ -364,6 +364,25 @@ CREATE INDEX proposals_by_status ON review_proposals (status);
 ALTER TABLE learning_materials ADD COLUMN needs_review INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE learning_materials ADD COLUMN provenance TEXT;
 `,
+  // 0009 — provider run telemetry (multi-provider plan, slice S3): one row per
+  // model call at the capability seam. Tokens are stored only when the provider
+  // actually returned usage (unknown is null, never zero); no prompt text is
+  // ever persisted. Pruned opportunistically (engine boot, keepDays = 30).
+  `
+CREATE TABLE provider_runs (
+  id TEXT PRIMARY KEY,
+  capability TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  model TEXT,
+  latency_ms INTEGER,
+  prompt_tokens INTEGER,
+  completion_tokens INTEGER,
+  ok INTEGER NOT NULL,
+  error_code TEXT,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX idx_provider_runs_created ON provider_runs(created_at);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

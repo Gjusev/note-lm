@@ -41,9 +41,12 @@ export async function generateMaterial(
     notebookId: string;
     type: MaterialType;
     chat: ChatFn;
+    /** German label of the chat used (from resolveCapabilities); rides the
+     *  generation result so a UI can show the egress chip (S3). */
+    providerLabel?: string;
     tts?: ((script: string) => Promise<Buffer>) | null;
   }
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; providerLabel?: string }> {
   const material = await getMaterial(db, opts.materialId);
   if (!material || material.notebookId !== opts.notebookId) {
     return { ok: false, error: "Material nicht gefunden" };
@@ -101,7 +104,7 @@ export async function generateMaterial(
       provenance: JSON.stringify(provenance),
       ...(audioFileId ? { audioFileId } : {}),
     });
-    return { ok: true };
+    return { ok: true, ...(opts.providerLabel ? { providerLabel: opts.providerLabel } : {}) };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Generierung fehlgeschlagen";
     await updateMaterial(db, opts.materialId, { status: "error", errorMessage: message });

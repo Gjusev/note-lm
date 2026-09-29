@@ -28,6 +28,7 @@ import { processHtmlPage } from "@/lib/ingestion/web";
 import { chunkText } from "@/lib/text-extraction";
 import { ImportError, type IdentifiedResource, type ImportErrorCode, type ProviderId } from "@/lib/ingestion/types";
 import type { LocalContext } from "@/lib/storage/local";
+import type { TranscribeFn } from "@/lib/ai/providers";
 import type { ImportJobDoc } from "@/lib/services/import-jobs";
 import {
   completeImportJob,
@@ -75,7 +76,7 @@ function resourceFromJob(job: ImportJobDoc): IdentifiedResource {
 export async function runImportJob(
   ctx: LocalContext,
   job: ImportJobDoc,
-  opts?: { beforePhase?: (phase: ImportPhase) => Promise<void> }
+  opts?: { beforePhase?: (phase: ImportPhase) => Promise<void>; transcribe?: TranscribeFn }
 ): Promise<ImportJobOutcome> {
   const jobId = job._id;
   const token = job.leaseToken!;
@@ -278,6 +279,8 @@ export async function runImportJob(
         // pause/cancel; the runner then leaves before the commit gate with the
         // confirmed segments (and the cursor) intact — no partial commit.
         let stopObservation: ImportJobOutcome | null = null;
+        // S3: the transcriber is injected (resolved from explicit config by the
+        // job loop); a media import without one fails typed (bad_content).
         const result = await processContent(download.buffer, download.contentType, plan.fileNameHint || "download", {
           segDir,
           ...(resume && {
@@ -296,7 +299,7 @@ export async function runImportJob(
             stopObservation = observed;
             return true;
           },
-        });
+        }, opts?.transcribe);
         if (stopObservation) return finish(stopObservation);
         text = result.text;
         title = meta.title || plan.fileNameHint;

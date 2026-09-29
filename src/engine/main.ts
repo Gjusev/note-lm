@@ -11,6 +11,7 @@ import { stopLlamaHelpers } from "./capabilities";
 import { setSecretRequester } from "@/lib/ai/providers";
 import { getLocalContext } from "@/lib/storage/local";
 import { reconcileStartupArtifacts } from "@/lib/services/job-control";
+import { pruneProviderRuns } from "@/lib/services/provider-runs";
 
 // stdout is the protocol channel - ALL other output (job logs, warnings)
 // goes to stderr. Anything console.log'd by engine code would corrupt the
@@ -77,4 +78,6 @@ const bootCtx = getLocalContext();
 // slice 3b: one reconcile pass at startup - orphan partial dirs and terminal
 // checkpoints are dropped, live jobs' partials survive for their next attempt
 reconcileStartupArtifacts(bootCtx.db, bootCtx.dataDir);
+// provider telemetry (S3): opportunistic retention pruning on engine start
+pruneProviderRuns(bootCtx.db);
 startProcessingLoop(bootCtx);

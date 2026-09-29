@@ -210,6 +210,9 @@ function ChatPanel({ notebookId, sources }: { notebookId: string; sources: Array
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // egress chip (S3): the label of the provider that answered the last send,
+  // shown muted + mono next to the newest assistant answer
+  const [providerLabel, setProviderLabel] = useState<string | null>(null);
   // messages already saved as claims: the button flips to "Gespeichert" and
   // stays disabled, so one message can never produce a duplicate claim
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
@@ -222,8 +225,9 @@ function ChatPanel({ notebookId, sources }: { notebookId: string; sources: Array
 
   const send = useMutation({
     mutationFn: (message: string) => desktopApi.sendChat(notebookId, message),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setError(null);
+      setProviderLabel(data.provider?.label ?? null);
       queryClient.invalidateQueries({ queryKey: ["messages", notebookId] });
     },
     onError: (e) => setError(e.message),
@@ -245,7 +249,7 @@ function ChatPanel({ notebookId, sources }: { notebookId: string; sources: Array
             Stelle eine Frage an deine Quellen.
           </p>
         ) : (
-          messages.map((m) => (
+          messages.map((m, i) => (
             <article
               key={m._id}
               style={{
@@ -275,6 +279,21 @@ function ChatPanel({ notebookId, sources }: { notebookId: string; sources: Array
                     Aussage speichern
                   </button>
                 )
+              )}
+              {m.role === "assistant" && providerLabel && i === messages.length - 1 && (
+                <span
+                  className="mono muted"
+                  style={{
+                    fontSize: "0.75rem",
+                    display: "inline-block",
+                    marginTop: "var(--space-1)",
+                    padding: "0 var(--space-1)",
+                    border: "1px solid var(--rule)",
+                    borderRadius: "var(--radius)",
+                  }}
+                >
+                  {providerLabel}
+                </span>
               )}
             </article>
           ))

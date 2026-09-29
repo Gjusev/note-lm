@@ -65,6 +65,7 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | ai providers | `PRESETS` / `ProviderConnection` / `resolveCapabilities` per-capability resolution + `setOfflineMode` call-time blocking over a real temp SQLite, SDK mocked | `src/__tests__/providers.test.ts` |
 | provider secret channel | engine-side `requestSecretViaHost` / `resolveSecretResponse` demux over the NDJSON `secret_request`/`secret_response` frames against a fake host | `src/__tests__/providers-protocol.test.ts` |
 | provider connection test | `handleEngineRequest("providers.test")` side-effect-free probes over pending config (SDK + fetch mocked) | `src/__tests__/providers-protocol.test.ts` |
+| provider run telemetry | `recordProviderRun` / `pruneProviderRuns` over a real temp SQLite (rows carry honest nulls, never prompt text) | `src/__tests__/provider-runs.test.ts` |
 
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).

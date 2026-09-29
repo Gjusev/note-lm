@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { extractTextFromPDF } from "@/lib/text-extraction";
-import { transcribeAudio } from "@/lib/openai";
+import type { TranscribeFn } from "@/lib/ai/providers";
 import { toMp3Segments } from "./segments";
 import { ImportError } from "./types";
 
@@ -14,11 +14,20 @@ export interface ProcessResult {
   processedAs: "document" | "audio" | "html";
 }
 
-/** Transcribe media, segmenting when the file exceeds the provider limit. Order is preserved. */
-export async function transcribeMedia(buffer: Buffer, fileNameHint: string, media?: MediaTranscribeOptions): Promise<string> {
+/**
+ * Transcribe media with the caller-INJECTED transcriber (S3: the runner
+ * resolves the provider from explicit config; this module never imports one).
+ * Segments when the file exceeds the provider limit. Order is preserved.
+ */
+export async function transcribeMedia(
+  buffer: Buffer,
+  fileNameHint: string,
+  transcribe: TranscribeFn,
+  media?: MediaTranscribeOptions
+): Promise<string> {
   const ext = fileNameHint.split(".").pop()?.toLowerCase() || "";
   if (buffer.length <= DIRECT_TRANSCRIBE_LIMIT && DIRECT_AUDIO_EXTS.includes(ext)) {
-    return transcribeAudio(buffer, fileNameHint);
+    return (await transcribe(buffer, fileNameHint)).text;
   }
   // Without a caller-owned segDir the mux dir is private and removed with the
   // transcription; the engine passes <dataDir>/tmp/jobs/<jobId> so segments
@@ -45,8 +54,8 @@ export async function transcribeMedia(buffer: Buffer, fileNameHint: string, medi
     for (let i = from; i < segments.length; i++) {
       if (media?.shouldStop?.()) break; // stop BEFORE the next segment; confirmed work is already checkpointed
       const segBuffer = await fs.readFile(segments[i]);
-      const part = await transcribeAudio(segBuffer, path.basename(segments[i]));
-      texts[i] = part;
+      const part = await transcribe(segBuffer, path.basename(segments[i]));
+      texts[i] = part.text;
       media?.onSegmentDone?.(i + 1, segments.length, texts.filter((t): t is string => !!t));
     }
     return texts.filter((t): t is string => !!t).join("\n");
@@ -73,12 +82,14 @@ export interface MediaTranscribeOptions {
   shouldStop?: () => boolean;
 }
 
-/** Shared ingestion processing: buffer with verified content type → text. */
+/** Shared ingestion processing: buffer with verified content type → text.
+ *  The transcriber is injected (S3); without one the audio path fails typed. */
 export async function processContent(
   buffer: Buffer,
   contentType: string,
   fileNameHint = "download",
-  media?: MediaTranscribeOptions
+  media?: MediaTranscribeOptions,
+  transcribe?: TranscribeFn
 ): Promise<ProcessResult> {
   const base = contentType.split(";")[0].trim().toLowerCase();
 
@@ -92,7 +103,10 @@ export async function processContent(
     return { text: buffer.toString("utf-8"), processedAs: "document" };
   }
   if (base.startsWith("audio/") || base.startsWith("video/")) {
-    return { text: await transcribeMedia(buffer, fileNameHint, media), processedAs: "audio" };
+    if (!transcribe) {
+      throw new ImportError("bad_content", "Kein KI-Anbieter für die Transkription konfiguriert. Wähle in den Einstellungen einen Transkriptionsanbieter.");
+    }
+    return { text: await transcribeMedia(buffer, fileNameHint, transcribe, media), processedAs: "audio" };
   }
   // audio/mp4 & video/mp4 share "mp4"; direct-file hints disambiguate, default to media path
   if (base === "application/octet-stream") {

@@ -59,7 +59,7 @@ export const desktopApi = {
   importUrl: (notebookId: string, url: string) => call<{ jobId: string; deduped: boolean }>("imports.create", { notebookId, url }),
   listMessages: (notebookId: string) => call<Message[]>("messages.list", { notebookId }),
   sendChat: (notebookId: string, message: string) =>
-    call<{ response: string; citations: Message["citations"]; mode: string; vectorStatus: string; provider: string }>("chat.send", { notebookId, message }),
+    call<{ response: string; citations: Message["citations"]; mode: string; vectorStatus: string; provider: { kind: "local" | "remote"; label: string } | null }>("chat.send", { notebookId, message }),
   listNotes: (notebookId: string) => call<Note[]>("notes.list", { notebookId }),
   createNote: (notebookId: string, title: string, content: string) =>
     call<{ id: string }>("notes.create", { notebookId, title, content }),

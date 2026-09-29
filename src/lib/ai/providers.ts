@@ -17,6 +17,7 @@
  */
 import type { LocalDb } from "@/db/local";
 import { getSetting, setSetting } from "@/lib/services/settings";
+import { recordProviderRun, type ProviderRunInput } from "@/lib/services/provider-runs";
 import { openaiClient, type AiClientConfig } from "@/lib/openai";
 import type { LlamaHandle } from "@/lib/ai/llama-supervisor";
 
@@ -39,6 +40,10 @@ export type ChatFn = (
 ) => Promise<ChatResult>;
 
 export type EmbedFn = (texts: string[]) => Promise<Buffer[]>;
+
+/** Media transcription: injected from resolveCapabilities (S3) instead of a
+ *  hardcoded module import — the call site never knows the provider. */
+export type TranscribeFn = (audio: Buffer, fileName: string) => Promise<{ text: string }>;
 
 export type ProviderCapability = "chat" | "embed" | "transcribe" | "tts";
 
@@ -283,18 +288,41 @@ async function clientConfig(db: LocalDb, connection: ProviderConnection): Promis
   );
 }
 
+/** Fire-and-forget telemetry write: a failing provider_runs insert must never
+ *  break the capability call it observes (and stores no prompt text). */
+function recordQuietly(db: LocalDb, run: ProviderRunInput): void {
+  try {
+    recordProviderRun(db, run);
+  } catch (err) {
+    console.error("[providers] provider_runs write failed:", err);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Capability factories
 // ---------------------------------------------------------------------------
 
 /** Local llama.cpp chat — never blocked by offline mode. Usage is unknown
- *  (llamaChat drops it), so usage/finishReason stay undefined, never zero. */
-export function makeLocalChat(handle: LlamaHandle, model: string): ChatFn {
-  return async (messages) => ({
-    text: await handle.chat(messages),
-    provider: "llamacpp",
-    model,
-  });
+ *  (llamaChat drops it), so usage/finishReason stay undefined, never zero,
+ *  and the telemetry row honestly records null tokens. */
+export function makeLocalChat(db: LocalDb, handle: LlamaHandle, model: string): ChatFn {
+  return async (messages) => {
+    const t0 = Date.now();
+    try {
+      const text = await handle.chat(messages);
+      recordQuietly(db, {
+        capability: "chat", provider: "llamacpp", model,
+        latencyMs: Date.now() - t0, ok: true,
+      });
+      return { text, provider: "llamacpp", model };
+    } catch (err) {
+      recordQuietly(db, {
+        capability: "chat", provider: "llamacpp", model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "local_error",
+      });
+      throw err;
+    }
+  };
 }
 
 /** Thrown when the host denies a secret or the 3 s window lapses (S2). */
@@ -325,6 +353,7 @@ export function makeRemoteChat(
     const client = openaiClient({ apiKey, baseURL });
     const ac = new AbortController();
     inFlight.chat.add(ac);
+    const t0 = Date.now();
     try {
       // the flag may have flipped while this call was between gate and
       // registration — re-check so the call can not slip onto the wire
@@ -342,7 +371,7 @@ export function makeRemoteChat(
         });
         const choice = response.choices[0];
         const usage = response.usage;
-        return {
+        const result = {
           text: choice?.message?.content || "",
           provider: cfg.preset.id,
           model: cfg.model,
@@ -351,11 +380,23 @@ export function makeRemoteChat(
             : {}),
           ...(choice?.finish_reason ? { finishReason: choice.finish_reason } : {}),
         };
+        recordQuietly(db, {
+          capability: "chat", provider: cfg.preset.id, model: cfg.model,
+          latencyMs: Date.now() - t0,
+          promptTokens: usage && typeof usage.prompt_tokens === "number" ? usage.prompt_tokens : null,
+          completionTokens: usage && typeof usage.completion_tokens === "number" ? usage.completion_tokens : null,
+          ok: true,
+        });
+        return result;
       } finally {
         linked.cleanup();
       }
     } catch (err) {
-      if (err instanceof SecretUnavailableError) throw err; // stays typed
+      if (err instanceof SecretUnavailableError || err instanceof OfflineBlockedError) throw err; // stays typed
+      recordQuietly(db, {
+        capability: "chat", provider: cfg.preset.id, model: cfg.model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "remote_error",
+      });
       throw new RemoteProviderError(cfg.connection, "chat", err);
     } finally {
       inFlight.chat.delete(ac);
@@ -371,6 +412,7 @@ export function makeRemoteEmbed(db: LocalDb, cfg: ChatCapabilityConfig): EmbedFn
     const client = openaiClient({ apiKey, baseURL });
     const ac = new AbortController();
     inFlight.embed.add(ac);
+    const t0 = Date.now();
     try {
       await assertRemoteAllowed(db, "embed"); // re-check after registration
 
@@ -380,6 +422,13 @@ export function makeRemoteEmbed(db: LocalDb, cfg: ChatCapabilityConfig): EmbedFn
           signal: linked.signal,
           ...(apiKey ? authHeaderFor(cfg.preset, apiKey) : {}),
         });
+        recordQuietly(db, {
+          capability: "embed", provider: cfg.preset.id, model: cfg.model,
+          latencyMs: Date.now() - t0,
+          promptTokens: typeof response.usage?.prompt_tokens === "number" ? response.usage.prompt_tokens : null,
+          completionTokens: null,
+          ok: true,
+        });
         return response.data.map((item) => {
           const buf = new Float32Array(item.embedding);
           return Buffer.from(buf.buffer);
@@ -388,7 +437,11 @@ export function makeRemoteEmbed(db: LocalDb, cfg: ChatCapabilityConfig): EmbedFn
         linked.cleanup();
       }
     } catch (err) {
-      if (err instanceof SecretUnavailableError) throw err; // stays typed
+      if (err instanceof SecretUnavailableError || err instanceof OfflineBlockedError) throw err; // stays typed
+      recordQuietly(db, {
+        capability: "embed", provider: cfg.preset.id, model: cfg.model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "remote_error",
+      });
       throw new RemoteProviderError(cfg.connection, "embed", err);
     } finally {
       inFlight.embed.delete(ac);
@@ -408,6 +461,7 @@ export function makeEnvRemoteChat(db: LocalDb): ChatFn {
     const model = process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini";
     const ac = new AbortController();
     inFlight.chat.add(ac);
+    const t0 = Date.now();
     try {
       // the flag may have flipped while this call was between gate and
       // registration — re-check so the call can not slip onto the wire
@@ -418,7 +472,7 @@ export function makeEnvRemoteChat(db: LocalDb): ChatFn {
         const response = await client.chat.completions.create({ model, messages: messages as any }, { signal: linked.signal });
         const choice = response.choices[0];
         const usage = response.usage;
-        return {
+        const result = {
           text: choice?.message?.content || "",
           provider: "openai",
           model,
@@ -427,13 +481,135 @@ export function makeEnvRemoteChat(db: LocalDb): ChatFn {
             : {}),
           ...(choice?.finish_reason ? { finishReason: choice.finish_reason } : {}),
         };
+        recordQuietly(db, {
+          capability: "chat", provider: "openai", model,
+          latencyMs: Date.now() - t0,
+          promptTokens: usage && typeof usage.prompt_tokens === "number" ? usage.prompt_tokens : null,
+          completionTokens: usage && typeof usage.completion_tokens === "number" ? usage.completion_tokens : null,
+          ok: true,
+        });
+        return result;
       } finally {
         linked.cleanup();
       }
     } catch (err) {
+      recordQuietly(db, {
+        capability: "chat", provider: "openai", model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "remote_error",
+      });
       throw new RemoteProviderError(connection, "chat", err);
     } finally {
       inFlight.chat.delete(ac);
+    }
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Transcription (S3): remote Whisper-style ASR, same gate/abort/telemetry
+// pattern as chat. Managed local ASR is a later phase — there is no local
+// transcribe factory yet, a llamacpp selection resolves to null with a typed
+// reason (see engine/capabilities.ts).
+// ---------------------------------------------------------------------------
+
+/** OpenAI audio upload MIME types (extension-based, audio/wav default). */
+const TRANSCRIBE_MIME: Record<string, string> = {
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  m4a: "audio/mp4",
+  mp4: "audio/mp4",
+  webm: "audio/webm",
+  ogg: "audio/ogg",
+  flac: "audio/flac",
+};
+
+/**
+ * Remote transcription via the OpenAI SDK audio.transcriptions endpoint:
+ * client built per call from fully-read config, offline checked before any
+ * network I/O, call registered for setOfflineMode aborts, run recorded.
+ */
+export function makeRemoteTranscribe(db: LocalDb, cfg: ChatCapabilityConfig): TranscribeFn {
+  return async (audio, fileName) => {
+    await assertRemoteAllowed(db, "transcribe");
+    const { apiKey, baseURL } = await clientConfig(db, cfg.connection);
+    const client = openaiClient({ apiKey, baseURL });
+    const ac = new AbortController();
+    inFlight.transcribe.add(ac);
+    const t0 = Date.now();
+    try {
+      // re-check after registration so the call can not slip onto the wire
+      await assertRemoteAllowed(db, "transcribe");
+      const linked = linkedSignal([ac.signal, AbortSignal.timeout(120_000)]);
+      try {
+        const ext = fileName.split(".").pop()?.toLowerCase() || "wav";
+        const response = await client.audio.transcriptions.create(
+          {
+            model: cfg.model,
+            file: new File([new Uint8Array(audio)], fileName, { type: TRANSCRIBE_MIME[ext] ?? "audio/wav" }),
+          },
+          { signal: linked.signal, ...(apiKey ? authHeaderFor(cfg.preset, apiKey) : {}) }
+        );
+        recordQuietly(db, {
+          capability: "transcribe", provider: cfg.preset.id, model: cfg.model,
+          latencyMs: Date.now() - t0, ok: true,
+        });
+        return { text: typeof response === "string" ? response : (response as { text: string }).text };
+      } finally {
+        linked.cleanup();
+      }
+    } catch (err) {
+      if (err instanceof SecretUnavailableError || err instanceof OfflineBlockedError) throw err; // stays typed
+      recordQuietly(db, {
+        capability: "transcribe", provider: cfg.preset.id, model: cfg.model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "remote_error",
+      });
+      throw new RemoteProviderError(cfg.connection, "transcribe", err);
+    } finally {
+      inFlight.transcribe.delete(ac);
+    }
+  };
+}
+
+/** Dev fallback when no explicit transcribe config exists (Next dev only —
+ *  desktop never reaches this): today's env-based Whisper call, normalized
+ *  to the TranscribeFn shape. */
+export function makeEnvRemoteTranscribe(db: LocalDb): TranscribeFn {
+  const connection: ProviderConnection = { id: "env", presetId: "openai", label: "OpenAI" };
+  return async (audio, fileName) => {
+    await assertRemoteAllowed(db, "transcribe");
+    const client = openaiClient(); // env key; throws the Kein KI-Anbieter error when absent
+    const model = process.env.OPENAI_TRANSCRIPTION_MODEL || "gpt-4o-mini-transcribe";
+    const ac = new AbortController();
+    inFlight.transcribe.add(ac);
+    const t0 = Date.now();
+    try {
+      await assertRemoteAllowed(db, "transcribe"); // re-check after registration
+      const linked = linkedSignal([ac.signal, AbortSignal.timeout(120_000)]);
+      try {
+        const ext = fileName.split(".").pop()?.toLowerCase() || "wav";
+        const response = await client.audio.transcriptions.create(
+          {
+            model,
+            file: new File([new Uint8Array(audio)], fileName, { type: TRANSCRIBE_MIME[ext] ?? "audio/wav" }),
+          },
+          { signal: linked.signal }
+        );
+        recordQuietly(db, {
+          capability: "transcribe", provider: "openai", model,
+          latencyMs: Date.now() - t0, ok: true,
+        });
+        return { text: typeof response === "string" ? response : (response as { text: string }).text };
+      } finally {
+        linked.cleanup();
+      }
+    } catch (err) {
+      if (err instanceof SecretUnavailableError || err instanceof OfflineBlockedError) throw err; // stays typed
+      recordQuietly(db, {
+        capability: "transcribe", provider: "openai", model,
+        latencyMs: Date.now() - t0, ok: false, errorCode: "remote_error",
+      });
+      throw new RemoteProviderError(connection, "transcribe", err);
+    } finally {
+      inFlight.transcribe.delete(ac);
     }
   };
 }

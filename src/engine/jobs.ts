@@ -101,6 +101,7 @@ async function runMaterialGeneration(ctx: LocalContext): Promise<void> {
       notebookId: job.notebookId,
       type: job.type,
       chat: caps.chat,
+      providerLabel: caps.chatProvider?.label,
       tts,
     });
     if (!outcome.ok) {
@@ -182,6 +183,12 @@ export function startProcessingLoop(
 
       let foundWork = false;
 
+      // S3: capabilities resolved lazily once per tick with work, so the
+      // injected transcriber (and chat/embed) come from explicit config —
+      // a failure resolves to null and the runner fails typed.
+      let caps: Awaited<ReturnType<typeof resolveCapabilities>> | null = null;
+      const capsForRun = async () => (caps ??= await resolveCapabilities().catch(() => null));
+
       // upload lane (cap 2): the shared ffmpeg/transcription slot excludes
       // media uploads from the claim while the slot is taken
       while (uploadRunning < UPLOAD_CAP) {
@@ -211,8 +218,11 @@ export function startProcessingLoop(
           if (hooks?.processingRunner) {
             await hooks.processingRunner(ctx, job);
           } else {
-            await runProcessingJob(ctx, job.id, job.leaseToken!, job.sourceId,
-              hooks?.processingOpts?.(job.id));
+            const hookOpts = hooks?.processingOpts?.(job.id);
+            await runProcessingJob(ctx, job.id, job.leaseToken!, job.sourceId, {
+              ...hookOpts,
+              transcribe: (await capsForRun())?.transcribe ?? undefined,
+            });
           }
           emitJobEvent(ctx.db, "processing", job.id, "finished");
         })()
@@ -249,7 +259,7 @@ export function startProcessingLoop(
             importRunning += 1;
             const media = /video|audio/.test(importJob.kind ?? "");
             if (media) mediaRunning += 1;
-            void runImportJob(ctx, importJob)
+            void runImportJob(ctx, importJob, { transcribe: (await capsForRun())?.transcribe ?? undefined })
               .then((outcome) => {
                 if (outcome === "completed") {
                   emitJobEvent(ctx.db, "import", importJob._id, "finished");

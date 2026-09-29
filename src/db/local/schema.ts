@@ -468,3 +468,23 @@ export const retrievalRuns = sqliteTable(
   },
   (t) => [index("retrieval_runs_by_notebook").on(t.notebookId, t.createdAt)]
 );
+
+/** Provider run telemetry (multi-provider S3): one honest row per model call
+ *  written at the capability seam. Tokens only when usage was returned
+ *  (unknown is null, never 0); no prompt text is ever stored. */
+export const providerRuns = sqliteTable(
+  "provider_runs",
+  {
+    id: text("id").primaryKey(),
+    capability: text("capability").$type<"chat" | "embed" | "transcribe" | "tts">().notNull(),
+    provider: text("provider").notNull(),
+    model: text("model"),
+    latencyMs: integer("latency_ms"),
+    promptTokens: integer("prompt_tokens"),
+    completionTokens: integer("completion_tokens"),
+    ok: integer("ok").notNull(),
+    errorCode: text("error_code"),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("idx_provider_runs_created").on(t.createdAt)]
+);

@@ -8,6 +8,7 @@ import path from "node:path";
 import { chunkText, extractTextFromFile } from "@/lib/text-extraction";
 import { extractAudioFromVideo } from "@/lib/ffmpeg";
 import { transcribeMedia } from "@/lib/ingestion/process";
+import type { TranscribeFn } from "@/lib/ai/providers";
 import { getSource, replaceChunks, updateSourceStatus } from "@/lib/services/sources";
 import {
   completeProcessingJob,
@@ -53,7 +54,7 @@ export async function runProcessingJob(
   jobId: string,
   token: string,
   sourceId: string,
-  opts?: { beforeStage?: (stage: ProcessingStage) => Promise<void> }
+  opts?: { beforeStage?: (stage: ProcessingStage) => Promise<void>; transcribe?: TranscribeFn }
 ): Promise<ProcessingJobOutcome> {
   const log = (step: string, extra?: string) =>
     console.log(`[PROCESS][${sourceId.slice(0, 8)}] ${step}${extra ? ` — ${extra}` : ""}`);
@@ -150,7 +151,11 @@ export async function runProcessingJob(
       }
 
       let stopObservation: ProcessingJobOutcome | null = null;
-      text = await transcribeMedia(audioBuffer, source.fileName, {
+      // S3: the transcriber is injected (resolved from explicit config by the
+      // job loop); a media upload without one fails typed instead of reaching
+      // for a hardcoded provider.
+      if (!opts?.transcribe) throw new PermanentProcessingError("Kein KI-Anbieter für die Transkription konfiguriert. Wähle in den Einstellungen einen Transkriptionsanbieter.");
+      text = await transcribeMedia(audioBuffer, source.fileName, opts.transcribe, {
         segDir,
         ...(resume && {
           resumeFrom: resume.resumeFrom,

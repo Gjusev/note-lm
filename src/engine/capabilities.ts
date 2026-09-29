@@ -28,14 +28,17 @@ import {
   makeEnvRemoteChat,
   makeRemoteChat,
   makeRemoteEmbed,
+  makeRemoteTranscribe,
+  makeEnvRemoteTranscribe,
   type CapabilityConfig,
   type ChatFn,
   type EmbedFn,
   type ProviderConnection,
   type ProviderLabel,
+  type TranscribeFn,
 } from "@/lib/ai/providers";
 
-export type { ChatFn, ChatResult, EmbedFn, ProviderLabel } from "@/lib/ai/providers";
+export type { ChatFn, ChatResult, EmbedFn, ProviderLabel, TranscribeFn } from "@/lib/ai/providers";
 
 interface Capabilities {
   chat: ChatFn | null;
@@ -45,7 +48,11 @@ interface Capabilities {
   chatProviderKind: "local" | "remote" | null;
   /** German reason when chat is null (typed, not parsed from a message). */
   chatReason?: string;
-  embed: EmbedFn | null;
+  embed?: EmbedFn | null;
+  /** Media transcription capability; null = none resolved (see transcribeReason). */
+  transcribe?: TranscribeFn | null;
+  /** German reason when transcribe is null despite a config asking for it. */
+  transcribeReason?: string;
 }
 
 let llamaChat: LlamaHandle | null = null;
@@ -98,18 +105,18 @@ async function resolveModelPaths(): Promise<ResolvedModelPaths> {
 /** Read the connections/capability selections from settings (JSON rows). */
 async function readProviderConfig(db: Parameters<typeof getSetting>[0]): Promise<{
   connections: ProviderConnection[];
-  capCfg: Partial<Record<"chat" | "embed", CapabilityConfig | null>>;
+  capCfg: Partial<Record<"chat" | "embed" | "transcribe", CapabilityConfig | null>>;
 }> {
   const connections = (await getSetting<ProviderConnection[]>(db, "ai.connections")) ?? [];
   const capCfg =
-    (await getSetting<Partial<Record<"chat" | "embed", CapabilityConfig | null>>>(db, "ai.capabilities")) ?? {};
+    (await getSetting<Partial<Record<"chat" | "embed" | "transcribe", CapabilityConfig | null>>>(db, "ai.capabilities")) ?? {};
   return { connections, capCfg };
 }
 
 /** Look up a configured remote capability; null (with reason for chat) when
- *  the config does not name a usable chat/embed connection. */
+ *  the config does not name a usable chat/embed/transcribe connection. */
 function resolveRemoteCapability(
-  capability: "chat" | "embed",
+  capability: "chat" | "embed" | "transcribe",
   cfg: CapabilityConfig | null | undefined,
   connections: ProviderConnection[]
 ): { connection: ProviderConnection; preset: NonNullable<ReturnType<typeof getPreset>>; } | { error: string } {
@@ -120,7 +127,12 @@ function resolveRemoteCapability(
   const preset = getPreset(conn.presetId);
   if (!preset) return { error: `Kein KI-Anbieter konfiguriert: Unbekannter Verbindungstyp „${conn.presetId}".` };
   if (!preset.capabilities.includes(capability)) {
-    return { error: `Kein KI-Anbieter konfiguriert: ${preset.label} unterstützt ${capability === "chat" ? "keinen Chat" : "keine Einbettungen"}.` };
+    return {
+      error:
+        capability === "chat" ? `Kein KI-Anbieter konfiguriert: ${preset.label} unterstützt keinen Chat.`
+        : capability === "embed" ? `Kein KI-Anbieter konfiguriert: ${preset.label} unterstützt keine Einbettungen.`
+        : `Kein KI-Anbieter konfiguriert: ${preset.label} unterstützt keine Transkription.`,
+    };
   }
   return { connection: conn, preset };
 }
@@ -165,7 +177,7 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
     const { llamaDir: dir, chatModel } = await resolveModelPaths();
     if (dir && chatModel) {
       if (!llamaChat) llamaChat = await startLlama({ exeDir: dir, modelPath: chatModel });
-      chat = makeLocalChat(llamaChat, path.basename(chatModel));
+      chat = makeLocalChat(d, llamaChat, path.basename(chatModel));
       chatProvider = { kind: "local", label: "Auf diesem Computer" };
       chatProviderKind = "local";
     } else if (isDesktopEngine()) {
@@ -180,7 +192,30 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
     }
   }
 
-  return { chat, chatProvider, chatProviderKind, embed, ...(chatReason ? { chatReason } : {}) };
+  // Transcribe (S3): explicit remote config (openai/custom presets) only —
+  // managed local ASR is a later phase, so a llamacpp selection resolves to
+  // null with a typed pending reason. Dev fallback mirrors chat's env path.
+  let transcribe: TranscribeFn | null = null;
+  let transcribeReason: string | undefined;
+  if (capCfg.transcribe) {
+    const trRes = resolveRemoteCapability("transcribe", capCfg.transcribe, connections);
+    if ("connection" in trRes) {
+      transcribe = makeRemoteTranscribe(d, { ...trRes, model: capCfg.transcribe.model });
+    } else {
+      const selected = connections.find((c) => c.id === capCfg.transcribe!.connectionId);
+      transcribeReason =
+        selected?.presetId === "llamacpp"
+          ? "Lokale Transkription ist in dieser Version noch nicht verfügbar — bitte einen Cloud-Anbieter für die Transkription wählen."
+          : trRes.error;
+    }
+  } else if (!isDesktopEngine() && process.env.OPENAI_API_KEY) {
+    transcribe = makeEnvRemoteTranscribe(d);
+  }
+
+  return {
+    chat, chatProvider, chatProviderKind, embed,
+    transcribe, ...(chatReason ? { chatReason } : {}), ...(transcribeReason ? { transcribeReason } : {}),
+  };
 }
 
 export async function stopLlamaHelpers(): Promise<void> {
