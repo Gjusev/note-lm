@@ -145,6 +145,21 @@ export async function pickFile(): Promise<{ path: string; name: string } | null>
   return { path, name };
 }
 
+/** Onboarding sample (strategy §9): the Rust command composes the engine ops
+ *  (notebook + v1 sample import + claim) and polls until the sample source
+ *  has finished processing. Browser dev has no Rust host for it. */
+export async function createSampleNotebook(): Promise<{
+  notebookId: string;
+  sourceId: string;
+  claimId: string;
+}> {
+  if (typeof window === "undefined" || !("__TAURI__" in window)) {
+    throw new Error("Beispiel-Notizbuch ist nur in der Desktop-App verfügbar");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return await (window as any).__TAURI__.core.invoke("create_sample_notebook");
+}
+
 /** Open a stored evidence file with its platform default app. The Rust side
  *  validates the path against the engine data dir; null in browser dev. */
 export async function openExternalFile(path: string): Promise<void> {

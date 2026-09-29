@@ -125,6 +125,21 @@ mod tests {
         // the base itself is not "inside"
         assert!(!path_within_base(base, base));
     }
+
+    #[test]
+    fn source_status_lookup_over_list_result() {
+        // wire shape of sources.list: Mongo-style `_id` + `status`
+        let list = serde_json::json!([
+            { "_id": "s1", "status": "pending" },
+            { "_id": "s2", "status": "completed" }
+        ]);
+        assert_eq!(
+            source_status_in_list(&list, "s2").as_deref(),
+            Some("completed")
+        );
+        assert_eq!(source_status_in_list(&list, "missing"), None);
+        assert_eq!(source_status_in_list(&serde_json::json!(null), "s1"), None);
+    }
 }
 
 /// Single exit path: persist the global pause THROUGH THE ENGINE (the engine
@@ -175,6 +190,125 @@ fn set_connection_secret(connection_id: String, value: String) -> Result<(), Str
         store.set(&connection_id, &value)
     };
     result.map_err(|e| format!("Zugangsdaten konnten nicht gespeichert werden: {e}"))
+}
+
+/// Locate the bundle's resources dir (same resolution as smoke_resource_dir):
+/// dev builds fall back to the source tree, the installed app keeps the
+/// resources next to the exe. The samples live in <resources>/samples.
+fn samples_dir() -> Result<PathBuf, String> {
+    smoke_resource_dir().map(|p| p.join("samples"))
+}
+
+/// Pure helper: the status of one source (wire field `_id`) inside a
+/// sources.list result. None when the source is missing — unit-testable
+/// without a running engine.
+fn source_status_in_list(list_result: &serde_json::Value, source_id: &str) -> Option<String> {
+    list_result
+        .as_array()?
+        .iter()
+        .find(|s| s.get("_id").and_then(|v| v.as_str()) == Some(source_id))
+        .and_then(|s| s.get("status").and_then(|v| v.as_str()))
+        .map(|s| s.to_string())
+}
+
+/// UI command (open-source-innovation-strategy §9 onboarding): create the
+/// redistributable sample notebook through the ENGINE ONLY — Rust composes
+/// the same ops the UI uses, it never touches SQLite itself.
+///
+/// Engine limitation (known, accepted for this slice): sources.importFile
+/// always creates a NEW source — the engine has no re-import/version op for
+/// file sources (URL imports dedupe via completeImportJob, file imports do
+/// not). So only kaffee-studie-v1.pdf is imported; kaffee-studie-v2.pdf ships
+/// in the bundle ready for a future re-import-as-new-version demo.
+///
+/// Flow: notebooks.create "Beispiel: Kaffeestudie" -> sources.importFile(v1)
+/// -> poll sources.list until the source status leaves pending/processing
+/// (processing is async in the engine scheduler; 30 s cap) -> claims.create
+/// quoting the v1 result fact. Anchors are NOT attached here: the engine's
+/// claims.create takes text only — anchors bind exclusively via chat
+/// citations (claims.createFromMessage), which would need a configured model.
+#[tauri::command]
+fn create_sample_notebook(state: tauri::State<EngineState>) -> Result<serde_json::Value, String> {
+    let samples = samples_dir()?;
+    let v1 = samples.join("kaffee-studie-v1.pdf");
+    if !v1.is_file() {
+        return Err(format!("Beispieldatei fehlt im Paket: {}", v1.display()));
+    }
+
+    let nb = engine_call(
+        state.inner(),
+        "notebooks.create",
+        serde_json::json!({ "title": "Beispiel: Kaffeestudie" }),
+    )
+    .ok_or("Notizbuch konnte nicht erstellt werden")?;
+    let notebook_id = nb
+        .get("id")
+        .and_then(|v| v.as_str())
+        .ok_or("Notizbuch-Antwort ohne id")?
+        .to_string();
+
+    let imported = engine_call(
+        state.inner(),
+        "sources.importFile",
+        serde_json::json!({
+            "path": v1.to_string_lossy(),
+            "notebookId": notebook_id,
+            "fileName": "kaffee-studie-v1.pdf",
+            "fileType": "application/pdf",
+        }),
+    )
+    .ok_or("Beispielquelle konnte nicht importiert werden")?;
+    let source_id = imported
+        .get("sourceId")
+        .and_then(|v| v.as_str())
+        .ok_or("Import-Antwort ohne sourceId")?
+        .to_string();
+
+    // Processing runs async in the engine scheduler: poll sources.list until
+    // the source is terminal, then proceed (the claim quotes a v1 fact that
+    // must exist as a completed, version-recorded source).
+    let mut done = false;
+    for _ in 0..60 {
+        std::thread::sleep(std::time::Duration::from_millis(500));
+        let list = engine_call(
+            state.inner(),
+            "sources.list",
+            serde_json::json!({ "notebookId": notebook_id }),
+        )
+        .ok_or("sources.list fehlgeschlagen")?;
+        match source_status_in_list(&list, &source_id) {
+            Some(s) if s == "completed" => {
+                done = true;
+                break;
+            }
+            Some(s) if s == "error" => return Err("Beispielquelle konnte nicht verarbeitet werden".into()),
+            _ => {}
+        }
+    }
+    if !done {
+        return Err("Zeitüberschreitung: Beispielquelle wurde nicht rechtzeitig verarbeitet".into());
+    }
+
+    let claim = engine_call(
+        state.inner(),
+        "claims.create",
+        serde_json::json!({
+            "notebookId": notebook_id,
+            "text": "Die Kaffeestudie 2026 berichtet, Filterkaffee verlängere die durchschnittliche Konzentrationsdauer um 14 Minuten.",
+        }),
+    )
+    .ok_or("Aussage konnte nicht erstellt werden")?;
+    let claim_id = claim
+        .get("id")
+        .and_then(|v| v.as_str())
+        .ok_or("Aussage-Antwort ohne id")?
+        .to_string();
+
+    Ok(serde_json::json!({
+        "notebookId": notebook_id,
+        "sourceId": source_id,
+        "claimId": claim_id,
+    }))
 }
 
 /// Lexical normalization (resolve `.` and `..` without touching the file
@@ -418,10 +552,31 @@ fn smoke() -> Result<(), String> {
         failed = failed || !pass;
     }
 
+    // Onboarding samples (strategy §9): the bundle must carry the two
+    // redistributable sample PDFs create_sample_notebook imports. Cheap
+    // packaging check — the full flow is async and NOT exercised in smoke.
+    let samples = resources.join("samples");
+    let pdf_count = std::fs::read_dir(&samples)
+        .map(|rd| {
+            rd.filter_map(|e| e.ok())
+                .filter(|e| e.path().extension().is_some_and(|x| x == "pdf"))
+                .count()
+        })
+        .unwrap_or(0);
+    let samples_ok = pdf_count == 2
+        && samples.join("kaffee-studie-v1.pdf").is_file()
+        && samples.join("kaffee-studie-v2.pdf").is_file();
+    println!(
+        "{} samples dir: {} pdf file(s) in {}",
+        if samples_ok { "ok" } else { "FAIL" },
+        pdf_count,
+        samples.display()
+    );
+    failed = failed || !samples_ok;
     if failed {
         return Err("smoke checks failed".into());
     }
-    println!("smoke: engine, SQLite, typed errors, claims flow and provider/model flow all verified");
+    println!("smoke: engine, SQLite, typed errors, claims flow, provider/model flow and samples all verified");
     Ok(())
 }
 
@@ -520,7 +675,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             engine_handshake, engine_op, hide_to_tray, pause_and_exit, open_external_file,
-            set_connection_secret
+            set_connection_secret, create_sample_notebook
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

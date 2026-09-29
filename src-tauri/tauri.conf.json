@@ -27,7 +27,8 @@
     "resources": [
       "resources/engine/**/*",
       "resources/ffmpeg/**/*",
-      "resources/llama/**/*"
+      "resources/llama/**/*",
+      "resources/samples/**/*"
     ],
     "windows": {
       "webviewInstallMode": {

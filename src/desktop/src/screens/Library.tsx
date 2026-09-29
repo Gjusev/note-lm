@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { desktopApi } from "../lib/api";
+import { createSampleNotebook, desktopApi } from "../lib/api";
 
 /** Onboarding: the first notebook can be created before any AI is
  *  configured (plan phase 4 acceptance). */
@@ -8,6 +8,25 @@ export function Library() {
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  // Onboarding sample (strategy §9): one click builds the demo notebook
+  // (v1 import + claim) on the Rust side; disabled while it runs because
+  // the command polls the engine until the sample source is processed.
+  const [sampling, setSampling] = useState(false);
+  const [sampleError, setSampleError] = useState<string | null>(null);
+
+  const loadSample = async () => {
+    setSampling(true);
+    setSampleError(null);
+    try {
+      const data = await createSampleNotebook();
+      queryClient.invalidateQueries({ queryKey: ["notebooks"] });
+      window.location.hash = `#/nb/${data.notebookId}`;
+    } catch (err) {
+      setSampleError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSampling(false);
+    }
+  };
 
   const { data: notebooks, isLoading } = useQuery({
     queryKey: ["notebooks"],
@@ -28,10 +47,20 @@ export function Library() {
     <section style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-3)" }}>
         <h1 style={{ fontSize: "1.4rem", margin: 0 }}>Bibliothek</h1>
-        <button className="primary" onClick={() => setAdding(!adding)}>
-          {adding ? "Abbrechen" : "+ Notizbuch"}
-        </button>
+        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+          <button onClick={loadSample} disabled={sampling}>
+            {sampling ? "Beispiel wird geladen…" : "Beispiel laden"}
+          </button>
+          <button className="primary" onClick={() => setAdding(!adding)}>
+            {adding ? "Abbrechen" : "+ Notizbuch"}
+          </button>
+        </div>
       </div>
+      {sampleError && (
+        <p role="alert" className="muted" style={{ margin: "var(--space-3) 0 0" }}>
+          {sampleError}
+        </p>
+      )}
 
       {adding && (
         <form
