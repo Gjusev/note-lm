@@ -9,9 +9,11 @@
   "app": {
     "windows": [
       {
-        "title": "note-lm \u2014 packaging spike",
-        "width": 720,
-        "height": 480
+        "title": "note-lm",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 720,
+        "minHeight": 480
       }
     ],
     "security": {

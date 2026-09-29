@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { desktopApi } from "./lib/api";
+import { useTheme, type ThemeSetting } from "./lib/uiState";
 import { CloseDialog } from "./CloseDialog";
 import { Library } from "./screens/Library";
 import { NotebookWorkspace } from "./screens/NotebookWorkspace";
@@ -65,6 +66,7 @@ export function App() {
           >
             Einstellungen
           </a>
+          <ThemeSelect />
           <StatusBadge />
         </div>
       </header>
@@ -81,6 +83,27 @@ export function App() {
       </main>
       <CloseDialog />
     </div>
+  );
+}
+
+/** Explicit, persisted theme selection (light/dark/system). The resolved
+ *  theme lands on <html data-theme> via lib/uiState. */
+function ThemeSelect() {
+  const theme = useTheme();
+  return (
+    <label className="mono" style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", fontSize: "0.72rem" }}>
+      Design
+      <select
+        value={theme.setting}
+        onChange={(e) => theme.set(e.target.value as ThemeSetting)}
+        aria-label="Design wählen (Hell, Dunkel oder System)"
+        style={{ width: "auto", padding: "0 var(--space-2)" }}
+      >
+        <option value="light">Hell</option>
+        <option value="dark">Dunkel</option>
+        <option value="system">System</option>
+      </select>
+    </label>
   );
 }
 

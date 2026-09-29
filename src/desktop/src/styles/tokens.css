@@ -1,18 +1,45 @@
 /* Design tokens (product-blueprint §Marca): paper / ink / subtle grid /
-   red accent. Light, dark and system themes from day one. */
+   red accent. Theme selection is explicit (light/dark/system, persisted via
+   lib/uiState.ts): the resolved theme lands on <html data-theme>. "system"
+   is resolved in JS (matchMedia listener) so the dark block exists once.
+
+   Contrast notes for the accent pair (WCAG relative luminance):
+   - light accent #b4473d  L=0.1454 vs #ffffff -> (1.05)/(0.1954) = 5.37:1
+   - dark accent  #d2705f  L=0.2612 vs #1c1b19 L=0.0110 -> 0.3112/0.0610 = 5.10:1
+   The old dark pair (#ffffff on #d2705f) measured ~3.37:1; action.primary.fg
+   fixes it with a dedicated per-theme token instead of a hardcoded #fff.
+
+   Fonts: "Geist Sans"/"JetBrains Mono" are named but NOT bundled (no
+   @font-face anywhere in this app). The fallback chain is what actually
+   renders - do not claim Geist offline until a bundled font file exists. */
 :root {
-  --paper: #fafafa;
+  /* semantic aliases (§6 token names) */
+  --surface-canvas: #fafafa;
+  --surface-document: #ffffff;
+  --text-primary: #202020;
+  --text-secondary: rgba(32, 32, 32, 0.6);
+  --border-default: rgba(32, 32, 32, 0.14);
+  --status-success: #2f6b46;
+  --status-warning: #9a6b0f;
+  --status-error: #b4473d;
+  --action-primary-bg: #b4473d;
+  --action-primary-fg: #ffffff;
+  --focus: 2px solid #b4473d;
+
+  /* legacy names kept - every existing screen uses them */
+  --paper: var(--surface-canvas);
   --paper-muted: #f1efe9;
-  --ink: #202020;
-  --ink-60: rgba(32, 32, 32, 0.6);
+  --ink: var(--text-primary);
+  --ink-60: var(--text-secondary);
   --ink-40: rgba(32, 32, 32, 0.4);
-  --rule: rgba(32, 32, 32, 0.14);
-  --accent: #b4473d;
+  --rule: var(--border-default);
+  --accent: var(--action-primary-bg);
+  --accent-fg: var(--action-primary-fg);
   --accent-soft: rgba(180, 71, 61, 0.08);
-  --ok: #2f6b46;
-  --warn: #9a6b0f;
-  --surface: #ffffff;
-  --focus-ring: 2px solid var(--accent);
+  --ok: var(--status-success);
+  --warn: var(--status-warning);
+  --surface: var(--surface-document);
+  --focus-ring: var(--focus);
   --radius: 6px;
   --space-1: 4px;
   --space-2: 8px;
@@ -22,20 +49,20 @@
   --font-ui: "Geist Sans", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #1c1b19;
-    --paper-muted: #242220;
-    --ink: #ece9e2;
-    --ink-60: rgba(236, 233, 226, 0.62);
-    --ink-40: rgba(236, 233, 226, 0.4);
-    --rule: rgba(236, 233, 226, 0.16);
-    --accent: #d2705f;
-    --accent-soft: rgba(210, 112, 95, 0.12);
-    --ok: #6fbf8e;
-    --warn: #d9a441;
-    --surface: #242220;
-  }
+[data-theme="dark"] {
+  --surface-canvas: #1c1b19;
+  --surface-document: #242220;
+  --text-primary: #ece9e2;
+  --text-secondary: rgba(236, 233, 226, 0.62);
+  --border-default: rgba(236, 233, 226, 0.16);
+  --status-success: #6fbf8e;
+  --status-warning: #d9a441;
+  --status-error: #d2705f;
+  --action-primary-bg: #d2705f;
+  --action-primary-fg: #1c1b19; /* 5.10:1 on #d2705f; white was 3.37:1 */
+  --paper-muted: #242220;
+  --ink-40: rgba(236, 233, 226, 0.4);
+  --accent-soft: rgba(210, 112, 95, 0.12);
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
@@ -56,13 +83,14 @@ button {
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   padding: var(--space-2) var(--space-3);
+  transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
 }
 button:hover { border-color: var(--ink-40); }
-button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
   outline: var(--focus-ring);
   outline-offset: 1px;
 }
-button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 button.primary:hover { filter: brightness(1.08); }
 input, textarea {
   background: var(--surface);
@@ -74,3 +102,25 @@ input, textarea {
 .mono { font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-60); }
 .muted { color: var(--ink-60); }
 .rule-top { border-top: 1px solid var(--rule); }
+
+/* pdf.js text layer (viewer redesign): transparent glyphs over the canvas so
+   text is selectable/copyable; the reader captures the selection. Subset of
+   pdfjs web/pdf_viewer.css - only what TextLayer needs. */
+.text-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+}
+.text-layer span, .text-layer br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+.text-layer ::selection { background: rgba(180, 71, 61, 0.32); }
+[data-theme="dark"] .text-layer ::selection { background: rgba(210, 112, 95, 0.4); }

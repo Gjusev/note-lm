@@ -109,6 +109,8 @@ export const desktopApi = {
   listNotes: (notebookId: string) => call<Note[]>("notes.list", { notebookId }),
   createNote: (notebookId: string, title: string, content: string) =>
     call<{ id: string }>("notes.create", { notebookId, title, content }),
+  updateNote: (noteId: string, title: string, content: string) =>
+    call<{}>("notes.update", { noteId, title, content }),
   deleteNote: (noteId: string) => call<{}>("notes.delete", { noteId }),
   activeProfile: () => call<{ profile: { _id: string; model: string; dimension: number } | null }>("retrieval.profile.active"),
   diagnostics: () => call<{ vecVersion: string | null; localChatConfigured: boolean; localEmbedConfigured: boolean }>("diagnostics.capabilities"),
@@ -144,8 +146,12 @@ export const desktopApi = {
     call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
   importNotebook: (sourceDir: string) =>
     call<{ notebookId: string; documents: number }>("notebook.import", { sourceDir }),
-  createClaim: (notebookId: string, text: string) =>
-    call<{ id: string; anchorCount: number }>("claims.create", { notebookId, text }),
+  /** Optional explicit anchors (workspace redesign D1): the op accepts
+   *  {sourceId, page, quote} and binds each anchor to the source's LATEST
+   *  version - never to the version the user is currently reading. The UI
+   *  states that honestly when an older version is open. */
+  createClaim: (notebookId: string, text: string, anchors?: Array<{ sourceId: string; page?: number; quote?: string }>) =>
+    call<{ id: string; anchorCount: number }>("claims.create", { notebookId, text, ...(anchors ? { anchors } : {}) }),
   createClaimFromMessage: (notebookId: string, messageId: string, text: string) =>
     call<{ id: string; anchorCount: number }>("claims.createFromMessage", { notebookId, messageId, text }),
   listClaims: (notebookId: string) => call<ClaimView[]>("claims.list", { notebookId }),
