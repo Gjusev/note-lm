@@ -141,6 +141,13 @@ try {
   // --- 1. library loads + Beispiel laden creates the sample notebook ----------
   await step("1a Bibliothek lädt (Engine über HTTP erreichbar)", async () => {
     await page.goto(`http://localhost:${VITE_PORT}/`);
+    // fresh data dir -> the first-run onboarding wizard opens over the
+    // library: dismiss it once ('Überspringen' sets the localStorage flag)
+    // so the drive clicks through unhindered
+    const wizard = page.getByRole("dialog", { name: "Willkommen bei note-lm" });
+    await wizard.waitFor({ timeout: 30_000 });
+    await wizard.getByRole("button", { name: "Überspringen" }).click();
+    await wizard.waitFor({ state: "detached" });
     await page.getByRole("heading", { name: "Bibliothek" }).waitFor();
     // StatusBadge must NOT say "Motor nicht erreichbar" — the engine answered
     const badge = page.locator('header span[title="Wo wird verarbeitet"]');

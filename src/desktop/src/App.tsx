@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { desktopApi } from "./lib/api";
 import { useTheme, type ThemeSetting } from "./lib/uiState";
 import { CloseDialog } from "./CloseDialog";
+import { Onboarding } from "./Onboarding";
 import { Library } from "./screens/Library";
 import { NotebookWorkspace } from "./screens/NotebookWorkspace";
 import { Settings } from "./screens/Settings";
@@ -82,6 +83,7 @@ export function App() {
         )}
       </main>
       <CloseDialog />
+      <Onboarding />
     </div>
   );
 }

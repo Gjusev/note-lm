@@ -277,6 +277,12 @@ export const desktopApi = {
     secret?: string
   ) => call<{ capability: string; latencyMs: number; dimension?: number }>("providers.test", { capability, connection, secret }),
   setOffline: (on: boolean) => call<{ offline: boolean }>("settings.offline", { on }),
+  /** App-managed whisper.cpp runtime (S5): status only here — install stays
+   *  a Settings concern; the onboarding checklist only reports the state. */
+  whisperRuntimeStatus: () =>
+    call<{ installed: boolean; version: string; path: string | null; partialBytes: number }>(
+      "runtimes.whisper", { action: "status" }
+    ),
 };
 
 /** Native file dialog via the Tauri plugin; null in browser dev. */

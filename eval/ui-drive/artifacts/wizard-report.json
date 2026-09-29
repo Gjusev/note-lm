@@ -1,0 +1,42 @@
+{
+  "steps": [
+    {
+      "name": "server up (engine 3128 frisch, vite 5180)",
+      "ok": true,
+      "ms": 1392
+    },
+    {
+      "name": "W1 Willkommen rendert (3 Schritte, Überspringen)",
+      "ok": true,
+      "ms": 645
+    },
+    {
+      "name": "W2 Ressourcen-Checkliste mit echten Status",
+      "ok": true,
+      "ms": 132
+    },
+    {
+      "name": "W3 Überspringen schließt, Flagge hält nach Reload",
+      "ok": true,
+      "ms": 1662
+    },
+    {
+      "name": "W4 Einführung erneut starten -> Lokal-Karte mit Download-Buttons",
+      "ok": true,
+      "ms": 360
+    },
+    {
+      "name": "W5 Escape schließt die Einführung",
+      "ok": true,
+      "ms": 4
+    },
+    {
+      "name": "keine Console-Fehler",
+      "ok": true,
+      "ms": 0
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-wizard-w3LQ4j"
+}

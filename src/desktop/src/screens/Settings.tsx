@@ -76,6 +76,12 @@ export function Settings() {
         Modelle auf diesem Computer. Chat und Embeddings werden getrennt konfiguriert; ohne
         Konfiguration bleiben Notizbücher, Quellen und Textsuche voll funktionsfähig.
       </p>
+      {/* Re-open the first-run wizard (Onboarding listens for the event) */}
+      <p style={{ marginTop: 0 }}>
+        <button onClick={() => window.dispatchEvent(new CustomEvent("notelm:onboarding"))}>
+          Einführung erneut starten
+        </button>
+      </p>
 
       <ProviderSettings />
 
