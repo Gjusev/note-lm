@@ -253,6 +253,13 @@ export function startProcessingLoop(
                   emitJobEvent(ctx.db, "import", importJob._id, "failed");
                 }
               })
+              // lanes are detached: a late continuation (e.g. its durable-event
+              // write racing a host-initiated close) or a genuine runner failure
+              // must not surface as an unhandled rejection — in Node that kills
+              // the whole engine process. Mirrors the upload lane's catch.
+              .catch((err) =>
+                console.error(`[IMPORT][${importJob._id.slice(0, 8)}] lane error:`, err)
+              )
               .finally(() => {
                 importRunning -= 1;
                 if (media) mediaRunning -= 1;
