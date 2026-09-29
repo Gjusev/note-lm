@@ -1,0 +1,1 @@
+﻿Good morning, this is the weekly research briefing. The transcription study compared two local speech models on the same audio material. Both models ran entirely on this computer without any cloud connection. The final report with all measurements will be published next week.

@@ -83,6 +83,8 @@ The module boundaries below (from `docs/specs/product-blueprint.md`) are the
 | materials dispatch | one `materials.request` op: enqueues generation exactly once, a second request while `pending`/`generating` is a typed German `busy` error, `startProcessingLoop` moves the row pending→generating→completed; `sources.listVersions` returns the immutable version rows | `src/__tests__/engine-dispatch.test.ts` |
 | local whisper transcription | `runWhisper` (whisper-cli spawn: 16k mono wav via the pinned ffmpeg, `-oj` JSON parse, timeout + AbortSignal taskkill teardown) + `parseWhisperJson` + `makeLocalTranscribe` factory (provider_runs row, never offline-blocked) + `resolveCapabilities` `whisper-local` resolution (catalog `transcribe` models, managed model file via `ai.transcribeModelId`) | `src/__tests__/whisper.test.ts` (+ real-binary smoke in the same file, artifact-gated skip like the llama e2e) |
 
+| source open | `sources.open` op (latest, or explicit `versionId`): resolves the version, reports `fileName`/`contentType`/`version`/`pageCount`, an honest `absolutePath` (only when the stored original exists on disk) and `sidecarKind` (`pages`/`sheet`/`media`/null) via the source-versions sidecar readers, over a real temp SQLite + LocalStore | `src/__tests__/engine-dispatch.test.ts` |
+
 New seams are added here **before** their first test (TDD rule: no test at an
 unconfirmed seam — adding it to this file is how a seam gets confirmed).
 

@@ -85,7 +85,7 @@ negative ones, e.g. the recorded PI-2 "do not adopt" decision — live under
 ## Implementation status
 
 Three delivery levels: **PROBADO DESDE INSTALADOR** (asserted against the
-packaged app by `npm run verify:desktop` — `scripts/desktop-verify.mjs`, 17
+packaged app by `npm run verify:desktop` — `scripts/desktop-verify.mjs`, 18
 gates from typecheck through NSIS silent install/uninstall, all on a PATH
 stripped of Node), **IMPLEMENTADO** (in code and covered by unit/e2e suites,
 not yet asserted from the installer), **PENDIENTE**.
@@ -114,6 +114,13 @@ not yet asserted from the installer), **PENDIENTE**.
   (claims, versions, proposals, calculation ride along), chat without a
   configured provider answers the typed `no_provider` — gate `installed
   walkthrough`.
+- Real audio end to end through the INSTALLED engine: the bundled ~13 s SAPI
+  sample is imported and transcribed by the LOCAL whisper capability
+  (whisper.cpp v1.9.2 + ggml-tiny provided to the installed data dir by the
+  gate, runtime via `NOTELM_WHISPER_DIR`), media sidecar with per-segment
+  times asserted via `sources.open`, a time-anchored claim (locator startSec
+  0) resolves, and export/restore into a second engine keeps claim + media
+  version — gate `installed audio walkthrough`.
 - NSIS silent install/uninstall with full engine process teardown — gates
   `silent install`, `uninstall + process teardown`.
 
@@ -149,6 +156,14 @@ not yet asserted from the installer), **PENDIENTE**.
   `src/__tests__/whisper.test.ts`, `src/lib/ai/whisper.ts`.
 - Change-review experiments E1/E2 — fixture-level, synthetic; real-document
   precision NOT demonstrated (`eval/reports/e1-e2-change-review.md`).
+- WER harness for the local ASR stack (T2): deterministic Windows SAPI TTS
+  references (de/en/number-heavy) + word-level Levenshtein WER, timestamp
+  deviation, wall time, tiny vs base — `eval/audio-proto/measure-wer.mjs`,
+  report in `eval/audio-proto/wer-report.md` (synthetic-speech ceiling
+  documented there). `sources.open` op (open ANY source at latest/explicit
+  version with sidecarKind + honest absolutePath) — `src/__tests__/engine-dispatch.test.ts`;
+  desktop SourceReader wiring is a follow-up (api wrapper landed).
+- Installed audio walkthrough gate — asserted from the installer (see above).
 
 **PENDIENTE:**
 
@@ -159,7 +174,10 @@ not yet asserted from the installer), **PENDIENTE**.
   preset, catalog `transcribe` models, `src/lib/ai/whisper.ts`). Runtime via
   `npm run fetch:whisper` / `NOTELM_WHISPER_DIR` (no installer bundling);
   models download on demand via the catalog + `models.download` capability
-  `transcriptions`.
+  `transcriptions`. Quality measured on synthetic TTS references (see
+  `eval/audio-proto/`, tiny vs base); natural-speech WER unmeasured.
+- Desktop SourceReader wiring of `sources.open` — the op + api wrapper
+  landed; the panel still opens files via evidence anchors.
 - E3 human pilot; I5/I6 gated experiments (adaptive router, visual retrieval,
   RLM, collaboration — each behind registered criteria) —
   [docs/specs/open-source-innovation-strategy.md](docs/specs/open-source-innovation-strategy.md).

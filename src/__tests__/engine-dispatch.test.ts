@@ -437,4 +437,61 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect(row.status).toBe("completed");
     expect(row.content).toBe("# Zusammenfassung");
   });
+
+  it("sources.open resolves latest or explicit version, honest path, typed not_found", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { createSource } = await import("@/lib/services/sources");
+    const { recordVersion } = await import("@/lib/services/source-versions");
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "Open Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const { db, store } = getLocalContext();
+
+    // a source whose stored original stays on disk (storageId -> file exists)
+    const stored = await store.save(Buffer.from("v1 bytes"), { fileName: "notiz.txt", contentType: "text/plain" });
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "notiz.txt", fileType: "text/plain",
+      fileSize: 8, storageId: stored.id,
+    });
+    const v1 = await recordVersion(db, store, {
+      sourceId, storageId: stored.id, fileName: "notiz.txt", contentType: "text/plain",
+      pageTexts: ["Seite eins"],
+    });
+    const v2 = await recordVersion(db, store, {
+      sourceId, storageId: stored.id, fileName: "notiz.txt", contentType: "text/plain",
+      pageTexts: ["Seite eins", "Seite zwei"],
+    });
+
+    // latest = version 2, pages sidecar, path resolves through the files row
+    const latest = await handleEngineRequest("sources.open", { sourceId });
+    expect(latest).toMatchObject({
+      ok: true,
+      result: {
+        fileName: "notiz.txt", contentType: "text/plain", version: 2, pageCount: 2,
+        absolutePath: expect.stringMatching(/files[\\/].+\.txt$/), sidecarKind: "pages",
+      },
+    });
+
+    // explicit old version
+    const old = await handleEngineRequest("sources.open", { sourceId, versionId: v1.id });
+    expect(old).toMatchObject({ ok: true, result: { version: 1, pageCount: 1, sidecarKind: "pages" } });
+
+    // storage file deleted from disk -> absolutePath null (never a fabricated path)
+    fs.rmSync(stored.path ? path.join(dir, stored.path) : "", { force: true });
+    const gone = await handleEngineRequest("sources.open", { sourceId, versionId: v1.id });
+    expect(gone).toMatchObject({ ok: true, result: { version: 1, absolutePath: null } });
+
+    // unknown source -> typed not_found
+    const missing = await handleEngineRequest("sources.open", { sourceId: "does-not-exist" });
+    expect(missing).toEqual({ ok: false, error: { code: "not_found", message: expect.any(String) } });
+
+    // unknown versionId on an existing source -> typed not_found
+    const missingVersion = await handleEngineRequest("sources.open", { sourceId, versionId: "nope" });
+    expect(missingVersion).toEqual({ ok: false, error: { code: "not_found", message: expect.any(String) } });
+
+    // missing sourceId -> bad_args
+    const noArgs = await handleEngineRequest("sources.open", {});
+    expect(noArgs).toEqual({ ok: false, error: { code: "bad_args", message: expect.any(String) } });
+  });
 });

@@ -40,6 +40,14 @@ export interface EvidenceRef {
 /** One immutable version of a source (sources.listVersions), oldest first. */
 export interface SourceVersionView { id: string; version: number; pageCount: number | null; createdAt: number }
 
+/** Open one source at a resolved version (sources.open): latest, or a given
+ *  versionId. absolutePath only when the stored original exists on disk. */
+export interface SourceOpenView {
+  fileName: string | null; contentType: string | null; version: number;
+  pageCount: number | null; absolutePath: string | null;
+  sidecarKind: "pages" | "sheet" | "media" | null;
+}
+
 /** Recorded calculation row (calculations.run/list); argsJson holds the
  *  exact query {op, column, filter} - the reproducibility record. */
 export interface CalculationView {
@@ -160,6 +168,12 @@ export const desktopApi = {
     call<{}>("review.resolve", { proposalId, decision }),
   openEvidence: (anchorId: string) => call<EvidenceRef>("evidence.open", { anchorId }),
   listVersions: (sourceId: string) => call<SourceVersionView[]>("sources.listVersions", { sourceId }),
+  /** Open one source at a resolved version (latest, or versionId). Desktop
+   *  follow-up: the SourceReader panel currently opens files via evidence
+   *  anchors; wiring sources.open into it is a small hook for the desktop
+   *  agent — the API wrapper here is the only piece landed now. */
+  openSource: (sourceId: string, versionId?: string) =>
+    call<SourceOpenView>("sources.open", { sourceId, ...(versionId ? { versionId } : {}) }),
   /** Re-import as a new immutable version; identical bytes return
    *  { unchanged: true }, changed bytes enqueue processing { jobId }. */
   reimportVersion: (sourceId: string, path: string, fileName?: string) =>

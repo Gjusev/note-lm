@@ -16,6 +16,7 @@ import {
   getChunksBySource,
   getSource,
   listSourcesByNotebook,
+  openSourceVersion,
   removeSource,
   updateSourceStorage,
 } from "@/lib/services/sources";
@@ -223,6 +224,20 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const { db, store } = getLocalContext();
         await removeSource(db, store, sourceId);
         return { ok: true, result: {} };
+      }
+
+      case "sources.open": {
+        // SourceReader seam: open ANY source at a resolved version (latest, or
+        // the given versionId) — not only through evidence anchors. The
+        // storage path is reported only when the file exists on disk.
+        const { sourceId, versionId } = args as { sourceId?: string; versionId?: string };
+        if (!sourceId) {
+          return { ok: false, error: { code: "bad_args", message: "sourceId is required" } };
+        }
+        const { db, store, dataDir } = getLocalContext();
+        const opened = await openSourceVersion(db, store, dataDir, { sourceId, versionId });
+        if (!opened) return { ok: false, error: { code: "not_found", message: "Quelle nicht gefunden." } };
+        return { ok: true, result: opened };
       }
 
       case "sources.importFile": {

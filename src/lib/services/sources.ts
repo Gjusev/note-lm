@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
 import { chunks, sources, type MessageCitation, type SourceStatus } from "@/db/local/schema";
@@ -166,6 +168,61 @@ export async function removeSource(db: LocalDb, store: LocalStore, sourceId: str
       if (fid) await store.delete(fid);
     }
   }
+}
+
+/**
+ * Open one source at a resolved version (sources.open): latest, or the given
+ * versionId. Built for the desktop SourceReader, which must open ANY source
+ * (not only anchored ones) and switch versions. absolutePath is reported only
+ * when the stored original actually exists on disk - never a fabricated path.
+ * sidecarKind reflects what the immutable version remembers: pages, sheet,
+ * media (with per-segment times) or null (no sidecar, e.g. a version recorded
+ * without bytes).
+ */
+export async function openSourceVersion(
+  db: LocalDb,
+  store: LocalStore,
+  dataDir: string,
+  args: { sourceId: string; versionId?: string }
+): Promise<{
+  fileName: string | null;
+  contentType: string | null;
+  version: number;
+  pageCount: number | null;
+  absolutePath: string | null;
+  sidecarKind: "pages" | "sheet" | "media" | null;
+} | null> {
+  const { getLatestVersion, listVersions, readVersionMediaSegments, readVersionSheet, readVersionPages } =
+    await import("./source-versions");
+  const source = getSource(db, args.sourceId);
+  if (!source) return null;
+  const version = args.versionId
+    ? listVersions(db, args.sourceId).find((v) => v.id === args.versionId) ?? null
+    : getLatestVersion(db, args.sourceId);
+  if (!version) return null;
+
+  let absolutePath: string | null = null;
+  if (version.storageId) {
+    const stored = await store.get(version.storageId);
+    const candidate = stored
+      ? path.join(dataDir, stored.path)
+      : path.join(dataDir, "files", version.storageId);
+    absolutePath = fs.existsSync(candidate) ? candidate : null;
+  }
+
+  const media = await readVersionMediaSegments(store, version.id);
+  let sidecarKind: "pages" | "sheet" | "media" | null = media ? "media" : null;
+  if (!media && (await readVersionSheet(store, version.id))) sidecarKind = "sheet";
+  if (!media && !sidecarKind && (await readVersionPages(store, version.id))) sidecarKind = "pages";
+
+  return {
+    fileName: source.fileName,
+    contentType: source.fileType,
+    version: version.version,
+    pageCount: version.pageCount,
+    absolutePath,
+    sidecarKind,
+  };
 }
 
 export type { MessageCitation };

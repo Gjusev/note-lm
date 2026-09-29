@@ -1,0 +1,1 @@
+﻿Willkommen bei note-lm. Dieses Beispielnotizbuch zeigt, wie eine Sprachaufnahme lokal auf diesem Computer transkribiert wird. Alle Daten bleiben auf Ihrem Gerät.

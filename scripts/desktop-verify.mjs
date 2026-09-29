@@ -396,6 +396,130 @@ await run("installed walkthrough", async () => {
   }
 });
 
+// 6d) installed audio walkthrough: real speech through the INSTALLED engine
+// — the bundled ~13 s SAPI sample (src-tauri/resources/samples/) is imported,
+// transcribed by the LOCAL whisper capability (whisper.cpp v1.9.2 + ggml-tiny
+// provided by the gate, mirroring how the app resolves the runtime), and the
+// flow continues: media sidecar -> time-anchored claim -> export + restore
+// into a second engine. Content quality is the WER harness's job (T2); this
+// gate asserts mechanics only.
+await run("installed audio walkthrough", async () => {
+  const sample = path.join(installDir, "resources", "samples", "notelm-audio-de.wav");
+  if (!fs.existsSync(sample)) throw new Error(`bundled sample missing: ${sample}`);
+  // the gate provides what the capability resolution needs: whisper.cpp
+  // runtime (.probe-downloads, npm run fetch:whisper) + ggml-tiny (catalog
+  // sha, copied into the installed DATA dir layout the settings row resolves)
+  const whisperBin = path.join(repo, ".probe-downloads", "whisper-bin");
+  const whisperModel = path.join(repo, ".probe-downloads", "ggml-tiny.bin");
+  for (const p of [whisperBin, path.join(whisperBin, "whisper-cli.exe"), whisperModel]) {
+    if (!fs.existsSync(p)) throw new Error(`whisper runtime missing: ${p} (run npm run fetch:whisper + download ggml-tiny)`);
+  }
+  const TINY_SHA = "be07e048e1e599ad46341c8d2a135645097a538221678b7acdd1b1919c6e1b21";
+
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-audio-"));
+  const exportDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-audio-export-"));
+  const importDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-audio-import-"));
+  let e1, e2;
+  try {
+    fs.mkdirSync(path.join(dataDir, "models"), { recursive: true });
+    fs.copyFileSync(whisperModel, path.join(dataDir, "models", `${TINY_SHA}.bin`));
+
+    e1 = startInstalledEngine(dataDir, {
+      NOTELM_WHISPER_DIR: whisperBin, // capability resolves the whisper.cpp runtime here
+      FFMPEG_PATH: path.join(installDir, "resources", "ffmpeg", "ffmpeg.exe"),
+    });
+    await e1.request("protocol.version", {});
+    const nb = await e1.request("notebooks.create", { title: "Audio" });
+
+    // the local transcribe capability: whisper-local connection + catalog
+    // selection (the exact settings rows resolveCapabilities() reads)
+    await e1.request("providers.save", {
+      connection: { presetId: "whisper-local", label: "Auf diesem Computer (whisper.cpp)" },
+      models: { transcribe: "ggml-tiny" },
+    });
+    await e1.request("models.selectTranscribe", { modelId: "ggml-tiny" });
+
+    // import the bundled sample. The ".audio" extension is deliberate: a 13 s
+    // wav sits far under the 24 MB direct-transcribe limit, which would
+    // transcribe in ONE whisper call (no times knowable -> honest pages
+    // fallback sidecar). An extension outside DIRECT_AUDIO_EXTS forces the
+    // production SEGMENTING path (ffmpeg -> per-segment times -> media
+    // sidecar) that long recordings take, keeping the gate at seconds instead
+    // of bundling a 12.5-minute wav.
+    const created = await e1.request("sources.importFile", {
+      path: sample, notebookId: nb.id, fileName: "notelm-audio-de.audio", fileType: "audio/wav",
+    });
+    const sourceId = created.sourceId;
+    // sources.importFile returns only {sourceId}; completion is observed on
+    // the source row (the processing job's terminal state lands there)
+    await waitFor("audio import completed", async () => {
+      const sources = await e1.request("sources.list", { notebookId: nb.id });
+      return sources.find((s) => s._id === sourceId)?.status === "completed";
+    }, 90_000);
+
+    // v1 with a media sidecar (per-segment times), asserted through the new
+    // sources.open op and the sidecar file itself
+    const [v1] = await e1.request("sources.listVersions", { sourceId });
+    const opened = await e1.request("sources.open", { sourceId });
+    if (opened.sidecarKind !== "media") {
+      throw new Error(`expected media sidecar, got ${JSON.stringify(opened)}`);
+    }
+    if (!opened.absolutePath || !fs.existsSync(opened.absolutePath)) {
+      throw new Error(`sources.open reported no existing original: ${opened.absolutePath}`);
+    }
+    const sidecar = JSON.parse(
+      fs.readFileSync(path.join(dataDir, "files", "versions", `${v1.id}.json`), "utf8")
+    );
+    const segmentText = (sidecar.segments ?? []).map((s) => s.text ?? "").join(" ").trim();
+    if (!segmentText) throw new Error("media sidecar has no non-empty segment text");
+    if (!sidecar.segments[0] || sidecar.segments[0].startSec !== 0) {
+      throw new Error(`first segment does not start at 0s: ${JSON.stringify(sidecar.segments[0])}`);
+    }
+
+    // a claim anchored with a real time locator (startSec 0)
+    const claim = await e1.request("claims.create", {
+      notebookId: nb.id,
+      text: "Beispielzitat aus der Audioaufnahme.",
+      anchors: [{ sourceId, locator: { startSec: 0, endSec: null } }],
+    });
+    if (claim.unresolved.length) throw new Error(`anchor unresolved: ${JSON.stringify(claim.unresolved)}`);
+    const [claimRow] = await e1.request("claims.list", { notebookId: nb.id });
+    if (!claimRow?.anchors?.length || claimRow.anchors[0].locator?.startSec !== 0) {
+      throw new Error(`claim lost the time locator: ${JSON.stringify(claimRow)}`);
+    }
+
+    // export + restore into a SECOND engine: claim + media version ride along
+    await e1.request("notebook.export", { notebookId: nb.id, targetDir: exportDir });
+    e2 = startInstalledEngine(importDataDir, {
+      NOTELM_WHISPER_DIR: whisperBin,
+      FFMPEG_PATH: path.join(installDir, "resources", "ffmpeg", "ffmpeg.exe"),
+      INGEST_ALLOW_PRIVATE: "1",
+    });
+    await e2.request("protocol.version", {});
+    const imported = await e2.request("notebook.import", { sourceDir: exportDir });
+    const [iClaim] = (await e2.request("claims.list", { notebookId: imported.notebookId }));
+    if (!iClaim?.anchors?.length || iClaim.anchors[0].locator?.startSec !== 0) {
+      throw new Error(`restored claim lost the time locator: ${JSON.stringify(iClaim)}`);
+    }
+    const iSource = (await e2.request("sources.list", { notebookId: imported.notebookId }))
+      .find((s) => s.fileType === "audio/wav");
+    if (!iSource) throw new Error("restored notebook lost the audio source");
+    const iOpened = await e2.request("sources.open", { sourceId: iSource._id });
+    if (iOpened.sidecarKind !== "media") {
+      throw new Error(`restored source lost the media sidecar: ${JSON.stringify(iOpened)}`);
+    }
+
+    await e1.stop();
+    await e2.stop();
+    assertNoInstalledEngineLeft();
+  } finally {
+    for (const e of [e1, e2]) if (e) killTree(e.proc.pid); // failure path: no orphans
+    for (const dir of [dataDir, exportDir, importDataDir]) {
+      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* temp cleaner */ }
+    }
+  }
+});
+
 await run("uninstall + process teardown", () => {
   const uninstaller = path.join(installDir, "uninstall.exe");
   if (fs.existsSync(uninstaller)) execFileSync(uninstaller, ["/S"], { stdio: "ignore" });
@@ -512,8 +636,11 @@ async function closeServer(server) {
  * Spawn the INSTALLED engine (bundled node.exe + resources/engine/engine.cjs —
  * the same discovery the --smoke gate exercises through the app) on a temp
  * data dir and speak NDJSON over stdio (mirrors e2e/engine-stdio.e2e.test.ts).
+ * extraEnv rides on top of the stripped clean-machine env (the audio
+ * walkthrough uses it for NOTELM_WHISPER_DIR / FFMPEG_PATH, mirroring how the
+ * Rust host points the engine at the bundled ffmpeg).
  */
-function startInstalledEngine(dataDir) {
+function startInstalledEngine(dataDir, extraEnv = {}) {
   const nodeBin = path.join(installDir, "node.exe");
   const engineScript = path.join(installDir, "resources", "engine", "engine.cjs");
   for (const p of [nodeBin, engineScript]) {
@@ -530,6 +657,7 @@ function startInstalledEngine(dataDir) {
   // installed engine's capability resolution matches a fresh machine (the
   // walkthrough gate depends on chat.send honestly answering no_provider)
   for (const k of ["NOTELM_LLAMA_DIR", "NOTELM_CHAT_MODEL", "NOTELM_EMBED_MODEL"]) delete env[k];
+  Object.assign(env, extraEnv);
   const proc = spawn(nodeBin, [engineScript], {
     stdio: ["pipe", "pipe", "inherit"],
     env,
