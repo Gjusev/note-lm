@@ -217,3 +217,19 @@ export async function indexNotebookChunks(
 function hashText(text: string): string {
   return createHash("sha256").update(text).digest("hex");
 }
+
+/** Chunks (ALL notebooks) that still lack an indexed embedding for a profile
+ *  — the staged-activation guard (P3): a profile activates only at 0. Same
+ *  NOT EXISTS shape as the jobs.ts sweep targets, counted globally. */
+export function pendingEmbeddingCount(db: LocalDb, profileId: string): number {
+  const row = rawClient(db)
+    .prepare(
+      `SELECT COUNT(*) AS n FROM chunks c
+       WHERE NOT EXISTS (
+         SELECT 1 FROM chunk_embeddings ce
+         WHERE ce.chunk_id = c.id AND ce.profile_id = ? AND ce.status = 'indexed'
+       )`
+    )
+    .get(profileId) as { n: number };
+  return row.n;
+}

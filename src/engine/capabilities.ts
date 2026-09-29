@@ -43,6 +43,7 @@ import {
 } from "@/lib/ai/providers";
 import { makeLocalTranscribe } from "@/lib/ai/whisper";
 import { whisperRuntimeDir } from "@/lib/ai/whisper-runtime";
+import { embeddingRecipeForSha256, type EmbeddingRecipe } from "@/lib/ai/model-catalog";
 
 export type { ChatFn, ChatResult, EmbedFn, ProviderLabel, TranscribeFn } from "@/lib/ai/providers";
 
@@ -65,6 +66,9 @@ interface Capabilities {
 
 let llamaChat: LlamaHandle | null = null;
 let llamaEmbed: LlamaHandle | null = null;
+/** Restart key for the embed helper (P3): a model/pooling switch must not
+ *  keep serving vectors from the old recipe. */
+let llamaEmbedKey: string | null = null;
 /** Test seam: replaces config-based resolution. */
 let override: Capabilities | null = null;
 
@@ -81,6 +85,10 @@ interface ResolvedModelPaths {
   llamaDir: string | undefined;
   chatModel: string | undefined;
   embedModel: string | undefined;
+  /** Catalog recipe of the selected embed model (P3): pooling + dimension of
+   *  the exact GGUF (models rows are sha-verified; the sha is the join key).
+   *  Null for unknown/imported embed files — llama-server default (mean). */
+  embedRecipe: EmbeddingRecipe | null;
 }
 
 /** Model paths from the settings-chosen library rows first, env fallback. */
@@ -107,7 +115,12 @@ async function resolveModelPaths(): Promise<ResolvedModelPaths> {
     (chatModel || embedModel
       ? path.resolve(dataDir, "..", "resources", "llama") // packaged layout
       : undefined);
-  return { llamaDir, chatModel: chatModel ?? process.env.NOTELM_CHAT_MODEL, embedModel: embedModel ?? process.env.NOTELM_EMBED_MODEL };
+  return {
+    llamaDir,
+    chatModel: chatModel ?? process.env.NOTELM_CHAT_MODEL,
+    embedModel: embedModel ?? process.env.NOTELM_EMBED_MODEL,
+    embedRecipe: embedRow ? embeddingRecipeForSha256(embedRow.sha256) : null,
+  };
 }
 
 /** Active transcribe model file: whisper models are SETTINGS-tracked
@@ -169,9 +182,17 @@ export async function resolveCapabilities(db?: Parameters<typeof getSetting>[0])
   if ("connection" in embedRes) {
     embed = makeRemoteEmbed(d, { ...embedRes, model: capCfg.embed!.model });
   } else {
-    const { llamaDir: dir, embedModel } = await resolveModelPaths();
+    const { llamaDir: dir, embedModel, embedRecipe } = await resolveModelPaths();
     if (dir && embedModel) {
-      if (!llamaEmbed) llamaEmbed = await startLlama({ exeDir: dir, modelPath: embedModel });
+      // pooling is part of the recipe: bge = mean, Qwen3-Embedding = last.
+      // A switched model or pooling restarts the helper — never mix recipes.
+      const pooling = embedRecipe?.pooling ?? "mean";
+      const key = `${embedModel}::${pooling}`;
+      if (!llamaEmbed || llamaEmbedKey !== key) {
+        await llamaEmbed?.stop();
+        llamaEmbed = await startLlama({ exeDir: dir, modelPath: embedModel, pooling });
+        llamaEmbedKey = key;
+      }
       const handle = llamaEmbed;
       embed = async (texts) => {
         const vectors: Buffer[] = [];
@@ -274,4 +295,5 @@ export async function stopLlamaHelpers(): Promise<void> {
   await llamaEmbed?.stop();
   llamaChat = null;
   llamaEmbed = null;
+  llamaEmbedKey = null;
 }

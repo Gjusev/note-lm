@@ -20,9 +20,18 @@
  *    anchored (from) version and offers the to-version as an explicit
  *    second action - v1 is never silently swapped for v2.
  *
- * `not_found_in_search` is part of MatrixCellStatus but unreachable by
- * construction: emitting it requires a performed-search provenance store,
- * and none exists yet. Unreachable-typed, not silently faked.
+ * `not_found_in_search` became reachable with the search provenance store
+ * (migration 0014, src/lib/services/search-runs.ts). The honest emission
+ * rule, in strength order after evidence/proposals: a (claim, source) cell
+ * is `not_found_in_search` ONLY when (a) the claim has no anchors on the
+ * source, (b) a recorded search run COVERS the source (its scope includes
+ * it), and (c) that run returned ZERO chunks from the source. If the run
+ * returned chunks from the source but the claim has no relation, the cell
+ * stays `not_reviewed` — a human has not linked them; the search surfacing
+ * material is not a recorded relationship. No covering run at all is also
+ * `not_reviewed` (nothing happened for this pair). The cell carries the
+ * covering run's query + recipe + time: "not found" names one performed
+ * search, never a claim about the source's content.
  */
 import { eq, inArray, sql } from "drizzle-orm";
 import type { LocalDb } from "@/db/local";
@@ -35,6 +44,8 @@ import {
 } from "@/db/local/schema";
 import { listClaims } from "./claims";
 import { listPendingReviews } from "./change-review";
+import { latestSearchCovering } from "./search-runs";
+import { getChunksByNotebook } from "./sources";
 
 export type MatrixCellStatus =
   | "evidence"
@@ -67,6 +78,17 @@ export interface MatrixProposal {
   resolvedAt: number | null;
 }
 
+/** The performed search that produced a not_found_in_search cell (migration
+ *  0014): what was queried, with which retrieval recipe, when. "Not found"
+ *  names THIS run — regenerating with a different query can flip the cell. */
+export interface MatrixSearchProvenance {
+  runId: string;
+  query: string;
+  searchedAt: number;
+  profileId: string | null;
+  fusionPolicy: string | null;
+}
+
 export interface MatrixCell {
   claimId: string;
   sourceId: string;
@@ -78,6 +100,10 @@ export interface MatrixCell {
   pendingProposals: MatrixProposal[];
   /** Decided proposals = history, never an alert (correction 2). */
   resolvedProposals: MatrixProposal[];
+  /** Set exactly when status is not_found_in_search: the covering run the
+   *  miss names. Null on every other status — the search surfaced source
+   *  material (still not_reviewed) or none ran. */
+  searchProvenance: MatrixSearchProvenance | null;
 }
 
 export interface MatrixView {
@@ -93,11 +119,15 @@ export function cellKey(claimId: string, sourceId: string): string {
   return `${claimId}::${sourceId}`;
 }
 
-function statusOf(cell: Omit<MatrixCell, "status">): MatrixCellStatus {
+function statusOf(
+  cell: Omit<MatrixCell, "status" | "searchProvenance">,
+  search: { provenance: MatrixSearchProvenance; miss: boolean } | null
+): MatrixCellStatus {
   if (cell.pendingProposals.length > 0) return "pending_review";
   if (cell.evidence.length > 0) return "evidence";
-  // not_found_in_search would slot in here, guarded by a performed-search
-  // provenance store; none exists, so the branch is unreachable in v1.
+  // see the header rule: a covering search that returned ZERO chunks from
+  // this source makes the miss real; anything less stays not_reviewed
+  if (search?.miss) return "not_found_in_search";
   return "not_reviewed";
 }
 
@@ -202,18 +232,52 @@ export function buildMatrixView(
     for (const row of rows) latestVersion.set(row.sourceId, Number(row.max));
   }
 
+  // Search provenance per column (migration 0014): the LATEST recorded run
+  // whose scope covers the column's source, and whether that run returned
+  // zero chunks FROM it (the miss). Computed once per column; every claim of
+  // the column shares the same covering run — the store is source-scoped,
+  // not per claim.
+  const searchByColumn = new Map<
+    string,
+    { provenance: MatrixSearchProvenance; miss: boolean } | null
+  >();
+  if (columns.length > 0) {
+    const chunkSource = new Map(
+      getChunksByNotebook(db, args.notebookId).map((c) => [c._id, c.sourceId] as const)
+    );
+    for (const col of columns) {
+      const run = latestSearchCovering(db, args.notebookId, col.id);
+      if (!run) {
+        searchByColumn.set(col.id, null);
+        continue;
+      }
+      searchByColumn.set(col.id, {
+        provenance: {
+          runId: run.id,
+          query: run.query,
+          searchedAt: run.createdAt,
+          profileId: run.profileId,
+          fusionPolicy: run.fusionPolicy,
+        },
+        miss: !run.resultChunkIds.some((id) => chunkSource.get(id) === col.id),
+      });
+    }
+  }
+
   const cells: MatrixCell[] = [];
   for (const claim of claimRows) {
     for (const col of columns) {
       const key = cellKey(claim.id, col.id);
+      const search = searchByColumn.get(col.id) ?? null;
       const rest = {
         claimId: claim.id,
         sourceId: col.id,
         evidence: evidenceByPair.get(key) ?? [],
         pendingProposals: pendingByPair.get(key) ?? [],
         resolvedProposals: resolvedByPair.get(key) ?? [],
+        searchProvenance: search?.miss ? search.provenance : null,
       };
-      cells.push({ ...rest, status: statusOf(rest) });
+      cells.push({ ...rest, status: statusOf(rest, search) });
     }
   }
 

@@ -413,6 +413,34 @@ describe("RAG schema — embedding profiles (issue #3)", () => {
     await expect(registerEmbeddingProfile(db, { ...base, dimension: 0 })).rejects.toThrow(/dimension/);
   });
 
+  it("keeps the bge and Qwen3-Embedding recipes separate — equal provider is not interchangeability (P3)", async () => {
+    // the two production recipes: bge mean/384 vs Qwen3-Embedding last/1024
+    // (T3-frozen: no instruct prefix on either)
+    const bge = await registerEmbeddingProfile(db, {
+      provider: "llamacpp", model: "bge-small-en-v1.5", revision: "q8_0",
+      dimension: 384, pooling: "mean",
+    });
+    const qwen3 = await registerEmbeddingProfile(db, {
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+    expect(qwen3._id).not.toBe(bge._id);
+    expect(qwen3.dimension).toBe(1024);
+    expect(qwen3.pooling).toBe("last");
+
+    // re-registering each recipe resolves to its OWN row, never the other's
+    const bgeAgain = await registerEmbeddingProfile(db, {
+      provider: "llamacpp", model: "bge-small-en-v1.5", revision: "q8_0",
+      dimension: 384, pooling: "mean",
+    });
+    const qwen3Again = await registerEmbeddingProfile(db, {
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+    expect(bgeAgain._id).toBe(bge._id);
+    expect(qwen3Again._id).toBe(qwen3._id);
+  });
+
   it("still applies migrations idempotently alongside FTS5 (0002 included)", () => {
     const sqlite = rawClient(db);
     const tables = sqlite

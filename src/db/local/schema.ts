@@ -579,3 +579,28 @@ export const providerRuns = sqliteTable(
   },
   (t) => [index("idx_provider_runs_created").on(t.createdAt)]
 );
+
+/** Search provenance (migration 0014): one row per PERFORMED search, written
+ *  by the `search.run` engine op. This is what makes the evidence matrix's
+ *  `not_found_in_search` honest — the status never says a source contains
+ *  nothing; it names the exact search (query, scope, retrieval recipe, time,
+ *  returned chunk ids) whose result set contained no chunk of that source. */
+export const searchRuns = sqliteTable(
+  "search_runs",
+  {
+    id: text("id").primaryKey(),
+    ownerId: text("owner_id").notNull(),
+    notebookId: text("notebook_id")
+      .notNull()
+      .references(() => notebooks.id, { onDelete: "cascade" }),
+    query: text("query").notNull(),
+    /** The sources the search actually ran against (recorded scope). */
+    sourceIds: text("source_ids_json", { mode: "json" }).$type<string[]>().notNull(),
+    profileId: text("profile_id"),
+    fusionPolicy: text("fusion_policy"),
+    resultCount: integer("result_count").notNull(),
+    resultChunkIds: text("result_chunk_ids_json", { mode: "json" }).$type<string[]>().notNull(),
+    createdAt: integer("created_at").notNull(),
+  },
+  (t) => [index("search_runs_by_notebook").on(t.notebookId, t.createdAt)]
+);

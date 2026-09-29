@@ -47,6 +47,8 @@ import {
 } from "@/lib/services/claims";
 import { listPendingReviews } from "@/lib/services/change-review";
 import { buildMatrixView } from "@/lib/services/evidence-matrix";
+import { recordSearchRun } from "@/lib/services/search-runs";
+import { searchHybrid, DEFAULT_FUSION_POLICY } from "@/lib/services/hybrid-search";
 import {
   CalculationError,
   runCalculation,
@@ -66,7 +68,7 @@ import {
   getModel,
   modelAbsolutePath,
 } from "@/lib/services/models";
-import { MODEL_CATALOG } from "@/lib/ai/model-catalog";
+import { MODEL_CATALOG, embeddingRecipeForSha256 } from "@/lib/ai/model-catalog";
 import { resolveCapabilities } from "./capabilities";
 import {
   getPreset,
@@ -493,8 +495,51 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         const profile = await registerEmbeddingProfile(db, {
           provider, model, revision, dimension, pooling, queryPrefix, docPrefix,
         });
+        // finding-3 guard (P3): activation flips retrieval to this profile's
+        // vec0 table — refuse while chunks still lack vectors for it, so an
+        // incomplete index is never made the query target. No force flag:
+        // the caller retries after the index sweep catches up (see
+        // retrieval.profile.status). models.select stages catalog recipes
+        // through the same key BEFORE the guard matters — the sweep builds
+        // exactly the ACTIVE profile (jobs.ts), which is why staging has to
+        // set the key; hybrid search reports the typed "indexing" status
+        // while the table is still empty.
+        const { pendingEmbeddingCount } = await import("@/lib/services/vector-index");
+        const pending = pendingEmbeddingCount(db, profile._id);
+        if (pending > 0) {
+          return {
+            ok: false,
+            error: {
+              code: "profile_incomplete",
+              message: `Profil kann noch nicht aktiviert werden: ${pending} Chunks haben noch keine Vektoren in diesem Profil. Bitte erneut aktivieren, wenn der Index-Aufbau abgeschlossen ist.`,
+            },
+          };
+        }
         await setSetting(db, ACTIVE_PROFILE_KEY, profile._id);
         return { ok: true, result: { profileId: profile._id } };
+      }
+
+      case "retrieval.profile.status": {
+        // staged-activation companion (P3): idempotently resolve the profile
+        // for a recipe and report how many chunks still need vectors — the
+        // UI polls this to know when retrieval.profile.activate will pass.
+        const { provider, model, revision, dimension, pooling, queryPrefix, docPrefix } = args as {
+          provider?: string; model?: string; revision?: string;
+          dimension?: number; pooling?: string; queryPrefix?: string; docPrefix?: string;
+        };
+        if (!provider || !model || !revision || !dimension || !pooling) {
+          return { ok: false, error: { code: "bad_args", message: "provider, model, revision, dimension and pooling are required" } };
+        }
+        const { db } = getLocalContext();
+        const profile = await registerEmbeddingProfile(db, {
+          provider, model, revision, dimension, pooling, queryPrefix, docPrefix,
+        });
+        const { pendingEmbeddingCount } = await import("@/lib/services/vector-index");
+        const pendingCount = pendingEmbeddingCount(db, profile._id);
+        return {
+          ok: true,
+          result: { profileId: profile._id, pendingCount, dimension: profile.dimension },
+        };
       }
 
       case "retrieval.profile.active": {
@@ -609,10 +654,23 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           return { ok: false, error: { code: "not_found", message: "passendes verfügbares Modell nicht gefunden" } };
         }
         await setSetting(db, capability === "chat" ? "ai.chatModelId" : "ai.embedModelId", modelId);
-        // a changed embeddings model invalidates the active profile's index:
-        // deactivate so retrieval degrades visibly to textual until reindex
+        // a changed embeddings model stages a NEW profile (P3): catalog-known
+        // recipes (sha-joined) register + become the ACTIVE profile so the
+        // index lane builds them — jobs.ts sweeps only the ACTIVE profile,
+        // and hybrid search reports the typed "indexing" degradation while
+        // the new table fills, so the switch is visible, never silent. The
+        // previous profile's vec0 rows survive (per-profile tables); a switch
+        // back re-selects the SAME natural key and is instantly complete.
+        // Unknown recipes (imported GGUFs) keep the old manual contract:
+        // deactivate, activate explicitly via retrieval.profile.activate.
         if (capability === "embeddings") {
-          await setSetting(db, "retrieval.activeProfile", null);
+          const recipe = embeddingRecipeForSha256(model.sha256);
+          if (recipe) {
+            const profile = await registerEmbeddingProfile(db, recipe);
+            await setSetting(db, ACTIVE_PROFILE_KEY, profile._id);
+          } else {
+            await setSetting(db, ACTIVE_PROFILE_KEY, null);
+          }
         }
         return { ok: true, result: {} };
       }
@@ -900,6 +958,71 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             error: { code: "not_found", message: err instanceof Error ? err.message : String(err) },
           };
         }
+      }
+
+      case "search.run": {
+        // Performed search WITH provenance (fills the P2a gap — no engine
+        // search op existed — and feeds the matrix's not_found_in_search):
+        // runs searchHybrid scoped to the caller's source selection, then
+        // records the run (query + effective scope + retrieval recipe +
+        // result chunk ids) so a later miss can name the exact search.
+        const { notebookId, query, sourceIds } = args as {
+          notebookId?: string; query?: string; sourceIds?: unknown;
+        };
+        if (!notebookId || !query || typeof query !== "string") {
+          return { ok: false, error: { code: "bad_args", message: "notebookId und query sind erforderlich." } };
+        }
+        if (
+          sourceIds !== undefined &&
+          !(Array.isArray(sourceIds) && sourceIds.every((s) => typeof s === "string"))
+        ) {
+          return { ok: false, error: { code: "bad_args", message: "sourceIds muss ein Array aus Quellen-IDs sein." } };
+        }
+        const { db } = getLocalContext();
+        const profile = await getOrCreateProfile(db);
+        // retrieval setup mirrors chat.send: active embedding profile + embed
+        // capability; missing either degrades honestly to FTS-only
+        const activeProfileId = await getSetting<string>(db, "retrieval.activeProfile");
+        const embeddingProfile = activeProfileId ? await getEmbeddingProfile(db, activeProfileId) : null;
+        const caps = await resolveCapabilities();
+        const embedQuery = caps.embed ? await preEmbedQuery(query, caps.embed) : null;
+        const useHybrid = !!embeddingProfile && !!embedQuery;
+        // recorded scope = what was actually searched: the caller's selection
+        // (confined to this notebook's sources — foreign ids never match
+        // chunks anyway, and the provenance stays notebook-honest) or every
+        // source of the notebook when the search ran unscoped
+        const notebookSourceIds = new Set(listSourcesByNotebook(db, notebookId).map((s) => s._id));
+        const selected = Array.isArray(sourceIds)
+          ? (sourceIds as string[]).filter((id) => notebookSourceIds.has(id))
+          : null;
+        const scope = selected ?? [...notebookSourceIds];
+        const retrieval = await searchHybrid(db, {
+          notebookId,
+          query,
+          profile: useHybrid ? { id: embeddingProfile!._id, dimension: embeddingProfile!.dimension } : null,
+          embedQuery: useHybrid ? embedQuery : null,
+          ...(selected ? { allowedSourceIds: new Set(selected) } : {}),
+        });
+        const runId = recordSearchRun(db, {
+          ownerId: profile.id,
+          notebookId,
+          query,
+          sourceIds: scope,
+          profileId: useHybrid ? embeddingProfile!._id : null,
+          fusionPolicy: DEFAULT_FUSION_POLICY,
+          resultCount: retrieval.hits.length,
+          resultChunkIds: retrieval.hits.map((h) => h.chunkId),
+        });
+        return {
+          ok: true,
+          result: {
+            runId,
+            sourceIds: scope,
+            mode: retrieval.mode,
+            vectorStatus: retrieval.vectorStatus,
+            hits: retrieval.hits,
+          },
+        };
       }
 
       case "matrix.get": {

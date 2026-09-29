@@ -7,10 +7,11 @@ import path from "node:path";
 import { closeLocalDb } from "@/db/local";
 import { getLocalContext } from "@/lib/storage/local";
 import { createNotebook } from "@/lib/services/notebooks";
-import { createSource } from "@/lib/services/sources";
+import { createSource, getChunksBySource, replaceChunks } from "@/lib/services/sources";
 import { recordVersion } from "@/lib/services/source-versions";
 import { createClaim, resolveReview } from "@/lib/services/claims";
 import { listPendingReviews } from "@/lib/services/change-review";
+import { recordSearchRun } from "@/lib/services/search-runs";
 import { buildMatrixView, cellKey } from "@/lib/services/evidence-matrix";
 
 let dir: string;
@@ -203,21 +204,100 @@ describe("evidence matrix (docs/proposals/evidence-matrix.md + 4 corrections)", 
     expect(both.cells.find((c) => c.claimId === second.id)!.status).toBe("not_reviewed");
   });
 
-  it("never emits not_found_in_search - no performed-search provenance store exists (typed, unreachable)", async () => {
-    const { db, store } = getLocalContext();
+  it("a covering search that returned zero chunks from the source makes the empty cell not_found_in_search, carrying the run's query + time", async () => {
+    const { db } = getLocalContext();
     const { sourceId, claimId } = await seedAnchoredClaim();
-    await recordVersion(db, store, { sourceId, pageTexts: ["neue Einleitung", QUOTE] });
     const unrelated = await makeSource(notebookId, "bericht-url.txt");
+    // real chunks for the anchored source, so the recorded run can have
+    // "returned" them (the miss rule compares against real chunk->source)
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId }, [QUOTE]);
+    const anchoredChunkId = getChunksBySource(db, sourceId)[0]._id;
 
-    for (const view of [
-      buildMatrixView(db, { notebookId }),
-      buildMatrixView(db, { notebookId, sourceIds: [sourceId, unrelated] }),
-      buildMatrixView(db, { notebookId, claimIds: [claimId] }),
-    ]) {
-      for (const cell of view.cells) {
-        expect(["evidence", "pending_review", "not_reviewed"]).toContain(cell.status);
-      }
-    }
+    // no search at all: the honest default (regression of the old
+    // unreachable-by-construction behavior — nothing happened for this pair)
+    const before = buildMatrixView(db, { notebookId, sourceIds: [sourceId, unrelated] });
+    expect(before.cells.find((c) => c.sourceId === unrelated)!.status).toBe("not_reviewed");
+    expect(before.cells.find((c) => c.sourceId === unrelated)!.searchProvenance).toBeNull();
+
+    // a performed search covering BOTH sources whose result set holds only a
+    // chunk of the anchored source: for (claim, unrelated) that is a real,
+    // provenance-carrying miss — "not found in the search performed"
+    recordSearchRun(db, {
+      ownerId: "local",
+      notebookId,
+      query: "Dosierung Wirksamkeit",
+      sourceIds: [sourceId, unrelated],
+      profileId: null,
+      fusionPolicy: "protected-vector",
+      resultCount: 1,
+      resultChunkIds: [anchoredChunkId],
+    });
+
+    const view = buildMatrixView(db, { notebookId, sourceIds: [sourceId, unrelated] });
+    const missCell = view.cells.find((c) => c.sourceId === unrelated)!;
+    expect(missCell.claimId).toBe(claimId);
+    expect(missCell.status).toBe("not_found_in_search");
+    expect(missCell.searchProvenance).toMatchObject({
+      query: "Dosierung Wirksamkeit",
+      searchedAt: expect.any(Number),
+      profileId: null,
+      fusionPolicy: "protected-vector",
+    });
+    expect(missCell.searchProvenance!.runId).toBeTruthy();
+    // a real link beats a search miss: the anchored pair stays evidence,
+    // without provenance (nothing was "not found" there)
+    const linkedCell = view.cells.find((c) => c.sourceId === sourceId)!;
+    expect(linkedCell.status).toBe("evidence");
+    expect(linkedCell.searchProvenance).toBeNull();
+  });
+
+  it("a covering search that DID return chunks from the source leaves the pair not_reviewed - a human has not linked them", async () => {
+    const { db } = getLocalContext();
+    const { claimId } = await seedAnchoredClaim();
+    const unrelated = await makeSource(notebookId, "bericht-url.txt");
+    replaceChunks(db, { ownerId: "local", sourceId: unrelated, notebookId }, ["Dosierung laut Bericht"]);
+    const unrelatedChunkId = getChunksBySource(db, unrelated)[0]._id;
+
+    recordSearchRun(db, {
+      ownerId: "local",
+      notebookId,
+      query: "Dosierung",
+      sourceIds: [unrelated],
+      profileId: null,
+      fusionPolicy: "protected-vector",
+      resultCount: 1,
+      resultChunkIds: [unrelatedChunkId],
+    });
+
+    const view = buildMatrixView(db, { notebookId, sourceIds: [unrelated] });
+    const cell = view.cells.find((c) => c.claimId === claimId && c.sourceId === unrelated)!;
+    // the search surfaced source material but no relation was recorded:
+    // that is "not reviewed", never a manufactured miss
+    expect(cell.status).toBe("not_reviewed");
+    expect(cell.searchProvenance).toBeNull();
+  });
+
+  it("a search whose scope does not include the source never covers it", async () => {
+    const { db } = getLocalContext();
+    const { sourceId } = await seedAnchoredClaim();
+    const unrelated = await makeSource(notebookId, "bericht-url.txt");
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId }, [QUOTE]);
+
+    // the only recorded run covers the anchored source, not `unrelated`
+    recordSearchRun(db, {
+      ownerId: "local",
+      notebookId,
+      query: "Dosierung",
+      sourceIds: [sourceId],
+      profileId: null,
+      fusionPolicy: "protected-vector",
+      resultCount: 0,
+      resultChunkIds: [],
+    });
+
+    const view = buildMatrixView(db, { notebookId, sourceIds: [unrelated] });
+    expect(view.cells[0].status).toBe("not_reviewed");
+    expect(view.cells[0].searchProvenance).toBeNull();
   });
 
   it("answers an empty notebook with an empty view", async () => {

@@ -446,6 +446,27 @@ UPDATE chunks SET source_version_id = (
   ORDER BY v.version DESC LIMIT 1
 );
 `,
+  // 0014 — search provenance store (evidence-matrix `not_found_in_search`):
+  // one row per PERFORMED search — the query, the scope it ran against, the
+  // retrieval recipe (profile + fusion policy) and the chunk ids it returned.
+  // "Not found in the performed search" is a fact about one search, never a
+  // claim about a source's content: the matrix cell carries this row's
+  // query/recipe/time, and regenerating with a different query can flip it.
+  `
+CREATE TABLE search_runs (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL,
+  notebook_id TEXT NOT NULL REFERENCES notebooks (id) ON DELETE CASCADE,
+  query TEXT NOT NULL,
+  source_ids_json TEXT NOT NULL,
+  profile_id TEXT,
+  fusion_policy TEXT,
+  result_count INTEGER NOT NULL,
+  result_chunk_ids_json TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX search_runs_by_notebook ON search_runs (notebook_id, created_at);
+`,
 ];
 
 /** FTS5 index over chunk content, kept in sync by triggers._bm25-ranked

@@ -115,6 +115,44 @@ describe("vector index (issue #3/#4 — vec0 via sqlite-vec)", () => {
     expect(all[0].chunkId).toBeDefined();
   });
 
+  it("enforces the 1024-dim Qwen3 recipe on its own vec0 table — a bge-sized vector never fits (P3)", async () => {
+    if (!(await vecExtensionAvailable(db))) throw new Error("sqlite-vec missing");
+
+    const { registerEmbeddingProfile } = await import("@/lib/services/embedding-profiles");
+    const { validateVector, pendingEmbeddingCount } = await import("@/lib/services/vector-index");
+    const profile = await registerEmbeddingProfile(db, {
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+    ensureVecTable(db, profile._id, 1024);
+
+    // validateVector rejects the 384-dim bge buffer up front...
+    expect(() => validateVector(axis(384, 0), 1024)).toThrow(/dims/);
+
+    // ...and even without it, the vec0 schema (embedding FLOAT[1024]) rejects
+    // the insert — dimension is enforced by the table, not by convention
+    expect(() => insertVector(db, profile._id, "c-qwen3", notebookId, axis(384, 0), "src")).toThrow();
+
+    // the right-sized vector lands and answers KNN
+    insertVector(db, profile._id, "c-qwen3", notebookId, axis(1024, 3), "src");
+    const hits = vectorSearch(db, profile._id, axis(1024, 3), notebookId, 1);
+    expect(hits).toHaveLength(1);
+    expect(hits[0].chunkId).toBe("c-qwen3");
+
+    // the staged-activation guard signal: real chunks without vectors count
+    // as pending; a full resumable index run drains the count to 0
+    const source = await createSource(db, {
+      ownerId: OWNER, notebookId, fileName: "q", fileType: "text/plain", fileSize: 1,
+    });
+    replaceChunks(db, { ownerId: OWNER, sourceId: source, notebookId }, ["eins", "zwei"]);
+    expect(pendingEmbeddingCount(db, profile._id)).toBe(2);
+    await indexNotebookChunks(db, {
+      profileId: profile._id, dimension: 1024, notebookId, batchSize: 16,
+      embed: async (texts) => texts.map(() => axis(1024, 0)),
+    });
+    expect(pendingEmbeddingCount(db, profile._id)).toBe(0);
+  });
+
   it("purges ghost vectors on chunk replacement — deletion never consumes KNN slots (finding 4)", async () => {
     if (!(await vecExtensionAvailable(db))) throw new Error("sqlite-vec missing");
     const { registerEmbeddingProfile } = await import("@/lib/services/embedding-profiles");

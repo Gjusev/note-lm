@@ -30,6 +30,27 @@ function freePort(): Promise<number> {
 }
 
 /**
+ * llama-server argv (exported test seam): pooling is part of the embedding
+ * RECIPE — bge pools mean, Qwen3-Embedding pools last-token. Without the
+ * flag llama-server auto-selects from GGUF metadata; passing it pins the
+ * recipe so the served vectors always match the registered profile.
+ */
+export function llamaServerArgs(opts: {
+  modelPath: string;
+  port: number;
+  pooling?: string;
+}): string[] {
+  return [
+    "-m", opts.modelPath,
+    "--embeddings",
+    "--pooling", opts.pooling ?? "mean",
+    "--host", "127.0.0.1",
+    "--port", String(opts.port),
+    "--no-webui",
+  ];
+}
+
+/**
  * Start the pinned llama-server as an embeddings helper: loopback only, a
  * fresh random token per session (passed via env, never argv), cwd set to
  * the exe dir so the ggml DLLs resolve. Returns after /health is green.
@@ -39,6 +60,7 @@ export async function startLlama(opts: {
   modelPath: string;
   port?: number;
   timeoutMs?: number;
+  pooling?: string;
 }): Promise<LlamaHandle> {
   const port = opts.port ?? (await freePort());
   const token = randomBytes(24).toString("hex");
@@ -46,14 +68,7 @@ export async function startLlama(opts: {
 
   const child: ChildProcess = spawn(
     path.join(opts.exeDir, "llama-server.exe"),
-    [
-      "-m", opts.modelPath,
-      "--embeddings",
-      "--pooling", "mean",
-      "--host", "127.0.0.1",
-      "--port", String(port),
-      "--no-webui",
-    ],
+    llamaServerArgs({ modelPath: opts.modelPath, port, pooling: opts.pooling }),
     {
       cwd: opts.exeDir,
       env: { ...process.env, LLAMA_API_KEY: token },

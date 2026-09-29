@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from "vitest";
 import http from "node:http";
 import { AddressInfo } from "node:net";
-import { waitForLlamaHealth, llamaEmbed } from "@/lib/ai/llama-supervisor";
+import { waitForLlamaHealth, llamaEmbed, llamaServerArgs } from "@/lib/ai/llama-supervisor";
 
 let servers: http.Server[] = [];
 
@@ -60,5 +60,24 @@ describe("llama supervisor (issue #2)", () => {
     expect(seen.at(-1)?.auth).toBe("Bearer secret-token");
     // llama-server exposes the OpenAI-compatible shape: { input: "..." }
     expect(seen.at(-1)?.body).toEqual({ input: "hello world" });
+  });
+
+  it("pins the recipe's pooling in the spawn args — Qwen3 last-token, bge mean default (P3)", () => {
+    // Qwen3-Embedding pools LAST-token: the supervisor must pass --pooling last
+    // or llama-server's default here (mean) would silently produce wrong vectors.
+    const qwen3 = llamaServerArgs({ modelPath: "models/qwen3.gguf", port: 8123, pooling: "last" });
+    expect(qwen3[qwen3.indexOf("--pooling") + 1]).toBe("last");
+    expect(qwen3).toEqual([
+      "-m", "models/qwen3.gguf",
+      "--embeddings",
+      "--pooling", "last",
+      "--host", "127.0.0.1",
+      "--port", "8123",
+      "--no-webui",
+    ]);
+
+    // bge/back-compat: no pooling given → mean, exactly as before
+    const bge = llamaServerArgs({ modelPath: "models/bge.gguf", port: 8124 });
+    expect(bge[bge.indexOf("--pooling") + 1]).toBe("mean");
   });
 });

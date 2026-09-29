@@ -223,6 +223,150 @@ describe("engine dispatch (issue #10 seam: ops without HTTP)", () => {
     expect((again as { result: { profileId: string } }).result.profileId).toBe(profileId);
   });
 
+  it("stages catalog embed recipes on models.select and guards activation while the index is incomplete (P3)", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { models } = await import("@/db/local/schema");
+    const { createSource, replaceChunks } = await import("@/lib/services/sources");
+    const { MODEL_CATALOG, embeddingRecipeForSha256 } = await import("@/lib/ai/model-catalog");
+
+    // catalog sanity: the qwen3 entry carries the VERIFIED sha + frozen recipe
+    const qwen3Entry = MODEL_CATALOG.find((e) => e.id === "qwen3-embedding-0.6b-q8-0");
+    expect(qwen3Entry?.sha256).toBe("06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439");
+    expect(embeddingRecipeForSha256(qwen3Entry!.sha256)).toEqual({
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+
+    // two managed embed rows joined to their recipes by sha (download-verified)
+    const bgeSha = MODEL_CATALOG.find((e) => e.id === "bge-small-en-v1.5-q8-0")!.sha256;
+    const { db } = getLocalContext();
+    db.insert(models).values([
+      {
+        id: "m-bge", capability: "embeddings", fileName: "bge.gguf",
+        path: `models/${bgeSha}.gguf`, sizeBytes: 1, sha256: bgeSha,
+        origin: "test", status: "available", errorMessage: null, createdAt: Date.now(),
+      },
+      {
+        id: "m-qwen3", capability: "embeddings", fileName: "qwen3.gguf",
+        path: `models/${qwen3Entry!.sha256}.gguf`, sizeBytes: 1, sha256: qwen3Entry!.sha256,
+        origin: "test", status: "available", errorMessage: null, createdAt: Date.now(),
+      },
+    ]).run();
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "P3 Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "p3.txt", fileType: "text/plain", fileSize: 10,
+    });
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId }, ["alpha p3", "beta p3"]);
+
+    // selecting qwen3 STAGES its full-recipe profile as the active one: the
+    // index lane only sweeps the ACTIVE profile, so this is what starts the
+    // build; hybrid search reports the typed "indexing" degradation meanwhile
+    const sel = await handleEngineRequest("models.select", { modelId: "m-qwen3", capability: "embeddings" });
+    expect(sel.ok).toBe(true);
+    const active = await handleEngineRequest("retrieval.profile.active", {});
+    expect(
+      (active as { result: { profile: { model: string; dimension: number; pooling: string } | null } }).result.profile
+    ).toMatchObject({ model: "Qwen3-Embedding-0.6B", dimension: 1024, pooling: "last" });
+
+    // finding-3 guard: manual activation while chunks lack vectors is refused
+    const blocked = await handleEngineRequest("retrieval.profile.activate", {
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+    expect(blocked).toEqual({
+      ok: false,
+      error: { code: "profile_incomplete", message: expect.stringContaining("2") },
+    });
+    // the refused activation must not have changed the active profile
+    expect(
+      ((await handleEngineRequest("retrieval.profile.active", {})) as { result: { profile: { model: string } | null } }).result.profile?.model
+    ).toBe("Qwen3-Embedding-0.6B");
+
+    // the polling companion reports the same pending count
+    const status = await handleEngineRequest("retrieval.profile.status", {
+      provider: "llamacpp", model: "Qwen3-Embedding-0.6B", revision: "q8_0",
+      dimension: 1024, pooling: "last",
+    });
+    expect((status as { result: { pendingCount: number; dimension: number } }).result)
+      .toMatchObject({ pendingCount: 2, dimension: 1024 });
+  });
+
+  it("switching back to bge reactivates its profile instantly — old index rows survive the qwen3 detour (P3)", async () => {
+    const { handleEngineRequest } = await import("@/engine/dispatch");
+    const { getLocalContext } = await import("@/lib/storage/local");
+    const { models } = await import("@/db/local/schema");
+    const { createSource, replaceChunks } = await import("@/lib/services/sources");
+    const { indexNotebookChunks, vectorSearch } = await import("@/lib/services/vector-index");
+    const { MODEL_CATALOG } = await import("@/lib/ai/model-catalog");
+
+    const bgeSha = MODEL_CATALOG.find((e) => e.id === "bge-small-en-v1.5-q8-0")!.sha256;
+    const qwen3Sha = MODEL_CATALOG.find((e) => e.id === "qwen3-embedding-0.6b-q8-0")!.sha256;
+    const { db } = getLocalContext();
+    db.insert(models).values([
+      {
+        id: "m-bge", capability: "embeddings", fileName: "bge.gguf",
+        path: `models/${bgeSha}.gguf`, sizeBytes: 1, sha256: bgeSha,
+        origin: "test", status: "available", errorMessage: null, createdAt: Date.now(),
+      },
+      {
+        id: "m-qwen3", capability: "embeddings", fileName: "qwen3.gguf",
+        path: `models/${qwen3Sha}.gguf`, sizeBytes: 1, sha256: qwen3Sha,
+        origin: "test", status: "available", errorMessage: null, createdAt: Date.now(),
+      },
+    ]).run();
+
+    const nb = await handleEngineRequest("notebooks.create", { title: "Back Book" });
+    const notebookId = (nb as { result: { id: string } }).result.id;
+    const sourceId = await createSource(db, {
+      ownerId: "local", notebookId, fileName: "back.txt", fileType: "text/plain", fileSize: 10,
+    });
+    replaceChunks(db, { ownerId: "local", sourceId, notebookId },["back one", "back two"]);
+
+    // bge selected + fully indexed (the pre-qwen3 world)
+    await handleEngineRequest("models.select", { modelId: "m-bge", capability: "embeddings" });
+    const bgeActive = (await handleEngineRequest("retrieval.profile.active", {})) as {
+      result: { profile: { _id: string; dimension: number } | null };
+    };
+    const bgeProfileId = bgeActive.result.profile!._id;
+    const axis = (n: number, i: number): Buffer => {
+      const v = new Float32Array(n);
+      v[i % n] = 1;
+      return Buffer.from(v.buffer);
+    };
+    await indexNotebookChunks(db, {
+      profileId: bgeProfileId, dimension: 384, notebookId, batchSize: 16,
+      embed: async (texts) => texts.map((_, i) => axis(384, i)),
+    });
+    expect(vectorSearch(db, bgeProfileId, axis(384, 0), notebookId, 10)).toHaveLength(2);
+
+    // detour to qwen3: staged active, bge index stays on disk untouched
+    await handleEngineRequest("models.select", { modelId: "m-qwen3", capability: "embeddings" });
+    const during = (await handleEngineRequest("retrieval.profile.active", {})) as {
+      result: { profile: { model: string } | null };
+    };
+    expect(during.result.profile?.model).toBe("Qwen3-Embedding-0.6B");
+    expect(vectorSearch(db, bgeProfileId, axis(384, 0), notebookId, 10)).toHaveLength(2);
+
+    // back to bge: same natural key → same profile id, instantly complete
+    await handleEngineRequest("models.select", { modelId: "m-bge", capability: "embeddings" });
+    const back = (await handleEngineRequest("retrieval.profile.active", {})) as {
+      result: { profile: { _id: string; model: string } | null };
+    };
+    expect(back.result.profile?._id).toBe(bgeProfileId);
+    expect(back.result.profile?.model).toBe("bge-small-en-v1.5");
+    expect(vectorSearch(db, bgeProfileId, axis(384, 0), notebookId, 10)).toHaveLength(2);
+
+    // with the bge index complete, manual activation is allowed again (0 pending)
+    const allowed = await handleEngineRequest("retrieval.profile.activate", {
+      provider: "llamacpp", model: "bge-small-en-v1.5", revision: "q8_0",
+      dimension: 384, pooling: "mean",
+    });
+    expect(allowed.ok).toBe(true);
+  });
+
   it("pauses and resumes the global scheduler through the engine (close/tray slice)", async () => {
     const { handleEngineRequest } = await import("@/engine/dispatch");
     const { getLocalContext } = await import("@/lib/storage/local");

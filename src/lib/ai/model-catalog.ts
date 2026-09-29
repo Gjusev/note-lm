@@ -17,6 +17,31 @@ export interface CatalogModel {
   /** Direct download URL; null when the pipeline cannot serve the file. */
   url: string | null;
   notes: string;
+  /** Full embedding recipe (P3): only catalog-known embed models can stage a
+   *  profile automatically on models.select — equal dimensions never make
+   *  models interchangeable, the recipe (pooling!) is the identity. */
+  embeddingRecipe?: EmbeddingRecipe;
+}
+
+/** The exact recipe that produced a set of vectors (multi-provider-ai.md:
+ *  profile identity = connection + model + revision + dimensions + params).
+ *  Frozen per eval/multilingual-proto (T3): Qwen3-Embedding uses last-token
+ *  pooling and NO instruct prefix (prefix ON measured no better). */
+export interface EmbeddingRecipe {
+  provider: string;
+  model: string;
+  revision: string;
+  dimension: number;
+  pooling: string;
+  queryPrefix?: string;
+  docPrefix?: string;
+}
+
+/** Recipe for a managed model row (models rows are verified by sha256, so
+ *  the sha IS the join key). Null for chat/transcribe/unknown embed files —
+ *  those keep the manual retrieval.profile.activate path. */
+export function embeddingRecipeForSha256(sha256: string): EmbeddingRecipe | null {
+  return MODEL_CATALOG.find((e) => e.sha256 === sha256)?.embeddingRecipe ?? null;
 }
 
 export const MODEL_CATALOG: CatalogModel[] = [
@@ -39,6 +64,30 @@ export const MODEL_CATALOG: CatalogModel[] = [
     sha256: "ec38e8da142596baa913124ae50550de284b6916bf59577ef2f0cb9660c2f514",
     url: "https://huggingface.co/CompendiumLabs/bge-small-en-v1.5-gguf/resolve/main/bge-small-en-v1.5-q8_0.gguf",
     notes: "Englisches Embedding-Modell für die semantische Suche.",
+    embeddingRecipe: {
+      provider: "llamacpp",
+      model: "bge-small-en-v1.5",
+      revision: "q8_0",
+      dimension: 384,
+      pooling: "mean",
+    },
+  },
+  {
+    id: "qwen3-embedding-0.6b-q8-0",
+    label: "Qwen3-Embedding 0.6B (Q8_0)",
+    capability: "embed",
+    sizeBytes: 639_150_592,
+    license: "Apache-2.0",
+    sha256: "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439",
+    url: "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B-GGUF/resolve/main/Qwen3-Embedding-0.6B-Q8_0.gguf",
+    notes: "Mehrsprachiges Embedding-Modell (P3-Alternative): 1024 Dimensionen, Last-Token-Pooling, KEIN Instruct-Präfix (T3-Frozen-Finding). Gemessene Embed-p95 2,71–2,80× gegenüber bge-small.",
+    embeddingRecipe: {
+      provider: "llamacpp",
+      model: "Qwen3-Embedding-0.6B",
+      revision: "q8_0",
+      dimension: 1024,
+      pooling: "last",
+    },
   },
   {
     id: "qwen2.5-7b-instruct-q4-k-m",
