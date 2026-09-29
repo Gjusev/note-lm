@@ -2,12 +2,41 @@
 
 mod engine;
 
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use tauri::{Emitter, Manager};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
 
 struct EngineState(Mutex<Option<engine::Engine>>);
+
+/// The engine data dir, resolved once at setup. Rust never writes it — it is
+/// only the security base for open_external_file. Mirrors resolveDataDir
+/// (src/db/local/index.ts): NOTELM_DATA_DIR wins, else the OS user data dir.
+struct DataDir(PathBuf);
+
+/// Mirror of resolveDataDir (src/db/local/index.ts): NOTELM_DATA_DIR wins,
+/// else APPDATA / XDG_DATA_HOME / <home>/.local/share + note-lm.
+fn engine_data_dir() -> PathBuf {
+    if let Ok(from_env) = std::env::var("NOTELM_DATA_DIR") {
+        let trimmed = from_env.trim();
+        if !trimmed.is_empty() {
+            return PathBuf::from(trimmed);
+        }
+    }
+    let home = std::env::var_os("APPDATA")
+        .or_else(|| std::env::var_os("XDG_DATA_HOME"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|| {
+            let user = std::env::var_os("USERPROFILE")
+                .or_else(|| std::env::var_os("HOME"))
+                .map(PathBuf::from)
+                .unwrap_or_default();
+            user.join(".local").join("share")
+        });
+    home.join("note-lm")
+}
+
 
 /// One engine round trip from Rust (no webview involved). None on any
 /// failure — callers treat an unreachable engine as "nothing running".
@@ -67,6 +96,34 @@ mod tests {
             })));
         }
     }
+
+    #[test]
+    fn open_external_file_only_inside_data_dir() {
+        // Windows shapes the security test targets: inside passes; traversal,
+        // a prefix-sibling dir and a foreign absolute path all fail.
+        let base = Path::new("C:\\Users\\du\\AppData\\Roaming\\note-lm");
+        assert!(path_within_base(
+            base,
+            Path::new("C:\\Users\\du\\AppData\\Roaming\\note-lm\\files\\abc.pdf")
+        ));
+        // `..\` traversal that normalizes outside the base
+        assert!(!path_within_base(
+            base,
+            Path::new("C:\\Users\\du\\AppData\\Roaming\\note-lm\\files\\..\\..\\evil.txt")
+        ));
+        // sibling whose name merely shares a prefix
+        assert!(!path_within_base(
+            base,
+            Path::new("C:\\Users\\du\\AppData\\Roaming\\note-lm-extra\\x.txt")
+        ));
+        // unrelated absolute path
+        assert!(!path_within_base(
+            base,
+            Path::new("C:\\Windows\\notepad.exe")
+        ));
+        // the base itself is not "inside"
+        assert!(!path_within_base(base, base));
+    }
 }
 
 /// Single exit path: persist the global pause THROUGH THE ENGINE (the engine
@@ -87,6 +144,68 @@ fn hide_to_tray(window: tauri::WebviewWindow) -> Result<(), String> {
 #[tauri::command]
 fn pause_and_exit(app: tauri::AppHandle, state: tauri::State<EngineState>) {
     pause_then_exit(&app, state.inner());
+}
+
+/// UI command: open a stored evidence file with its platform default app.
+/// Security: the path must resolve INSIDE the engine data dir — traversal
+/// (`..`) and foreign absolute paths are rejected before any shell runs; the
+/// engine's evidence.open only ever reports files under it in the first place.
+#[tauri::command]
+fn open_external_file(data_dir: tauri::State<DataDir>, path: String) -> Result<(), String> {
+    let candidate = PathBuf::from(&path);
+    if !path_within_base(&data_dir.0, &candidate) {
+        return Err("Pfad liegt außerhalb des Datenverzeichnisses".into());
+    }
+    if !candidate.is_file() {
+        return Err("Datei nicht gefunden".into());
+    }
+    shell_open(&path)
+}
+
+/// Lexical normalization (resolve `.` and `..` without touching the file
+/// system) plus a strict component prefix check — the same guard shape the
+/// engine applies in LocalStore.abs (src/lib/storage/local.ts).
+fn path_within_base(base: &Path, candidate: &Path) -> bool {
+    fn normalize(p: &Path) -> PathBuf {
+        let mut out = PathBuf::new();
+        for comp in p.components() {
+            match comp {
+                std::path::Component::CurDir => {}
+                std::path::Component::ParentDir => {
+                    out.pop();
+                }
+                _ => out.push(comp.as_os_str()),
+            }
+        }
+        out
+    }
+    let (base, cand) = (normalize(base), normalize(candidate));
+    cand != base && cand.starts_with(&base)
+}
+
+/// Platform shell open. Windows: `cmd /c start "" <path>` — the empty title
+/// keeps paths with spaces intact; CREATE_NO_WINDOW avoids a console flash.
+#[cfg(target_os = "windows")]
+fn shell_open(path: &str) -> Result<(), String> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    std::process::Command::new("cmd")
+        .args(["/c", "start", ""])
+        .arg(path)
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn shell_open(file_path: &str) -> Result<(), String> {
+    let tool = if cfg!(target_os = "macos") { "open" } else { "xdg-open" };
+    std::process::Command::new(tool)
+        .arg(file_path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 /// UI command: perform the protocol handshake with the local engine.
@@ -182,7 +301,60 @@ fn smoke() -> Result<(), String> {
     if failed {
         return Err("smoke checks failed".into());
     }
-    println!("smoke: engine, SQLite and typed errors all verified");
+
+    // Installed claims flow (versioned-evidence S4): create -> list -> empty
+    // reviews -> fabricated anchor answers a typed not_found. Proves the
+    // claims/review/evidence ops exist in the installed engine bundle.
+    let nb = eng.request(
+        "smoke-claims-nb",
+        "notebooks.create",
+        serde_json::json!({ "title": "Aussagen-Buch" }),
+    )?;
+    let notebook_id = nb["result"]["id"]
+        .as_str()
+        .ok_or("claims flow: no notebook id")?
+        .to_string();
+    let claim = eng.request(
+        "smoke-claims-create",
+        "claims.create",
+        serde_json::json!({ "notebookId": notebook_id, "text": "Das lokale Modell antwortet offline." }),
+    )?;
+    let claim_ok = !claim["result"]["id"].is_null();
+    let list = eng.request(
+        "smoke-claims-list",
+        "claims.list",
+        serde_json::json!({ "notebookId": notebook_id }),
+    )?;
+    let list_ok = list["result"].as_array().is_some_and(|a| a.len() == 1);
+    let reviews = eng.request(
+        "smoke-review-list",
+        "review.list",
+        serde_json::json!({ "notebookId": notebook_id }),
+    )?;
+    let reviews_ok = reviews["result"]
+        .as_array()
+        .is_some_and(|a| a.is_empty());
+    let evidence = eng.request(
+        "smoke-evidence-open",
+        "evidence.open",
+        serde_json::json!({ "anchorId": "fabricated-anchor-id" }),
+    )?;
+    let evidence_ok = !evidence["ok"].as_bool().unwrap_or(true)
+        && evidence["error"]["code"] == "not_found";
+    for (name, pass) in [
+        ("claims.create", claim_ok),
+        ("claims.list returns it", list_ok),
+        ("review.list empty", reviews_ok),
+        ("evidence.open fabricated -> not_found", evidence_ok),
+    ] {
+        println!("{} claims flow: {}", if pass { "ok" } else { "FAIL" }, name);
+        failed = failed || !pass;
+    }
+
+    if failed {
+        return Err("smoke checks failed".into());
+    }
+    println!("smoke: engine, SQLite, typed errors and claims flow all verified");
     Ok(())
 }
 
@@ -220,6 +392,9 @@ fn main() {
                     app.manage(EngineState(Mutex::new(None)));
                 }
             }
+            // Base for open_external_file's containment check, resolved the
+            // same way the engine resolves its own data dir.
+            app.manage(DataDir(engine_data_dir()));
 
             // Tray (close/tray slice): always present so a hidden window can
             // always be brought back or quit. Icon = the bundled app icon.
@@ -277,7 +452,7 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            engine_handshake, engine_op, hide_to_tray, pause_and_exit
+            engine_handshake, engine_op, hide_to_tray, pause_and_exit, open_external_file
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

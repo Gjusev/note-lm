@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { desktopApi, pickFile } from "../lib/api";
+import {
+  desktopApi,
+  openExternalFile,
+  pickFile,
+  type ClaimAnchorView,
+  type Message,
+} from "../lib/api";
 
 /** Workspace: sources left, chat center, notes right. Panels collapse on
  *  narrow windows (plan B4) — tabs at <900px via CSS. */
 export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<"sources" | "notes">("sources");
+  const [tab, setTab] = useState<"sources" | "claims" | "notes">("sources");
 
   const { data: sources } = useQuery({
     queryKey: ["sources", notebookId],
@@ -33,6 +39,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       if (prev && prev !== j.status && j.status === "completed") {
         queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
         queryClient.invalidateQueries({ queryKey: ["jobs"] });
+        queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
       }
     }
   }, [jobs, notebookId, queryClient]);
@@ -70,7 +77,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
         aria-label="Quellen und Notizen"
       >
         <div style={{ display: "flex", gap: "var(--space-1)" }}>
-          {(["sources", "notes"] as const).map((t) => (
+          {(["sources", "claims", "notes"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -79,9 +86,10 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
                 flex: 1,
                 borderColor: tab === t ? "var(--accent)" : "var(--rule)",
                 color: tab === t ? "var(--accent)" : "inherit",
+                fontSize: "0.85rem",
               }}
             >
-              {t === "sources" ? "Quellen" : "Notizen"}
+              {t === "sources" ? "Quellen" : t === "claims" ? "Afirmaciones" : "Notizen"}
             </button>
           ))}
         </div>
@@ -130,6 +138,8 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
             )}
             <SourceList sources={sources ?? []} />
           </>
+        ) : tab === "claims" ? (
+          <ClaimsPanel notebookId={notebookId} />
         ) : (
           <NotesPanel notebookId={notebookId} />
         )}
@@ -196,16 +206,13 @@ function SourceList({ sources }: { sources: Array<{ _id: string; fileName: strin
   );
 }
 
-function ChatPanel({
-  notebookId,
-  sources,
-}: {
-  notebookId: string;
-  sources: Array<{ _id: string; fileName: string }>;
-}) {
+function ChatPanel({ notebookId, sources }: { notebookId: string; sources: Array<{ _id: string; fileName: string }> }) {
   const queryClient = useQueryClient();
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // messages already saved as claims: the button flips to "Gespeichert" and
+  // stays disabled, so one message can never produce a duplicate claim
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const endRef = useRef<HTMLDivElement>(null);
 
   const { data: messages } = useQuery({
@@ -220,6 +227,14 @@ function ChatPanel({
       queryClient.invalidateQueries({ queryKey: ["messages", notebookId] });
     },
     onError: (e) => setError(e.message),
+  });
+
+  const saveClaim = useMutation({
+    mutationFn: (m: Message) => desktopApi.createClaimFromMessage(notebookId, m._id, m.content),
+    onSuccess: (_data, m) => {
+      setSavedIds((prev) => new Set(prev).add(m._id));
+      queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
+    },
   });
 
   return (
@@ -246,6 +261,21 @@ function ChatPanel({
             >
               {m.content}
               {m.citations && m.citations.length > 0 && <CitationList citations={m.citations} sources={sources} />}
+              {m.role === "assistant" && m.citations && m.citations.length > 0 && (
+                savedIds.has(m._id) ? (
+                  <span className="muted" style={{ fontSize: "0.8rem", display: "inline-block", marginTop: "var(--space-1)" }}>
+                    Gespeichert
+                  </span>
+                ) : (
+                  <button
+                    style={{ fontSize: "0.8rem", marginTop: "var(--space-1)", display: "inline-block" }}
+                    disabled={saveClaim.isPending}
+                    onClick={() => saveClaim.mutate(m)}
+                  >
+                    Aussage speichern
+                  </button>
+                )
+              )}
             </article>
           ))
         )}
@@ -308,6 +338,202 @@ function CitationList({
         );
       })}
     </div>
+  );
+}
+
+/** Claims tab (versioned-evidence S4): status/origin chips, anchor chips with
+ *  Öffnen, pending review badges with Übernehmen/Ablehnen, manual creation. */
+function ClaimsPanel({ notebookId }: { notebookId: string }) {
+  const queryClient = useQueryClient();
+  const [text, setText] = useState("");
+  const [openError, setOpenError] = useState<string | null>(null);
+
+  const { data: claims } = useQuery({
+    queryKey: ["claims", notebookId],
+    queryFn: () => desktopApi.listClaims(notebookId),
+  });
+  const { data: reviews } = useQuery({
+    queryKey: ["reviews", notebookId],
+    queryFn: () => desktopApi.listReviews(notebookId),
+  });
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
+    queryClient.invalidateQueries({ queryKey: ["reviews", notebookId] });
+  };
+
+  const create = useMutation({
+    mutationFn: () => desktopApi.createClaim(notebookId, text.trim()),
+    onSuccess: () => {
+      setText("");
+      invalidate();
+    },
+  });
+
+  const resolve = useMutation({
+    mutationFn: (p: { proposalId: string; decision: "accepted" | "rejected" }) =>
+      desktopApi.resolveReview(p.proposalId, p.decision),
+    onSuccess: invalidate,
+  });
+
+  const proposalsByClaim = new Map((reviews ?? []).map((p) => [p.claimId, p]));
+
+  return (
+    <>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (text.trim() && !create.isPending) create.mutate();
+        }}
+        style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}
+      >
+        <textarea
+          placeholder="Neue Aussage…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={3}
+          aria-label="Aussage-Text"
+          disabled={create.isPending}
+        />
+        <button className="primary" type="submit" disabled={!text.trim() || create.isPending}>
+          {create.isPending ? "Speichere…" : "Aussage speichern"}
+        </button>
+        {create.isError && (
+          <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{create.error.message}</p>
+        )}
+      </form>
+      {(claims ?? []).length === 0 ? (
+        <p className="muted" style={{ fontSize: "0.85rem" }}>
+          Noch keine Aussagen. Speichere eine Aussage aus dem Chat oder schreibe hier eine eigene.
+        </p>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, overflowY: "auto", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          {(claims ?? []).map((c) => (
+            <li
+              key={c._id}
+              style={{
+                padding: "var(--space-2)",
+                border: "1px solid var(--rule)",
+                borderRadius: "var(--radius)",
+                fontSize: "0.85rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-1)",
+              }}
+            >
+              <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" }}>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    padding: "0 var(--space-1)",
+                    border: "1px solid var(--rule)",
+                    borderRadius: "var(--radius)",
+                    color:
+                      c.status === "reviewed" ? "var(--ok)"
+                        : c.status === "withdrawn" ? "var(--warn)"
+                        : "var(--ink-60)",
+                  }}
+                >
+                  {c.status === "reviewed" ? "Überprüft" : c.status === "withdrawn" ? "Zurückgezogen" : "Aktiv"}
+                </span>
+                <span className="muted" style={{ fontSize: "0.75rem" }}>
+                  {c.origin === "chat" ? "Chat" : "Manuell"}
+                </span>
+              </div>
+              <p style={{ margin: 0, whiteSpace: "pre-wrap" }}>{c.text}</p>
+              {c.anchors.map((a) => (
+                <AnchorChip key={a.id} anchor={a} onOpenError={setOpenError} />
+              ))}
+              {(() => {
+                const proposal = proposalsByClaim.get(c._id);
+                if (!proposal) return null;
+                return (
+                  <div
+                    style={{
+                      border: "1px solid var(--warn)",
+                      borderRadius: "var(--radius)",
+                      padding: "var(--space-1) var(--space-2)",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "var(--space-1)",
+                    }}
+                  >
+                    <span style={{ fontSize: "0.75rem" }}>
+                      Überarbeitung vorgeschlagen — {proposal.detail ?? proposal.reason}
+                    </span>
+                    <div style={{ display: "flex", gap: "var(--space-1)" }}>
+                      <button
+                        disabled={resolve.isPending}
+                        onClick={() => resolve.mutate({ proposalId: proposal.id, decision: "accepted" })}
+                      >
+                        Übernehmen
+                      </button>
+                      <button
+                        disabled={resolve.isPending}
+                        onClick={() => resolve.mutate({ proposalId: proposal.id, decision: "rejected" })}
+                      >
+                        Ablehnen
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+              {c.pendingReviews > 0 && !proposalsByClaim.has(c._id) && (
+                <span className="muted" style={{ fontSize: "0.75rem" }}>
+                  {c.pendingReviews} offene Überarbeitung(en)
+                </span>
+              )}
+              {openError && (
+                <p style={{ color: "var(--accent)", fontSize: "0.75rem", margin: 0 }}>{openError}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
+/** One evidence anchor: locator chip + quote snippet + Öffnen (evidence.open,
+ *  then the Rust open_external_file guard when a path exists). An original
+ *  without stored bytes says so, honestly. */
+function AnchorChip({ anchor, onOpenError }: { anchor: ClaimAnchorView; onOpenError: (m: string | null) => void }) {
+  const [state, setState] = useState<"idle" | "opening" | "unavailable">("idle");
+  const locator =
+    anchor.page != null
+      ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · S.${anchor.page}`
+      : `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ohne Seite`;
+  const open = async () => {
+    setState("opening");
+    onOpenError(null);
+    try {
+      const ev = await desktopApi.openEvidence(anchor.id);
+      if (!ev.absolutePath) {
+        setState("unavailable");
+        return;
+      }
+      await openExternalFile(ev.absolutePath);
+      setState("idle");
+    } catch {
+      setState("unavailable");
+    }
+  };
+  return (
+    <span style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", flexWrap: "wrap", fontSize: "0.8rem" }}>
+      <span
+        className="muted"
+        title={anchor.quote}
+        style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 210 }}
+      >
+        {locator} — {anchor.quote.length > 60 ? `${anchor.quote.slice(0, 59)}…` : anchor.quote}
+      </span>
+      <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} disabled={state === "opening"} onClick={open}>
+        Öffnen
+      </button>
+      {state === "unavailable" && (
+        <span className="muted" style={{ fontSize: "0.75rem" }}>Originaldatei nicht verfügbar</span>
+      )}
+    </span>
   );
 }
 

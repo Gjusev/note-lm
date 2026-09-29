@@ -14,6 +14,19 @@ export interface Source { _id: string; fileName: string; fileType: string; fileS
 export interface Chunk { _id: string; content: string; chunkIndex: number }
 export interface Message { _id: string; role: "user" | "assistant"; content: string; citations?: Array<{ sourceId: string; chunkIndex: number; text: string; fileName?: string }> | null; createdAt: number }
 export interface Note { _id: string; title: string; content: string; updatedAt: number }
+export interface ClaimAnchorView {
+  id: string; relation: string; fileName: string | null; version: number; page: number | null; quote: string;
+}
+export interface ClaimView {
+  _id: string; text: string; origin: "chat" | "user"; status: "active" | "reviewed" | "withdrawn";
+  createdAt: number; anchors: ClaimAnchorView[]; pendingReviews: number; reviewReasons: string[];
+}
+export interface ReviewProposalView {
+  id: string; claimId: string; reason: string; detail: string | null; createdAt: number;
+}
+export interface EvidenceRef {
+  fileName: string | null; page: number | null; quote: string; storageId: string | null; absolutePath: string | null;
+}
 
 export const desktopApi = {
   listNotebooks: () => call<Notebook[]>("notebooks.list"),
@@ -53,6 +66,15 @@ export const desktopApi = {
     call<{ documents: number; files: number }>("notebook.export", { notebookId, targetDir }),
   importNotebook: (sourceDir: string) =>
     call<{ notebookId: string; documents: number }>("notebook.import", { sourceDir }),
+  createClaim: (notebookId: string, text: string) =>
+    call<{ id: string; anchorCount: number }>("claims.create", { notebookId, text }),
+  createClaimFromMessage: (notebookId: string, messageId: string, text: string) =>
+    call<{ id: string; anchorCount: number }>("claims.createFromMessage", { notebookId, messageId, text }),
+  listClaims: (notebookId: string) => call<ClaimView[]>("claims.list", { notebookId }),
+  listReviews: (notebookId: string) => call<ReviewProposalView[]>("review.list", { notebookId }),
+  resolveReview: (proposalId: string, decision: "accepted" | "rejected") =>
+    call<{}>("review.resolve", { proposalId, decision }),
+  openEvidence: (anchorId: string) => call<EvidenceRef>("evidence.open", { anchorId }),
 };
 
 /** Native file dialog via the Tauri plugin; null in browser dev. */
@@ -64,4 +86,14 @@ export async function pickFile(): Promise<{ path: string; name: string } | null>
   if (!path || typeof path !== "string") return null;
   const name = path.split(/[\\/]/).pop() || "datei";
   return { path, name };
+}
+
+/** Open a stored evidence file with its platform default app. The Rust side
+ *  validates the path against the engine data dir; null in browser dev. */
+export async function openExternalFile(path: string): Promise<void> {
+  if (typeof window === "undefined" || !("__TAURI__" in window)) {
+    throw new Error("Dateiöffnung nur in der Desktop-App verfügbar");
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (window as any).__TAURI__.core.invoke("open_external_file", { path });
 }
