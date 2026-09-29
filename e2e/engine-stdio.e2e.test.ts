@@ -19,6 +19,9 @@ let dir: string;
 let proc: ChildProcess;
 let buffer = "";
 const pending = new Map<string, (value: any) => void>();
+/** Engine→host secret channel (S2): the harness acts as the keyring host. */
+let secretAnswer: string | null = "sk-e2e-key";
+let secretRequests: string[] = [];
 
 function startEngine() {
   proc = spawn(process.execPath, ["--import", "tsx", path.resolve(REPO_ROOT, "src/engine/main.ts")], {
@@ -36,9 +39,18 @@ function startEngine() {
       buffer = buffer.slice(nl + 1);
       if (!line.trim()) continue;
       const msg = JSON.parse(line);
+      if (msg.t === "secret_request") {
+        // the harness is the keyring host: record + answer, never blank
+        secretRequests.push(msg.connectionId);
+        proc.stdin!.write(
+          JSON.stringify({ t: "secret_response", id: msg.id, value: secretAnswer }) + "\n"
+        );
+        return;
+      }
       if (msg.id && pending.has(msg.id)) {
         pending.get(msg.id)!(msg);
         pending.delete(msg.id);
+        return;
       }
     }
   });
@@ -54,6 +66,8 @@ function request(id: string, op: string, args: unknown): Promise<any> {
 beforeEach(() => {
   dir = fs.mkdtempSync(path.join(os.tmpdir(), "notelm-engine-"));
   buffer = "";
+  secretAnswer = "sk-e2e-key";
+  secretRequests = [];
 });
 
 afterEach(async () => {
@@ -132,5 +146,35 @@ describe("engine stdio process", () => {
     closeLocalDb(db);
     expect(chunks.length).toBeGreaterThan(0);
     expect(chunks[0].content).toContain("Hello note-lm");
+  });
+
+it("answers engine secret_request frames so a remote capability resolves its key", async () => {
+    startEngine();
+    // configure a remote chat connection through the new ops (nothing saved
+    // by providers.test; this save is the real config write)
+    const saved = await request("s1", "providers.save", {
+      connection: { presetId: "custom", label: "Lokal E2E", baseUrl: "http://127.0.0.1:9/v1" },
+      models: { chat: "local-model" },
+    });
+    expect(saved.ok).toBe(true);
+    const connId = saved.result.id;
+    const offline = await request("s2", "settings.offline", { on: false });
+    expect(offline.result.offline).toBe(false);
+
+    // chat.send -> engine resolves the capability -> needs the secret ->
+    // emits secret_request -> the harness (keyring host) answers -> the
+    // provider call proceeds and fails on the unreachable endpoint (never
+    // with secret_unavailable)
+    const nb = await request("s3", "notebooks.create", { title: "Secret Book" });
+    const reply = await request("s4", "chat.send", { notebookId: nb.result.id, message: "hi" });
+    expect(secretRequests).toContain(connId);
+    expect(reply.ok).toBe(false);
+    expect(reply.error.code).not.toBe("secret_unavailable");
+
+    // host denies (value null): the capability fails typed secret_unavailable
+    secretAnswer = null;
+    const denied = await request("s5", "chat.send", { notebookId: nb.result.id, message: "hi" });
+    expect(denied.error.code).toBe("secret_unavailable");
+    expect(denied.error.message).toContain("Keine Zugangsdaten");
   });
 });

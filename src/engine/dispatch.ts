@@ -55,6 +55,15 @@ import {
   modelAbsolutePath,
 } from "@/lib/services/models";
 import { resolveCapabilities } from "./capabilities";
+import {
+  getPreset,
+  PRESETS,
+  isDesktopEngine,
+  setOfflineMode,
+  SecretUnavailableError,
+  type ProviderConnection,
+} from "@/lib/ai/providers";
+import { probeConnection, ProbeError, type ProbeArgs } from "@/lib/ai/provider-probe";
 
 const ACTIVE_PROFILE_KEY = "retrieval.activeProfile";
 
@@ -639,7 +648,11 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           return {
             ok: false,
             error: {
-              code: err instanceof Error && /Kein KI-Anbieter/.test(err.message) ? "no_provider" : "chat_failed",
+              code: err instanceof SecretUnavailableError
+                ? "secret_unavailable"
+                : err instanceof Error && /Kein KI-Anbieter/.test(err.message)
+                  ? "no_provider"
+                  : "chat_failed",
               message: err instanceof Error ? err.message : String(err),
             },
           };
@@ -741,6 +754,130 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
             absolutePath,
           },
         };
+      }
+
+      case "providers.list": {
+        const { db } = getLocalContext();
+        const [connections, capabilities, offline] = await Promise.all([
+          getSetting<ProviderConnection[]>(db, "ai.connections"),
+          getSetting<Record<string, { connectionId: string; model: string }>>(db, "ai.capabilities"),
+          getSetting<string>(db, "ai.offline"),
+        ]);
+        return {
+          ok: true,
+          result: {
+            presets: PRESETS.map(({ id, label, baseUrl, capabilities: caps, experimental }) => ({
+              id,
+              label,
+              baseUrl,
+              capabilities: caps,
+              ...(experimental ? { experimental: true } : {}),
+            })),
+            connections: connections ?? [],
+            capabilities: capabilities ?? {},
+            offline: offline === "1",
+          },
+        };
+      }
+
+
+      case "providers.save": {
+        const { connection, models } = args as {
+          connection?: { id?: string; presetId?: string; label?: string; baseUrl?: string };
+          models?: Record<string, string>;
+        };
+        const preset = connection?.presetId ? getPreset(connection.presetId) : undefined;
+        if (!connection?.presetId || !preset || !connection.label) {
+          return { ok: false, error: { code: "bad_args", message: "connection with known presetId and label are required" } };
+        }
+        if (connection.baseUrl && !/^https?:\/\//.test(connection.baseUrl)) {
+          return { ok: false, error: { code: "bad_args", message: "baseUrl must be an http(s) URL" } };
+        }
+        const { db } = getLocalContext();
+        const connections = (await getSetting<ProviderConnection[]>(db, "ai.connections")) ?? [];
+        const id = connection.id ?? crypto.randomUUID();
+        const next = connections.filter((c) => c.id !== id);
+        next.push({
+          id,
+          presetId: connection.presetId,
+          label: connection.label,
+          ...(connection.baseUrl ? { baseUrl: connection.baseUrl } : {}),
+        });
+        await setSetting(db, "ai.connections", next);
+        // capability model selections ride on the same save (form is one unit)
+        const caps = (await getSetting<Record<string, { connectionId: string; model: string }>>(db, "ai.capabilities")) ?? {};
+        for (const capability of ["chat", "embed", "transcribe", "tts"] as const) {
+          const model = models?.[capability];
+          if (typeof model === "string" && model.trim()) {
+            caps[capability] = { connectionId: id, model: model.trim() };
+          }
+        }
+        await setSetting(db, "ai.capabilities", caps);
+        return { ok: true, result: { id } };
+      }
+
+      case "providers.delete": {
+        const { connectionId } = args as { connectionId?: string };
+        if (!connectionId) {
+          return { ok: false, error: { code: "bad_args", message: "connectionId is required" } };
+        }
+        const { db } = getLocalContext();
+        const connections = (await getSetting<ProviderConnection[]>(db, "ai.connections")) ?? [];
+        await setSetting(db, "ai.connections", connections.filter((c) => c.id !== connectionId));
+        const caps = (await getSetting<Record<string, { connectionId: string; model: string }>>(db, "ai.capabilities")) ?? {};
+        for (const key of Object.keys(caps)) {
+          if (caps[key].connectionId === connectionId) delete caps[key];
+        }
+        await setSetting(db, "ai.capabilities", caps);
+        return { ok: true, result: {} };
+      }
+
+      case "providers.test": {
+        const { capability, connection, secret } = (args ?? {}) as ProbeArgs & { secret?: string };
+        if (!capability || !["chat", "embed", "transcribe", "tts"].includes(capability as string)) {
+          return { ok: false, error: { code: "bad_args", message: "capability chat|embed|transcribe|tts is required" } };
+        }
+        if (!connection?.presetId) {
+          return { ok: false, error: { code: "bad_args", message: "connection.presetId is required" } };
+        }
+        const { db } = getLocalContext();
+        try {
+          const result = await probeConnection(db, { capability, connection, secret });
+          return { ok: true, result };
+        } catch (err) {
+          if (err instanceof ProbeError) {
+            return { ok: false, error: { code: err.code, message: err.message } };
+          }
+          return { ok: false, error: { code: "internal", message: err instanceof Error ? err.message : String(err) } };
+        }
+      }
+
+      case "providers.setSecret": {
+        // Dev/browser convenience only: in the desktop app secrets go through
+        // the Rust keyring command, never into the settings table.
+        if (isDesktopEngine()) {
+          return { ok: false, error: { code: "not_available", message: "Zugangsdaten werden im Desktop-Modus nur über den Betriebssystem-Schlüsselbund gespeichert." } };
+        }
+        const { connectionId, secret } = args as { connectionId?: string; secret?: string };
+        if (!connectionId || typeof secret !== "string") {
+          return { ok: false, error: { code: "bad_args", message: "connectionId and secret are required" } };
+        }
+        const { db } = getLocalContext();
+        const secrets = (await getSetting<Record<string, string>>(db, "ai.secrets")) ?? {};
+        if (secret === "") delete secrets[connectionId];
+        else secrets[connectionId] = secret;
+        await setSetting(db, "ai.secrets", secrets);
+        return { ok: true, result: {} };
+      }
+
+      case "settings.offline": {
+        const { on } = args as { on?: boolean };
+        if (typeof on !== "boolean") {
+          return { ok: false, error: { code: "bad_args", message: "on (boolean) is required" } };
+        }
+        const { db } = getLocalContext();
+        await setOfflineMode(db, on);
+        return { ok: true, result: { offline: on } };
       }
 
       default:

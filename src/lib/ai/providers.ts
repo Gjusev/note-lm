@@ -40,7 +40,7 @@ export type ChatFn = (
 
 export type EmbedFn = (texts: string[]) => Promise<Buffer[]>;
 
-export type ProviderCapability = "chat" | "embed";
+export type ProviderCapability = "chat" | "embed" | "transcribe" | "tts";
 
 export interface ProviderLabel {
   kind: "local" | "remote";
@@ -97,7 +97,7 @@ export const PRESETS: ProviderPreset[] = [
     id: "openai",
     label: "OpenAI",
     baseUrl: "https://api.openai.com/v1",
-    capabilities: ["chat", "embed"],
+    capabilities: ["chat", "embed", "transcribe", "tts"],
     authHeader: "bearer",
   },
   {
@@ -120,7 +120,7 @@ export const PRESETS: ProviderPreset[] = [
     id: "custom",
     label: "Eigener Endpunkt (OpenAI-kompatibel)",
     baseUrl: null,
-    capabilities: ["chat", "embed"],
+    capabilities: ["chat", "embed", "transcribe", "tts"],
     authHeader: "bearer",
   },
 ];
@@ -137,8 +137,14 @@ export function getPreset(id: string): ProviderPreset | undefined {
 export class OfflineBlockedError extends Error {
   readonly capability: ProviderCapability;
   constructor(capability: ProviderCapability) {
+    const labels: Record<ProviderCapability, string> = {
+      chat: "Chat",
+      embed: "Einbettungen",
+      transcribe: "Transkription",
+      tts: "Sprachausgabe",
+    };
     super(
-      `Offline-Modus ist aktiv. Die Funktion „${capability === "chat" ? "Chat" : "Einbettungen"}" läuft nur lokal — bitte online gehen oder einen lokalen Anbieter wählen.`
+      `Offline-Modus ist aktiv. Die Funktion „${labels[capability]}" läuft nur lokal — bitte online gehen oder einen lokalen Anbieter wählen.`
     );
     this.name = "OfflineBlockedError";
     this.capability = capability;
@@ -177,6 +183,9 @@ const SECRETS_KEY = "ai.secrets";
 const inFlight: Record<ProviderCapability, Set<AbortController>> = {
   chat: new Set(),
   embed: new Set(),
+  // probes (providers.test) are one-shot, never registered for abort
+  transcribe: new Set(),
+  tts: new Set(),
 };
 
 /** Throw OfflineBlockedError when ai.offline is "1" (checked per call). */
@@ -229,10 +238,37 @@ function linkedSignal(signals: Array<AbortSignal | undefined>): { signal: AbortS
 }
 
 // ---------------------------------------------------------------------------
-// Secret resolution (S1: settings row; keyring channel lands in S2)
+// Secret resolution (S2: keyring channel when running as the engine;
+// settings row + env fallback stay the dev/browser path)
 // ---------------------------------------------------------------------------
 
+/**
+ * The engine entrypoint installs the stdio secret_request channel; tests may
+ * install a fake host. Null = dev/browser: the settings row stays the source.
+ */
+let secretRequester: ((connectionId: string) => Promise<string | null>) | null = null;
+
+export function setSecretRequester(
+  fn: ((connectionId: string) => Promise<string | null>) | null
+): void {
+  secretRequester = fn;
+}
+
+/** Exported for the providers.test probe (anthropic-compat x-api-key). */
+export function authHeaderFor(preset: ProviderPreset, apiKey: string): Record<string, string> {
+  return preset.authHeader === "x-api-key" ? { "x-api-key": apiKey } : {};
+}
+
+/**
+ * Engine mode: ask the host (keyring channel), null/timeout -> typed
+ * secret_unavailable. Dev/browser: settings row; env stays the dev fallback.
+ */
 async function resolveSecret(db: LocalDb, connection: ProviderConnection): Promise<string | undefined> {
+  if (isDesktopEngine() && secretRequester) {
+    const value = await secretRequester(connection.secretRef ?? connection.id);
+    if (!value) throw new SecretUnavailableError(connection);
+    return value;
+  }
   const secrets = (await getSetting<Record<string, string>>(db, SECRETS_KEY)) ?? {};
   return secrets[connection.secretRef ?? connection.id];
 }
@@ -261,8 +297,16 @@ export function makeLocalChat(handle: LlamaHandle, model: string): ChatFn {
   });
 }
 
-function authHeaderFor(preset: ProviderPreset, apiKey: string): Record<string, string> {
-  return preset.authHeader === "x-api-key" ? { "x-api-key": apiKey } : {};
+/** Thrown when the host denies a secret or the 3 s window lapses (S2). */
+export class SecretUnavailableError extends Error {
+  readonly connectionId: string;
+  constructor(connection: ProviderConnection) {
+    super(
+      `Keine Zugangsdaten für die Verbindung „${connection.label}" verfügbar. Bitte in den Einstellungen hinterlegen.`
+    );
+    this.name = "SecretUnavailableError";
+    this.connectionId = connection.id;
+  }
 }
 
 /**
@@ -311,6 +355,7 @@ export function makeRemoteChat(
         linked.cleanup();
       }
     } catch (err) {
+      if (err instanceof SecretUnavailableError) throw err; // stays typed
       throw new RemoteProviderError(cfg.connection, "chat", err);
     } finally {
       inFlight.chat.delete(ac);
@@ -343,6 +388,7 @@ export function makeRemoteEmbed(db: LocalDb, cfg: ChatCapabilityConfig): EmbedFn
         linked.cleanup();
       }
     } catch (err) {
+      if (err instanceof SecretUnavailableError) throw err; // stays typed
       throw new RemoteProviderError(cfg.connection, "embed", err);
     } finally {
       inFlight.embed.delete(ac);

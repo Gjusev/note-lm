@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile } from "../lib/api";
+import { ProviderSettings } from "./ProviderSettings";
 
 interface ManagedModel {
   _id: string;
@@ -46,6 +47,9 @@ export function Settings() {
         Modelle auf diesem Computer. Chat und Embeddings werden getrennt konfiguriert; ohne
         Konfiguration bleiben Notizbücher, Quellen und Textsuche voll funktionsfähig.
       </p>
+
+      <ProviderSettings />
+
 
       <div style={{ display: "flex", gap: "var(--space-2)", margin: "var(--space-4) 0" }}>
         <button className="primary" onClick={() => importModel.mutate("chat")} disabled={importModel.isPending}>

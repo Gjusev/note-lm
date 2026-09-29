@@ -7,6 +7,7 @@ use std::sync::Mutex;
 use tauri::{Emitter, Manager};
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::TrayIconBuilder;
+use engine::SecretStore;
 
 struct EngineState(Mutex<Option<engine::Engine>>);
 
@@ -160,6 +161,20 @@ fn open_external_file(data_dir: tauri::State<DataDir>, path: String) -> Result<(
         return Err("Datei nicht gefunden".into());
     }
     shell_open(&path)
+}
+
+/// UI command: store or clear a connection's secret in the OS keyring
+/// (multi-provider S2). The value NEVER lands in settings, SQLite, React
+/// state or logs; an empty value clears the entry.
+#[tauri::command]
+fn set_connection_secret(connection_id: String, value: String) -> Result<(), String> {
+    let store = engine::keyring_store();
+    let result = if value.is_empty() {
+        store.delete(&connection_id)
+    } else {
+        store.set(&connection_id, &value)
+    };
+    result.map_err(|e| format!("Zugangsdaten konnten nicht gespeichert werden: {e}"))
 }
 
 /// Lexical normalization (resolve `.` and `..` without touching the file
@@ -452,7 +467,8 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            engine_handshake, engine_op, hide_to_tray, pause_and_exit, open_external_file
+            engine_handshake, engine_op, hide_to_tray, pause_and_exit, open_external_file,
+            set_connection_secret
         ])
         .plugin(tauri_plugin_dialog::init())
         .run(tauri::generate_context!())

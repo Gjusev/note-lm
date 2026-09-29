@@ -7,6 +7,10 @@ export interface ProtocolMessage {
   id: string;
   op?: string;
   args?: unknown;
+  /** Engine-initiated frames carry a type instead of an op (S2 secret channel). */
+  t?: string;
+  /** Value of a secret_response frame: the secret string, or null when denied. */
+  value?: unknown;
 }
 
 export interface ProtocolError {
@@ -27,6 +31,14 @@ export function encodeResponse(input: { id: string; result: unknown }): string {
 
 export function encodeError(input: { id: string; code: string; message: string }): string {
   return frame({ id: input.id, ok: false, error: { code: input.code, message: input.message } });
+}
+
+/**
+ * Engine-initiated frame (multi-provider S2): ask the host for a connection's
+ * secret. Answered by the correlated secret_response frame (matched by id).
+ */
+export function encodeSecretRequest(input: { id: string; connectionId: string }): string {
+  return frame({ t: "secret_request", id: input.id, connectionId: input.connectionId });
 }
 
 /** Events for one job stream; `seq` is monotonic per encoder (1, 2, …). */

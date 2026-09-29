@@ -305,9 +305,9 @@ describe("ai providers", () => {
     expect(anthropic.baseUrl).toBe("https://api.anthropic.com/v1");
 
     const openai = PRESETS.find((p) => p.id === "openai")!;
-    expect(openai.capabilities).toEqual(["chat", "embed"]);
+    expect(openai.capabilities).toEqual(["chat", "embed", "transcribe", "tts"]);
     const custom = PRESETS.find((p) => p.id === "custom")!;
-    expect(custom.capabilities).toEqual(["chat", "embed"]);
+    expect(custom.capabilities).toEqual(["chat", "embed", "transcribe", "tts"]);
 
     const llamacpp = PRESETS.find((p) => p.id === "llamacpp")!;
     expect(llamacpp.baseUrl).toBeNull(); // base url comes from the supervisor handle

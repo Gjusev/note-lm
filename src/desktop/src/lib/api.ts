@@ -28,6 +28,28 @@ export interface EvidenceRef {
   fileName: string | null; page: number | null; quote: string; storageId: string | null; absolutePath: string | null;
 }
 
+export interface ProviderPresetView {
+  id: string;
+  label: string;
+  baseUrl: string | null;
+  capabilities: string[];
+  experimental?: boolean;
+}
+export interface ConnectionView { id: string; presetId: string; label: string; baseUrl?: string }
+export interface ProvidersView {
+  presets: ProviderPresetView[];
+  connections: ConnectionView[];
+  capabilities: Record<string, { connectionId: string; model: string }>;
+  offline: boolean;
+}
+/** All four capabilities with their German labels for the settings UI. */
+export const PROVIDER_CAPABILITIES = [
+  { id: "chat", label: "Konversation" },
+  { id: "embed", label: "Embeddings" },
+  { id: "transcribe", label: "Transkription" },
+  { id: "tts", label: "Sprachausgabe" },
+] as const;
+
 export const desktopApi = {
   listNotebooks: () => call<Notebook[]>("notebooks.list"),
   createNotebook: (title: string) => call<{ id: string }>("notebooks.create", { title }),
@@ -75,6 +97,18 @@ export const desktopApi = {
   resolveReview: (proposalId: string, decision: "accepted" | "rejected") =>
     call<{}>("review.resolve", { proposalId, decision }),
   openEvidence: (anchorId: string) => call<EvidenceRef>("evidence.open", { anchorId }),
+  listProviders: () => call<ProvidersView>("providers.list"),
+  saveProvider: (
+    connection: { id?: string; presetId: string; label: string; baseUrl?: string },
+    models: Partial<Record<string, string>>
+  ) => call<{ id: string }>("providers.save", { connection, models }),
+  deleteProvider: (connectionId: string) => call<{}>("providers.delete", { connectionId }),
+  testProvider: (
+    capability: string,
+    connection: { presetId: string; baseUrl?: string; model?: string },
+    secret?: string
+  ) => call<{ capability: string; latencyMs: number; dimension?: number }>("providers.test", { capability, connection, secret }),
+  setOffline: (on: boolean) => call<{ offline: boolean }>("settings.offline", { on }),
 };
 
 /** Native file dialog via the Tauri plugin; null in browser dev. */
@@ -96,4 +130,19 @@ export async function openExternalFile(path: string): Promise<void> {
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (window as any).__TAURI__.core.invoke("open_external_file", { path });
+}
+
+/**
+ * Save (or clear, value = "") a connection's secret. Desktop: the Rust
+ * keyring command — the value never lands in settings or React state after
+ * the await. Browser dev: the dev-only providers.setSecret engine op
+ * (S1 dev path: the ai.secrets settings row).
+ */
+export async function saveConnectionSecret(connectionId: string, value: string): Promise<void> {
+  if (typeof window !== "undefined" && "__TAURI__" in window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (window as any).__TAURI__.core.invoke("set_connection_secret", { connectionId, value });
+    return;
+  }
+  await call("providers.setSecret", { connectionId, secret: value });
 }
