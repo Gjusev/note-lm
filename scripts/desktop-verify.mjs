@@ -312,9 +312,22 @@ await run("installed walkthrough", async () => {
       const { jobs } = await e2.request("jobs.list", { notebookId: nb.id });
       return jobs.find((j) => j.id === upd.jobId)?.status === "completed";
     }, 60_000);
+    // completeImportJob flips the job to completed inside its transaction;
+    // the version snapshot is recorded right after (non-fatal, async sidecar
+    // write) - wait for that millisecond-window consistency instead of racing it.
+    await waitFor("v2 version recorded", async () => {
+      const vs = await e2.request("sources.listVersions", { sourceId });
+      return vs.map((v) => v.version).join() === "1,2";
+    }, 15_000);
     const versions2 = await e2.request("sources.listVersions", { sourceId });
     if (versions2.map((v) => v.version).join() !== "1,2") {
-      throw new Error(`expected versions 1,2 after re-import, got ${JSON.stringify(versions2.map((v) => v.version))}`);
+      const allSources = await e2.request("sources.list", { notebookId: nb.id });
+      const allJobs = await e2.request("jobs.list", { notebookId: nb.id });
+      throw new Error(
+        `expected versions 1,2 after re-import, got ${JSON.stringify(versions2.map((v) => v.version))}` +
+          ` | sources=${JSON.stringify(allSources.map((s) => [s._id, s.fileName, s.status]))}` +
+          ` | jobs=${JSON.stringify((allJobs.jobs ?? []).map((j) => [j.id.slice(0, 8), j.kind, j.status]))}`
+      );
     }
     const pending = await e2.request("review.list", { notebookId: nb.id });
     if (pending.length < 1 || pending[0].reason !== "quote_missing") {
@@ -389,9 +402,14 @@ await run("installed walkthrough", async () => {
   } finally {
     for (const e of [e1, e2, e3]) if (e) killTree(e.proc.pid); // failure path: no orphans
     await closeServer(server);
-    // best effort on Windows: the engine may still hold file handles briefly
-    for (const dir of [dataDir, exportDir, importDataDir]) {
-      try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* temp cleaner */ }
+    // NOTELM_KEEP=1 keeps the gate's data dirs for post-mortem inspection
+    if (process.env.NOTELM_KEEP) {
+      console.log(`[walkthrough] dataDir kept: ${dataDir}`);
+    } else {
+      // best effort on Windows: the engine may still hold file handles briefly
+      for (const dir of [dataDir, exportDir, importDataDir]) {
+        try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* temp cleaner */ }
+      }
     }
   }
 });
