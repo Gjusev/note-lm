@@ -41,7 +41,7 @@ export interface ReaderBundle {
   sourceId: string;
   versionId: string | null;
   opened: SourceOpenView | null;
-  openError: string | null;
+  openError: unknown | null;
   versions: SourceVersionView[] | undefined;
 }
 

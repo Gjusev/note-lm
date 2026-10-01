@@ -2,11 +2,14 @@
  *  src/lib/api.ts (same wire contracts, `_id` fields) so screens stay
  *  portable between the web and desktop frontends. */
 import { engineOp, errorMessage, type EngineReply } from "./transport";
+import { EngineError } from "./errors";
 import { t } from "../i18n";
 
 async function call<T>(op: string, args: unknown = {}): Promise<T> {
   const reply = await engineOp(op, args) as EngineReply<T>;
-  if (!reply.ok) throw new Error(errorMessage(reply));
+  // EngineError keeps the reply's stable code — every display point can map
+  // it to a localized line (lib/errors), the message stays the detail.
+  if (!reply.ok) throw new EngineError(reply.error?.code ?? "unknown", errorMessage(reply));
   return reply.result as T;
 }
 
@@ -263,8 +266,8 @@ export const desktopApi = {
     call<{ unchanged: boolean; jobId?: string }>("sources.reimportVersion", {
       sourceId, path, ...(fileName ? { fileName } : {}),
     }),
-  /** Deterministic sheet op; typed engine errors surface as Error.message
-   *  (already German) - codes stay engine-side. */
+  /** Deterministic sheet op; typed engine errors carry their code on the
+   *  thrown EngineError (localized primary + German detail at the display). */
   runCalculation: (args: CalcRunArgs) => call<CalculationView>("calculations.run", args),
   listCalculations: (notebookId: string) => call<CalculationView[]>("calculations.list", { notebookId }),
   listProviders: () => call<ProvidersView>("providers.list"),

@@ -23,6 +23,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assetUrl, type Source, type SourceOpenView, type SourceVersionView } from "../lib/api";
 import { isPdf, mediaKind, MediaView } from "../components/EvidencePanel";
+import { ErrorLine } from "../lib/errors";
 import { fmtDate, t } from "../i18n";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -228,7 +229,7 @@ export function SourceReader(props: {
   openVersionId: string | null;
   /** Result of sources.open for the current target (null while loading). */
   opened: SourceOpenView | null;
-  openError: string | null;
+  openError: unknown | null;
   versions: SourceVersionView[] | undefined;
   page: number;
   scrollTop: number;
@@ -369,7 +370,7 @@ export function SourceReader(props: {
       <div ref={scrollRef} onScroll={reportScroll}
         style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", minHeight: 0 }}>
         {props.openError ? (
-          <p style={{ color: "var(--accent)", padding: "var(--space-4)", fontSize: "0.85rem", margin: 0 }}>{props.openError}</p>
+          <div style={{ padding: "var(--space-4)" }}><ErrorLine e={props.openError} style={{ fontSize: "0.85rem" }} /></div>
         ) : !props.opened ? (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.85rem" }}>{t("reader.opening")}</p>
         ) : !fileUrl ? (

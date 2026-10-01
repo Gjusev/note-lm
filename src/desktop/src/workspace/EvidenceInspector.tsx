@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type ClaimAnchorView, type ClaimView, type Source } from "../lib/api";
 import { formatTimeRange } from "../components/EvidencePanel";
+import { ErrorLine } from "../lib/errors";
 import { t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 import type { ReaderSelection } from "./SourceReader";
@@ -47,7 +48,7 @@ export function EvidenceInspector(props: {
    *  keyboard chooser); both take the frozen selection as-is. */
   onSaveClaim: (sel: ReaderSelection) => void;
   onInsertNote: (sel: ReaderSelection) => void;
-  actionError: string | null;
+  actionError: unknown | null;
   actionPending: boolean;
 }) {
   const queryClient = useQueryClient();
@@ -105,7 +106,7 @@ export function EvidenceInspector(props: {
               {props.actionPending ? t("inspector.inserting") : targetNoteId ? t("reader.insertNote") : t("inspector.insertNew")}
             </button>
           </div>
-          {props.actionError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{props.actionError}</p>}
+          {props.actionError != null && <ErrorLine e={props.actionError} style={{ fontSize: "0.8rem" }} />}
         </section>
       )}
 

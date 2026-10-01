@@ -106,7 +106,10 @@ export async function installWhisperRuntime(
       const actual = await hashFile(part);
       if (actual !== (opts?.sha256 ?? WHISPER_ZIP_SHA256)) {
         await fs.promises.rm(part, { force: true });
-        throw new Error(`SHA-256 stimmt nicht: ${actual}`);
+        // subcode rides along for the UI (i18n by stable code); message stays
+        // German. Property is `subcode`, never `code` - Node system errors
+        // carry `code` ("ENOENT"...) and must not pose as an engine code.
+        throw Object.assign(new Error(`SHA-256 stimmt nicht: ${actual}`), { subcode: "download_sha_mismatch" });
       }
       // a verified zip on disk: a crash before extraction retries without
       // re-downloading

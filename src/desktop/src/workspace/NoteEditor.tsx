@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
@@ -97,7 +98,7 @@ export function NoteEditor(props: {
         </button>
         {props.ui.drafts[props.noteId] != null && <span className="muted" style={{ fontSize: "0.8rem" }}>{t("note.draftUnsaved")}</span>}
       </div>
-      {save.isError && <p role="alert" style={{ color: "var(--accent)", margin: 0, fontSize: "0.8rem" }}>{save.error.message}</p>}
+      {save.isError && <ErrorLine e={save.error} style={{ fontSize: "0.8rem" }} />}
     </div>
   );
 }

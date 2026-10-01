@@ -152,7 +152,10 @@ export async function downloadModel(
   const actual = await hashFile(tmp);
   if (opts.sha256 && actual !== opts.sha256) {
     await fs.promises.rm(tmp, { force: true });
-    throw new Error(`SHA-256 stimmt nicht: ${actual}` );
+    // subcode rides along for the UI (i18n by stable code); message stays
+    // German. Property is `subcode`, never `code` - Node system errors carry
+    // `code` ("ENOENT"...) and must not pose as an engine code.
+    throw Object.assign(new Error(`SHA-256 stimmt nicht: ${actual}`), { subcode: "download_sha_mismatch" });
   }
 
   // dedupe by content hash: an identical model already managed wins

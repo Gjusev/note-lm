@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type Source } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { fmtDate, t } from "../i18n";
 
 /** Deterministic op label (translation key by engine op id; unknown ops
@@ -160,7 +161,7 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
               {isCsv ? null : <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>{t("calc.notCsv")}</p>}
             </div>
           )}
-          {run.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{run.error.message}</p>}
+          {run.isError && <ErrorLine e={run.error} style={{ fontSize: "0.8rem" }} />}
         </>
       )}
       {(history ?? []).length > 0 && (
@@ -218,7 +219,7 @@ export function MaterialsPanel(props: { notebookId: string }) {
         <button className="primary" type="submit" disabled={request.isPending}>
           {request.isPending ? t("materials.creating") : t("library.create")}
         </button>
-        {request.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{request.error.message}</p>}
+        {request.isError && <ErrorLine e={request.error} style={{ fontSize: "0.8rem" }} />}
       </form>
       {(materials ?? []).length === 0 ? (
         <p className="meta" style={{ fontSize: "0.68rem", lineHeight: 1.6 }}>

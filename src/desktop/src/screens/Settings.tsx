@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile, type EmbeddingRecipeView } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { LangSelect, fmtMB, t } from "../i18n";
 import { ProviderSettings } from "./ProviderSettings";
 
@@ -18,7 +19,7 @@ interface ManagedModel {
  *  dialog, choose the active chat/embeddings model. No .env involved. */
 export function Settings() {
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
 
   const { data } = useQuery({
     queryKey: ["models"],
@@ -33,7 +34,7 @@ export function Settings() {
   const download = useMutation({
     mutationFn: desktopApi.downloadCatalogModel,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["models"] }),
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const importModel = useMutation({
@@ -43,13 +44,13 @@ export function Settings() {
       return desktopApi.importModel(picked.path, capability);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["models"] }),
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const select = useMutation({
     mutationFn: (m: ManagedModel) => desktopApi.selectModel(m._id, m.capability),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["models"] }),
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   // Staged-activation progress (P3): the ACTIVE embed model's catalog recipe
@@ -166,9 +167,7 @@ export function Settings() {
           </tbody>
         </table>
       </div>
-      {catalog.error && (
-        <p style={{ color: "var(--accent)", margin: 0 }}>{catalog.error.message}</p>
-      )}
+      {catalog.error != null && <ErrorLine e={catalog.error} />}
 
       <div style={{ display: "flex", gap: "var(--space-2)", margin: "var(--space-4) 0" }}>
         <button className="primary" onClick={() => importModel.mutate("chat")} disabled={importModel.isPending}>
@@ -178,7 +177,7 @@ export function Settings() {
           {t("settings.importEmbed")}
         </button>
       </div>
-      {error && <p style={{ color: "var(--accent)", margin: 0 }}>{error}</p>}
+      {error != null && <ErrorLine e={error} />}
 
       {(["chat", "embeddings"] as const).map((cap) => {
         const rows = (data?.models ?? []).filter((m: ManagedModel) => m.capability === cap);

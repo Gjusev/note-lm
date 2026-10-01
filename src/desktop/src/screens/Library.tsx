@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSampleNotebook, desktopApi } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { fmtDate, t } from "../i18n";
 
 /** Onboarding: the first notebook can be created before any AI is
@@ -13,7 +14,7 @@ export function Library() {
   // (v1 import + claim) on the Rust side; disabled while it runs because
   // the command polls the engine until the sample source is processed.
   const [sampling, setSampling] = useState(false);
-  const [sampleError, setSampleError] = useState<string | null>(null);
+  const [sampleError, setSampleError] = useState<unknown | null>(null);
 
   const loadSample = async () => {
     setSampling(true);
@@ -23,7 +24,7 @@ export function Library() {
       queryClient.invalidateQueries({ queryKey: ["notebooks"] });
       window.location.hash = `#/nb/${data.notebookId}`;
     } catch (err) {
-      setSampleError(err instanceof Error ? err.message : String(err));
+      setSampleError(err);
     } finally {
       setSampling(false);
     }
@@ -57,11 +58,7 @@ export function Library() {
           </button>
         </div>
       </div>
-      {sampleError && (
-        <p role="alert" className="muted" style={{ margin: "var(--space-3) 0 0" }}>
-          {sampleError}
-        </p>
-      )}
+      {sampleError != null && <ErrorLine e={sampleError} style={{ margin: "var(--space-3) 0 0" }} />}
 
       {adding && (
         <form

@@ -43,7 +43,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   const [readerTarget, setReaderTarget] = useState<{ sourceId: string; versionId: string | null } | null>(null);
   // Passage captured in the reader - identity frozen at capture time.
   const [selection, setSelection] = useState<ReaderSelection | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<unknown | null>(null);
 
   const { data: sources } = useQuery({
     queryKey: ["sources", notebookId],
@@ -221,7 +221,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       setActionError(null);
       queryClient.invalidateQueries({ queryKey: ["claims", notebookId] });
     },
-    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
+    onError: (e) => setActionError(e),
   });
 
   // D1 action 2 + note references: save the passage as an anchor-bearing
@@ -253,7 +253,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       queryClient.invalidateQueries({ queryKey: ["notes", notebookId] });
       update({ activeView: "note", selectedNoteId: noteId });
     },
-    onError: (e) => setActionError(e instanceof Error ? e.message : String(e)),
+    onError: (e) => setActionError(e),
   });
 
   const onSaveClaim = (sel: ReaderSelection) => saveEvidence.mutate(sel);
@@ -265,7 +265,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
     sourceId: readerTarget.sourceId,
     versionId: openedRowId ?? readerTarget.versionId,
     opened: opened.data ?? null,
-    openError: opened.isError ? (opened.error instanceof Error ? opened.error.message : String(opened.error)) : null,
+    openError: opened.isError ? opened.error : null,
     versions: versions.data,
   } : null;
 

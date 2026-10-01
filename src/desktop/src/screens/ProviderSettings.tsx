@@ -7,6 +7,7 @@ import {
   type ConnectionView,
 } from "../lib/api";
 import { t } from "../i18n";
+import { errorCode, errorText, ErrorLine } from "../lib/errors";
 
 /** Empty form state for the add/edit connection dialog. */
 interface ConnectionForm {
@@ -28,16 +29,18 @@ const CARD = {
 } as const;
 
 /** Probe outcome of one capability: the OK case is stored STRUCTURED (not as
- *  text) so a live language switch re-renders it; engine errors stay
- *  verbatim strings. */
-type TestOutcome = { ok: true; latencyMs: number; dimension?: number } | { ok: false; message: string };
+ *  text) so a live language switch re-renders it; failures keep the engine's
+ *  stable code (ProbeError) plus the raw message, composed at render time. */
+type TestOutcome =
+  | { ok: true; latencyMs: number; dimension?: number }
+  | { ok: false; code?: string; message: string };
 
 /** The KI-Anbieter section: connections list, add/edit dialog with per-
  *  capability tests, offline switch. Rendered by Settings above the model
  *  import block. */
 export function ProviderSettings() {
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
   const [form, setForm] = useState<ConnectionForm | null>(null);
   /** capability -> probe outcome (text composed at render time) */
   const [testResults, setTestResults] = useState<Record<string, TestOutcome>>({});
@@ -65,19 +68,19 @@ export function ProviderSettings() {
       setTestResults({});
       void queryClient.invalidateQueries({ queryKey: ["providers"] });
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const offlineMutation = useMutation({
     mutationFn: (on: boolean) => desktopApi.setOffline(on),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["providers"] }),
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const remove = useMutation({
     mutationFn: (connectionId: string) => desktopApi.deleteProvider(connectionId),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["providers"] }),
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   async function test(capabilityId: string) {
@@ -99,7 +102,10 @@ export function ProviderSettings() {
         [capabilityId]: { ok: true, latencyMs: result.latencyMs, ...(result.dimension ? { dimension: result.dimension } : {}) },
       }));
     } catch (e) {
-      setTestResults((prev) => ({ ...prev, [capabilityId]: { ok: false, message: (e as Error).message } }));
+      setTestResults((prev) => ({
+        ...prev,
+        [capabilityId]: { ok: false, code: errorCode(e), message: (e as Error).message },
+      }));
     } finally {
       setTesting(null);
     }
@@ -116,7 +122,10 @@ export function ProviderSettings() {
       ? outcome.dimension != null
         ? t("providers.testOkDim", { latency: outcome.latencyMs, dim: outcome.dimension })
         : t("providers.testOk", { latency: outcome.latencyMs })
-      : outcome.message;
+      : errorText(outcome).primary;
+  /** Dense chip keeps one line: the raw engine message rides as the title. */
+  const testTitle = (outcome: TestOutcome): string | undefined =>
+    outcome.ok ? undefined : errorText(outcome).detail ?? undefined;
 
   return (
     <section style={{ marginTop: "var(--space-6)" }}>
@@ -145,7 +154,7 @@ export function ProviderSettings() {
         </label>
       </div>
 
-      {error && <p style={{ color: "var(--accent)", margin: "0 0 var(--space-2)" }}>{error}</p>}
+      {error != null && <ErrorLine e={error} style={{ margin: "0 0 var(--space-2)" }} />}
 
       {!data?.connections.length ? (
         <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>
@@ -236,7 +245,9 @@ export function ProviderSettings() {
                 {testing === c.id ? t("providers.testing") : t("providers.test")}
               </button>
               {testResults[c.id] !== undefined && testing !== c.id && (
-                <span style={{ fontSize: "0.85rem", color: "var(--ink-60)" }}>{testText(testResults[c.id])}</span>
+                <span style={{ fontSize: "0.85rem", color: "var(--ink-60)" }} title={testTitle(testResults[c.id])}>
+                  {testText(testResults[c.id])}
+                </span>
               )}
             </div>
           ))}
@@ -258,7 +269,7 @@ export function ProviderSettings() {
             </button>
             <button onClick={() => { setForm(null); setTestResults({}); }}>{t("common.cancel")}</button>
           </div>
-          {save.isError && <p style={{ color: "var(--accent)", margin: 0 }}>{save.error.message}</p>}
+          {save.isError && <ErrorLine e={save.error} />}
         </div>
       )}
     </section>

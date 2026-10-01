@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile, type ClaimView, type Source } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { fmtDate, t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 import { GeometricMark } from "./GeometricMark";
@@ -128,7 +129,7 @@ export function SourceNavigator(props: {
         <button className="primary" onClick={() => importFile.mutate()} disabled={importFile.isPending}>
           {importFile.isPending ? t("common.importing") : t("nav.addSource")}
         </button>
-        {importFile.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{importFile.error.message}</p>}
+        {importFile.isError && <ErrorLine e={importFile.error} style={{ fontSize: "0.8rem" }} />}
         <form onSubmit={(e) => { e.preventDefault(); if (urlInput.trim() && !importUrl.isPending) importUrl.mutate(urlInput.trim()); }}
           style={{ display: "flex", gap: "var(--space-1)" }}>
           <input type="url" value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
@@ -136,7 +137,7 @@ export function SourceNavigator(props: {
           <button type="submit" disabled={!urlInput.trim() || importUrl.isPending}>{importUrl.isPending ? t("common.importing") : t("nav.urlButton")}</button>
         </form>
         {importUrl.data?.deduped && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>{t("nav.deduped")}</p>}
-        {importUrl.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{importUrl.error.message}</p>}
+        {importUrl.isError && <ErrorLine e={importUrl.error} style={{ fontSize: "0.8rem" }} />}
         {props.sources.length === 0 ? (
           <NavEmpty>{t("nav.noSources")}</NavEmpty>
         ) : (
@@ -387,7 +388,7 @@ function NoteCreateForm({ notebookId, onCreated }: { notebookId: string; onCreat
         <button className="primary" type="submit" disabled={!title.trim() || create.isPending}>{create.isPending ? t("common.saving") : t("common.save")}</button>
         <button type="button" onClick={() => setOpen(false)}>{t("common.cancel")}</button>
       </div>
-      {create.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{create.error.message}</p>}
+      {create.isError && <ErrorLine e={create.error} style={{ fontSize: "0.8rem" }} />}
     </form>
   );
 }
@@ -416,7 +417,7 @@ function ClaimCreateForm({ notebookId }: { notebookId: string }) {
         <button className="primary" type="submit" disabled={!text.trim() || create.isPending}>{create.isPending ? t("common.saving") : t("common.save")}</button>
         <button type="button" onClick={() => setOpen(false)}>{t("common.cancel")}</button>
       </div>
-      {create.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{create.error.message}</p>}
+      {create.isError && <ErrorLine e={create.error} style={{ fontSize: "0.8rem" }} />}
     </form>
   );
 }

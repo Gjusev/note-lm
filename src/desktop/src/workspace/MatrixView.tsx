@@ -30,6 +30,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { desktopApi, matrixCellKey, type MatrixCellView, type Source } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { formatTimeRange } from "../components/EvidencePanel";
 import { fmtDate, fmtDateTime, t } from "../i18n";
 
@@ -198,9 +199,7 @@ export function MatrixView(props: {
             </span>
           )}
           {search.isError && (
-            <span role="alert" style={{ color: "var(--status-error)", fontSize: "0.75rem" }}>
-              {search.error instanceof Error ? search.error.message : String(search.error)}
-            </span>
+            <ErrorLine e={search.error} style={{ color: "var(--status-error)", fontSize: "0.75rem" }} />
           )}
         </form>
         {/* Legend line is part of the contract, not a tooltip (§5): the

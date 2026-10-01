@@ -255,9 +255,15 @@ function storeDirOf(store: LocalStore): string {
  *  safe relative path inside the package dir. The UI can distinguish it from
  *  generic I/O errors; the message names the offending entry (German). */
 export class NotebookImportError extends Error {
-  constructor(message: string) {
+  /** Stable sub-code the dispatch wrapper forwards as the wire error code;
+   *  the German message stays the detail. `subcode` (not `code`) so Node
+   *  system errors passing through the same catch can never pose as one.
+   *  Undefined on legacy/uncoded throws. */
+  readonly subcode?: string;
+  constructor(message: string, subcode?: string) {
     super(message);
     this.name = "NotebookImportError";
+    this.subcode = subcode;
   }
 }
 
@@ -272,7 +278,7 @@ export class NotebookImportError extends Error {
  */
 function confineRelPath(packageDir: string, relPath: string): { abs: string; rel: string } {
   const fail = (reason: string): never => {
-    throw new NotebookImportError(`Unsicheres Paket: der Pfad "${relPath}" ${reason}`);
+    throw new NotebookImportError(`Unsicheres Paket: der Pfad "${relPath}" ${reason}`, "package_invalid");
   };
   if (typeof relPath !== "string" || relPath.trim() === "") fail("ist kein gültiger Dateipfad.");
   // backslashes are separators in every package (Windows round-trip)
@@ -341,7 +347,7 @@ export async function importNotebook(
 
   const notebookId = payload.notebook["id"] as string;
   const exists = sqlite.prepare(`SELECT 1 FROM notebooks WHERE id = ?`).get(notebookId);
-  if (exists) throw new Error("Notizbuch existiert bereits — Zusammenführen ist nicht erlaubt");
+  if (exists) throw new NotebookImportError("Notizbuch existiert bereits — Zusammenführen ist nicht erlaubt", "notebook_exists");
 
   const packageDir = path.resolve(sourceDir);
 
@@ -359,11 +365,11 @@ export async function importNotebook(
     if (!f.sha256 || !f.relPath) continue; // legacy format-1 entry
     const abs = confineRelPath(packageDir, f.relPath).abs;
     if (!fs.existsSync(abs)) {
-      throw new Error(`Paket unvollständig: Datei "${f.relPath}" fehlt.`);
+      throw new NotebookImportError(`Paket unvollständig: Datei "${f.relPath}" fehlt.`, "package_invalid");
     }
     const actual = sha256hex(fs.readFileSync(abs));
     if (f.sha256 !== actual) {
-      throw new Error(`Paket beschädigt: Datei "${f.relPath}" stimmt nicht mit dem Manifest-Hash überein.`);
+      throw new NotebookImportError(`Paket beschädigt: Datei "${f.relPath}" stimmt nicht mit dem Manifest-Hash überein.`, "package_invalid");
     }
   }
 

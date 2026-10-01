@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type Message, type Source } from "../lib/api";
+import { ErrorLine } from "../lib/errors";
 import { fmtTime, t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
@@ -22,7 +23,7 @@ export function ChatView(props: {
   openSource: (sourceId: string) => void;
 }) {
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
   const [providerLabel, setProviderLabel] = useState<string | null>(null);
   /** chat.send reports the retrieval state it actually used: vectorStatus
    *  "indexing" means the embedding index is still being built, so the
@@ -47,7 +48,7 @@ export function ChatView(props: {
       setIndexingHint(data.vectorStatus === "indexing");
       queryClient.invalidateQueries({ queryKey: ["messages", props.notebookId] });
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const saveClaim = useMutation({
@@ -115,7 +116,7 @@ export function ChatView(props: {
           </p>
         )}
         {send.isPending && <p className="muted">{t("chat.thinking")}</p>}
-        {error && <p role="alert" style={{ color: "var(--accent)", margin: 0 }}>{error}</p>}
+        {error != null && <ErrorLine e={error} />}
         <div ref={endRef} />
       </div>
 

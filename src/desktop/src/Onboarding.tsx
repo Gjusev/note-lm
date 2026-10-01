@@ -8,6 +8,7 @@ import {
   type ProvidersView,
 } from "./lib/api";
 import { LangSelect, fmtMB, t } from "./i18n";
+import { errorCode, errorText, ErrorLine } from "./lib/errors";
 
 /**
  * First-run onboarding wizard (strategy §9): welcome -> resource recognition
@@ -210,7 +211,7 @@ function AiSetup(props: {
   onDone: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
 
   // (a) local: download + activate one catalog entry (Settings' flow). The
   // engine op resolves only when the sha-verified file is complete — honest
@@ -226,14 +227,14 @@ function AiSetup(props: {
       void queryClient.invalidateQueries({ queryKey: ["models"] });
       props.onDone();
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   // (b) API: the ProviderSettings save+test flow against the same ops.
   // The OK result is stored STRUCTURED so a live language switch re-renders
   // it; engine errors stay verbatim strings.
   const [form, setForm] = useState({ presetId: "openai", label: "", baseUrl: "", chatModel: "", secret: "" });
-  const [testResult, setTestResult] = useState<{ ok: true; latencyMs: number } | { ok: false; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{ ok: true; latencyMs: number } | { ok: false; code?: string; message: string } | null>(null);
   const [testing, setTesting] = useState(false);
   const apiPresets = props.presets.filter(
     (p) => !p.experimental && p.capabilities.includes("chat") && p.id !== "llamacpp"
@@ -253,7 +254,7 @@ function AiSetup(props: {
       );
       setTestResult({ ok: true, latencyMs: result.latencyMs });
     } catch (e) {
-      setTestResult({ ok: false, message: (e as Error).message });
+      setTestResult({ ok: false, code: errorCode(e), message: (e as Error).message });
     } finally {
       setTesting(false);
     }
@@ -276,7 +277,7 @@ function AiSetup(props: {
       void queryClient.invalidateQueries({ queryKey: ["providers"] });
       props.onDone();
     },
-    onError: (e) => setError(e.message),
+    onError: (e) => setError(e),
   });
 
   const card = (id: "local" | "api", title: string, summary: string, body: ReactNode) => {
@@ -370,8 +371,8 @@ function AiSetup(props: {
               </button>
             </div>
             {testResult && (
-              <p className="muted" style={{ margin: 0, fontSize: "0.82rem" }}>
-                {testResult.ok ? t("providers.testOk", { latency: testResult.latencyMs }) : testResult.message}
+              <p className="muted" style={{ margin: 0, fontSize: "0.82rem" }} title={testResult.ok ? undefined : errorText(testResult).detail ?? undefined}>
+                {testResult.ok ? t("providers.testOk", { latency: testResult.latencyMs }) : errorText(testResult).primary}
               </p>
             )}
           </div>
@@ -385,7 +386,7 @@ function AiSetup(props: {
           {t("onboarding.laterNote")}
         </p>
       </div>
-      {error && <p role="alert" style={{ color: "var(--accent)", margin: "var(--space-2) 0 0" }}>{error}</p>}
+      {error != null && <ErrorLine e={error} style={{ margin: "var(--space-2) 0 0" }} />}
     </div>
   );
 }
@@ -393,7 +394,7 @@ function AiSetup(props: {
 /** Step 3: sample notebook or empty start. */
 function SampleOffer(props: { onDone: (notebookId: string | null) => void }) {
   const [sampling, setSampling] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown | null>(null);
 
   const withSample = async () => {
     setSampling(true);
@@ -420,7 +421,7 @@ function SampleOffer(props: { onDone: (notebookId: string | null) => void }) {
         </button>
         <button onClick={() => props.onDone(null)} disabled={sampling}>{t("onboarding.startEmpty")}</button>
       </div>
-      {error && <p role="alert" style={{ color: "var(--accent)", margin: "var(--space-2) 0 0" }}>{error}</p>}
+      {error != null && <ErrorLine e={error} style={{ margin: "var(--space-2) 0 0" }} />}
     </div>
   );
 }

@@ -98,6 +98,17 @@ export type EngineResult =
 
 export const PROTOCOL_VERSION = 1;
 
+/** Coarse catch-wrappers keep their historical code unless the service
+ *  attached a stable sub-code to its thrown error (NotebookImportError,
+ *  download sha mismatches) — the sub-code wins, uncoded throws unchanged.
+ *  Reads `subcode`, never `code`: Node system errors carry `code` (ENOENT,
+ *  EACCES...) and must never surface as engine error codes. */
+function subCode(err: unknown): string | undefined {
+  return typeof (err as { subcode?: unknown })?.subcode === "string"
+    ? (err as { subcode: string }).subcode
+    : undefined;
+}
+
 export async function handleEngineRequest(op: string, args: unknown): Promise<EngineResult> {
   try {
     switch (op) {
@@ -594,7 +605,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
           } catch (err) {
             return {
               ok: false,
-              error: { code: "runtime_install_failed", message: err instanceof Error ? err.message : String(err) },
+              error: { code: subCode(err) ?? "runtime_install_failed", message: err instanceof Error ? err.message : String(err) },
             };
           }
         }
@@ -636,7 +647,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         } catch (err) {
           return {
             ok: false,
-            error: { code: "import_failed", message: err instanceof Error ? err.message : String(err) },
+            error: { code: subCode(err) ?? "import_failed", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }
@@ -715,7 +726,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         } catch (err) {
           return {
             ok: false,
-            error: { code: "download_failed", message: err instanceof Error ? err.message : String(err) },
+            error: { code: subCode(err) ?? "download_failed", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }
@@ -796,7 +807,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         } catch (err) {
           return {
             ok: false,
-            error: { code: "export_failed", message: err instanceof Error ? err.message : String(err) },
+            error: { code: subCode(err) ?? "export_failed", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }
@@ -813,7 +824,7 @@ export async function handleEngineRequest(op: string, args: unknown): Promise<En
         } catch (err) {
           return {
             ok: false,
-            error: { code: "import_failed", message: err instanceof Error ? err.message : String(err) },
+            error: { code: subCode(err) ?? "import_failed", message: err instanceof Error ? err.message : String(err) },
           };
         }
       }
