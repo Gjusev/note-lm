@@ -24,6 +24,16 @@ const VIEW_LABELS: Record<CenterView, string> = {
   matrix: "doc.viewMatrix",
 };
 
+/** Mono index each view tab carries (numerals are language-neutral). */
+const VIEW_INDEX: Record<CenterView, string> = {
+  source: "01",
+  note: "02",
+  chat: "03",
+  calculations: "04",
+  materials: "05",
+  matrix: "06",
+};
+
 /** What the composition root resolved for the open reader: the target
  *  version, the sources.open result, its error and the version list for
  *  the dropdown. Passed as one object to keep the prop surface flat. */
@@ -37,6 +47,7 @@ export interface ReaderBundle {
 
 export function DocumentWorkspace(props: {
   notebookId: string;
+  notebookTitle: string | null;
   sources: Source[];
   ui: NotebookUiState;
   update: (patch: Partial<NotebookUiState> | ((prev: NotebookUiState) => Partial<NotebookUiState>)) => void;
@@ -71,7 +82,10 @@ export function DocumentWorkspace(props: {
 
   return (
     <div className="document-workspace" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, minWidth: 0 }}>
-      <div className="rule-top workspace-toolbar" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1) var(--space-3)", borderBottom: "1px solid var(--rule)" }}>
+      <div className="rule-top workspace-toolbar" style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-1) var(--space-3)", borderBottom: "1px solid var(--rule)" }}>
+        <h2 title={props.notebookTitle ?? undefined} style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, letterSpacing: "-0.03em", textTransform: "uppercase", lineHeight: 1.1, maxWidth: 460, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: "1 1 auto" }}>
+          {props.notebookTitle}
+        </h2>
         <div className="workspace-tabs" role="tablist" aria-label={t("doc.tabsAria")} style={{ display: "flex", gap: "var(--space-1)" }}>
           {tabs.map((v) => (
             <button key={v} role="tab" aria-selected={view === v}
@@ -83,18 +97,19 @@ export function DocumentWorkspace(props: {
                 borderBottom: view === v ? "2px solid var(--ink)" : "2px solid transparent",
                 borderRadius: 0,
               }}>
+              <span className="mono" style={{ fontSize: "0.6rem", marginRight: "var(--space-1)", color: "var(--ink-60)" }}>{VIEW_INDEX[v]}</span>
               {t(VIEW_LABELS[v])}
             </button>
           ))}
         </div>
         <span style={{ flex: 1 }} />
-        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.navDrawerOpen} onClick={props.onToggleNav}>
+        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)", whiteSpace: "nowrap" }} aria-pressed={props.ui.navDrawerOpen} onClick={props.onToggleNav}>
           {t("shell.navTitle")}
         </button>
-        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} onClick={props.onResetLayout} title={t("doc.resetLayoutTitle")}>
+        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)", whiteSpace: "nowrap" }} onClick={props.onResetLayout} title={t("doc.resetLayoutTitle")}>
           {t("doc.resetLayout")}
         </button>
-        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.inspectorOpen} onClick={props.onToggleInspector}>
+        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)", whiteSpace: "nowrap" }} aria-pressed={props.ui.inspectorOpen} onClick={props.onToggleInspector}>
           {t("shell.inspector")}
         </button>
       </div>
@@ -121,7 +136,7 @@ export function DocumentWorkspace(props: {
             onInsertNote={props.onInsertNote}
           />
         ) : (
-          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>
+          <p className="meta" style={{ padding: "var(--space-6)", fontSize: "0.68rem", lineHeight: 1.6 }}>
             {t("doc.pickSource")}
           </p>
         )
@@ -130,7 +145,7 @@ export function DocumentWorkspace(props: {
         props.ui.selectedNoteId ? (
           <NoteEditor notebookId={props.notebookId} noteId={props.ui.selectedNoteId} ui={props.ui} update={props.update} onOpenClaimRef={props.onOpenClaimRef} />
         ) : (
-          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>{t("doc.pickNote")}</p>
+          <p className="meta" style={{ padding: "var(--space-6)", fontSize: "0.68rem", lineHeight: 1.6 }}>{t("doc.pickNote")}</p>
         )
       )}
       {view === "chat" && (

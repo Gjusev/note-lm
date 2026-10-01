@@ -110,8 +110,13 @@ export function EvidenceInspector(props: {
       )}
 
       {selectedClaim ? (
-        <section aria-label={t("inspector.claimAria")} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-          <ClaimStatusChips claim={selectedClaim} />
+        <section aria-label={t("inspector.claimAria")} style={{ border: "2px solid var(--ink)", padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", borderBottom: "1px solid var(--rule)", paddingBottom: "var(--space-2)" }}>
+            <span className="mono" style={{ fontSize: "0.72rem", fontWeight: 650, color: "var(--ink)", flex: 1 }}>
+              {t("inspector.claimNo", { n: String((claims.data ?? []).findIndex((c) => c._id === selectedClaim._id) + 1).padStart(2, "0") })}
+            </span>
+            <ClaimStatusChips claim={selectedClaim} />
+          </div>
           <p style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: "0.9rem" }}>{selectedClaim.text}</p>
           {selectedClaim.anchors.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
@@ -137,15 +142,13 @@ export function EvidenceInspector(props: {
                 </div>
               </div>
             ) : (
-              <div key={p.id} style={{ border: "1px solid var(--rule)", padding: "var(--space-1) var(--space-2)", fontSize: "0.75rem" }}>
-                <span className="muted">
-                  {t("inspector.proposalResolved", {
-                    decision: p.status === "accepted" ? t("matrix.decisionAccepted") : t("matrix.decisionRejected"),
-                    from: p.fromVersion,
-                    to: p.toVersion,
-                    detail: p.detail ?? p.reason,
-                  })}
-                </span>
+              <div key={p.id} className="meta" style={{ fontSize: "0.62rem", lineHeight: 1.6 }}>
+                {t("inspector.proposalResolved", {
+                  decision: p.status === "accepted" ? t("matrix.decisionAccepted") : t("matrix.decisionRejected"),
+                  from: p.fromVersion,
+                  to: p.toVersion,
+                  detail: p.detail ?? p.reason,
+                })}
               </div>
             )
           )}
@@ -154,7 +157,7 @@ export function EvidenceInspector(props: {
           )}
         </section>
       ) : (
-        <p className="muted" style={{ fontSize: "0.85rem" }}>
+        <p className="meta" style={{ fontSize: "0.68rem", lineHeight: 1.6 }}>
           {t("inspector.pickClaim")}
         </p>
       )}

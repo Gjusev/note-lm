@@ -5,16 +5,26 @@
  * sections. Old tab labels stay (mandate 1). Sources open in the center
  * reader, notes in the center editor; claims select into the inspector;
  * calculations/materials open their center views.
+ *
+ * Neo-Swiss depth: every section header is a numbered index row (mono
+ * "01 QUELLEN" + count) under a 2px structural rule; source rows read as
+ * archive-index entries (two-digit index, name, status chip right, hairline
+ * separators only - no card boxes); claims are filed index cards.
  */
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile, type ClaimView, type Source } from "../lib/api";
 import { fmtDate, t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
+import { GeometricMark } from "./GeometricMark";
 
-/** One collapsible collection: header button (aria-expanded) + count. */
+const twoDigits = (n: number): string => String(n + 1).padStart(2, "0");
+
+/** One collapsible collection: numbered index header (mono caps + count)
+ *  under a 2px structural rule. aria-label stays the plain title. */
 function Section(props: {
   id: string;
+  index: string;
   title: string;
   count: number;
   open: boolean;
@@ -23,23 +33,35 @@ function Section(props: {
 }) {
   return (
     <section className="navigator-section" aria-label={props.title} style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-      <div className="navigator-section-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+      <div className="navigator-section-header" style={{ borderBottom: "2px solid var(--ink)", paddingBottom: "var(--space-1)" }}>
         <button
           aria-expanded={props.open}
           aria-controls={"nav-section-" + props.id}
           onClick={props.onToggle}
-          style={{ border: "none", padding: "var(--space-1) 0", fontWeight: 600, fontSize: "0.8rem", flex: 1, textAlign: "left", background: "transparent", color: "inherit" }}
+          style={{ display: "flex", alignItems: "baseline", gap: "var(--space-2)", width: "100%", padding: "var(--space-1) 0", textAlign: "left", background: "transparent", color: "inherit", border: "none" }}
         >
-          {props.open ? "▾" : "▸"} {props.title}
+          <span className="mono" style={{ fontSize: "0.68rem" }}>{props.index}</span>
+          <span className="mono" style={{ fontSize: "0.72rem", fontWeight: 650, color: "var(--ink)", flex: 1 }}>{props.title}</span>
+          <span className="mono" style={{ fontSize: "0.68rem" }}>{props.count}</span>
+          <span aria-hidden style={{ fontSize: "0.65rem", color: "var(--ink-60)" }}>{props.open ? "▾" : "▸"}</span>
         </button>
-        <span className="mono" style={{ fontSize: "0.7rem" }}>{props.count}</span>
       </div>
       {props.open && (
-        <div id={"nav-section-" + props.id} style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", overflowY: "auto", minHeight: 0 }}>
+        <div id={"nav-section-" + props.id} style={{ display: "flex", flexDirection: "column", paddingTop: "var(--space-2)", gap: "var(--space-1)", overflowY: "auto", minHeight: 0 }}>
           {props.children}
         </div>
       )}
     </section>
+  );
+}
+
+/** Dry empty state for one nav section: geometric mark + one .meta line. */
+function NavEmpty({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", padding: "var(--space-1) 0" }}>
+      <GeometricMark size={28} />
+      <p className="meta" style={{ margin: 0, fontSize: "0.66rem", lineHeight: 1.6 }}>{children}</p>
+    </div>
   );
 }
 
@@ -101,7 +123,7 @@ export function SourceNavigator(props: {
 
   return (
     <div className="workspace-nav" style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflow: "hidden" }}>
-      <Section id="sources" title={t("nav.sources")} count={props.sources.length}
+      <Section id="sources" index="01" title={t("nav.sources")} count={props.sources.length}
         open={sectionOpen("sources", true)} onToggle={() => toggle("sources", sectionOpen("sources", true))}>
         <button className="primary" onClick={() => importFile.mutate()} disabled={importFile.isPending}>
           {importFile.isPending ? t("common.importing") : t("nav.addSource")}
@@ -116,87 +138,96 @@ export function SourceNavigator(props: {
         {importUrl.data?.deduped && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>{t("nav.deduped")}</p>}
         {importUrl.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{importUrl.error.message}</p>}
         {props.sources.length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noSources")}</p>
+          <NavEmpty>{t("nav.noSources")}</NavEmpty>
         ) : (
-          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-            {props.sources.map((s) => (
-              <SourceRow key={s._id} source={s} notebookId={props.notebookId}
+          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
+            {props.sources.map((s, i) => (
+              <SourceRow key={s._id} source={s} index={i} last={i === props.sources.length - 1} notebookId={props.notebookId}
                 selected={props.ui.selectedSourceId === s._id} onOpen={() => props.openSource(s._id)} />
             ))}
           </ul>
         )}
       </Section>
-      <Section id="notes" title={t("nav.notes")} count={(notes.data ?? []).length}
+      <Section id="notes" index="02" title={t("nav.notes")} count={(notes.data ?? []).length}
         open={sectionOpen("notes", true)} onToggle={() => toggle("notes", sectionOpen("notes", true))}>
         <NoteCreateForm notebookId={props.notebookId} onCreated={(id) => props.openNote(id)} />
         {(notes.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noNotes")}</p>
+          <NavEmpty>{t("nav.noNotes")}</NavEmpty>
         ) : (
-          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-            {(notes.data ?? []).map((n) => (
-              <li key={n._id}>
+          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
+            {(notes.data ?? []).map((n, i) => (
+              <li key={n._id} style={{ borderBottom: i === (notes.data ?? []).length - 1 ? undefined : "1px solid var(--rule)" }}>
                 <button onClick={() => props.openNote(n._id)} title={n.title}
                   aria-current={props.ui.selectedNoteId === n._id ? "true" : undefined}
-                  style={{ width: "100%", textAlign: "left", fontSize: "0.85rem",
-                    background: "transparent", color: "inherit",
-                    border: `1px solid ${props.ui.selectedNoteId === n._id ? "var(--accent)" : "var(--rule)"}` }}>
-                  <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.title}</span>
+                  style={{ width: "100%", textAlign: "left", display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-2) 0", minHeight: 32,
+                    background: "transparent", color: "inherit", border: "none",
+                    borderLeft: `2px solid ${props.ui.selectedNoteId === n._id ? "var(--ink)" : "transparent"}` }}>
+                  <span className="mono" style={{ fontSize: "0.68rem" }}>{twoDigits(i)}</span>
+                  <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    fontSize: "0.85rem", fontWeight: props.ui.selectedNoteId === n._id ? 600 : 400 }}>{n.title}</span>
                 </button>
               </li>
             ))}
           </ul>
         )}
       </Section>
-      <Section id="claims" title={t("nav.claims")} count={(claims.data ?? []).length}
+      <Section id="claims" index="03" title={t("nav.claims")} count={(claims.data ?? []).length}
         open={sectionOpen("claims", true)} onToggle={() => toggle("claims", sectionOpen("claims", true))}>
         <ClaimCreateForm notebookId={props.notebookId} />
         <button onClick={props.openMatrix} title={t("nav.openMatrixTitle")}>{t("nav.openMatrix")}</button>
         {(claims.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noClaims")}</p>
+          <NavEmpty>{t("nav.noClaims")}</NavEmpty>
         ) : (
-          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-            {(claims.data ?? []).map((c) => (
+          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            {(claims.data ?? []).map((c, i) => (
               <li key={c._id}>
                 <button onClick={() => props.selectClaim(c._id)} title={c.text}
                   aria-current={props.ui.selectedClaimId === c._id ? "true" : undefined}
                   style={{ width: "100%", textAlign: "left", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "var(--space-1)",
-                    background: "transparent", color: "inherit",
-                    border: `1px solid ${props.ui.selectedClaimId === c._id ? "var(--accent)" : "var(--rule)"}` }}>
+                    padding: "var(--space-2)",
+                    background: props.ui.selectedClaimId === c._id ? "var(--surface-subtle)" : "transparent", color: "inherit",
+                    border: "2px solid var(--ink)" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                    <span className="mono" style={{ fontSize: "0.7rem" }}>{twoDigits(i)}</span>
+                    <span style={{ flex: 1 }} />
+                    <ClaimChips claim={c} />
+                  </span>
                   <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.text}</span>
-                  <ClaimChips claim={c} />
+                  <span className="meta" style={{ fontSize: "0.62rem" }}>{c.origin === "chat" ? t("settings.typeChat") : t("nav.originManual")}</span>
                 </button>
               </li>
             ))}
           </ul>
         )}
       </Section>
-      <Section id="calcs" title={t("nav.calcs")} count={(calcs.data ?? []).length}
+      <Section id="calcs" index="04" title={t("nav.calcs")} count={(calcs.data ?? []).length}
         open={sectionOpen("calcs", true)} onToggle={() => toggle("calcs", sectionOpen("calcs", true))}>
         {(calcs.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noCalcs")}</p>
+          <NavEmpty>{t("nav.noCalcs")}</NavEmpty>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-            {(calcs.data ?? []).slice(-3).reverse().map((c) => (
-              <div key={c.id} style={{ fontSize: "0.8rem", display: "flex", justifyContent: "space-between", gap: "var(--space-2)", alignItems: "baseline" }}>
-                <span className="muted" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.operation}</span>
-                <strong>{c.result ?? c.error}</strong>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {(calcs.data ?? []).slice(-3).reverse().map((c, i, arr) => (
+              <div key={c.id} style={{ fontSize: "0.8rem", display: "flex", justifyContent: "space-between", gap: "var(--space-2)", alignItems: "baseline", padding: "var(--space-1) 0", borderBottom: i === arr.length - 1 ? undefined : "1px solid var(--rule)" }}>
+                <span className="mono" style={{ fontSize: "0.66rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.operation}</span>
+                <strong style={{ fontFamily: "var(--font-mono)" }}>{c.result ?? c.error}</strong>
               </div>
             ))}
           </div>
         )}
         <button onClick={props.openCalculations}>{t("nav.openCalcs")}</button>
       </Section>
-      <Section id="materials" title={t("nav.materials")} count={(materials.data ?? []).length}
+      <Section id="materials" index="05" title={t("nav.materials")} count={(materials.data ?? []).length}
         open={sectionOpen("materials", true)} onToggle={() => toggle("materials", sectionOpen("materials", true))}>
         {(materials.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noMaterials")}</p>
+          <NavEmpty>{t("nav.noMaterials")}</NavEmpty>
         ) : (
-          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-            {(materials.data ?? []).map((m) => (
-              <li key={m._id} style={{ fontSize: "0.85rem" }}>
+          <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column" }}>
+            {(materials.data ?? []).map((m, i) => (
+              <li key={m._id} style={{ fontSize: "0.85rem", padding: "var(--space-1) 0", borderBottom: i === (materials.data ?? []).length - 1 ? undefined : "1px solid var(--rule)" }}>
                 <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "baseline" }}>
+                  <span className="mono" style={{ fontSize: "0.68rem" }}>{twoDigits(i)}</span>
                   <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.type}</span>
-                  <span className="mono" style={{ fontSize: "0.7rem" }}>
+                  <span className="meta" style={{ fontSize: "0.62rem" }}>
                     {m.status === "completed" ? t("nav.matDone") : m.status === "error" ? t("common.error") : t("nav.matRunning")}
                   </span>
                 </div>
@@ -210,29 +241,34 @@ export function SourceNavigator(props: {
   );
 }
 
-/** One source row: status dot (color) PLUS the status text (non-color
- *  indicator), name, and version count via the "Versionen" toggle. Click
- *  opens the source in the center reader. */
-function SourceRow({ source, selected, notebookId, onOpen }: { source: Source; selected: boolean; notebookId: string; onOpen: () => void }) {
+/** One source row as an archive-index entry: two-digit mono index, file name
+ *  in medium weight, status chip right; hairline separators between rows
+ *  only (no card boxes). The selected record gets the ink side rule. */
+function SourceRow({ source, index, last, selected, notebookId, onOpen }: { source: Source; index: number; last: boolean; selected: boolean; notebookId: string; onOpen: () => void }) {
   return (
-    <li style={{ border: `1px solid ${selected ? "var(--accent)" : "var(--rule)"}` }}>
+    <li style={{ borderBottom: last ? undefined : "1px solid var(--rule)" }}>
       <button
         onClick={onOpen}
         aria-current={selected ? "true" : undefined}
-        style={{ width: "100%", textAlign: "left", border: "none", display: "flex", flexDirection: "column", gap: "var(--space-1)", alignItems: "stretch", background: "transparent", color: "inherit" }}
+        style={{ width: "100%", textAlign: "left", border: "none", display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-2) 0", minHeight: 32,
+          borderLeft: `2px solid ${selected ? "var(--ink)" : "transparent"}`,
+          background: "transparent", color: "inherit" }}
       >
-        <span style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", fontSize: "0.85rem" }}>
-          <span aria-hidden style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
-            background: source.status === "completed" ? "var(--ok)" : source.status === "error" ? "var(--accent)" : "var(--warn)" }} />
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{source.fileName}</span>
-        </span>
-        {source.status !== "completed" && (
-          <span className="mono" style={{ fontSize: "0.7rem" }}>{source.status}</span>
-        )}
+        <span className="mono" style={{ fontSize: "0.68rem" }}>{twoDigits(index)}</span>
+        <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.85rem", fontWeight: 500 }}>{source.fileName}</span>
+        <SourceStatus status={source.status} />
       </button>
       <SourceRowActions source={source} notebookId={notebookId} />
     </li>
   );
+}
+
+/** Status chip right: the neutral default (completed) stays an outline chip;
+ *  outstanding states are solid status chips (words + color, never color). */
+function SourceStatus({ status }: { status: string }) {
+  if (status === "error") return <span className="chip" style={{ background: "var(--status-error)", color: "var(--status-error-fg)" }}>{t("common.error")}</span>;
+  if (status !== "completed") return <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>{t("nav.processing")}</span>;
+  return <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>{t("nav.srcDone")}</span>;
 }
 
 /** Re-import as a new immutable version + the versions list (strategy 5A).
@@ -270,7 +306,7 @@ function SourceRowActions({ source, notebookId }: { source: Source; notebookId: 
     refetchInterval: open && source.status !== "completed" ? 3000 : false,
   });
   return (
-    <div style={{ padding: "0 var(--space-2) var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+    <div style={{ padding: "0 0 var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       <div style={{ display: "flex", gap: "var(--space-1)" }}>
         <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} disabled={reimport.isPending} onClick={() => reimport.mutate()}>
           {reimport.isPending ? t("common.importing") : t("nav.newVersion")}
@@ -303,9 +339,10 @@ function SourceRowActions({ source, notebookId }: { source: Source; notebookId: 
   );
 }
 
-/** Status/origin chips of one claim (non-color: the words are the state).
- *  Status = SOLID chip from the contrast-verified pairs; neutral states
- *  stay outline chips (hairline + secondary ink). */
+/** Status chips of one claim (non-color: the words are the state). Status =
+ *  SOLID chip from the contrast-verified pairs; the neutral default stays an
+ *  outline chip (hairline + secondary ink). The pending-reviews chip is the
+ *  archive's outstanding-items marker. */
 function ClaimChips({ claim }: { claim: ClaimView }) {
   return (
     <span style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", alignItems: "center" }}>
@@ -316,7 +353,6 @@ function ClaimChips({ claim }: { claim: ClaimView }) {
       ) : (
         <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>{t("nav.claimActive")}</span>
       )}
-      <span className="muted" style={{ fontSize: "0.7rem" }}>{claim.origin === "chat" ? t("settings.typeChat") : t("nav.originManual")}</span>
       {claim.pendingReviews > 0 && (
         <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>
           {t("nav.openReviews", { n: claim.pendingReviews })}

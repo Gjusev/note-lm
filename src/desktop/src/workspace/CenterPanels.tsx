@@ -91,7 +91,7 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", overflowY: "auto", minHeight: 0, flex: 1, padding: "var(--space-4)" }}>
       {ordered.length === 0 ? (
-        <p className="muted" style={{ fontSize: "0.85rem" }}>
+        <p className="meta" style={{ fontSize: "0.68rem", lineHeight: 1.6 }}>
           {t("calc.needSource")}
         </p>
       ) : (
@@ -221,7 +221,7 @@ export function MaterialsPanel(props: { notebookId: string }) {
         {request.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{request.error.message}</p>}
       </form>
       {(materials ?? []).length === 0 ? (
-        <p className="muted" style={{ fontSize: "0.85rem" }}>
+        <p className="meta" style={{ fontSize: "0.68rem", lineHeight: 1.6 }}>
           {t("materials.none")}
         </p>
       ) : (

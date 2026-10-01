@@ -76,6 +76,9 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
 
   const claims = useQuery({ queryKey: ["claims", notebookId], queryFn: () => desktopApi.listClaims(notebookId) });
   const notes = useQuery({ queryKey: ["notes", notebookId], queryFn: () => desktopApi.listNotes(notebookId) });
+  // Notebook title for the workspace header (same cache key as the library).
+  const { data: notebooks } = useQuery({ queryKey: ["notebooks"], queryFn: desktopApi.listNotebooks });
+  const notebookTitle = (notebooks ?? []).find((n) => n._id === notebookId)?.title ?? null;
 
   // The reader's version list (dropdown) and the open result. Keys include
   // the version id, so a pinned reader never silently refetches to a newer
@@ -304,6 +307,7 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
       center={
         <DocumentWorkspace
           notebookId={notebookId}
+          notebookTitle={notebookTitle}
           sources={sources ?? []}
           ui={ui}
           update={update}

@@ -209,6 +209,7 @@ const de = {
   "nav.versionPages": "v{v} · {date} · {n} S.",
   "nav.versionCsv": "v{v} · {date} · CSV",
   "nav.processing": "Wird verarbeitet…",
+  "nav.srcDone": "fertig",
   "nav.claimReviewed": "Überprüft",
   "nav.claimWithdrawn": "Zurückgezogen",
   "nav.claimActive": "Aktiv",
@@ -253,6 +254,7 @@ const de = {
   "note.quoteBlock": "> „{quote}\" — {file} · {v} · S. {page} [@claim:{id}]",
   // center chat view
   "chat.sectionAria": "Conversation",
+  "chat.assistantRole": "Assistent",
   "chat.empty": "Stelle eine Frage an deine Quellen.",
   "chat.saved": "Gespeichert",
   "chat.saveClaim": "Aussage speichern",
@@ -358,6 +360,7 @@ const de = {
   "inspector.inserting": "Einfügen…",
   "inspector.insertNew": "Als neue Notiz einfügen",
   "inspector.claimAria": "Ausgewählte Aussage",
+  "inspector.claimNo": "Aussage {n}",
   "inspector.evidence": "Belege",
   "inspector.anchorTime": "{file} · v{v} · {range}",
   "inspector.anchorPage": "{file} · v{v} · S. {p}",
@@ -567,6 +570,7 @@ const en: typeof de = {
   "nav.versionPages": "v{v} · {date} · {n} p.",
   "nav.versionCsv": "v{v} · {date} · CSV",
   "nav.processing": "Being processed…",
+  "nav.srcDone": "ready",
   "nav.claimReviewed": "Reviewed",
   "nav.claimWithdrawn": "Withdrawn",
   "nav.claimActive": "Active",
@@ -608,6 +612,7 @@ const en: typeof de = {
   "note.noVersion": "no version",
   "note.quoteBlock": "> \"{quote}\" — {file} · {v} · p. {page} [@claim:{id}]",
   "chat.sectionAria": "Conversation",
+  "chat.assistantRole": "Assistant",
   "chat.empty": "Ask a question about your sources.",
   "chat.saved": "Saved",
   "chat.saveClaim": "Save claim",
@@ -708,6 +713,7 @@ const en: typeof de = {
   "inspector.inserting": "Inserting…",
   "inspector.insertNew": "Insert as new note",
   "inspector.claimAria": "Selected claim",
+  "inspector.claimNo": "Claim {n}",
   "inspector.evidence": "Evidence",
   "inspector.anchorTime": "{file} · v{v} · {range}",
   "inspector.anchorPage": "{file} · v{v} · p. {p}",
@@ -915,6 +921,7 @@ const es: typeof de = {
   "nav.versionPages": "v{v} · {date} · {n} pág.",
   "nav.versionCsv": "v{v} · {date} · CSV",
   "nav.processing": "Procesando…",
+  "nav.srcDone": "listo",
   "nav.claimReviewed": "Revisada",
   "nav.claimWithdrawn": "Retirada",
   "nav.claimActive": "Activa",
@@ -956,6 +963,7 @@ const es: typeof de = {
   "note.noVersion": "sin versión",
   "note.quoteBlock": "> «{quote}» — {file} · {v} · pág. {page} [@claim:{id}]",
   "chat.sectionAria": "Conversación",
+  "chat.assistantRole": "Asistente",
   "chat.empty": "Haz una pregunta sobre tus fuentes.",
   "chat.saved": "Guardado",
   "chat.saveClaim": "Guardar afirmación",
@@ -1056,6 +1064,7 @@ const es: typeof de = {
   "inspector.inserting": "Insertando…",
   "inspector.insertNew": "Insertar como nota nueva",
   "inspector.claimAria": "Afirmación seleccionada",
+  "inspector.claimNo": "Afirmación {n}",
   "inspector.evidence": "Evidencias",
   "inspector.anchorTime": "{file} · v{v} · {range}",
   "inspector.anchorPage": "{file} · v{v} · pág. {p}",
@@ -1143,6 +1152,11 @@ export function fmtDate(ts: number | string | Date): string {
 
 export function fmtDateTime(ts: number | string | Date): string {
   return new Date(ts).toLocaleString(LOCALE[current]);
+}
+
+/** Locale time-of-day (HH:MM) for chat .meta header lines. */
+export function fmtTime(ts: number | string | Date): string {
+  return new Date(ts).toLocaleTimeString(LOCALE[current], { hour: "2-digit", minute: "2-digit" });
 }
 
 /** Megabytes with the locale's digit grouping (e.g. de "1.024 MB", en "1,024 MB"). */

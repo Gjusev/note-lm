@@ -97,8 +97,8 @@ function BrandMark() {
   return (
     <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
       <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="currentColor" />
-      <path d="M19 4v5h5" fill="#f6f4f0" opacity="0.9" />
-      <path d="M12 13h8M12 17h6" stroke="#f6f4f0" strokeWidth="2" strokeLinecap="round" />
+      <path d="M19 4v5h5" fill="var(--paper)" opacity="0.9" />
+      <path d="M12 13h8M12 17h6" stroke="var(--paper)" strokeWidth="2" strokeLinecap="round" />
       <rect x="17" y="21" width="4" height="4" rx="1" fill="var(--accent)" />
     </svg>
   );

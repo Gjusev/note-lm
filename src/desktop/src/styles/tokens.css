@@ -1,42 +1,119 @@
-/* Desktop design system — editorial minimalism. */
+/* Desktop design tokens — neo-Swiss/brutalist system (docs/design/brand,
+   merged from tokens-proposal.css; same values the brand SVGs carry):
+   paper/ink extremes, hairline + 2px structural rules, radius collapsed to
+   0/2px, SOLID status chips, buttons as ink blocks that INVERT on hover.
+   Red (#b4473d / #d2705f) stays reserved for actions and citations.
+   Theme selection is explicit (light/dark/system, persisted via
+   lib/uiState.ts): the resolved theme lands on <html data-theme>.
+
+   Fonts: offline stacks only — nothing is bundled (no @font-face anywhere
+   in this app). --font-ui is the Helvetica-style grotesk whatever the OS
+   substitutes (Arial on Windows); JetBrains Mono is named but falls back
+   to the system mono.
+
+   ============================================================================
+   DARK-MODE LEGIBILITY AUDIT (WCAG 2.x relative luminance, measured
+   2026-10 with node — formulas: L = 0.2126R'+0.7152G'+0.0722B' with
+   sRGB linearization; ratio = (L1+0.05)/(L2+0.05); alpha colors are
+   composited over the surface before measuring).
+   Dark surfaces: canvas #1c1b19 (L=0.0125), document/raised #242220
+   (L=0.0169), subtle #2b2926.
+
+   PASS (kept as-is):
+   - text-primary #ece9e2: 8.47:1 on canvas, 7.81:1 on document (>=4.5 ok)
+   - text-secondary rgba(236,233,226,.62) -> #a09d98 on document 5.87:1,
+     #9d9b96 on canvas 6.20:1 — .meta/.mono small text passes 4.5
+   - structural rule #ece9e2 vs document 13.08:1 (structure, >=3 ok)
+   - focus ring + pdf text-layer focus outline #d2705f: 5.10:1 on canvas,
+     4.70:1 on document (non-text >=3 ok; as alert TEXT also >=4.5)
+   - solid chip fills carry their own white fg, canvas-independent:
+     success #346538 6.85:1, error #9f2f2d 7.20:1, info #1f6c9f 5.67:1,
+     warning #956400 5.12:1
+   - chip-neutral #ece9e2 bg / #1c1b19 fg 14.19:1; ink button dark fg/bg
+     14.19:1; primary (accent) button fg #1c1b19 on #d2705f 5.10:1
+   - dark status TEXT variants on document/canvas (>=4.5): success #6fbf8e
+     7.19/7.80, warning #d9a441 7.05/7.65, error #d2705f 4.70/5.10,
+     info #85bddf 7.81/8.48
+   - kbd #ece9e2 on #242220 13.08:1
+   - disabled controls at uniform opacity .45: the fg/bg ratio INSIDE the
+     control is invariant under uniform opacity, and inactive controls are
+     exempt from WCAG 1.4.3 — no change needed.
+
+   FAIL -> FIXED (dark values only; light deliberately untouched):
+   1. hairline --border-default #2e2c29 = 1.14:1 on document / 1.24:1 on
+      canvas — row/column separators effectively invisible as structure.
+      Fixed to #716c64 = 3.04:1 on document, 3.30:1 on canvas (>=3 for
+      structural boundaries, WCAG 1.4.11). This makes dark hairlines more
+      present than light ones (#eaeaea = 1.20:1 on white): intentional —
+      dark separators below ~3:1 disappear on panels; the light theme's
+      quiet hairline is a deliberate light-mode choice.
+   2. placeholder / tertiary --text-tertiary = --ink-40
+      rgba(236,233,226,.40) -> #74726e on document = 3.30:1 (small text
+      needs 4.5). Fixed to rgba(236,233,226,.55) -> #928f8b = 4.92:1 on
+      document, 4.72:1 over subtle #2b2926.
+   3. --border-strong (kbd border, input hover, scrollbar thumb) had no
+      dark value distinct from hairline: set #8a857c = 4.32:1 on document
+      (>=3 non-text).
+
+   Known LIGHT items, intentionally left (mandate: light untouched):
+   hairline #eaeaea 1.20:1 on white / 1.11:1 on canvas (decorative rows —
+   the 2px ink structural rule carries the structural load at 16.29:1);
+   placeholder rgba(32,32,32,.40) = 2.43:1 (hint text, supplementary).
+   Light .meta/secondary rgba(32,32,32,.62) passes: 4.61:1 on white,
+   4.51:1 on canvas.
+   ============================================================================ */
 :root {
-  --surface-canvas: #f6f4f0;
-  --surface-document: #fffefa;
+  /* semantic aliases — brutalist values */
+  --surface-canvas: #f7f6f3;
+  --surface-document: #ffffff;
   --surface-raised: #ffffff;
-  --surface-subtle: #eeebe4;
-  --text-primary: #292720;
-  --text-secondary: #716d63;
-  --text-tertiary: #969188;
-  --border-default: #dedad2;
-  --border-strong: #c9c3b8;
-  --status-success: #386344;
-  --status-warning: #8a6414;
-  --status-error: #9b4336;
-  --status-info: #356c84;
-  --action-primary-bg: #a44b3b;
-  --action-primary-hover: #883e31;
+  --surface-subtle: #efedea; /* hover wash behind ink-inverting controls */
+  --text-primary: #202020;
+  --text-secondary: rgba(32, 32, 32, 0.62);
+  --text-tertiary: rgba(32, 32, 32, 0.4);
+  --border-default: #eaeaea; /* hairline COLOR (rows, grid columns) */
+  --border-strong: #202020; /* kbd border, input hover, scrollbar */
+  --status-success: #346538;
+  --status-warning: #956400;
+  --status-error: #9f2f2d; /* deeper than the accent so chip text passes */
+  --status-info: #1f6c9f;
+  --action-primary-bg: #b4473d;
+  --action-primary-hover: #202020; /* primary inverts to ink on hover */
   --action-primary-fg: #ffffff;
-  --focus: 2px solid #a44b3b;
+  --focus: 2px solid #b4473d;
+
+  /* solid chip fg partners — same fills in both themes (the fill carries
+     its own white text, so contrast holds on any canvas behind it) */
   --status-success-fg: #ffffff;
   --status-warning-fg: #ffffff;
   --status-error-fg: #ffffff;
   --status-info-fg: #ffffff;
-  --chip-neutral-bg: #eae7df;
-  --chip-neutral-fg: #454139;
-  --rule-hairline: 1px solid var(--border-default);
-  --rule-structural: 1px solid var(--border-strong);
+  --chip-neutral-bg: #202020;
+  --chip-neutral-fg: #f7f6f3;
+
+  /* border system: hairline separates list rows and grid columns; the 2px
+     structural rule bounds regions (app header, tab strip, index cards).
+     The contrast between the two IS the system — never the structural
+     weight everywhere. */
+  --rule-hairline: 1px solid #eaeaea;
+  --rule-structural: 2px solid #202020;
+
+  /* radius collapsed: 0 for grid-aligned containers; 2px only where a fully
+     sharp corner clips glyphs (inputs, chips, dialogs). Nothing larger. */
   --radius-none: 0;
-  --radius-sharp: 7px;
-  --radius-panel: 10px;
+  --radius-sharp: 2px;
+  --radius-panel: 2px;
+
+  /* legacy names kept — every existing screen uses them */
   --paper: var(--surface-canvas);
-  --paper-muted: var(--surface-document);
+  --paper-muted: #ffffff; /* raised surface on the canvas, hairline-separated */
   --ink: var(--text-primary);
   --ink-60: var(--text-secondary);
   --ink-40: var(--text-tertiary);
   --rule: var(--border-default);
   --accent: var(--action-primary-bg);
   --accent-fg: var(--action-primary-fg);
-  --accent-soft: #f8eae5;
+  --accent-soft: rgba(180, 71, 61, 0.08); /* pdf text-layer focus only */
   --ok: var(--status-success);
   --warn: var(--status-warning);
   --surface: var(--surface-document);
@@ -50,27 +127,37 @@
   --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
-  --font-ui: "Segoe UI Variable", "Aptos", "Helvetica Neue", Arial, system-ui, sans-serif;
-  --font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  --font-ui: "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
   --font-meta: var(--font-mono);
 }
 
 [data-theme="dark"] {
-  --surface-canvas: #1e1d1a;
-  --surface-document: #26241f;
-  --surface-raised: #2d2a25;
-  --surface-subtle: #34312b;
-  --text-primary: #f0ede5;
-  --text-secondary: #b6b0a5;
-  --text-tertiary: #898378;
-  --border-default: #3a3730;
-  --border-strong: #514c43;
-  --action-primary-bg: #cf725e;
-  --action-primary-hover: #e18670;
-  --action-primary-fg: #251d19;
-  --accent-soft: #482d27;
-  --chip-neutral-bg: #39352f;
-  --chip-neutral-fg: #ebe7de;
+  --surface-canvas: #1c1b19;
+  --surface-document: #242220;
+  --surface-raised: #242220;
+  --surface-subtle: #2b2926;
+  --text-primary: #ece9e2;
+  --text-secondary: rgba(236, 233, 226, 0.62);
+  --text-tertiary: rgba(236, 233, 226, 0.55); /* audit fix 2: 4.92:1 */
+  --border-default: #716c64; /* audit fix 1: 3.04:1 as structure */
+  --border-strong: #8a857c; /* audit fix 3: 4.32:1 */
+  /* text-safe status variants on the dark canvas; the solid chip fills +
+     white fg from :root stay untouched (chips bring their own contrast) */
+  --status-success: #6fbf8e;
+  --status-warning: #d9a441;
+  --status-error: #d2705f;
+  --status-info: #85bddf;
+  --action-primary-bg: #d2705f;
+  --action-primary-hover: #ece9e2; /* primary inverts to ink on hover */
+  --action-primary-fg: #1c1b19; /* 5.10:1 on #d2705f; white was 3.37:1 */
+  --paper-muted: #242220;
+  --ink-40: var(--text-tertiary);
+  --accent-soft: rgba(210, 112, 95, 0.12);
+  --rule-hairline: 1px solid #716c64;
+  --rule-structural: 2px solid #ece9e2;
+  --chip-neutral-bg: #ece9e2;
+  --chip-neutral-fg: #1c1b19;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,55 +172,93 @@ body {
   background: var(--paper);
   color: var(--ink);
   font: 15px/1.55 var(--font-ui);
-  letter-spacing: -0.006em;
 }
 button, input, textarea, select { font: inherit; color: inherit; }
+/* Buttons are solid ink blocks; hover = ink/paper INVERSION (no scale
+   transforms, no shadows). Primary keeps the single hard accent red and
+   inverts to ink. Focus stays the 2px outline — the strongest non-color
+   focus indicator. */
 button {
   cursor: pointer;
   min-height: 32px;
-  background: var(--surface-raised);
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
-  color: var(--ink);
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-none);
+  color: var(--paper);
   padding: 6px 10px;
   line-height: 1.25;
-  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
-button:not(:disabled):hover { background: var(--surface-subtle); border-color: var(--ink-40); }
-button:not(:disabled):active { transform: scale(0.98); }
-button:disabled { opacity: 0.48; cursor: default; }
+button:not(:disabled):hover {
+  background: var(--paper); /* invert */
+  color: var(--ink);
+  border-color: var(--ink);
+}
+button:disabled { opacity: 0.45; cursor: default; }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-button.primary:not(:disabled):hover { background: var(--action-primary-hover); border-color: var(--action-primary-hover); color: var(--action-primary-fg); }
+button.primary:not(:disabled):hover { background: var(--action-primary-hover); border-color: var(--action-primary-hover); color: var(--ink); }
 input, textarea, select {
-  background: var(--surface-raised);
-  border: 1px solid var(--border-default);
-  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sharp);
   padding: 7px 10px;
   width: 100%;
   min-height: 34px;
-  transition: border-color 160ms ease, background-color 160ms ease;
+  transition: border-color 150ms ease;
 }
-input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
+input::placeholder, textarea::placeholder { color: var(--ink-40); }
 input:hover, textarea:hover, select:hover { border-color: var(--border-strong); }
-button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 1px;
+}
 a { color: inherit; }
-h1, h2, h3 { color: var(--ink); letter-spacing: -0.03em; line-height: 1.15; }
-h1 { font-size: clamp(1.55rem, 1.2rem + 0.75vw, 2rem) !important; font-weight: 650; }
-h2 { font-size: 1.1rem !important; font-weight: 650; }
+h1, h2, h3 { color: var(--ink); letter-spacing: -0.02em; line-height: 1.15; }
+h1 { font-size: clamp(1.55rem, 1.2rem + 0.75vw, 2rem) !important; font-weight: 720; }
+h2 { font-size: 1.1rem; font-weight: 720; }
 h3 { font-size: 0.94rem; font-weight: 650; }
-.mono, .meta { font-family: var(--font-meta); font-size: 0.68rem; letter-spacing: 0.075em; text-transform: uppercase; color: var(--ink-60); }
+/* metadata / numerals as design elements: mono, tracked caps, secondary ink */
+.mono, .meta { font-family: var(--font-meta); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-60); }
 .muted { color: var(--ink-60); }
 .rule-top { border-top: 1px solid var(--rule); }
-.chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; border-radius: 999px; padding: 2px 7px; font-family: var(--font-meta); font-size: 0.62rem; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.45; white-space: nowrap; }
-kbd { font-family: var(--font-mono); font-size: 0.78em; line-height: 1; color: var(--ink); background: var(--surface-subtle); border: 1px solid var(--border-strong); border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
+/* Solid status chip base (radius 2px, mono tracked caps label); colors come
+   from the status + chip fg/bg token pairs at the call site — never color
+   alone, chips carry their words. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-sharp);
+  padding: 0 var(--space-2);
+  font-family: var(--font-meta);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+/* kbd: sharp 2px radius, ink border, paper fill, mono, tracked */
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+[data-theme="dark"] kbd { color: var(--ink); background: var(--surface-document); }
 
 /* Shared product shell. */
 .app-frame { background: var(--paper); }
-.app-header { min-height: 56px; padding: 0 var(--space-6) !important; background: color-mix(in srgb, var(--surface-document) 94%, transparent); border-top: 0 !important; border-bottom: var(--rule-hairline) !important; }
-.brand-button { min-height: auto !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; color: var(--ink) !important; font-size: 1rem; font-weight: 720 !important; letter-spacing: -0.035em !important; }
+.app-header { min-height: 56px; padding: 0 var(--space-6) !important; background: var(--surface-document); border-top: 0 !important; border-bottom: var(--rule-hairline) !important; }
+.brand-button { min-height: auto !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; color: var(--ink) !important; font-size: 1rem; font-weight: 750 !important; letter-spacing: -0.03em !important; }
+.brand-button:not(:disabled):hover { background: transparent !important; color: var(--ink) !important; }
 .brand-mark { width: 22px; height: 22px; margin-right: 8px; vertical-align: -5px; color: var(--ink); }
 .app-actions { gap: var(--space-2) !important; }
-.app-actions a { padding: 5px 6px; border-radius: 4px; color: var(--ink-60) !important; font-size: 0.67rem; transition: background-color 160ms ease, color 160ms ease; }
+.app-actions a { padding: 5px 6px; border-radius: var(--radius-none); color: var(--ink-60) !important; font-size: 0.67rem; transition: background-color 150ms ease, color 150ms ease; }
 .app-actions a:hover { color: var(--ink) !important; background: var(--surface-subtle); }
 .theme-select { font-size: 0.66rem !important; }
 .theme-select select { min-height: 28px; padding: 2px 24px 2px 7px !important; }
@@ -144,13 +269,13 @@ kbd { font-family: var(--font-mono); font-size: 0.78em; line-height: 1; color: v
 .page-shell > h1 { margin-bottom: var(--space-2) !important; }
 .library-heading { margin-bottom: var(--space-6); }
 .library-actions { align-items: center; }
-.create-notebook-form { padding: var(--space-3); background: var(--surface-document); border: var(--rule-hairline); border-radius: var(--radius-panel); }
-.empty-state { max-width: 560px; margin: var(--space-12) auto 0 !important; padding: var(--space-8) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-panel); text-align: left !important; }
-.empty-state .mono { color: var(--accent) !important; }
+.create-notebook-form { padding: var(--space-3); background: var(--surface-document); border: var(--rule-hairline); border-radius: var(--radius-none); }
+.empty-state { max-width: 560px; margin: var(--space-12) auto 0 !important; padding: var(--space-8) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-none); text-align: left !important; }
+.empty-state .mono { color: var(--ink-60) !important; }
 .notebook-list { gap: var(--space-2) !important; }
-.notebook-list a { position: relative; padding: var(--space-4) var(--space-6) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-panel); transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
-.notebook-list a::after { content: "→"; position: absolute; right: var(--space-4); top: 50%; color: var(--text-tertiary); transform: translateY(-50%); }
-.notebook-list a:hover { border-color: var(--border-strong) !important; background: var(--surface-raised); transform: translateY(-1px); }
+.notebook-list a { position: relative; padding: var(--space-4) var(--space-6) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-none); transition: border-color 150ms ease, background-color 150ms ease; }
+.notebook-list a::after { content: "→"; position: absolute; right: var(--space-4); top: 50%; color: var(--ink-60); transform: translateY(-50%); }
+.notebook-list a:hover { border-color: var(--ink) !important; background: var(--surface-raised); }
 .notebook-list strong { font-size: 1rem; font-weight: 650; }
 .notebook-list .meta { margin-top: 3px; }
 
@@ -159,29 +284,29 @@ kbd { font-family: var(--font-mono); font-size: 0.78em; line-height: 1; color: v
 .workspace-aside { background: var(--surface-canvas) !important; }
 .workspace-center { background: var(--surface-document); }
 .workspace-splitter { position: relative; background: transparent; }
-.workspace-splitter::after { content: ""; position: absolute; inset: 0 3px; background: var(--border-default); opacity: 0; transition: opacity 160ms ease; }
+.workspace-splitter::after { content: ""; position: absolute; inset: 0 3px; background: var(--border-strong); opacity: 0; transition: opacity 150ms ease; }
 .workspace-splitter:hover::after, .workspace-splitter:focus-visible::after { opacity: 1; }
-.workspace-overlay { background: rgba(31, 29, 25, 0.28) !important; }
-.workspace-overlay-panel { background: var(--surface-document) !important; box-shadow: 0 8px 24px rgba(37, 32, 24, 0.04); }
+.workspace-overlay { background: rgba(31, 29, 25, 0.55) !important; }
+.workspace-overlay-panel { background: var(--surface-document) !important; }
 .workspace-nav { padding: var(--space-4) !important; gap: var(--space-4) !important; }
 .navigator-section { padding-bottom: var(--space-3); border-bottom: var(--rule-hairline); }
 .navigator-section:last-child { border-bottom: 0; }
-.navigator-section-header button { min-height: 26px; color: var(--ink) !important; letter-spacing: -0.01em; }
 .document-workspace { background: var(--surface-document); }
 .workspace-toolbar { min-height: 48px; padding: var(--space-2) var(--space-4) !important; background: var(--surface-document); border-top: 0 !important; }
 .workspace-tabs { gap: 2px !important; }
-.workspace-tabs button { min-height: 30px !important; padding: 4px 9px !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 4px 4px 0 0 !important; color: var(--ink-60) !important; }
-.workspace-tabs button[aria-selected="true"] { color: var(--ink) !important; background: var(--accent-soft) !important; border-bottom-color: var(--accent) !important; }
+.workspace-tabs button { min-height: 30px !important; padding: 4px 9px !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 0 !important; color: var(--ink-60) !important; }
+.workspace-tabs button[aria-selected="true"] { color: var(--ink) !important; background: transparent !important; border-bottom-color: var(--ink) !important; }
 .workspace-toolbar-action { min-height: 29px !important; padding: 4px 8px !important; background: transparent !important; border-color: transparent !important; color: var(--ink-60) !important; }
-.workspace-toolbar-action:hover { background: var(--surface-subtle) !important; color: var(--ink) !important; }
+.workspace-toolbar-action:hover { background: var(--ink) !important; color: var(--paper) !important; border-color: var(--ink) !important; }
 
 * { scrollbar-color: var(--border-strong) transparent; scrollbar-width: thin; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border: 3px solid transparent; background-clip: padding-box; border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border: 3px solid transparent; background-clip: padding-box; border-radius: var(--radius-none); }
 ::-webkit-scrollbar-track { background: transparent; }
 
 /* PDF text layer remains transparent so original pages, not CSS, render it. */
 .text-layer { position: absolute; inset: 0; overflow: hidden; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; }
 .text-layer span, .text-layer br { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
 .text-layer span:focus { outline: 1.5px dashed var(--accent); outline-offset: 2px; background: var(--accent-soft); }
-.text-layer ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+.text-layer ::selection { background: rgba(180, 71, 61, 0.32); }
+[data-theme="dark"] .text-layer ::selection { background: rgba(210, 112, 95, 0.4); }

@@ -11,7 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type Message, type Source } from "../lib/api";
-import { t } from "../i18n";
+import { fmtTime, t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
 export function ChatView(props: {
@@ -58,48 +58,56 @@ export function ChatView(props: {
     },
   });
 
+  // The provider label travels with the response it describes: it is known
+  // for the most recent assistant message of this session only - older
+  // rows honestly fall back to the role label.
+  const lastAssistantId = [...(messages ?? [])].reverse().find((m) => m.role === "assistant")?._id ?? null;
+
   return (
     <section aria-label={t("chat.sectionAria")} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {!messages?.length ? (
-          <p className="muted" style={{ textAlign: "center", marginTop: "var(--space-6)" }}>
+          <p className="meta" style={{ textAlign: "center", marginTop: "var(--space-6)", fontSize: "0.68rem", lineHeight: 1.6 }}>
             {t("chat.empty")}
           </p>
         ) : (
-          messages.map((m, i) => (
-            <article
-              key={m._id}
-              style={{
-                maxWidth: "80%", alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                padding: "var(--space-3)", borderRadius: "var(--radius)",
-                border: m.role === "user" ? "1px solid var(--rule)" : "none",
-                borderLeft: m.role === "assistant" ? "3px solid var(--accent)" : undefined,
-                background: m.role === "user" ? "var(--paper-muted)" : "var(--surface)",
-                whiteSpace: "pre-wrap",
-              }}
-            >
-              {m.content}
-              {m.citations && m.citations.length > 0 && (
-                <CitationList citations={m.citations} sources={props.sources}
-                  onOpenCitation={(sourceId) => props.openSource(sourceId)} />
-              )}
-              {m.role === "assistant" && m.citations != null && m.citations.length > 0 && (
-                savedIds.has(m._id) ? (
-                  <span className="muted" style={{ fontSize: "0.8rem", display: "inline-block", marginTop: "var(--space-1)" }}>{t("chat.saved")}</span>
-                ) : (
-                  <button style={{ fontSize: "0.8rem", marginTop: "var(--space-1)", display: "inline-block" }}
-                    disabled={saveClaim.isPending} onClick={() => saveClaim.mutate(m)}>
-                    {t("chat.saveClaim")}
-                  </button>
-                )
-              )}
-            </article>
-          ))
-        )}
-        {providerLabel && (messages?.length ?? 0) > 0 && (
-          <span className="meta" style={{ alignSelf: "flex-start", fontSize: "0.7rem", border: "1px solid var(--rule)", borderRadius: "var(--radius-sharp)", padding: "0 var(--space-1)" }}>
-            {providerLabel}
-          </span>
+          messages.map((m) =>
+            m.role === "assistant" ? (
+              <article
+                key={m._id}
+                style={{
+                  alignSelf: "flex-start", maxWidth: "80%",
+                  borderLeft: "2px solid var(--ink)", paddingLeft: "var(--space-3)",
+                  display: "flex", flexDirection: "column", gap: "var(--space-1)",
+                }}
+              >
+                <span className="meta" style={{ fontSize: "0.62rem" }}>
+                  {m._id === lastAssistantId && providerLabel ? providerLabel : t("chat.assistantRole")}
+                  {" · "}
+                  {fmtTime(m.createdAt)}
+                </span>
+                <div style={{ whiteSpace: "pre-wrap" }}>{m.content}</div>
+                {m.citations && m.citations.length > 0 && (
+                  <CitationList citations={m.citations} sources={props.sources}
+                    onOpenCitation={(sourceId) => props.openSource(sourceId)} />
+                )}
+                {m.citations != null && m.citations.length > 0 && (
+                  savedIds.has(m._id) ? (
+                    <span className="muted" style={{ fontSize: "0.8rem", display: "inline-block" }}>{t("chat.saved")}</span>
+                  ) : (
+                    <button style={{ fontSize: "0.8rem", display: "inline-block", alignSelf: "flex-start" }}
+                      disabled={saveClaim.isPending} onClick={() => saveClaim.mutate(m)}>
+                      {t("chat.saveClaim")}
+                    </button>
+                  )
+                )}
+              </article>
+            ) : (
+              <article key={m._id} style={{ alignSelf: "flex-end", maxWidth: "80%", textAlign: "right", whiteSpace: "pre-wrap" }}>
+                {m.content}
+              </article>
+            )
+          )
         )}
         {indexingHint && (
           <p className="meta" role="status" style={{ alignSelf: "flex-start", margin: 0, fontSize: "0.7rem", textTransform: "none", letterSpacing: "0.04em" }}>

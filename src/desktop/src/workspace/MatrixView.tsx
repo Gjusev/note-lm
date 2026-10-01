@@ -148,8 +148,9 @@ export function MatrixView(props: {
     <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, minWidth: 0 }}>
       {/* Toolbar: the source multi-select - every notebook source is
           selectable, so a zero-relation source can be confronted (its
-          column then renders "Nicht geprüft", correction 1). */}
-      <div className="rule-top" style={{ padding: "var(--space-2) var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+          column then renders "Nicht geprüft", correction 1). The printed
+          table's structural rule opens the block above the search row. */}
+      <div style={{ borderTop: "var(--rule-structural)", padding: "var(--space-2) var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", alignItems: "center" }}>
           <span className="mono" style={{ fontSize: "0.7rem" }}>{t("matrix.columns")}</span>
           {props.sources.map((s) => (
@@ -211,7 +212,7 @@ export function MatrixView(props: {
       </div>
 
       {claims.length === 0 ? (
-        <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem", margin: 0 }}>
+        <p className="meta" style={{ padding: "var(--space-6)", fontSize: "0.68rem", lineHeight: 1.6, margin: 0 }}>
           {t("matrix.noClaims")}
         </p>
       ) : (
@@ -219,11 +220,11 @@ export function MatrixView(props: {
           <table style={{ borderCollapse: "separate", borderSpacing: 0, fontSize: "0.8rem", minWidth: Math.max(560, 200 + columns.length * 200) }}>
             <thead>
               <tr>
-                <th scope="col" style={{ position: "sticky", top: 0, left: 0, zIndex: 3, background: "var(--paper)", textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", borderRight: "1px solid var(--rule)", minWidth: 200 }}>
+                <th scope="col" style={{ position: "sticky", top: 0, left: 0, zIndex: 3, background: "var(--surface)", textAlign: "left", padding: "var(--space-2)", borderTop: "var(--rule-structural)", borderBottom: "var(--rule-structural)", borderRight: "1px solid var(--rule)", minWidth: 200, fontFamily: "var(--font-meta)", fontSize: "0.68rem", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 650 }}>
                   {t("matrix.claimColumn")}
                 </th>
                 {columns.map((col) => (
-                  <th key={col.id} scope="col" style={{ position: "sticky", top: 0, zIndex: 2, background: "var(--paper)", textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", minWidth: 200 }}>
+                  <th key={col.id} scope="col" style={{ position: "sticky", top: 0, zIndex: 2, background: "var(--surface)", textAlign: "left", padding: "var(--space-2)", borderTop: "var(--rule-structural)", borderBottom: "var(--rule-structural)", borderRight: "1px solid var(--rule)", minWidth: 200, fontFamily: "var(--font-meta)", fontSize: "0.68rem", letterSpacing: "0.08em", textTransform: "uppercase", fontWeight: 650 }}>
                     {col.fileName}
                     {col.latestVersion != null && (
                       <span className="mono" style={{ fontSize: "0.65rem", display: "block" }}>{t("matrix.latest", { v: col.latestVersion })}</span>
@@ -235,7 +236,7 @@ export function MatrixView(props: {
             <tbody>
               {claims.map((claim, r) => (
                 <tr key={claim.id}>
-                  <th scope="row" style={{ position: "sticky", left: 0, zIndex: 1, background: "var(--paper)", textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", borderRight: "1px solid var(--rule)", maxWidth: 320, fontWeight: 400 }}>
+                  <th scope="row" style={{ position: "sticky", left: 0, zIndex: 1, background: "var(--surface)", textAlign: "left", padding: "var(--space-2)", borderRight: "1px solid var(--rule)", maxWidth: 320, fontWeight: 400 }}>
                     <span title={claim.text} style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{claim.text}</span>
                   </th>
                   {columns.map((col, c) => {
@@ -260,7 +261,7 @@ export function MatrixView(props: {
                           if (e.key === "End") { e.preventDefault(); move(r, columns.length - 1); }
                           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(cell, col.id); }
                         }}
-                        style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", borderRight: "1px solid var(--rule)", verticalAlign: "top", minWidth: 200, cursor: "default",
+                        style={{ padding: "var(--space-2)", borderRight: "1px solid var(--rule)", verticalAlign: "top", minWidth: 200, cursor: "default",
                           outline: focus.r === r && focus.c === c ? "2px solid var(--accent)" : undefined, outlineOffset: -2 }}
                       >
                         <CellBody
@@ -277,7 +278,7 @@ export function MatrixView(props: {
             </tbody>
           </table>
           {columns.length === 0 && (
-            <p className="muted" style={{ padding: "var(--space-4)", fontSize: "0.85rem", margin: 0 }}>
+            <p className="meta" style={{ padding: "var(--space-4)", fontSize: "0.68rem", lineHeight: 1.6, margin: 0 }}>
               {t("matrix.noRelations")}
             </p>
           )}
