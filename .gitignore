@@ -40,6 +40,12 @@ node_modules
 
 # brag video workspace
 brag-output/
+brag-output-*/composition/
+brag-output-*/composition-v1/*.log
+
+# local crash/debug artifacts
+*.stackdump
+eval/laya-proto/__pycache__/
 
 # Tauri
 src-tauri/target/
