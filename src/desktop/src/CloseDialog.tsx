@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { t } from "./i18n";
 
 /** The withGlobalTauri bridge, or null outside the Tauri window (dev). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,20 +82,20 @@ export function CloseDialog() {
         }}
       >
         <h2 id="close-dialog-title" style={{ margin: 0, fontSize: "1.05rem" }}>
-          note-lm beenden?
+          {t("close.title")}
         </h2>
         <p style={{ margin: "var(--space-2) 0 var(--space-4)", color: "var(--ink-60)" }}>
-          Es laufen gerade Aufgaben. Sie können im Hintergrund weiterlaufen oder pausiert werden.
+          {t("close.body")}
         </p>
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
           <button className="primary" disabled={busy} onClick={hideToTray}>
-            Weiter im Hintergrund
+            {t("close.background")}
           </button>
           <button disabled={busy} onClick={pauseAndExit}>
-            Pausieren und beenden
+            {t("close.pauseExit")}
           </button>
           <button disabled={busy} onClick={() => setOpen(false)}>
-            Abbrechen
+            {t("common.cancel")}
           </button>
         </div>
       </div>

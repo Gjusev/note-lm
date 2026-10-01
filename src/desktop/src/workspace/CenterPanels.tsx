@@ -6,22 +6,32 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type Source } from "../lib/api";
+import { fmtDate, t } from "../i18n";
 
-export const OP_LABELS: Record<string, string> = {
-  sum: "Summe", avg: "Durchschnitt", min: "Minimum", max: "Maximum", count: "Anzahl",
-};
+/** Deterministic op label (translation key by engine op id; unknown ops
+ *  surface the raw engine id — t() would return the key itself). */
+export function opLabel(op: string): string {
+  const key = `calc.op.${op}`;
+  const raw = t(key);
+  return raw === key ? op : raw;
+}
 
-/** German labels for the engine's material types (materials.request
+/** German->any labels for the engine's material types (materials.request
  *  VALID_TYPES); order = the select's order. */
-export const MATERIAL_TYPES: ReadonlyArray<{ id: string; label: string }> = [
-  { id: "summary", label: "Zusammenfassung" },
-  { id: "flashcards", label: "Lernkarten" },
-  { id: "quiz", label: "Quiz" },
-  { id: "studyGuide", label: "Lernleitfaden" },
-  { id: "keyInsights", label: "Kernpunkte" },
-  { id: "podcastSummary", label: "Podcast-Zusammenfassung" },
-  { id: "slides", label: "Folien" },
+export const MATERIAL_TYPES: ReadonlyArray<{ id: string; labelKey: string }> = [
+  { id: "summary", labelKey: "materials.type.summary" },
+  { id: "flashcards", labelKey: "materials.type.flashcards" },
+  { id: "quiz", labelKey: "materials.type.quiz" },
+  { id: "studyGuide", labelKey: "materials.type.studyGuide" },
+  { id: "keyInsights", labelKey: "materials.type.keyInsights" },
+  { id: "podcastSummary", labelKey: "materials.type.podcastSummary" },
+  { id: "slides", labelKey: "materials.type.slides" },
 ];
+
+export function materialTypeLabel(id: string): string {
+  const entry = MATERIAL_TYPES.find((m) => m.id === id);
+  return entry ? t(entry.labelKey) : id;
+}
 
 /** Calculations: deterministic sheet ops over an immutable source version.
  *  The big result plus the exact inputs (version, op, column, filter) is the
@@ -82,53 +92,53 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", overflowY: "auto", minHeight: 0, flex: 1, padding: "var(--space-4)" }}>
       {ordered.length === 0 ? (
         <p className="muted" style={{ fontSize: "0.85rem" }}>
-          Berechnungen brauchen eine Quelle. Importiere zuerst eine CSV-Datei.
+          {t("calc.needSource")}
         </p>
       ) : (
         <>
           <form onSubmit={(e) => { e.preventDefault(); if (!run.isPending) run.mutate(); }}
             style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", maxWidth: 420 }}>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
-              Quelle
-              <select value={activeSourceId} aria-label="Quelle für die Berechnung"
+              {t("nav.sources")}
+              <select value={activeSourceId} aria-label={t("calc.sourceAria")}
                 onChange={(e) => { setSourceId(e.target.value); setVersionId(null); }}>
                 {ordered.map((s) => <option key={s._id} value={s._id}>{s.fileName}</option>)}
               </select>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
-              Version
-              <select value={activeVersionId} aria-label="Version für die Berechnung"
+              {t("reader.version")}
+              <select value={activeVersionId} aria-label={t("calc.versionAria")}
                 disabled={(versions ?? []).length === 0} onChange={(e) => setVersionId(e.target.value)}>
                 {(versions ?? []).map((v) => (
                   <option key={v.id} value={v.id}>
-                    v{v.version} · {v.pageCount != null ? `${v.pageCount} S.` : "CSV"} · {new Date(v.createdAt).toLocaleDateString("de-DE")}
+                    {v.pageCount != null
+                      ? t("calc.versionOptionPages", { v: v.version, n: v.pageCount, date: fmtDate(v.createdAt) })
+                      : t("calc.versionOptionCsv", { v: v.version, date: fmtDate(v.createdAt) })}
                   </option>
                 ))}
               </select>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
-              Operation
-              <select value={op} aria-label="Berechnungsoperation" onChange={(e) => setOp(e.target.value as typeof op)}>
-                <option value="sum">Summe</option>
-                <option value="avg">Durchschnitt</option>
-                <option value="min">Minimum</option>
-                <option value="max">Maximum</option>
-                <option value="count">Anzahl</option>
+              {t("calc.operation")}
+              <select value={op} aria-label={t("calc.operationAria")} onChange={(e) => setOp(e.target.value as typeof op)}>
+                {(["sum", "avg", "min", "max", "count"] as const).map((o) => (
+                  <option key={o} value={o}>{t(`calc.op.${o}`)}</option>
+                ))}
               </select>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
-              Spalte (Name oder Nummer)
-              <input value={col} onChange={(e) => setCol(e.target.value)} placeholder="z. B. Menge oder 2" aria-label="Spalte" />
+              {t("calc.column")}
+              <input value={col} onChange={(e) => setCol(e.target.value)} placeholder={t("calc.columnPlaceholder")} aria-label={t("calc.columnAria")} />
             </label>
             <details>
-              <summary style={{ fontSize: "0.8rem", cursor: "pointer" }}>Filter (optional)</summary>
+              <summary style={{ fontSize: "0.8rem", cursor: "pointer" }}>{t("calc.filter")}</summary>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", marginTop: "var(--space-1)" }}>
-                <input value={fCol} onChange={(e) => setFCol(e.target.value)} placeholder="Spalte" aria-label="Filterspalte" />
-                <input value={fVal} onChange={(e) => setFVal(e.target.value)} placeholder="ist gleich" aria-label="Filterwert" />
+                <input value={fCol} onChange={(e) => setFCol(e.target.value)} placeholder={t("calc.columnAria")} aria-label={t("calc.filterColumnAria")} />
+                <input value={fVal} onChange={(e) => setFVal(e.target.value)} placeholder={t("calc.filterValuePh")} aria-label={t("calc.filterValueAria")} />
               </div>
             </details>
             <button className="primary" type="submit" disabled={!col.trim() || run.isPending}>
-              {run.isPending ? "Berechne…" : "Berechnen"}
+              {run.isPending ? t("calc.running") : t("calc.run")}
             </button>
           </form>
 
@@ -136,14 +146,18 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
             <div className="rule-top" style={{ paddingTop: "var(--space-2)" }}>
               <div style={{ fontSize: "1.6rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>{run.data.result}</div>
               <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>
-                {activeVersion ? `v${activeVersion.version}` : activeVersionId || "neueste Version"} · {OP_LABELS[run.data.operation] ?? run.data.operation} · Spalte {String(JSON.parse(run.data.argsJson).column)}
+                {t("calc.resultMeta", {
+                  version: activeVersion ? `v${activeVersion.version}` : activeVersionId || t("calc.latestVersion"),
+                  op: opLabel(run.data.operation),
+                  column: String(JSON.parse(run.data.argsJson).column),
+                })}
                 {(() => {
                   const f = JSON.parse(run.data.argsJson).filter;
                   if (!f) return null;
-                  return <> · Filter {String(f.column)} = "{f.equals}"</>;
+                  return t("calc.resultFilter", { column: String(f.column), value: f.equals });
                 })()}
               </p>
-              {isCsv ? null : <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>Hinweis: Quelle ist keine CSV - die Engine blockiert solche Ops mit einem klaren Fehler.</p>}
+              {isCsv ? null : <p className="muted" style={{ margin: "var(--space-1) 0 0", fontSize: "0.75rem" }}>{t("calc.notCsv")}</p>}
             </div>
           )}
           {run.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{run.error.message}</p>}
@@ -151,7 +165,7 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
       )}
       {(history ?? []).length > 0 && (
         <div className="rule-top" style={{ paddingTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-          <span className="mono">Frühere Berechnungen</span>
+          <span className="mono">{t("calc.history")}</span>
           {(history ?? []).slice().reverse().map((c) => {
             let args: { op: string; column: string | number; filter: { column: string | number; equals: string } | null } | null = null;
             try {
@@ -162,9 +176,9 @@ export function CalcPanel(props: { notebookId: string; sources: Source[] }) {
             return (
               <div key={c.id} style={{ display: "flex", justifyContent: "space-between", gap: "var(--space-2)", fontSize: "0.8rem", alignItems: "baseline" }}>
                 <span>
-                  {OP_LABELS[c.operation] ?? c.operation} · Spalte {args ? String(args.column) : "?"}
-                  {args?.filter ? ` · Filter ${String(args.filter.column)} = "${args.filter.equals}"` : ""}
-                  {versionLabels.data?.get(c.sourceVersionId) != null ? ` · v${versionLabels.data.get(c.sourceVersionId)}` : ""}
+                  {t("calc.historyRow", { op: opLabel(c.operation), column: args ? String(args.column) : "?" })}
+                  {args?.filter ? t("calc.resultFilter", { column: String(args.filter.column), value: args.filter.equals }) : ""}
+                  {versionLabels.data?.get(c.sourceVersionId) != null ? t("calc.versionSuffix", { v: versionLabels.data.get(c.sourceVersionId)! }) : ""}
                 </span>
                 <strong>{c.result ?? c.error}</strong>
               </div>
@@ -196,36 +210,36 @@ export function MaterialsPanel(props: { notebookId: string }) {
       <form onSubmit={(e) => { e.preventDefault(); if (!request.isPending) request.mutate(); }}
         style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)", maxWidth: 420 }}>
         <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.8rem" }}>
-          Materialtyp
-          <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Materialtyp">
-            {MATERIAL_TYPES.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
+          {t("materials.type")}
+          <select value={type} onChange={(e) => setType(e.target.value)} aria-label={t("materials.type")}>
+            {MATERIAL_TYPES.map((m) => <option key={m.id} value={m.id}>{t(m.labelKey)}</option>)}
           </select>
         </label>
         <button className="primary" type="submit" disabled={request.isPending}>
-          {request.isPending ? "Wird erstellt…" : "Erstellen"}
+          {request.isPending ? t("materials.creating") : t("library.create")}
         </button>
         {request.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{request.error.message}</p>}
       </form>
       {(materials ?? []).length === 0 ? (
         <p className="muted" style={{ fontSize: "0.85rem" }}>
-          Noch keine Materialien. Typ wählen und „Erstellen“ drücken.
+          {t("materials.none")}
         </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           {(materials ?? []).map((m) => (
             <div key={m._id} style={{ padding: "var(--space-2)", border: "1px solid var(--rule)", fontSize: "0.85rem", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
               <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "baseline" }}>
-                <strong>{MATERIAL_TYPES.find((t) => t.id === m.type)?.label ?? m.type}</strong>
+                <strong>{materialTypeLabel(m.type)}</strong>
                 {m.status === "completed" ? (
-                  <span className="meta" style={{ fontSize: "0.7rem" }}>{new Date(m.updatedAt).toLocaleDateString("de-DE")}</span>
+                  <span className="meta" style={{ fontSize: "0.7rem" }}>{fmtDate(m.updatedAt)}</span>
                 ) : m.status === "error" ? (
-                  <span className="chip" style={{ background: "var(--status-error)", color: "var(--status-error-fg)" }}>Fehler</span>
+                  <span className="chip" style={{ background: "var(--status-error)", color: "var(--status-error-fg)" }}>{t("common.error")}</span>
                 ) : (
-                  <span className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)" }}>wird erstellt…</span>
+                  <span className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)" }}>{t("materials.creatingChip")}</span>
                 )}
                 {m.needsReview === 1 && (
-                  <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }} title="Eine versionierte Quelle, aus der dieses Material erstellt wurde, wurde geändert.">
-                    Quelle geändert - Inhalt prüfen
+                  <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }} title={t("materials.needsReviewTitle")}>
+                    {t("materials.needsReview")}
                   </span>
                 )}
               </div>
@@ -233,7 +247,7 @@ export function MaterialsPanel(props: { notebookId: string }) {
               {m.status === "completed" && m.content && <p style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: "0.85rem" }}>{m.content}</p>}
               {(m.status === "pending" || m.status === "generating") && (
                 <p className="muted" style={{ margin: 0, fontSize: "0.8rem" }}>
-                  {m.status === "pending" ? "In der Warteschlange…" : "Wird generiert…"}
+                  {m.status === "pending" ? t("materials.queued") : t("materials.generating")}
                 </p>
               )}
             </div>

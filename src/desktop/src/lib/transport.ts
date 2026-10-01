@@ -4,6 +4,7 @@
  * window (withGlobalTauri), HTTP fallback against the Next server in
  * browser dev — one contract, two transports, chosen at runtime.
  */
+import { t } from "../i18n";
 
 export interface EngineReply<T = unknown> {
   id: string;
@@ -33,7 +34,8 @@ async function opViaHttp(op: string, args: unknown): Promise<EngineReply> {
 
 export const engineOp: Transport = inTauri ? opViaTauri : opViaHttp;
 
-/** Resolve a transport error into a user-facing message. */
+/** Resolve a transport error into a user-facing message (engine messages
+ *  stay verbatim; only the missing-message fallback is translated). */
 export function errorMessage(reply: EngineReply): string {
-  return reply.error?.message ?? "Unbekannter Fehler";
+  return reply.error?.message ?? t("common.unknownError");
 }

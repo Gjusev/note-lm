@@ -7,6 +7,7 @@ import {
   type CatalogModelView,
   type ProvidersView,
 } from "./lib/api";
+import { LangSelect, fmtMB, t } from "./i18n";
 
 /**
  * First-run onboarding wizard (strategy §9): welcome -> resource recognition
@@ -30,18 +31,6 @@ const FLAG = "notelm.onboarded";
 /** Settings dispatches this to re-open the wizard ("Einführung erneut starten"). */
 export const ONBOARDING_EVENT = "notelm:onboarding";
 
-const mb = (bytes: number) => `${Math.round(bytes / 1048576)} MB`;
-
-type RowState = "ok" | "missing" | "installing" | "checking" | "error";
-
-const ROW_CHIP: Record<RowState, { text: string; bg: string; fg: string }> = {
-  ok: { text: "Bereit", bg: "var(--status-success)", fg: "var(--status-success-fg)" },
-  missing: { text: "Nicht konfiguriert", bg: "var(--chip-neutral-bg)", fg: "var(--chip-neutral-fg)" },
-  installing: { text: "Wird installiert…", bg: "var(--status-info)", fg: "var(--status-info-fg)" },
-  checking: { text: "Wird geprüft…", bg: "var(--status-info)", fg: "var(--status-info-fg)" },
-  error: { text: "Motor nicht erreichbar", bg: "var(--status-error)", fg: "var(--status-error-fg)" },
-};
-
 /** One checklist row: mono label, honest status chip, optional fix action.
  *  Chip + action sit in one right-aligned group with a fixed chip width, so
  *  the status column lines up whether or not a row carries an action. */
@@ -63,7 +52,7 @@ function Row({ label, sub, state, action }: {
       <span style={{ flex: 1, minWidth: 0, fontSize: "0.88rem" }}>{sub}</span>
       <span style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", justifyContent: "flex-end" }}>
         <span className="chip" style={{ background: chip.bg, color: chip.fg, minWidth: 152, justifyContent: "center" }}>
-          {chip.text}
+          {t(chip.key)}
         </span>
         {action}
       </span>
@@ -71,30 +60,44 @@ function Row({ label, sub, state, action }: {
   );
 }
 
+type RowState = "ok" | "missing" | "installing" | "checking" | "error";
+
+/** Chip visuals per row state; the text is a translation key (live switch). */
+const ROW_CHIP: Record<RowState, { key: string; bg: string; fg: string }> = {
+  ok: { key: "onboarding.chipOk", bg: "var(--status-success)", fg: "var(--status-success-fg)" },
+  missing: { key: "onboarding.chipMissing", bg: "var(--chip-neutral-bg)", fg: "var(--chip-neutral-fg)" },
+  installing: { key: "onboarding.chipInstalling", bg: "var(--status-info)", fg: "var(--status-info-fg)" },
+  checking: { key: "onboarding.chipChecking", bg: "var(--status-info)", fg: "var(--status-info-fg)" },
+  error: { key: "app.status.engineDown", bg: "var(--status-error)", fg: "var(--status-error-fg)" },
+};
+
 /** Small defaults the wizard recommends (catalog ids, see model-catalog.ts). */
 const RECOMMENDED = new Set(["qwen2.5-0.5b-instruct-q4-k-m", "bge-small-en-v1.5-q8-0"]);
 
-const STEP_NAMES = ["Ressourcen-Erkennung", "KI einrichten", "Beispiel laden"];
+const STEP_KEYS = ["onboarding.step1", "onboarding.step2", "library.loadSample"];
 
 function Welcome() {
   return (
     <div>
-      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>Willkommen bei note-lm</h2>
+      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>{t("onboarding.welcomeTitle")}</h2>
       <p className="muted" style={{ margin: "var(--space-2) 0 var(--space-4)" }}>
-        Notizbücher, Quellen und Textsuche funktionieren ohne jedes Setup. Diese Einführung
-        prüft in drei Schritten, was auf diesem Computer bereits bereit ist:
+        {t("onboarding.welcomeIntro")}
       </p>
       <ol style={{ margin: 0, paddingLeft: "var(--space-6)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-        {STEP_NAMES.map((name, i) => (
-          <li key={name}>
+        {STEP_KEYS.map((key, i) => (
+          <li key={key}>
             <span className="mono" style={{ textTransform: "none", letterSpacing: "0.04em" }}>
-              {i + 1}. {name}
+              {i + 1}. {t(key)}
             </span>
           </li>
         ))}
       </ol>
-      <p className="muted" style={{ margin: "var(--space-4) 0 0", fontSize: "0.85rem" }}>
-        Jeder Schritt ist überspringbar — <kbd>Escape</kbd> schließt die Einführung jederzeit.
+      {/* Language picker: switching applies immediately and persists. */}
+      <p style={{ margin: "var(--space-3) 0 0" }}>
+        <LangSelect />
+      </p>
+      <p className="muted" style={{ margin: "var(--space-3) 0 0", fontSize: "0.85rem" }}>
+        {t("onboarding.skipHintA")} <kbd>Escape</kbd> {t("onboarding.skipHintB")}
       </p>
     </div>
   );
@@ -129,46 +132,46 @@ function Resources(props: {
   const modelRows = props.models?.models ?? [];
   const totalBytes = modelRows.reduce((sum, m) => sum + m.sizeBytes, 0);
 
-  const fixAi = <button onClick={props.onFixAi}>Einrichten</button>;
+  const fixAi = <button onClick={props.onFixAi}>{t("onboarding.fixAi")}</button>;
 
   return (
     <div>
-      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>Ressourcen-Erkennung</h2>
+      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>{t("onboarding.step1")}</h2>
       <p className="muted" style={{ margin: "var(--space-2) 0" }}>
-        Automatisch geprüft — Stand dieser Installation.
+        {t("onboarding.resourcesIntro")}
       </p>
       {props.engineDown && (
         <p role="alert" style={{ color: "var(--accent)", margin: "0 0 var(--space-2)" }}>
-          Motor nicht erreichbar — Einführung später erneut starten (Einstellungen).
+          {t("onboarding.engineDown")}
         </p>
       )}
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         <Row
-          label="KI-Chat"
-          sub={chatOk ? (chatRemote ? `${connLabel(chatRemote.connectionId)} · ${chatRemote.model}` : "Auf diesem Computer") : "Noch kein Modell oder Anbieter gewählt"}
+          label={t("onboarding.rowChat")}
+          sub={chatOk ? (chatRemote ? `${connLabel(chatRemote.connectionId)} · ${chatRemote.model}` : t("app.status.local")) : t("onboarding.subNoModel")}
           state={props.diagFetching ? "checking" : chatOk ? "ok" : props.diag ? "missing" : "error"}
           action={chatOk ? undefined : props.diag ? fixAi : undefined}
         />
         <Row
-          label="Embeddings"
+          label={t("settings.typeEmbed")}
           sub={
             embedOk
               ? props.profile?.profile
-                ? `${props.profile.profile.model} · ${props.profile.profile.dimension} Dim.`
-                : "Konfiguriert"
-              : "Semantische Suche (Vektorsuche) — ohne bleibt die Textsuche aktiv"
+                ? t("onboarding.dims", { model: props.profile.profile.model, n: props.profile.profile.dimension })
+                : t("onboarding.configured")
+              : t("onboarding.embedMissing")
           }
           state={props.diagFetching ? "checking" : embedOk ? "ok" : props.diag ? "missing" : "error"}
           action={embedOk ? undefined : props.diag ? fixAi : undefined}
         />
         <Row
-          label="Transkription"
+          label={t("settings.typeTranscribe")}
           sub={
             transcribeRemote
               ? `${connLabel(transcribeRemote.connectionId)} · ${transcribeRemote.model}`
               : props.whisper?.installed
-                ? `Whisper-Laufzeit ${props.whisper.version} installiert — Modell noch wählen`
-                : "Audio/Video-Transkription (Whisper)"
+                ? t("onboarding.whisperInstalled", { version: props.whisper.version })
+                : t("onboarding.whisperMissing")
           }
           state={
             props.whisperFetching ? "checking"
@@ -177,18 +180,18 @@ function Resources(props: {
               : props.providers ? "missing" : "error"
           }
           action={transcribeRemote ? undefined : props.providers ? (
-            <button onClick={props.onGoSettings}>Einstellungen</button>
+            <button onClick={props.onGoSettings}>{t("app.settings")}</button>
           ) : undefined}
         />
         {/* FFmpeg + llama.cpp ship inside the app package — nothing to detect */}
-        <Row label="FFmpeg" sub="Medien-Verarbeitung (mitgeliefert)" state="ok" />
-        <Row label="llama.cpp" sub="Lokale Modellausführung (mitgeliefert)" state="ok" />
+        <Row label="FFmpeg" sub={t("onboarding.ffmpegSub")} state="ok" />
+        <Row label="llama.cpp" sub={t("onboarding.llamaSub")} state="ok" />
         <Row
-          label="Modelle auf Festplatte"
+          label={t("onboarding.rowModels")}
           sub={
             modelRows.length
-              ? `${modelRows.length} Modell${modelRows.length === 1 ? "" : "e"} · ${mb(totalBytes)}`
-              : "Noch keine lokalen Modelle heruntergeladen"
+              ? t("onboarding.modelsOnDisk", { n: modelRows.length, size: fmtMB(totalBytes) })
+              : t("onboarding.noLocalModels")
           }
           state={props.models ? (modelRows.length ? "ok" : "missing") : props.engineDown ? "error" : "checking"}
         />
@@ -226,9 +229,11 @@ function AiSetup(props: {
     onError: (e) => setError(e.message),
   });
 
-  // (b) API: the ProviderSettings save+test flow against the same ops
+  // (b) API: the ProviderSettings save+test flow against the same ops.
+  // The OK result is stored STRUCTURED so a live language switch re-renders
+  // it; engine errors stay verbatim strings.
   const [form, setForm] = useState({ presetId: "openai", label: "", baseUrl: "", chatModel: "", secret: "" });
-  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{ ok: true; latencyMs: number } | { ok: false; message: string } | null>(null);
   const [testing, setTesting] = useState(false);
   const apiPresets = props.presets.filter(
     (p) => !p.experimental && p.capabilities.includes("chat") && p.id !== "llamacpp"
@@ -246,9 +251,9 @@ function AiSetup(props: {
         },
         form.secret || undefined
       );
-      setTestResult(`Verbindung OK (${result.latencyMs} ms)`);
+      setTestResult({ ok: true, latencyMs: result.latencyMs });
     } catch (e) {
-      setTestResult((e as Error).message);
+      setTestResult({ ok: false, message: (e as Error).message });
     } finally {
       setTesting(false);
     }
@@ -294,15 +299,14 @@ function AiSetup(props: {
 
   return (
     <div>
-      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>KI einrichten</h2>
+      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>{t("onboarding.step2")}</h2>
       <p className="muted" style={{ margin: "var(--space-2) 0 var(--space-3)" }}>
-        Chat und semantische Suche brauchen ein Modell — lokal auf diesem Computer oder über
-        einen API-Anbieter. Ohne Auswahl bleibt note-lm ehrlich auf Textsuche.
+        {t("onboarding.aiIntro")}
       </p>
       <div style={{ display: "flex", gap: "var(--space-3)", flexWrap: "wrap", alignItems: "flex-start" }}>
-        {card("local", "Lokal — Privat", "Modelle werden von Hugging Face geladen, geprüft und laufen nur auf diesem Computer.", (
+        {card("local", t("onboarding.localCard"), t("onboarding.localSummary"), (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-            {props.catalogLoading && <p className="muted" style={{ margin: 0 }}>Katalog lädt…</p>}
+            {props.catalogLoading && <p className="muted" style={{ margin: 0 }}>{t("onboarding.catalogLoading")}</p>}
             {props.catalog
               .filter((e) => (e.capability === "chat" || e.capability === "embed") && e.url)
               .map((entry) => {
@@ -312,72 +316,73 @@ function AiSetup(props: {
                     <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
                       <strong style={{ flex: 1, fontSize: "0.88rem" }}>{entry.label}</strong>
                       {RECOMMENDED.has(entry.id) && (
-                        <span className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)" }}>Empfohlen</span>
+                        <span className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)" }}>{t("onboarding.recommended")}</span>
                       )}
                     </div>
                     <div className="mono" style={{ textTransform: "none", letterSpacing: "0.04em", margin: "var(--space-1) 0", fontSize: "0.72rem" }}>
-                      {entry.capability === "chat" ? "Chat" : "Embeddings"} · {mb(entry.sizeBytes)} · {entry.license}
+                      {entry.capability === "chat" ? t("settings.typeChat") : t("settings.typeEmbed")} · {fmtMB(entry.sizeBytes)} · {entry.license}
                     </div>
                     <button
                       className="primary"
                       disabled={install.isPending}
                       onClick={() => install.mutate(entry)}
                     >
-                      {busy ? `Wird geladen… (${mb(entry.sizeBytes)})` : "Herunterladen & aktivieren"}
+                      {busy ? t("onboarding.downloadingSize", { size: fmtMB(entry.sizeBytes) }) : t("onboarding.downloadActivate")}
                     </button>
                   </div>
                 );
               })}
             <p className="muted" style={{ margin: 0, fontSize: "0.78rem" }}>
-              Der Download läuft ununterbrochen im Hintergrund des Engine-Prozesses und ist erst
-              nach der Prüfsummenprüfung nutzbar — daher Fortschritt ohne Prozentanzeige.
+              {t("onboarding.downloadNote")}
             </p>
           </div>
         ))}
-        {card("api", "API-Anbieter", "OpenAI-kompatibler Anbieter mit Schlüssel; Zugangsdaten landen im Betriebssystem-Schlüsselbund.", (
+        {card("api", t("onboarding.apiCard"), t("onboarding.apiSummary"), (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.88rem" }}>
-              Typ
+              {t("common.type")}
               <select value={form.presetId} onChange={(e) => setForm({ ...form, presetId: e.target.value })}>
                 {apiPresets.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
               </select>
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.88rem" }}>
-              Name
-              <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="z. B. Mein OpenRouter" />
+              {t("providers.name")}
+              <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder={t("providers.namePlaceholder")} />
             </label>
             {form.presetId === "custom" && (
               <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.88rem" }}>
-                Serveradresse
+                {t("providers.server")}
                 <input value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })} placeholder="http://localhost:1234/v1" />
               </label>
             )}
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.88rem" }}>
-              Chat-Modell
-              <input value={form.chatModel} onChange={(e) => setForm({ ...form, chatModel: e.target.value })} placeholder="z. B. gpt-4o-mini" />
+              {t("onboarding.chatModel")}
+              <input value={form.chatModel} onChange={(e) => setForm({ ...form, chatModel: e.target.value })} placeholder={t("onboarding.chatModelPlaceholder")} />
             </label>
             <label style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", fontSize: "0.88rem" }}>
-              Zugangsdaten (API-Schlüssel)
-              <input type="password" value={form.secret} onChange={(e) => setForm({ ...form, secret: e.target.value })} autoComplete="off" placeholder="Wird im Schlüsselbund gespeichert" />
+              {t("providers.secret")}
+              <input type="password" value={form.secret} onChange={(e) => setForm({ ...form, secret: e.target.value })} autoComplete="off" placeholder={t("onboarding.secretShort")} />
             </label>
             <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", flexWrap: "wrap" }}>
-              <button onClick={test} disabled={testing}> {testing ? "Teste…" : "Verbindung testen"} </button>
+              <button onClick={test} disabled={testing}> {testing ? t("providers.testing") : t("providers.test")} </button>
               <button className="primary" onClick={() => save.mutate()} disabled={save.isPending || !form.label || !form.chatModel}>
-                {save.isPending ? "Speichere…" : "Speichern & aktivieren"}
+                {save.isPending ? t("common.saving") : t("onboarding.saveActivate")}
               </button>
             </div>
-            {testResult && <p className="muted" style={{ margin: 0, fontSize: "0.82rem" }}>{testResult}</p>}
+            {testResult && (
+              <p className="muted" style={{ margin: 0, fontSize: "0.82rem" }}>
+                {testResult.ok ? t("providers.testOk", { latency: testResult.latencyMs }) : testResult.message}
+              </p>
+            )}
           </div>
         ))}
       </div>
 
       {/* (c) honest later: no fake readiness */}
       <div style={{ marginTop: "var(--space-3)", borderTop: "1px solid var(--rule)", paddingTop: "var(--space-3)" }}>
-        <button onClick={props.onDone}>Später — Nur Textsuche</button>
+        <button onClick={props.onDone}>{t("onboarding.later")}</button>
         <p className="muted" style={{ margin: "var(--space-2) 0 0", fontSize: "0.82rem" }}>
-          Chat und semantische Suche bleiben dann außerhalb der Textsuche inaktiv, bis du sie
-          unter Einstellungen einrichtest. Notizbücher, Quellen, Notizen und Textsuche
-          funktionieren vollständig ohne.
+          {t("onboarding.laterNote")}
         </p>
       </div>
       {error && <p role="alert" style={{ color: "var(--accent)", margin: "var(--space-2) 0 0" }}>{error}</p>}
@@ -405,16 +410,15 @@ function SampleOffer(props: { onDone: (notebookId: string | null) => void }) {
 
   return (
     <div>
-      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>Beispiel laden</h2>
+      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>{t("library.loadSample")}</h2>
       <p className="muted" style={{ margin: "var(--space-2) 0 var(--space-4)" }}>
-        Mit einem Klick entsteht ein Notizbuch mit einer verknüpften Studie in zwei Versionen —
-        inklusive einer Aussage, deren Beleg sich beim Update ändert. Oder leer beginnen.
+        {t("onboarding.sampleIntro")}
       </p>
       <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
         <button className="primary" onClick={withSample} disabled={sampling}>
-          {sampling ? "Beispiel wird geladen…" : "Mit Beispiel starten"}
+          {sampling ? t("library.sampling") : t("onboarding.startWithSample")}
         </button>
-        <button onClick={() => props.onDone(null)} disabled={sampling}>Leer beginnen</button>
+        <button onClick={() => props.onDone(null)} disabled={sampling}>{t("onboarding.startEmpty")}</button>
       </div>
       {error && <p role="alert" style={{ color: "var(--accent)", margin: "var(--space-2) 0 0" }}>{error}</p>}
     </div>
@@ -425,17 +429,14 @@ function SampleOffer(props: { onDone: (notebookId: string | null) => void }) {
 function Finish(props: { notebookId: string | null; onDone: () => void }) {
   return (
     <div>
-      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>Fertig — Los geht's</h2>
+      <h2 id="onboarding-title" style={{ margin: 0, fontSize: "1.15rem" }}>{t("onboarding.finishTitle")}</h2>
       <p className="muted" style={{ margin: "var(--space-2) 0 var(--space-4)" }}>
-        {props.notebookId
-          ? "Das Beispiel-Notizbuch ist bereit und öffnet sich nach dem Schließen."
-          : "Die Bibliothek ist leer und wartet auf dein erstes Notizbuch."}
+        {props.notebookId ? t("onboarding.finishWithSample") : t("onboarding.finishEmpty")}
       </p>
       <p style={{ margin: "0 0 var(--space-4)" }}>
-        <kbd>Escape</kbd> schließt Panels und Dialoge. Die Einführung lässt sich jederzeit in
-        den Einstellungen erneut starten.
+        <kbd>Escape</kbd> {t("onboarding.finishHint")}
       </p>
-      <button className="primary" onClick={props.onDone}>Los geht's</button>
+      <button className="primary" onClick={props.onDone}>{t("onboarding.go")}</button>
     </div>
   );
 }
@@ -574,12 +575,12 @@ export function Onboarding() {
 
         {step < 4 && (
           <div style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-6)", paddingTop: "var(--space-4)", borderTop: "var(--rule-structural)", alignItems: "center" }}>
-            {step < 3 && <button className="primary" onClick={() => setStep(step + 1)}>Weiter</button>}
-            {step > 0 && <button onClick={() => { setStep(step - 1); setChoice(null); }}>Zurück</button>}
+            {step < 3 && <button className="primary" onClick={() => setStep(step + 1)}>{t("onboarding.next")}</button>}
+            {step > 0 && <button onClick={() => { setStep(step - 1); setChoice(null); }}>{t("onboarding.back")}</button>}
             <span className="meta" style={{ marginLeft: "auto" }} aria-hidden="true">
-              {step < 3 ? `Schritt ${step + 1}/3` : ""}
+              {step < 3 ? t("onboarding.stepOf", { n: step + 1 }) : ""}
             </span>
-            <button onClick={close}>Überspringen</button>
+            <button onClick={close}>{t("onboarding.skip")}</button>
           </div>
         )}
       </div>

@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi } from "../lib/api";
+import { t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
 /** `[@claim:<claimId>]` - ids are engine row ids ([A-Za-z0-9_-]+). */
@@ -76,13 +77,13 @@ export function NoteEditor(props: {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, padding: "var(--space-4)", gap: "var(--space-2)", overflowY: "auto" }}>
-      <input value={title ?? ""} onChange={(e) => setTitle(e.target.value)} aria-label="Notiz-Titel" placeholder="Titel"
+      <input value={title ?? ""} onChange={(e) => setTitle(e.target.value)} aria-label={t("nav.noteTitleAria")} placeholder={t("nav.titlePlaceholder")}
         style={{ fontSize: "1.1rem", fontWeight: 600, border: "none", background: "transparent", padding: "var(--space-1) 0" }} />
-      <textarea value={draft} onChange={(e) => setContent(e.target.value)} aria-label="Notiz-Inhalt"
+      <textarea value={draft} onChange={(e) => setContent(e.target.value)} aria-label={t("note.contentAria")}
         style={{ flex: 1, minHeight: 240, resize: "none", fontFamily: "var(--font-ui)", fontSize: "0.95rem", lineHeight: 1.6 }} />
       {claimIds.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-          <span className="mono" style={{ fontSize: "0.7rem" }}>Verweise in dieser Notiz</span>
+          <span className="mono" style={{ fontSize: "0.7rem" }}>{t("note.refsTitle")}</span>
           <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
             {claimIds.map((id) => (
               <ClaimRefChip key={id} notebookId={props.notebookId} claimId={id} onOpen={props.onOpenClaimRef} />
@@ -92,9 +93,9 @@ export function NoteEditor(props: {
       )}
       <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center" }}>
         <button className="primary" disabled={save.isPending || !title?.trim()} onClick={() => save.mutate()}>
-          {save.isPending ? "Speichere…" : "Speichern"}
+          {save.isPending ? t("common.saving") : t("common.save")}
         </button>
-        {props.ui.drafts[props.noteId] != null && <span className="muted" style={{ fontSize: "0.8rem" }}>Entwurf nicht gespeichert</span>}
+        {props.ui.drafts[props.noteId] != null && <span className="muted" style={{ fontSize: "0.8rem" }}>{t("note.draftUnsaved")}</span>}
       </div>
       {save.isError && <p role="alert" style={{ color: "var(--accent)", margin: 0, fontSize: "0.8rem" }}>{save.error.message}</p>}
     </div>
@@ -110,7 +111,7 @@ function ClaimRefChip({ notebookId, claimId, onOpen }: { notebookId: string; cla
   if (!anchor && claims != null) {
     return (
       <span className="muted" style={{ fontSize: "0.75rem", border: "1px dashed var(--rule)", padding: "0 var(--space-1)" }}>
-        Unbekannter Verweis
+        {t("note.unknownRef")}
       </span>
     );
   }
@@ -119,7 +120,9 @@ function ClaimRefChip({ notebookId, claimId, onOpen }: { notebookId: string; cla
     <button title={anchor.quote} onClick={() => onOpen(claimId)}
       style={{ fontSize: "0.75rem", padding: 0, textAlign: "left",
         background: "transparent", color: "inherit", border: "none", textDecoration: "underline" }}>
-      {anchor.fileName ?? "Quelle"} · v{anchor.version}{anchor.page != null ? ` · S. ${anchor.page}` : ""}
+      {anchor.page != null
+        ? t("note.refChipPage", { file: anchor.fileName ?? t("common.sourceFallback"), v: anchor.version, p: anchor.page })
+        : t("note.refChip", { file: anchor.fileName ?? t("common.sourceFallback"), v: anchor.version })}
     </button>
   );
 }

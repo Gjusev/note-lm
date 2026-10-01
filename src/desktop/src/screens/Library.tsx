@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSampleNotebook, desktopApi } from "../lib/api";
+import { fmtDate, t } from "../i18n";
 
 /** Onboarding: the first notebook can be created before any AI is
  *  configured (plan phase 4 acceptance). */
@@ -34,7 +35,7 @@ export function Library() {
   });
 
   const create = useMutation({
-    mutationFn: (t: string) => desktopApi.createNotebook(t),
+    mutationFn: (t2: string) => desktopApi.createNotebook(t2),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["notebooks"] });
       setAdding(false);
@@ -46,13 +47,13 @@ export function Library() {
   return (
     <section className="page-shell" style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
       <div className="library-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-3)" }}>
-        <h1 style={{ fontSize: "1.4rem", margin: 0 }}>Bibliothek</h1>
+        <h1 style={{ fontSize: "1.4rem", margin: 0 }}>{t("library.title")}</h1>
         <div className="library-actions" style={{ display: "flex", gap: "var(--space-2)" }}>
           <button onClick={loadSample} disabled={sampling}>
-            {sampling ? "Beispiel wird geladen…" : "Beispiel laden"}
+            {sampling ? t("library.sampling") : t("library.loadSample")}
           </button>
           <button className="primary" onClick={() => setAdding(!adding)}>
-            {adding ? "Abbrechen" : "+ Notizbuch"}
+            {adding ? t("common.cancel") : t("library.newNotebook")}
           </button>
         </div>
       </div>
@@ -73,19 +74,19 @@ export function Library() {
         >
           <input
             autoFocus
-            placeholder="Titel, z.B. Seminararbeit Photovoltaik"
+            placeholder={t("library.titlePlaceholder")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            aria-label="Notizbuch-Titel"
+            aria-label={t("library.titleAria")}
           />
           <button className="primary" type="submit" disabled={!title.trim() || create.isPending}>
-            Erstellen
+            {t("library.create")}
           </button>
         </form>
       )}
 
       {isLoading ? (
-        <p className="muted" style={{ marginTop: "var(--space-6)" }}>Laden…</p>
+        <p className="muted" style={{ marginTop: "var(--space-6)" }}>{t("common.loading")}</p>
       ) : !notebooks?.length ? (
         <div
           className="empty-state"
@@ -96,10 +97,9 @@ export function Library() {
             border: "1px dashed var(--rule)",
           }}
         >
-          <p className="mono" style={{ color: "var(--accent)" }}>[ LEER ]</p>
+          <p className="mono" style={{ color: "var(--accent)" }}>{t("library.emptyMark")}</p>
           <p className="muted">
-            Erstelle dein erstes Notizbuch. KI kannst du später in den Einstellungen konfigurieren —
-            Notizbücher, Quellen und Textsuche funktionieren ohne.
+            {t("library.emptyHint")}
           </p>
         </div>
       ) : (
@@ -118,7 +118,7 @@ export function Library() {
               >
                 <strong>{nb.title}</strong>
                 <span className="meta" style={{ display: "block", fontSize: "0.7rem" }}>
-                  {new Date(nb.updatedAt).toLocaleDateString("de-DE")}
+                  {fmtDate(nb.updatedAt)}
                 </span>
               </a>
             </li>

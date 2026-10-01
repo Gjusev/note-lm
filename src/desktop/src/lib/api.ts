@@ -2,6 +2,7 @@
  *  src/lib/api.ts (same wire contracts, `_id` fields) so screens stay
  *  portable between the web and desktop frontends. */
 import { engineOp, errorMessage, type EngineReply } from "./transport";
+import { t } from "../i18n";
 
 async function call<T>(op: string, args: unknown = {}): Promise<T> {
   const reply = await engineOp(op, args) as EngineReply<T>;
@@ -109,12 +110,13 @@ export interface ProvidersView {
   capabilities: Record<string, { connectionId: string; model: string }>;
   offline: boolean;
 }
-/** All four capabilities with their German labels for the settings UI. */
+/** All four capabilities (ids only — labels are translated at the use site,
+ *  see settings.capChat/typeEmbed/typeTranscribe/capTts). */
 export const PROVIDER_CAPABILITIES = [
-  { id: "chat", label: "Konversation" },
-  { id: "embed", label: "Embeddings" },
-  { id: "transcribe", label: "Transkription" },
-  { id: "tts", label: "Sprachausgabe" },
+  { id: "chat" },
+  { id: "embed" },
+  { id: "transcribe" },
+  { id: "tts" },
 ] as const;
 
 /** Embedding recipe of a catalog-known embed model (P3): profile identity =
@@ -333,7 +335,7 @@ export async function createSampleNotebook(): Promise<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const samplesDir = (window as any).__NOTELM_DEV_SAMPLES_DIR__;
   if (typeof samplesDir !== "string" || !samplesDir.trim()) {
-    throw new Error("Beispiel-Notizbuch ist nur in der Desktop-App verfügbar");
+    throw new Error(t("errors.sampleDesktopOnly"));
   }
   const sample = (name: string) => `${samplesDir.replace(/[\\/]+$/, "")}/${name}`;
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -348,10 +350,10 @@ export async function createSampleNotebook(): Promise<{
   for (let i = 0; i < 60 && !v1Done; i++) {
     await sleep(500);
     const s = (await desktopApi.listSources(nb.id)).find((x) => x._id === sourceId);
-    if (s?.status === "error") throw new Error("Beispielquelle konnte nicht verarbeitet werden");
+    if (s?.status === "error") throw new Error(t("errors.sampleProcessing"));
     v1Done = s?.status === "completed";
   }
-  if (!v1Done) throw new Error("Zeitüberschreitung: Beispielquelle wurde nicht rechtzeitig verarbeitet");
+  if (!v1Done) throw new Error(t("errors.sampleTimeout"));
 
   const claim = await desktopApi.createClaim(
     nb.id,
@@ -369,14 +371,14 @@ export async function createSampleNotebook(): Promise<{
       await sleep(500);
       const j = (await desktopApi.listJobs()).jobs.find((x) => x.id === reimported.jobId);
       if (j?.status === "failed" || j?.status === "cancelled") {
-        throw new Error("Beispielquelle (Version 2) konnte nicht verarbeitet werden");
+        throw new Error(t("errors.sampleV2Processing"));
       }
       terminal = j?.status === "completed";
     }
-    if (!terminal) throw new Error("Zeitüberschreitung: Beispielquelle (Version 2) wurde nicht rechtzeitig verarbeitet");
+    if (!terminal) throw new Error(t("errors.sampleV2Timeout"));
   }
   if ((await desktopApi.listReviews(nb.id)).length === 0) {
-    throw new Error("Keine Überarbeitungsvorschläge nach dem Beispiel-Update");
+    throw new Error(t("errors.sampleNoReviews"));
   }
   return { notebookId: nb.id, sourceId, claimId: claim.id };
 }
@@ -385,7 +387,7 @@ export async function createSampleNotebook(): Promise<{
  *  validates the path against the engine data dir; null in browser dev. */
 export async function openExternalFile(path: string): Promise<void> {
   if (typeof window === "undefined" || !("__TAURI__" in window)) {
-    throw new Error("Dateiöffnung nur in der Desktop-App verfügbar");
+    throw new Error(t("errors.openExternal"));
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (window as any).__TAURI__.core.invoke("open_external_file", { path });

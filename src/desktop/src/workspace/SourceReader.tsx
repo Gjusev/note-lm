@@ -23,6 +23,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { assetUrl, type Source, type SourceOpenView, type SourceVersionView } from "../lib/api";
 import { isPdf, mediaKind, MediaView } from "../components/EvidencePanel";
+import { fmtDate, t } from "../i18n";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 export interface ReaderSelection {
@@ -138,17 +139,17 @@ function PdfPage({ src, page, onNumPages, textRef, onBlockSelect }: {
     <div ref={wrapRef} style={{ width: "100%", display: "flex", justifyContent: "center", padding: "var(--space-4)" }}>
       {state === "error" ? (
         <p style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>
-          Seite konnte nicht angezeigt werden - Originaldatei fehlt oder ist beschädigt.
+          {t("reader.pdfError")}
         </p>
       ) : (
         <div style={{ position: "relative" }}>
-          <canvas ref={canvasRef} aria-label={`Seite ${page}`} role="img"
+          <canvas ref={canvasRef} aria-label={t("reader.pageAria", { n: page })} role="img"
             style={{ display: state === "done" ? "block" : "none", maxWidth: "100%", border: "1px solid var(--rule)", background: "#fff" }} />
           <div ref={textRef} className="text-layer" tabIndex={0} role="document"
-            aria-label={`Seite ${page}, Textebene. Pfeiltasten bewegen zwischen Zitatblöcken, Enter übernimmt den markierten Block.`}
+            aria-label={t("reader.layerAria", { n: page })}
             onKeyDown={onLayerKeyDown}
             style={{ display: state === "done" ? "block" : "none" }} />
-          {state === "loading" && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>Seite wird geladen…</p>}
+          {state === "loading" && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>{t("reader.pageLoading")}</p>}
         </div>
       )}
     </div>
@@ -167,14 +168,14 @@ function TextPreview({ src }: { src: string }) {
     fetch(src).then((r) => r.text()).then((t) => { if (alive) setText(t); }).catch(() => { if (alive) setFailed(true); });
     return () => { alive = false; };
   }, [src]);
-  if (failed) return <p style={{ color: "var(--accent)", fontSize: "0.85rem", margin: 0 }}>Text konnte nicht geladen werden.</p>;
-  if (text == null) return <p className="muted" style={{ fontSize: "0.85rem" }}>Text wird geladen…</p>;
+  if (failed) return <p style={{ color: "var(--accent)", fontSize: "0.85rem", margin: 0 }}>{t("reader.textFailed")}</p>;
+  if (text == null) return <p className="muted" style={{ fontSize: "0.85rem" }}>{t("reader.textLoading")}</p>;
   return (
     <div style={{ width: "100%", maxWidth: 760 }}>
       <pre style={{ whiteSpace: "pre-wrap", fontFamily: "var(--font-mono)", fontSize: "0.8rem", margin: 0 }}>{
         text.length > 20000 ? `${text.slice(0, 20000)}\n…` : text
       }</pre>
-      {text.length > 20000 && <p className="muted" style={{ fontSize: "0.75rem" }}>Vorschau gekürzt.</p>}
+      {text.length > 20000 && <p className="muted" style={{ fontSize: "0.75rem" }}>{t("reader.previewTruncated")}</p>}
     </div>
   );
 }
@@ -196,8 +197,8 @@ function SheetPreview({ src }: { src: string }) {
     }).catch(() => { if (alive) setFailed(true); });
     return () => { alive = false; };
   }, [src]);
-  if (failed) return <p style={{ color: "var(--accent)", fontSize: "0.85rem", margin: 0 }}>Tabelle konnte nicht geladen werden.</p>;
-  if (!rows) return <p className="muted" style={{ fontSize: "0.85rem" }}>Tabelle wird geladen…</p>;
+  if (failed) return <p style={{ color: "var(--accent)", fontSize: "0.85rem", margin: 0 }}>{t("reader.sheetFailed")}</p>;
+  if (!rows) return <p className="muted" style={{ fontSize: "0.85rem" }}>{t("reader.sheetLoading")}</p>;
   return (
     <div style={{ width: "100%", maxWidth: 900 }}>
       <div style={{ overflowX: "auto", border: "1px solid var(--rule)", borderRadius: "var(--radius)" }}>
@@ -213,7 +214,7 @@ function SheetPreview({ src }: { src: string }) {
           </tbody>
         </table>
       </div>
-      <p className="muted" style={{ fontSize: "0.75rem" }}>Vorschau - erste 50 Zeilen, Zellen ohne Spezialformatierung.</p>
+      <p className="muted" style={{ fontSize: "0.75rem" }}>{t("reader.sheetNote")}</p>
     </div>
   );
 }
@@ -339,15 +340,17 @@ export function SourceReader(props: {
       <div className="rule-top" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-2) var(--space-4)", flexWrap: "wrap" }}>
         <strong style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{props.source.fileName}</strong>
         <label className="mono" style={{ fontSize: "0.7rem", display: "inline-flex", gap: "var(--space-1)", alignItems: "center" }}>
-          {"Version "}
-          <select aria-label="Version der Quelle öffnen" value={props.openVersionId ?? ""}
+          {t("reader.version")}
+          <select aria-label={t("reader.versionAria")} value={props.openVersionId ?? ""}
             disabled={!props.versions || props.versions.length === 0}
             onChange={(e) => props.onOpenVersion(e.target.value || null)}
             style={{ fontSize: "0.75rem", textTransform: "none", letterSpacing: "normal" }}>
-            {props.openVersionId == null && <option value="">aktuell</option>}
+            {props.openVersionId == null && <option value="">{t("reader.latest")}</option>}
             {[...(props.versions ?? [])].reverse().map((v) => (
               <option key={v.id} value={v.id}>
-                v{v.version} · {new Date(v.createdAt).toLocaleDateString("de-DE")}{v.pageCount != null ? ` · ${v.pageCount} S.` : ""}
+                {v.pageCount != null
+                  ? t("nav.versionPages", { v: v.version, date: fmtDate(v.createdAt), n: v.pageCount })
+                  : t("nav.versionCsv", { v: v.version, date: fmtDate(v.createdAt) })}
               </option>
             ))}
           </select>
@@ -355,10 +358,10 @@ export function SourceReader(props: {
         <span style={{ flex: 1 }} />
         {pdf && numPages > 0 && (
           <span style={{ display: "flex", gap: "var(--space-1)", alignItems: "center" }}>
-            <button aria-label="Vorherige Seite" disabled={pageNum <= 1}
+            <button aria-label={t("reader.prevPage")} disabled={pageNum <= 1}
               onClick={() => { setPageNum(pageNum - 1); props.onPosition({ page: pageNum - 1 }); }}>←</button>
             <span className="mono" aria-live="polite" style={{ fontSize: "0.75rem" }}>{pageNum} / {numPages}</span>
-            <button aria-label="Nächste Seite" disabled={numPages > 0 && pageNum >= numPages}
+            <button aria-label={t("reader.nextPage")} disabled={numPages > 0 && pageNum >= numPages}
               onClick={() => { setPageNum(pageNum + 1); props.onPosition({ page: pageNum + 1 }); }}>→</button>
           </span>
         )}
@@ -368,10 +371,10 @@ export function SourceReader(props: {
         {props.openError ? (
           <p style={{ color: "var(--accent)", padding: "var(--space-4)", fontSize: "0.85rem", margin: 0 }}>{props.openError}</p>
         ) : !props.opened ? (
-          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.85rem" }}>Original wird geöffnet…</p>
+          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.85rem" }}>{t("reader.opening")}</p>
         ) : !fileUrl ? (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.85rem" }}>
-            Originaldatei nicht verfügbar - nur Zitat.
+            {t("reader.noFile")}
           </p>
         ) : pdf ? (
           <PdfPage key={`${props.source._id}:${props.openVersionId ?? props.opened.version}`}
@@ -390,21 +393,21 @@ export function SourceReader(props: {
           </div>
         ) : (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.85rem" }}>
-            Ansicht im Fenster nicht verfügbar - nur Zitat.
+            {t("reader.noView")}
           </p>
         )}
       </div>
       {chooser && (
-        <div role="group" aria-label="Zitat übernehmen"
+        <div role="group" aria-label={t("reader.chooserAria")}
           style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", padding: "var(--space-2) var(--space-4)", flexWrap: "wrap", background: "var(--surface)", borderTop: "var(--rule-structural)" }}>
           <span title={chooser.sel.quote}
             style={{ flex: 1, minWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "0.85rem" }}>
             „{chooser.sel.quote}“
           </span>
-          <button ref={chooserFirst} className="primary" onClick={() => runChooser(props.onSaveClaim)}>Als Beleg speichern</button>
-          <button onClick={() => runChooser(props.onInsertNote)}>In Notiz einfügen</button>
+          <button ref={chooserFirst} className="primary" onClick={() => runChooser(props.onSaveClaim)}>{t("reader.saveEvidence")}</button>
+          <button onClick={() => runChooser(props.onInsertNote)}>{t("reader.insertNote")}</button>
           <button onClick={() => { const back = chooser.anchorEl; setChooser(null); back?.focus(); }}>
-            Abbrechen (<kbd>Esc</kbd>)
+            {t("common.cancel")} (<kbd>Esc</kbd>)
           </button>
         </div>
       )}

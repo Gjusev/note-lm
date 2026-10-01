@@ -31,19 +31,20 @@ import {
 } from "lucide-react";
 import { desktopApi, matrixCellKey, type MatrixCellView, type Source } from "../lib/api";
 import { formatTimeRange } from "../components/EvidencePanel";
+import { fmtDate, fmtDateTime, t } from "../i18n";
 
 /** Status text + icon (never color alone); the renderer covers all four
  *  contract statuses. not_found_in_search names its covering run via
- *  cell.searchProvenance (migration 0014). */
-const STATUS: Record<MatrixCellView["status"], { icon: LucideIcon; label: string }> = {
-  evidence: { icon: Link2, label: "Beleg verknüpft" },
-  pending_review: { icon: TriangleAlert, label: "Prüfung offen" },
-  not_reviewed: { icon: CircleDashed, label: "Nicht geprüft" },
-  not_found_in_search: { icon: SearchX, label: "In der Suche nicht gefunden" },
+ *  cell.searchProvenance (migration 0014). Labels are translation keys. */
+const STATUS: Record<MatrixCellView["status"], { icon: LucideIcon; labelKey: string }> = {
+  evidence: { icon: Link2, labelKey: "matrix.statusEvidence" },
+  pending_review: { icon: TriangleAlert, labelKey: "matrix.statusPending" },
+  not_reviewed: { icon: CircleDashed, labelKey: "matrix.statusNotReviewed" },
+  not_found_in_search: { icon: SearchX, labelKey: "matrix.statusNotFound" },
 };
 
-const RELATION_LABEL: Record<string, string> = { supports: "stützt", questions: "hinterfragt" };
-const DECISION_LABEL: Record<string, string> = { accepted: "Übernommen", rejected: "Abgelehnt" };
+const RELATION_LABEL: Record<string, string> = { supports: "matrix.relationSupports", questions: "matrix.relationQuestions" };
+const DECISION_LABEL: Record<string, string> = { accepted: "matrix.decisionAccepted", rejected: "matrix.decisionRejected" };
 
 function snippet(text: string, max = 48): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
@@ -150,7 +151,7 @@ export function MatrixView(props: {
           column then renders "Nicht geprüft", correction 1). */}
       <div className="rule-top" style={{ padding: "var(--space-2) var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", alignItems: "center" }}>
-          <span className="mono" style={{ fontSize: "0.7rem" }}>Spalten: Quellen</span>
+          <span className="mono" style={{ fontSize: "0.7rem" }}>{t("matrix.columns")}</span>
           {props.sources.map((s) => (
             <button key={s._id} aria-pressed={isPressed(s._id)} onClick={() => toggleSource(s._id)}
               title={s.fileName}
@@ -166,7 +167,7 @@ export function MatrixView(props: {
             </button>
           ))}
           {props.sources.length === 0 && (
-            <span className="muted" style={{ fontSize: "0.8rem" }}>Noch keine Quellen.</span>
+            <span className="muted" style={{ fontSize: "0.8rem" }}>{t("nav.noSources")}</span>
           )}
         </div>
         {/* Scoped search (search.run): records the performed search whose
@@ -181,18 +182,18 @@ export function MatrixView(props: {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="In Auswahl suchen…"
-            aria-label="In Auswahl suchen"
+            placeholder={t("matrix.searchPlaceholder")}
+            aria-label={t("matrix.searchAria")}
             disabled={search.isPending || columns.length === 0}
             style={{ maxWidth: 260, fontSize: "0.8rem", padding: "0 var(--space-2)" }}
           />
           <button type="submit" style={{ fontSize: "0.75rem", padding: "0 var(--space-2)" }}
             disabled={!query.trim() || search.isPending || columns.length === 0}>
-            {search.isPending ? "Suche läuft…" : "Suchen"}
+            {search.isPending ? t("matrix.searching") : t("matrix.search")}
           </button>
           {search.data && (
             <span className="meta" style={{ fontSize: "0.65rem" }} role="status">
-              {search.data.hits.length} Treffer · {search.data.sourceIds.length} Quelle(n) durchsucht
+              {t("matrix.searchStats", { hits: search.data.hits.length, n: search.data.sourceIds.length })}
             </span>
           )}
           {search.isError && (
@@ -204,14 +205,14 @@ export function MatrixView(props: {
         {/* Legend line is part of the contract, not a tooltip (§5): the
             empty-sounding statuses are worded distinctly and honestly. */}
         <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>
-          „Nicht geprüft“ heißt nicht „nichts drin“ – für dieses Paar wurde noch nichts aufgezeichnet. „In der Suche nicht gefunden“ wäre eine Aussage über EINE Suche, nie über die Quelle.
-          {hScrollable && " Weitere Spalten über horizontales Scrollen erreichbar."}
+          {t("matrix.legend")}
+          {hScrollable ? ` ${t("matrix.legendScroll")}` : ""}
         </p>
       </div>
 
       {claims.length === 0 ? (
         <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem", margin: 0 }}>
-          Noch keine Aussagen. Aussagen mit Belegen (Aussagen speichern oder aus dem Chat sichern) werden die Zeilen dieser Matrix.
+          {t("matrix.noClaims")}
         </p>
       ) : (
         <div ref={scrollRef} style={{ overflow: "auto", minHeight: 0, flex: 1 }}>
@@ -219,13 +220,13 @@ export function MatrixView(props: {
             <thead>
               <tr>
                 <th scope="col" style={{ position: "sticky", top: 0, left: 0, zIndex: 3, background: "var(--paper)", textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", borderRight: "1px solid var(--rule)", minWidth: 200 }}>
-                  Aussage
+                  {t("matrix.claimColumn")}
                 </th>
                 {columns.map((col) => (
                   <th key={col.id} scope="col" style={{ position: "sticky", top: 0, zIndex: 2, background: "var(--paper)", textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)", minWidth: 200 }}>
                     {col.fileName}
                     {col.latestVersion != null && (
-                      <span className="mono" style={{ fontSize: "0.65rem", display: "block" }}>aktuell v{col.latestVersion}</span>
+                      <span className="mono" style={{ fontSize: "0.65rem", display: "block" }}>{t("matrix.latest", { v: col.latestVersion })}</span>
                     )}
                   </th>
                 ))}
@@ -247,7 +248,7 @@ export function MatrixView(props: {
                           else cellRefs.current.delete(`${r}:${c}`);
                         }}
                         tabIndex={focus.r === r && focus.c === c ? 0 : -1}
-                        aria-label={`${claim.text} — ${col.fileName}: ${cell ? STATUS[cell.status].label : STATUS.not_reviewed.label}`}
+                        aria-label={`${claim.text} — ${col.fileName}: ${t(cell ? STATUS[cell.status].labelKey : STATUS.not_reviewed.labelKey)}`}
                         onFocus={() => setFocus({ r, c })}
                         onClick={() => activate(cell, col.id)}
                         onKeyDown={(e) => {
@@ -277,7 +278,7 @@ export function MatrixView(props: {
           </table>
           {columns.length === 0 && (
             <p className="muted" style={{ padding: "var(--space-4)", fontSize: "0.85rem", margin: 0 }}>
-              Noch keine aufgezeichneten Beziehungen. Wähle oben Quellen als Spalten, um sie gegenüberzustellen.
+              {t("matrix.noRelations")}
             </p>
           )}
         </div>
@@ -305,15 +306,15 @@ function CellBody(props: {
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       <span style={{ display: "inline-flex", gap: "var(--space-1)", alignItems: "center", fontSize: "0.75rem" }}>
         <StatusIcon size={14} aria-hidden />
-        {status.label}
+        {t(status.labelKey)}
         {cell.evidence.length > 0 && cell.pendingProposals.length > 0 && (
-          <span className="mono" style={{ fontSize: "0.65rem" }}>+ {cell.evidence.length} Beleg(e)</span>
+          <span className="mono" style={{ fontSize: "0.65rem" }}>{t("matrix.moreEvidence", { n: cell.evidence.length })}</span>
         )}
       </span>
 
       {cell.status === "not_found_in_search" && cell.searchProvenance && (
         <span className="meta" style={{ fontSize: "0.65rem", textTransform: "none", letterSpacing: "0.04em" }}>
-          — „{cell.searchProvenance.query}“ · {new Date(cell.searchProvenance.searchedAt).toLocaleString("de-DE")}
+          {t("matrix.searchProvenance", { query: cell.searchProvenance.query, date: fmtDateTime(cell.searchProvenance.searchedAt) })}
         </span>
       )}
 
@@ -325,8 +326,8 @@ function CellBody(props: {
             background: "transparent", color: "inherit", border: "none", textDecoration: "underline" }}
         >
           <span style={{ display: "inline-block", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "bottom" }}>
-            {RELATION_LABEL[a.relation] ?? a.relation} · v{a.version} ·{" "}
-            {a.locator ? formatTimeRange(a.locator) : a.page != null ? `S. ${a.page}` : "ohne Ort"} — {snippet(a.quote)}
+            {RELATION_LABEL[a.relation] ? t(RELATION_LABEL[a.relation]) : a.relation} · v{a.version} ·{" "}
+            {a.locator ? formatTimeRange(a.locator) : a.page != null ? t("common.pageShort", { n: a.page }) : t("matrix.noLoc")} — {snippet(a.quote)}
           </span>
         </button>
       ))}
@@ -345,16 +346,20 @@ function CellBody(props: {
             style={{ fontSize: "0.75rem", padding: 0, textAlign: "left", textDecoration: "underline",
               background: "transparent", color: "inherit", border: "none" }}
           >
-            Überarbeitung v{p.fromVersion} → v{p.toVersion} ({p.reason === "quote_moved" ? "Zitat verschoben" : "Zitat fehlt"}) – Ursprungsversion öffnen
+            {t("matrix.proposalOpen", {
+              from: p.fromVersion,
+              to: p.toVersion,
+              reason: p.reason === "quote_moved" ? t("matrix.reasonQuoteMoved") : t("matrix.reasonQuoteMissing"),
+            })}
           </button>
           <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
             <button style={{ fontSize: "0.7rem", padding: "0 var(--space-1)" }}
               onClick={(e) => { e.stopPropagation(); props.openAtVersion(props.sourceId, p.toVersion); }}>
-              Zielversion öffnen (v{p.toVersion})
+              {t("matrix.openTarget", { v: p.toVersion })}
             </button>
             <button style={{ fontSize: "0.7rem", padding: "0 var(--space-1)" }}
               onClick={(e) => { e.stopPropagation(); props.onSelectClaim(cell.claimId); }}>
-              Entscheiden
+              {t("matrix.decide")}
             </button>
           </div>
         </div>
@@ -362,13 +367,17 @@ function CellBody(props: {
 
       {cell.resolvedProposals.length > 0 && (
         <details onClick={(e) => e.stopPropagation()}>
-          <summary style={{ fontSize: "0.7rem", cursor: "pointer" }}>Historie ({cell.resolvedProposals.length})</summary>
+          <summary style={{ fontSize: "0.7rem", cursor: "pointer" }}>{t("matrix.history", { n: cell.resolvedProposals.length })}</summary>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", paddingTop: "var(--space-1)" }}>
             {cell.resolvedProposals.map((p) => (
               <span key={p.proposalId} className="muted" style={{ fontSize: "0.7rem" }}>
-                {DECISION_LABEL[p.status] ?? p.status} · v{p.fromVersion} → v{p.toVersion}
-                {p.resolvedAt != null ? ` · ${new Date(p.resolvedAt).toLocaleDateString("de-DE")}` : ""}
-                {p.note ? ` — „${p.note}“` : ""}
+                {t("matrix.resolvedRow", {
+                  decision: DECISION_LABEL[p.status] ? t(DECISION_LABEL[p.status]) : p.status,
+                  from: p.fromVersion,
+                  to: p.toVersion,
+                })}
+                {p.resolvedAt != null ? t("matrix.resolvedDate", { date: fmtDate(p.resolvedAt) }) : ""}
+                {p.note ? t("matrix.resolvedNote", { note: p.note }) : ""}
               </span>
             ))}
           </div>

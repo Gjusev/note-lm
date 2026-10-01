@@ -6,6 +6,7 @@
  * toggle stays reachable on every width.
  */
 import { type Source, type SourceOpenView, type SourceVersionView } from "../lib/api";
+import { t } from "../i18n";
 import { SourceReader, type ReaderSelection } from "./SourceReader";
 import { NoteEditor } from "./NoteEditor";
 import { ChatView } from "./ChatView";
@@ -13,13 +14,14 @@ import { CalcPanel, MaterialsPanel } from "./CenterPanels";
 import { MatrixView } from "./MatrixView";
 import type { CenterView, NotebookUiState } from "../lib/uiState";
 
+/** Center view tab labels (translation keys; nav.* doubles as the label). */
 const VIEW_LABELS: Record<CenterView, string> = {
-  source: "Quelle",
-  note: "Notiz",
-  chat: "Chat",
-  calculations: "Berechnungen",
-  materials: "Materialien",
-  matrix: "Matrix",
+  source: "nav.sources",
+  note: "nav.notes",
+  chat: "settings.typeChat",
+  calculations: "nav.calcs",
+  materials: "nav.materials",
+  matrix: "doc.viewMatrix",
 };
 
 /** What the composition root resolved for the open reader: the target
@@ -70,30 +72,30 @@ export function DocumentWorkspace(props: {
   return (
     <div className="document-workspace" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, minWidth: 0 }}>
       <div className="rule-top workspace-toolbar" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1) var(--space-3)", borderBottom: "1px solid var(--rule)" }}>
-        <div className="workspace-tabs" role="tablist" aria-label="Arbeitsansicht" style={{ display: "flex", gap: "var(--space-1)" }}>
-          {tabs.map((t) => (
-            <button key={t} role="tab" aria-selected={view === t}
-              onClick={() => setView(t)}
+        <div className="workspace-tabs" role="tablist" aria-label={t("doc.tabsAria")} style={{ display: "flex", gap: "var(--space-1)" }}>
+          {tabs.map((v) => (
+            <button key={v} role="tab" aria-selected={view === v}
+              onClick={() => setView(v)}
               style={{
                 border: "none", fontSize: "0.85rem", padding: "var(--space-1) var(--space-2)",
-                fontWeight: view === t ? 700 : 400,
+                fontWeight: view === v ? 700 : 400,
                 background: "transparent", color: "inherit",
-                borderBottom: view === t ? "2px solid var(--ink)" : "2px solid transparent",
+                borderBottom: view === v ? "2px solid var(--ink)" : "2px solid transparent",
                 borderRadius: 0,
               }}>
-              {VIEW_LABELS[t]}
+              {t(VIEW_LABELS[v])}
             </button>
           ))}
         </div>
         <span style={{ flex: 1 }} />
         <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.navDrawerOpen} onClick={props.onToggleNav}>
-          Navigation
+          {t("shell.navTitle")}
         </button>
-        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} onClick={props.onResetLayout} title="Spaltenbreiten zurücksetzen">
-          Layout zurücksetzen
+        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} onClick={props.onResetLayout} title={t("doc.resetLayoutTitle")}>
+          {t("doc.resetLayout")}
         </button>
         <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.inspectorOpen} onClick={props.onToggleInspector}>
-          Inspector
+          {t("shell.inspector")}
         </button>
       </div>
       {view === "source" && (
@@ -120,7 +122,7 @@ export function DocumentWorkspace(props: {
           />
         ) : (
           <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>
-            Wähle links eine Quelle, um sie hier zu öffnen.
+            {t("doc.pickSource")}
           </p>
         )
       )}
@@ -128,7 +130,7 @@ export function DocumentWorkspace(props: {
         props.ui.selectedNoteId ? (
           <NoteEditor notebookId={props.notebookId} noteId={props.ui.selectedNoteId} ui={props.ui} update={props.update} onOpenClaimRef={props.onOpenClaimRef} />
         ) : (
-          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>Wähle links eine Notiz.</p>
+          <p className="muted" style={{ padding: "var(--space-6)", fontSize: "0.9rem" }}>{t("doc.pickNote")}</p>
         )
       )}
       {view === "chat" && (

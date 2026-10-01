@@ -11,6 +11,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type Message, type Source } from "../lib/api";
+import { t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
 export function ChatView(props: {
@@ -58,11 +59,11 @@ export function ChatView(props: {
   });
 
   return (
-    <section aria-label="Conversation" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <section aria-label={t("chat.sectionAria")} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <div style={{ flex: 1, overflowY: "auto", padding: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
         {!messages?.length ? (
           <p className="muted" style={{ textAlign: "center", marginTop: "var(--space-6)" }}>
-            Stelle eine Frage an deine Quellen.
+            {t("chat.empty")}
           </p>
         ) : (
           messages.map((m, i) => (
@@ -84,11 +85,11 @@ export function ChatView(props: {
               )}
               {m.role === "assistant" && m.citations != null && m.citations.length > 0 && (
                 savedIds.has(m._id) ? (
-                  <span className="muted" style={{ fontSize: "0.8rem", display: "inline-block", marginTop: "var(--space-1)" }}>Gespeichert</span>
+                  <span className="muted" style={{ fontSize: "0.8rem", display: "inline-block", marginTop: "var(--space-1)" }}>{t("chat.saved")}</span>
                 ) : (
                   <button style={{ fontSize: "0.8rem", marginTop: "var(--space-1)", display: "inline-block" }}
                     disabled={saveClaim.isPending} onClick={() => saveClaim.mutate(m)}>
-                    Aussage speichern
+                    {t("chat.saveClaim")}
                   </button>
                 )
               )}
@@ -102,10 +103,10 @@ export function ChatView(props: {
         )}
         {indexingHint && (
           <p className="meta" role="status" style={{ alignSelf: "flex-start", margin: 0, fontSize: "0.7rem", textTransform: "none", letterSpacing: "0.04em" }}>
-            Semantische Suche wird aufgebaut — nur Textsuche
+            {t("chat.indexing")}
           </p>
         )}
-        {send.isPending && <p className="muted">Denkt nach…</p>}
+        {send.isPending && <p className="muted">{t("chat.thinking")}</p>}
         {error && <p role="alert" style={{ color: "var(--accent)", margin: 0 }}>{error}</p>}
         <div ref={endRef} />
       </div>
@@ -121,8 +122,8 @@ export function ChatView(props: {
         style={{ display: "flex", gap: "var(--space-2)", padding: "var(--space-3) var(--space-4)", borderTop: "1px solid var(--rule)" }}
       >
         <input value={draft} onChange={(e) => setDraft(e.target.value)}
-          placeholder="Frage an deine Quellen…" aria-label="Nachricht" disabled={send.isPending} />
-        <button className="primary" type="submit" disabled={!draft.trim() || send.isPending}>Senden</button>
+          placeholder={t("chat.placeholder")} aria-label={t("chat.messageAria")} disabled={send.isPending} />
+        <button className="primary" type="submit" disabled={!draft.trim() || send.isPending}>{t("chat.send")}</button>
       </form>
     </section>
   );
@@ -139,17 +140,17 @@ function CitationList(props: {
   return (
     <div className="rule-top" style={{ marginTop: "var(--space-2)", paddingTop: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       {props.citations.map((c, i) => {
-        const name = c.fileName ?? props.sources.find((s) => s._id === c.sourceId)?.fileName ?? "Quelle";
+        const name = c.fileName ?? props.sources.find((s) => s._id === c.sourceId)?.fileName ?? t("common.sourceFallback");
         return (
           <details key={i} style={{ fontSize: "0.8rem" }}>
             <summary style={{ cursor: "pointer", color: "var(--accent)" }}>
-              [{i + 1}] {name} · Abschnitt {c.chunkIndex + 1}
+              {t("chat.citation", { i: i + 1, name, n: c.chunkIndex + 1 })}
             </summary>
             <blockquote style={{ margin: "var(--space-1) 0 0", padding: "0 0 0 var(--space-2)", borderLeft: "2px solid var(--accent)", color: "var(--ink-60)" }}>
               {c.text}
             </blockquote>
             <button style={{ fontSize: "0.8rem", margin: "var(--space-1) 0 0", display: "inline-block" }} onClick={() => props.onOpenCitation(c.sourceId)}>
-              Quelle öffnen
+              {t("chat.openSource")}
             </button>
           </details>
         );

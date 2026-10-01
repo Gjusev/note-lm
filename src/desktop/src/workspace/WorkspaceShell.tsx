@@ -12,6 +12,7 @@
  * drawer. Measured on the shell itself (ResizeObserver), not the OS window.
  */
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { t } from "../i18n";
 
 const NAV_MIN = 200;
 const NAV_MAX = 320;
@@ -167,7 +168,7 @@ export function WorkspaceShell(props: {
       {/* Navigator: inline column when wide, drawer below 700px. */}
       {!navAsOverlay && (
         <aside
-          aria-label="Quellen und Notizen"
+          aria-label={t("shell.navAria")}
           className="workspace-aside"
           style={{
             width: props.navWidth, flex: `0 0 ${props.navWidth}px`, minWidth: 0, minHeight: 0,
@@ -180,12 +181,12 @@ export function WorkspaceShell(props: {
       )}
       {navAsOverlay && props.navDrawerOpen && (
         <OverlayPanel side="left" width={260}
-          title="Navigation" onClose={props.onCloseNavDrawer}>
+          title={t("shell.navTitle")} onClose={props.onCloseNavDrawer}>
           {props.nav}
         </OverlayPanel>
       )}
       {!navAsOverlay && (
-        <Splitter label="Navigatorbreite anpassen" value={props.navWidth}
+        <Splitter label={t("shell.navSplitter")} value={props.navWidth}
           min={NAV_MIN} max={NAV_MAX} onChange={props.onNavWidth} />
       )}
       {/* Center column: the work surface (reader / note / chat / lists). */}
@@ -194,14 +195,14 @@ export function WorkspaceShell(props: {
       </div>
       {/* Inspector splitter sits between center and the inline column. */}
       {props.inspectorOpen && !inspectorAsOverlay && (
-        <Splitter label="Inspector-Breite anpassen" value={props.inspectorWidth}
+        <Splitter label={t("shell.inspectorSplitter")} value={props.inspectorWidth}
           min={INSPECTOR_MIN} max={INSPECTOR_MAX} onChange={props.onInspectorWidth} />
       )}
       {/* Inspector: inline column 320-400px, overlay panel below 900px.
           Closed on wide windows simply frees the row for the center. */}
       {!inspectorAsOverlay && props.inspectorOpen && (
         <aside
-          aria-label="Inspector"
+          aria-label={t("shell.inspector")}
           className="workspace-aside"
           style={{
             width: props.inspectorWidth, flex: `0 0 ${props.inspectorWidth}px`, minWidth: 0, minHeight: 0,
@@ -214,7 +215,7 @@ export function WorkspaceShell(props: {
       )}
       {inspectorAsOverlay && props.inspectorOpen && (
         <OverlayPanel side="right" width={360}
-          title="Inspector" labelledBy="inspector-heading" onClose={props.onCloseInspector}>
+          title={t("shell.inspector")} labelledBy="inspector-heading" onClose={props.onCloseInspector}>
           {props.inspector}
         </OverlayPanel>
       )}

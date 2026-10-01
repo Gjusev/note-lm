@@ -9,6 +9,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile, type ClaimView, type Source } from "../lib/api";
+import { fmtDate, t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 
 /** One collapsible collection: header button (aria-expanded) + count. */
@@ -75,7 +76,7 @@ export function SourceNavigator(props: {
   const importFile = useMutation({
     mutationFn: async () => {
       const picked = await pickFile();
-      if (!picked) throw new Error("Keine Datei gewählt (Dialog nur im Desktop-Fenster verfügbar)");
+      if (!picked) throw new Error(t("errors.noFileNav"));
       return desktopApi.importFile(picked.path, props.notebookId, picked.name, guessType(picked.name));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["sources", props.notebookId] }),
@@ -100,22 +101,22 @@ export function SourceNavigator(props: {
 
   return (
     <div className="workspace-nav" style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflow: "hidden" }}>
-      <Section id="sources" title="Quellen" count={props.sources.length}
+      <Section id="sources" title={t("nav.sources")} count={props.sources.length}
         open={sectionOpen("sources", true)} onToggle={() => toggle("sources", sectionOpen("sources", true))}>
         <button className="primary" onClick={() => importFile.mutate()} disabled={importFile.isPending}>
-          {importFile.isPending ? "Importiere…" : "+ Quelle hinzufügen"}
+          {importFile.isPending ? t("common.importing") : t("nav.addSource")}
         </button>
         {importFile.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{importFile.error.message}</p>}
         <form onSubmit={(e) => { e.preventDefault(); if (urlInput.trim() && !importUrl.isPending) importUrl.mutate(urlInput.trim()); }}
           style={{ display: "flex", gap: "var(--space-1)" }}>
           <input type="url" value={urlInput} onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="https://…" aria-label="Quelle per URL hinzufügen" disabled={importUrl.isPending} />
-          <button type="submit" disabled={!urlInput.trim() || importUrl.isPending}>{importUrl.isPending ? "Importiere…" : "URL"}</button>
+            placeholder="https://…" aria-label={t("nav.urlAria")} disabled={importUrl.isPending} />
+          <button type="submit" disabled={!urlInput.trim() || importUrl.isPending}>{importUrl.isPending ? t("common.importing") : t("nav.urlButton")}</button>
         </form>
-        {importUrl.data?.deduped && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>Import läuft bereits für diese Quelle.</p>}
+        {importUrl.data?.deduped && <p className="muted" style={{ fontSize: "0.8rem", margin: 0 }}>{t("nav.deduped")}</p>}
         {importUrl.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{importUrl.error.message}</p>}
         {props.sources.length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Quellen. Datei importieren, um zu starten.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noSources")}</p>
         ) : (
           <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
             {props.sources.map((s) => (
@@ -125,11 +126,11 @@ export function SourceNavigator(props: {
           </ul>
         )}
       </Section>
-      <Section id="notes" title="Notizen" count={(notes.data ?? []).length}
+      <Section id="notes" title={t("nav.notes")} count={(notes.data ?? []).length}
         open={sectionOpen("notes", true)} onToggle={() => toggle("notes", sectionOpen("notes", true))}>
         <NoteCreateForm notebookId={props.notebookId} onCreated={(id) => props.openNote(id)} />
         {(notes.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Notizen.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noNotes")}</p>
         ) : (
           <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
             {(notes.data ?? []).map((n) => (
@@ -146,12 +147,12 @@ export function SourceNavigator(props: {
           </ul>
         )}
       </Section>
-      <Section id="claims" title="Aussagen" count={(claims.data ?? []).length}
+      <Section id="claims" title={t("nav.claims")} count={(claims.data ?? []).length}
         open={sectionOpen("claims", true)} onToggle={() => toggle("claims", sectionOpen("claims", true))}>
         <ClaimCreateForm notebookId={props.notebookId} />
-        <button onClick={props.openMatrix} title="Aussagen mit ausgewählten Quellen gegenüberstellen">Matrix öffnen</button>
+        <button onClick={props.openMatrix} title={t("nav.openMatrixTitle")}>{t("nav.openMatrix")}</button>
         {(claims.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Aussagen.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noClaims")}</p>
         ) : (
           <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
             {(claims.data ?? []).map((c) => (
@@ -169,10 +170,10 @@ export function SourceNavigator(props: {
           </ul>
         )}
       </Section>
-      <Section id="calcs" title="Berechnungen" count={(calcs.data ?? []).length}
+      <Section id="calcs" title={t("nav.calcs")} count={(calcs.data ?? []).length}
         open={sectionOpen("calcs", true)} onToggle={() => toggle("calcs", sectionOpen("calcs", true))}>
         {(calcs.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Berechnungen.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noCalcs")}</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
             {(calcs.data ?? []).slice(-3).reverse().map((c) => (
@@ -183,12 +184,12 @@ export function SourceNavigator(props: {
             ))}
           </div>
         )}
-        <button onClick={props.openCalculations}>Berechnungen öffnen</button>
+        <button onClick={props.openCalculations}>{t("nav.openCalcs")}</button>
       </Section>
-      <Section id="materials" title="Materialien" count={(materials.data ?? []).length}
+      <Section id="materials" title={t("nav.materials")} count={(materials.data ?? []).length}
         open={sectionOpen("materials", true)} onToggle={() => toggle("materials", sectionOpen("materials", true))}>
         {(materials.data ?? []).length === 0 ? (
-          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>Noch keine Materialien.</p>
+          <p className="muted" style={{ fontSize: "0.85rem", margin: 0 }}>{t("nav.noMaterials")}</p>
         ) : (
           <ul role="list" style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
             {(materials.data ?? []).map((m) => (
@@ -196,14 +197,14 @@ export function SourceNavigator(props: {
                 <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "baseline" }}>
                   <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.type}</span>
                   <span className="mono" style={{ fontSize: "0.7rem" }}>
-                    {m.status === "completed" ? "fertig" : m.status === "error" ? "Fehler" : "läuft"}
+                    {m.status === "completed" ? t("nav.matDone") : m.status === "error" ? t("common.error") : t("nav.matRunning")}
                   </span>
                 </div>
               </li>
             ))}
           </ul>
         )}
-        <button onClick={props.openMaterials}>Materialien öffnen</button>
+        <button onClick={props.openMaterials}>{t("nav.openMaterials")}</button>
       </Section>
     </div>
   );
@@ -235,29 +236,30 @@ function SourceRow({ source, selected, notebookId, onOpen }: { source: Source; s
 }
 
 /** Re-import as a new immutable version + the versions list (strategy 5A).
- *  Kept from the old SourceRow; the inline result states the honest outcome. */
+ *  Kept from the old SourceRow; the inline result states the honest outcome.
+ *  The result is stored as {key, vars} so a live language switch re-renders. */
 function SourceRowActions({ source, notebookId }: { source: Source; notebookId: string }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<{ key: string; vars?: Record<string, string | number> } | null>(null);
   const reimport = useMutation({
     mutationFn: async () => {
       const picked = await pickFile();
-      if (!picked) throw new Error("Keine Datei gewählt (Dialog nur im Desktop-Fenster verfügbar)");
+      if (!picked) throw new Error(t("errors.noFileNav"));
       return desktopApi.reimportVersion(source._id, picked.path, picked.name);
     },
     onSuccess: async (r) => {
       queryClient.invalidateQueries({ queryKey: ["sources", notebookId] });
       queryClient.invalidateQueries({ queryKey: ["versions", source._id] });
       if (r.unchanged) {
-        setResult("Unverändert");
+        setResult({ key: "nav.unchanged" });
         return;
       }
       try {
         const vs = await desktopApi.listVersions(source._id);
-        setResult(`Version ${(vs[vs.length - 1]?.version ?? 0) + 1} wird verarbeitet…`);
+        setResult({ key: "nav.versionProcessing", vars: { n: (vs[vs.length - 1]?.version ?? 0) + 1 } });
       } catch {
-        setResult("Neue Version wird verarbeitet…");
+        setResult({ key: "nav.newVersionProcessing" });
       }
     },
   });
@@ -271,25 +273,27 @@ function SourceRowActions({ source, notebookId }: { source: Source; notebookId: 
     <div style={{ padding: "0 var(--space-2) var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
       <div style={{ display: "flex", gap: "var(--space-1)" }}>
         <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} disabled={reimport.isPending} onClick={() => reimport.mutate()}>
-          {reimport.isPending ? "Importiere…" : "Neue Version"}
+          {reimport.isPending ? t("common.importing") : t("nav.newVersion")}
         </button>
         <button style={{ fontSize: "0.75rem", padding: "0 var(--space-1)" }} aria-expanded={open} onClick={() => setOpen(!open)}>
-          Versionen
+          {t("nav.versions")}
         </button>
       </div>
-      {result && <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>{result}</p>}
+      {result && <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>{t(result.key, result.vars)}</p>}
       {open && (
         <div className="rule-top" style={{ paddingTop: "var(--space-1)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
           {(versions ?? []).length === 0 ? (
-            <span className="muted" style={{ fontSize: "0.75rem" }}>Keine Versionen aufgezeichnet.</span>
+            <span className="muted" style={{ fontSize: "0.75rem" }}>{t("nav.noVersions")}</span>
           ) : (
             (versions ?? []).map((v) => (
               <span key={v.id} className="mono" style={{ fontSize: "0.7rem" }}>
-                v{v.version} · {new Date(v.createdAt).toLocaleDateString("de-DE")} · {v.pageCount != null ? `${v.pageCount} S.` : "CSV"}
+                {v.pageCount != null
+                  ? t("nav.versionPages", { v: v.version, date: fmtDate(v.createdAt), n: v.pageCount })
+                  : t("nav.versionCsv", { v: v.version, date: fmtDate(v.createdAt) })}
               </span>
             ))
           )}
-          {source.status !== "completed" && <span className="muted" style={{ fontSize: "0.75rem" }}>Wird verarbeitet…</span>}
+          {source.status !== "completed" && <span className="muted" style={{ fontSize: "0.75rem" }}>{t("nav.processing")}</span>}
         </div>
       )}
       {source.status === "error" && source.errorMessage && (
@@ -306,16 +310,16 @@ function ClaimChips({ claim }: { claim: ClaimView }) {
   return (
     <span style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", alignItems: "center" }}>
       {claim.status === "reviewed" ? (
-        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>Überprüft</span>
+        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>{t("nav.claimReviewed")}</span>
       ) : claim.status === "withdrawn" ? (
-        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>Zurückgezogen</span>
+        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>{t("nav.claimWithdrawn")}</span>
       ) : (
-        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>Aktiv</span>
+        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>{t("nav.claimActive")}</span>
       )}
-      <span className="muted" style={{ fontSize: "0.7rem" }}>{claim.origin === "chat" ? "Chat" : "Manuell"}</span>
+      <span className="muted" style={{ fontSize: "0.7rem" }}>{claim.origin === "chat" ? t("settings.typeChat") : t("nav.originManual")}</span>
       {claim.pendingReviews > 0 && (
         <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>
-          {claim.pendingReviews} offen
+          {t("nav.openReviews", { n: claim.pendingReviews })}
         </span>
       )}
     </span>
@@ -337,15 +341,15 @@ function NoteCreateForm({ notebookId, onCreated }: { notebookId: string; onCreat
     },
   });
   if (!open) {
-    return <button onClick={() => setOpen(true)}>+ Notiz</button>;
+    return <button onClick={() => setOpen(true)}>{t("nav.addNote")}</button>;
   }
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (title.trim()) create.mutate(); }}
       style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-      <input autoFocus placeholder="Titel" value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Notiz-Titel" />
+      <input autoFocus placeholder={t("nav.titlePlaceholder")} value={title} onChange={(e) => setTitle(e.target.value)} aria-label={t("nav.noteTitleAria")} />
       <div style={{ display: "flex", gap: "var(--space-1)" }}>
-        <button className="primary" type="submit" disabled={!title.trim() || create.isPending}>{create.isPending ? "Speichere…" : "Speichern"}</button>
-        <button type="button" onClick={() => setOpen(false)}>Abbrechen</button>
+        <button className="primary" type="submit" disabled={!title.trim() || create.isPending}>{create.isPending ? t("common.saving") : t("common.save")}</button>
+        <button type="button" onClick={() => setOpen(false)}>{t("common.cancel")}</button>
       </div>
       {create.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{create.error.message}</p>}
     </form>
@@ -366,15 +370,15 @@ function ClaimCreateForm({ notebookId }: { notebookId: string }) {
     },
   });
   if (!open) {
-    return <button onClick={() => setOpen(true)}>+ Aussage</button>
+    return <button onClick={() => setOpen(true)}>{t("nav.addClaim")}</button>
   }
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) create.mutate(); }}
       style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
-      <textarea rows={2} placeholder="Neue Aussage…" value={text} onChange={(e) => setText(e.target.value)} aria-label="Aussage-Text" />
+      <textarea rows={2} placeholder={t("nav.newClaimPlaceholder")} value={text} onChange={(e) => setText(e.target.value)} aria-label={t("nav.claimTextAria")} />
       <div style={{ display: "flex", gap: "var(--space-1)" }}>
-        <button className="primary" type="submit" disabled={!text.trim() || create.isPending}>{create.isPending ? "Speichere…" : "Speichern"}</button>
-        <button type="button" onClick={() => setOpen(false)}>Abbrechen</button>
+        <button className="primary" type="submit" disabled={!text.trim() || create.isPending}>{create.isPending ? t("common.saving") : t("common.save")}</button>
+        <button type="button" onClick={() => setOpen(false)}>{t("common.cancel")}</button>
       </div>
       {create.isError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{create.error.message}</p>}
     </form>

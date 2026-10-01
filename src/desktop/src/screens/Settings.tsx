@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, pickFile, type EmbeddingRecipeView } from "../lib/api";
+import { LangSelect, fmtMB, t } from "../i18n";
 import { ProviderSettings } from "./ProviderSettings";
 
 interface ManagedModel {
@@ -38,7 +39,7 @@ export function Settings() {
   const importModel = useMutation({
     mutationFn: async (capability: "chat" | "embeddings") => {
       const picked = await pickFile();
-      if (!picked) throw new Error("Keine Datei gewählt (Dialog nur im Desktop-Fenster)");
+      if (!picked) throw new Error(t("errors.noFileSettings"));
       return desktopApi.importModel(picked.path, capability);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["models"] }),
@@ -71,30 +72,32 @@ export function Settings() {
 
   return (
     <section className="page-shell" style={{ maxWidth: "760px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
-      <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>Einstellungen · IA</h1>
+      <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>{t("settings.title")}</h1>
+      {/* Language: applies immediately and persists (notelm.lang). */}
+      <div style={{ display: "flex", justifyContent: "flex-start", margin: "0 0 var(--space-3)" }}>
+        <LangSelect style={{ fontSize: "0.8rem" }} />
+      </div>
       <p className="muted" style={{ marginTop: 0 }}>
-        Modelle auf diesem Computer. Chat und Embeddings werden getrennt konfiguriert; ohne
-        Konfiguration bleiben Notizbücher, Quellen und Textsuche voll funktionsfähig.
+        {t("settings.intro")}
       </p>
       {/* Re-open the first-run wizard (Onboarding listens for the event) */}
       <p style={{ marginTop: 0 }}>
         <button onClick={() => window.dispatchEvent(new CustomEvent("notelm:onboarding"))}>
-          Einführung erneut starten
+          {t("settings.restartOnboarding")}
         </button>
       </p>
 
       <ProviderSettings />
 
-      <h2 style={{ fontSize: "1.05rem", marginBottom: "var(--space-2)" }}>Modellkatalog</h2>
+      <h2 style={{ fontSize: "1.05rem", marginBottom: "var(--space-2)" }}>{t("settings.catalogTitle")}</h2>
       <p className="muted" style={{ marginTop: 0, fontSize: "0.85rem" }}>
-        Vorgeprüfte Modelle. Herunterladen bezieht die Datei von Hugging Face und prüft die
-        SHA-256-Prüfsumme, bevor sie freigegeben wird.
+        {t("settings.catalogIntro")}
       </p>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
           <thead>
             <tr>
-              {["Modell", "Typ", "Größe", "Lizenz", "Aktion"].map((h) => (
+              {[t("settings.colModel"), t("common.type"), t("settings.colSize"), t("settings.colLicense"), t("settings.colAction")].map((h) => (
                 <th key={h} style={{ textAlign: "left", padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
                   {h}
                 </th>
@@ -119,23 +122,23 @@ export function Settings() {
                       <div className="muted" style={{ fontSize: "0.8rem" }}>{entry.notes}</div>
                     )}
                     {downloading && (
-                      <div className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)", marginTop: "var(--space-1)" }}>Wird geladen…</div>
+                      <div className="chip" style={{ background: "var(--status-info)", color: "var(--status-info-fg)", marginTop: "var(--space-1)" }}>{t("settings.downloading")}</div>
                     )}
                     {verified && (
-                      <div className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)", marginTop: "var(--space-1)" }}>Verifiziert</div>
+                      <div className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)", marginTop: "var(--space-1)" }}>{t("settings.verified")}</div>
                     )}
                   </td>
                   <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
-                    {entry.capability === "chat" ? "Chat" : entry.capability === "embed" ? "Embeddings" : "Transkription"}
+                    {entry.capability === "chat" ? t("settings.typeChat") : entry.capability === "embed" ? t("settings.typeEmbed") : t("settings.typeTranscribe")}
                   </td>
                   <td className="mono" style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
-                    {(entry.sizeBytes / 1048576).toFixed(0)} MB
+                    {fmtMB(entry.sizeBytes)}
                   </td>
                   <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>{entry.license}</td>
                   <td style={{ padding: "var(--space-2)", borderBottom: "1px solid var(--rule)" }}>
                     {verified ? (
                       active ? (
-                        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>aktiv</span>
+                        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>{t("settings.active")}</span>
                       ) : (
                         <button
                           onClick={() =>
@@ -146,12 +149,12 @@ export function Settings() {
                           }
                           disabled={select.isPending}
                         >
-                          Aktivieren
+                          {t("settings.activate")}
                         </button>
                       )
                     ) : entry.url ? (
                       <button onClick={() => download.mutate(entry)} disabled={download.isPending}>
-                        Herunterladen
+                        {t("settings.download")}
                       </button>
                     ) : (
                       <span className="muted">—</span>
@@ -169,10 +172,10 @@ export function Settings() {
 
       <div style={{ display: "flex", gap: "var(--space-2)", margin: "var(--space-4) 0" }}>
         <button className="primary" onClick={() => importModel.mutate("chat")} disabled={importModel.isPending}>
-          {importModel.isPending ? "Importiere…" : "Chat-Modell importieren (GGUF)"}
+          {importModel.isPending ? t("common.importing") : t("settings.importChat")}
         </button>
         <button onClick={() => importModel.mutate("embeddings")} disabled={importModel.isPending}>
-          Embedding-Modell importieren
+          {t("settings.importEmbed")}
         </button>
       </div>
       {error && <p style={{ color: "var(--accent)", margin: 0 }}>{error}</p>}
@@ -183,11 +186,11 @@ export function Settings() {
         return (
           <div key={cap} style={{ marginTop: "var(--space-4)" }}>
             <p className="mono" style={{ margin: "0 0 var(--space-2)" }}>
-              {cap === "chat" ? "Konversation" : "Embeddings"}
+              {cap === "chat" ? t("settings.capChat") : t("settings.typeEmbed")}
             </p>
             {!rows.length ? (
               <p className="muted" style={{ margin: 0, fontSize: "0.85rem" }}>
-                Noch kein Modell importiert.
+                {t("settings.noModels")}
               </p>
             ) : (
               <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
@@ -206,12 +209,12 @@ export function Settings() {
                     <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {m.fileName}
                     </span>
-                    <span className="mono">{(m.sizeBytes / 1048576).toFixed(0)} MB</span>
+                    <span className="mono">{fmtMB(m.sizeBytes)}</span>
                     {activeId === m._id ? (
-                      <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>aktiv</span>
+                      <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>{t("settings.active")}</span>
                     ) : (
                       <button onClick={() => select.mutate(m)} disabled={select.isPending}>
-                        Aktivieren
+                        {t("settings.activate")}
                       </button>
                     )}
                   </li>
@@ -223,7 +226,7 @@ export function Settings() {
                 semantic search reports "indexing". */}
             {cap === "embeddings" && pendingChunks > 0 && (
               <p className="meta" role="status" style={{ margin: "var(--space-2) 0 0", fontSize: "0.72rem", textTransform: "none", letterSpacing: "0.04em" }}>
-                Index wird aufgebaut: {pendingChunks} Chunks
+                {t("settings.indexBuilding", { n: pendingChunks })}
               </p>
             )}
           </div>
@@ -231,8 +234,7 @@ export function Settings() {
       })}
 
       <p className="muted" style={{ fontSize: "0.8rem", marginTop: "var(--space-6)" }}>
-        Hinweis: beim Wechsel des Embedding-Modells wird der semantische Index zurückgesetzt und die
-        Textsuche bleibt aktiv, bis die Quellen neu indexiert sind.
+        {t("settings.embedSwitchNote")}
       </p>
     </section>
   );

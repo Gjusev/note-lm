@@ -27,6 +27,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type ClaimAnchorView } from "../lib/api";
+import { t } from "../i18n";
 import { DEFAULT_UI_STATE, useNotebookUiState } from "../lib/uiState";
 import { WorkspaceShell } from "../workspace/WorkspaceShell";
 import { SourceNavigator } from "../workspace/SourceNavigator";
@@ -223,18 +224,20 @@ export function NotebookWorkspace({ notebookId }: { notebookId: string }) {
   // D1 action 2 + note references: save the passage as an anchor-bearing
   // claim (durable, navigable), then append the human-readable quote block
   // with the [@claim:<id>] marker to the target note (or a new note).
+  // The block template follows the UI language; the [@claim:<id>] marker
+  // itself is a fixed data format (contract-tested in src/__tests__).
   const insertIntoNote = useMutation({
     mutationFn: async (sel: ReaderSelection) => {
       const claim = await desktopApi.createClaim(notebookId, sel.quote, [
         { sourceId: sel.sourceId, ...(sel.versionId ? { versionId: sel.versionId } : {}), page: sel.page, quote: sel.quote },
       ]);
-      const fileName = (sources ?? []).find((s) => s._id === sel.sourceId)?.fileName ?? "Quelle";
-      const v = sel.version != null ? `v${sel.version}` : "ohne Version";
-      const block = `\n\n> „${sel.quote}" — ${fileName} · ${v} · S. ${sel.page} [@claim:${claim.id}]`;
+      const fileName = (sources ?? []).find((s) => s._id === sel.sourceId)?.fileName ?? t("common.sourceFallback");
+      const v = sel.version != null ? `v${sel.version}` : t("note.noVersion");
+      const block = `\n\n${t("note.quoteBlock", { quote: sel.quote, file: fileName, v, page: sel.page, id: claim.id })}`;
       const targetId = ui.selectedNoteId ?? (notes.data ?? [])[0]?._id ?? null;
       if (targetId) {
         const note = (notes.data ?? []).find((n) => n._id === targetId);
-        if (!note) throw new Error("Notiz nicht gefunden.");
+        if (!note) throw new Error(t("errors.noteNotFound"));
         await desktopApi.updateNote(targetId, note.title, note.content + block);
         return targetId;
       }

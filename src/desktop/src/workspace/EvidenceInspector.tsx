@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi, type ClaimAnchorView, type ClaimView, type Source } from "../lib/api";
 import { formatTimeRange } from "../components/EvidencePanel";
+import { t } from "../i18n";
 import type { NotebookUiState } from "../lib/uiState";
 import type { ReaderSelection } from "./SourceReader";
 
@@ -77,25 +78,31 @@ export function EvidenceInspector(props: {
 
   return (
     <div style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflowY: "auto" }}>
-      <h2 id="inspector-heading" style={{ margin: 0, fontSize: "1rem" }}>Beleg &amp; Details</h2>
+      <h2 id="inspector-heading" style={{ margin: 0, fontSize: "1rem" }}>{t("inspector.title")}</h2>
 
       {sel && (
-        <section aria-label="Auswahl im Dokument" style={{ border: "1px solid var(--rule)", borderLeft: "2px solid var(--accent)", padding: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+        <section aria-label={t("inspector.selectionAria")} style={{ border: "1px solid var(--rule)", borderLeft: "2px solid var(--accent)", padding: "var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           <span className="mono" style={{ fontSize: "0.7rem" }}>
-            Auswahl · {props.reader?.fileName} · {sel.version != null ? `v${sel.version}` : "Version offen"} · S. {sel.page}
+            {t("inspector.selectionMeta", {
+              file: props.reader?.fileName ?? "",
+              version: sel.version != null ? `v${sel.version}` : t("inspector.versionOpen"),
+              page: sel.page,
+            })}
           </span>
           <blockquote style={{ margin: 0, padding: "0 0 0 var(--space-2)", borderLeft: "2px solid var(--accent)", fontSize: "0.9rem", whiteSpace: "pre-wrap" }}>
             {sel.quote}
           </blockquote>
           <p className="muted" style={{ margin: 0, fontSize: "0.75rem" }}>
-            Der Beleg bindet an die Version der Auswahl{sel.version != null ? ` (v${sel.version})` : ""} - auch wenn zwischenzeitlich eine neuere Version importiert wird.
+            {t("inspector.bindingNote", {
+              version: sel.version != null ? t("inspector.bindingVersion", { n: sel.version }) : "",
+            })}
           </p>
           <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
             <button className="primary" disabled={props.actionPending} onClick={() => props.onSaveClaim(sel)}>
-              {props.actionPending ? "Speichere…" : "Als Beleg speichern"}
+              {props.actionPending ? t("common.saving") : t("reader.saveEvidence")}
             </button>
             <button disabled={props.actionPending} onClick={() => props.onInsertNote(sel)}>
-              {props.actionPending ? "Einfügen…" : targetNoteId ? "In Notiz einfügen" : "Als neue Notiz einfügen"}
+              {props.actionPending ? t("inspector.inserting") : targetNoteId ? t("reader.insertNote") : t("inspector.insertNew")}
             </button>
           </div>
           {props.actionError && <p role="alert" style={{ color: "var(--accent)", fontSize: "0.8rem", margin: 0 }}>{props.actionError}</p>}
@@ -103,12 +110,12 @@ export function EvidenceInspector(props: {
       )}
 
       {selectedClaim ? (
-        <section aria-label="Ausgewählte Aussage" style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+        <section aria-label={t("inspector.claimAria")} style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
           <ClaimStatusChips claim={selectedClaim} />
           <p style={{ margin: 0, whiteSpace: "pre-wrap", fontSize: "0.9rem" }}>{selectedClaim.text}</p>
           {selectedClaim.anchors.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
-              <span className="mono" style={{ fontSize: "0.7rem" }}>Belege</span>
+              <span className="mono" style={{ fontSize: "0.7rem" }}>{t("inspector.evidence")}</span>
               {selectedClaim.anchors.map((a) => <AnchorChip key={a.id} anchor={a} onOpen={props.openAnchor} />)}
             </div>
           )}
@@ -116,15 +123,15 @@ export function EvidenceInspector(props: {
             p.status === "pending" ? (
               <div key={p.id} style={{ border: "1px solid var(--rule)", borderLeft: "2px solid var(--warn)", padding: "var(--space-1) var(--space-2)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
                 <span style={{ fontSize: "0.75rem" }}>
-                  Überarbeitung vorgeschlagen · v{p.fromVersion} → v{p.toVersion} — {p.detail ?? p.reason}
+                  {t("inspector.proposalPending", { from: p.fromVersion, to: p.toVersion, detail: p.detail ?? p.reason })}
                 </span>
                 <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
-                  <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "accepted" })}>Übernehmen</button>
-                  <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "rejected" })}>Ablehnen</button>
+                  <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "accepted" })}>{t("inspector.accept")}</button>
+                  <button disabled={resolve.isPending} onClick={() => resolve.mutate({ proposalId: p.id, decision: "rejected" })}>{t("inspector.reject")}</button>
                   {props.openVersion && (
-                    <button title="Die Zielversion des Vorschlags im Leser öffnen (die Ursprungsversion bleibt separat erreichbar)"
+                    <button title={t("inspector.openTargetTitle")}
                       onClick={() => props.openVersion!(p.sourceId, p.toVersion)}>
-                      Zielversion öffnen (v{p.toVersion})
+                      {t("matrix.openTarget", { v: p.toVersion })}
                     </button>
                   )}
                 </div>
@@ -132,18 +139,23 @@ export function EvidenceInspector(props: {
             ) : (
               <div key={p.id} style={{ border: "1px solid var(--rule)", padding: "var(--space-1) var(--space-2)", fontSize: "0.75rem" }}>
                 <span className="muted">
-                  {p.status === "accepted" ? "Übernommen" : "Abgelehnt"} · v{p.fromVersion} → v{p.toVersion} — {p.detail ?? p.reason}
+                  {t("inspector.proposalResolved", {
+                    decision: p.status === "accepted" ? t("matrix.decisionAccepted") : t("matrix.decisionRejected"),
+                    from: p.fromVersion,
+                    to: p.toVersion,
+                    detail: p.detail ?? p.reason,
+                  })}
                 </span>
               </div>
             )
           )}
           {selectedClaim.pendingReviews > 0 && proposals.filter((p) => p.status === "pending").length === 0 && (
-            <span className="muted" style={{ fontSize: "0.75rem" }}>{selectedClaim.pendingReviews} offene Überarbeitung(en)</span>
+            <span className="muted" style={{ fontSize: "0.75rem" }}>{t("inspector.openReviews", { n: selectedClaim.pendingReviews })}</span>
           )}
         </section>
       ) : (
         <p className="muted" style={{ fontSize: "0.85rem" }}>
-          Wähle links eine Aussage, um Belege und Überarbeitungsvorschläge zu sehen.
+          {t("inspector.pickClaim")}
         </p>
       )}
 
@@ -155,11 +167,12 @@ export function EvidenceInspector(props: {
  *  original in the CENTER reader at the anchor's version and page (the
  *  walkthrough's "Verweis folgen"), never a second viewer. */
 function AnchorChip({ anchor, onOpen }: { anchor: ClaimAnchorView; onOpen: (a: ClaimAnchorView) => void }) {
+  const file = anchor.fileName ?? t("common.sourceFallback");
   const locator = anchor.locator
-    ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ${formatTimeRange(anchor.locator)}`
+    ? t("inspector.anchorTime", { file, v: anchor.version, range: formatTimeRange(anchor.locator) })
     : anchor.page != null
-      ? `${anchor.fileName ?? "Quelle"} · v${anchor.version} · S. ${anchor.page}`
-      : `${anchor.fileName ?? "Quelle"} · v${anchor.version} · ohne Ort`;
+      ? t("inspector.anchorPage", { file, v: anchor.version, p: anchor.page })
+      : t("inspector.anchorNoLoc", { file, v: anchor.version });
   return (
     <button title={anchor.quote} onClick={() => onOpen(anchor)}
       style={{ fontSize: "0.8rem", padding: 0, alignSelf: "flex-start", textAlign: "left",
@@ -175,13 +188,13 @@ function ClaimStatusChips({ claim }: { claim: ClaimView }) {
   return (
     <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", alignItems: "center" }}>
       {claim.status === "reviewed" ? (
-        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>Überprüft</span>
+        <span className="chip" style={{ background: "var(--status-success)", color: "var(--status-success-fg)" }}>{t("nav.claimReviewed")}</span>
       ) : claim.status === "withdrawn" ? (
-        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>Zurückgezogen</span>
+        <span className="chip" style={{ background: "var(--status-warning)", color: "var(--status-warning-fg)" }}>{t("nav.claimWithdrawn")}</span>
       ) : (
-        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>Aktiv</span>
+        <span className="chip" style={{ border: "1px solid var(--rule)", color: "var(--ink-60)" }}>{t("nav.claimActive")}</span>
       )}
-      <span className="muted" style={{ fontSize: "0.75rem" }}>{claim.origin === "chat" ? "Chat" : "Manuell"}</span>
+      <span className="muted" style={{ fontSize: "0.75rem" }}>{claim.origin === "chat" ? t("settings.typeChat") : t("nav.originManual")}</span>
     </div>
   );
 }

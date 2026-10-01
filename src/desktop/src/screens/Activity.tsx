@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { desktopApi } from "../lib/api";
+import { t } from "../i18n";
 
 interface UnifiedJob {
   kind: "processing" | "import" | "material";
@@ -137,11 +138,11 @@ export function Activity() {
 
   return (
     <section className="page-shell" style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
-      <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>Aktivität</h1>
+      <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>{t("app.activity")}</h1>
       <p className="muted" style={{ margin: 0 }}>
         {active.length === 0
-          ? "Keine laufenden Aufgaben."
-          : `${active.length} Aufgabe(n) in Arbeit — Fortschritt wird beim nächsten bestätigten Schritt aktualisiert.`}
+          ? t("activity.idle")
+          : t("activity.running", { n: active.length })}
       </p>
 
       {data?.schedulerPaused && (
@@ -154,16 +155,16 @@ export function Activity() {
             fontSize: "0.9rem",
           }}
         >
-          Planer pausiert — keine Aufgabe wird gestartet.{" "}
+          {t("activity.schedulerPaused")}{" "}
           <button onClick={() => resumeScheduler.mutate()} disabled={resumeScheduler.isPending}>
-            Planer fortsetzen
+            {t("activity.schedulerResume")}
           </button>
         </p>
       )}
 
       {!jobs.length ? (
         <p className="muted" style={{ marginTop: "var(--space-4)" }}>
-          Noch keine Aufgaben. Importiere Dateien oder erstelle Lernmaterialien.
+          {t("activity.none")}
         </p>
       ) : (
         <ul style={{ listStyle: "none", padding: 0, marginTop: "var(--space-4)", display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
@@ -201,8 +202,8 @@ export function Activity() {
                     ? statusOf(j) === "queued" || statusOf(j) === "pending"
                       // never started: the participle would be a lie — the job
                       // cannot transition, so show the static state instead
-                      ? (j.intent === "pause" ? "pausiert" : "abgebrochen")
-                      : `wird ${j.intent === "pause" ? "pausiert" : "abgebrochen"}…`
+                      ? (j.intent === "pause" ? t("activity.paused") : t("activity.cancelled"))
+                      : j.intent === "pause" ? t("activity.pausing") : t("activity.cancelling")
                     : statusOf(j)}
                 </span>
                 {!done && (
@@ -210,14 +211,14 @@ export function Activity() {
                     <button
                       onClick={() => act.mutate({ kind: j.kind, jobId: j.id, action: j.intent === "pause" ? "resume" : "pause" })}
                       disabled={act.isPending}
-                      aria-label={j.intent === "pause" ? "Fortsetzen" : "Pausieren"}
+                      aria-label={j.intent === "pause" ? t("activity.resumeAria") : t("activity.pauseAria")}
                     >
                       {j.intent === "pause" ? "▸" : "❚❚"}
                     </button>
                     <button
                       onClick={() => act.mutate({ kind: j.kind, jobId: j.id, action: "cancel" })}
                       disabled={act.isPending}
-                      aria-label="Abbrechen"
+                      aria-label={t("common.cancel")}
                     >
                       ✕
                     </button>

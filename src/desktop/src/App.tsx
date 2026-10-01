@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { desktopApi } from "./lib/api";
 import { useTheme, type ThemeSetting } from "./lib/uiState";
+import { t, useLang } from "./i18n";
 import { CloseDialog } from "./CloseDialog";
 import { Onboarding } from "./Onboarding";
 import { Library } from "./screens/Library";
@@ -31,6 +32,9 @@ function useHashRoute():
 
 export function App() {
   const route = useHashRoute();
+  // One language subscription re-renders the whole tree on switch (nothing
+  // below is memoized, so every t() call picks up the new dictionary).
+  useLang();
   return (
     <div className="app-frame" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <header
@@ -46,7 +50,7 @@ export function App() {
         <button
           onClick={() => (window.location.hash = "")}
           className="brand-button"
-          aria-label="Zur Bibliothek"
+          aria-label={t("app.toLibrary")}
         >
           <BrandMark />
           <span>note-lm</span>
@@ -56,17 +60,17 @@ export function App() {
             href="#/activity"
             className="mono"
             style={{ textDecoration: "none", color: "inherit" }}
-            aria-label="Aktivität"
+            aria-label={t("app.activity")}
           >
-            Aktivität
+            {t("app.activity")}
           </a>
           <a
             href="#/settings"
             className="mono"
             style={{ textDecoration: "none", color: "inherit" }}
-            aria-label="Einstellungen"
+            aria-label={t("app.settings")}
           >
-            Einstellungen
+            {t("app.settings")}
           </a>
           <ThemeSelect />
           <StatusBadge />
@@ -106,41 +110,51 @@ function ThemeSelect() {
   const theme = useTheme();
   return (
     <label className="mono theme-select" style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", fontSize: "0.72rem" }}>
-      Design
+      {t("app.theme")}
       <select
         value={theme.setting}
         onChange={(e) => theme.set(e.target.value as ThemeSetting)}
-        aria-label="Design wählen (Hell, Dunkel oder System)"
+        aria-label={t("app.themeAria")}
         style={{ width: "auto", padding: "0 var(--space-2)" }}
       >
-        <option value="light">Hell</option>
-        <option value="dark">Dunkel</option>
-        <option value="system">System</option>
+        <option value="light">{t("app.themeLight")}</option>
+        <option value="dark">{t("app.themeDark")}</option>
+        <option value="system">{t("app.themeSystem")}</option>
       </select>
     </label>
   );
 }
 
+/** Engine status badge. The state is stored as a KEY (not text) so a live
+ *  language switch re-renders the label. */
+type BadgeState = "checking" | "local" | "localNoAi" | "textOnly" | "down";
+
 function StatusBadge() {
-  const [state, setState] = useState<string>("…");
+  const [state, setState] = useState<BadgeState>("checking");
   useEffect(() => {
     desktopApi
       .diagnostics()
       .then((d) =>
         setState(
           d.localChatConfigured
-            ? "Auf diesem Computer"
+            ? "local"
             : d.vecVersion
-              ? "Lokal · KI nicht konfiguriert"
-              : "Textsuche"
+              ? "localNoAi"
+              : "textOnly"
         )
       )
-      .catch(() => setState("Motor nicht erreichbar"));
+      .catch(() => setState("down"));
   }, []);
+  const label =
+    state === "local" ? t("app.status.local")
+      : state === "localNoAi" ? t("app.status.localNoAi")
+        : state === "textOnly" ? t("app.status.textOnly")
+          : state === "down" ? t("app.status.engineDown")
+            : "…";
   return (
-    <span className="chip status-badge" title="Wo wird verarbeitet"
+    <span className="chip status-badge" title={t("app.statusWhere")}
       style={{ background: "var(--chip-neutral-bg)", color: "var(--chip-neutral-fg)" }}>
-      ◉ {state}
+      ◉ {label}
     </span>
   );
 }

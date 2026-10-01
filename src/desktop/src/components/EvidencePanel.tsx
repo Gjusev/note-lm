@@ -10,6 +10,7 @@
  * rendering lives in workspace/SourceReader.tsx (canvas + text layer +
  * selection capture).
  */
+import { t } from "../i18n";
 /** German mm:ss for a time-range locator; minutes may exceed 59 - honest, no
  * hour rollover. Exported: anchor chips render the same locator text. */
 export function formatTimeRange(locator: { startSec: number; endSec: number | null }): string {
@@ -66,10 +67,10 @@ export function MediaView({ src, kind, locator }: {
       )}
       <span className="mono muted" style={{ fontSize: "0.75rem" }}>
         {locator
-          ? `Ausschnitt ${formatTimeRange(locator)}${locator.endSec == null
-              ? " - Ende offen, Wiedergabe hält nicht an"
-              : " - Wiedergabe hält am Ausschnittsende an"}`
-          : "Ganze Datei - Auswahl als Beleg bindet die aktuelle Zeitposition noch nicht"}
+          ? locator.endSec == null
+            ? t("media.excerptOpen", { range: formatTimeRange(locator) })
+            : t("media.excerptClamped", { range: formatTimeRange(locator) })
+          : t("media.wholeFile")}
       </span>
     </div>
   );
