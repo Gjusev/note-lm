@@ -1,105 +1,55 @@
-# note-lm brand resources
+# note-lm brand system
 
-Neo-Swiss/brutalist brand system for note-lm. Vector-first: every asset is
-hand-authored SVG code in this directory; all PNG/ICO files are derived by a
-deterministic rasterizer. Status: logo + brand design delivered; desktop
-application of the tokens is a proposal for the next slice.
+note-lm uses a calm, editorial identity for work that needs to remain
+verifiable. The document mark represents a source; its two white lines are the
+recorded passage; the terracotta square is the durable evidence locator.
 
-## Direction
+## Design tokens
 
-Strict grid with visible hairline rules (#EAEAEA, 1px) alongside 2px
-structural ink rules; extreme contrast (ink `#202020` on paper
-`#F7F6F3`/`#FFFFFF`); sharp corners only (radius 0/2px); oversized heavy
-caps; mono metadata and numerals as design elements; red `#b4473d` as the
-single hard accent (dark theme `#d2705f`). 
-
-Banned by this direction: gradients, soft shadows, pastel washes,
-pill-shaped containers, and the typefaces Inter/Roboto/OpenSans. Type is an
-offline stack - UI/wordmark: `'Helvetica Neue', Arial, system-ui`;
-metadata: `'JetBrains Mono', ui-monospace` fallback chain. Nothing is
-bundled or downloaded (the app is offline-first; tokens.css already
-documents that "Geist Sans" is named but not shipped).
-
-Earlier draft directions (continuous-line ink illustrations with pastel
-offset shapes, editorial serif accents, pastel status tints) were dropped by
-owner decision on 2026-09-29 and are not part of this system.
-
-## Files
-
-| File | What it is |
+| Role | Value |
 | --- | --- |
-| `logo.svg` | The mark: a raw page rectangle with a dog-ear notch, one white knockout line (the text), one solid red square (the citation marker - the `[E1]` evidence idiom reduced to geometry). Legible at 16 px. |
-| `logo-wordmark.svg` | Horizontal lockup: mark + `NOTE-LM` in heavy caps, tracking tight. |
-| `logo-wordmark-stacked.svg` | Stacked lockup: mark, 2px rule inset to the wordmark width, `NOTE-LM`, mono metadata line. |
-| `icon.svg` | App icon source: paper tile, 24px structural ink frame, mark at scale 12. |
-| `cover.svg` | Docs/design cover: hairline 14-column grid, structural rules, mark snapped to the margin, oversized wordmark, German title `FORSCHUNGSNOTIZBUCH MIT BELEGEN`, mono index/version metadata, one red square. |
-| `tokens-proposal.css` | **PROPOSAL, NOT APPLIED** - neo-brutalist token layer for the next desktop slice: radius 0/2, hairline + structural border system, solid status chips with contrast-verified fg/bg pairs, kbd, `.meta`, grid-rhythm spacing, buttons as ink blocks with hover invert. |
-| `previews/` | Rasterized previews incl. `check-sheet.png` (the 16 px legibility check: true 1x rasters plus 4x nearest-neighbor enlargements). |
-| `../../src-tauri/icons/` | Generated Tauri icon set (see below). |
+| Paper | `#f6f4f0` |
+| Raised surface | `#fffefa` |
+| Ink | `#292720` |
+| Secondary text | `#716d63` |
+| Divider | `#dedad2` |
+| Evidence accent | `#a44b3b` |
 
-## License and provenance
+Use the accent only for a decision, current selection, evidence locator, or
+primary action. The interface is intentionally quiet so documents and claims
+remain the focus. Do not use gradients, neon effects, heavy shadows, or large
+pill-shaped containers.
 
-All SVGs here are original work for this repository, MIT-licensed with the
-repo (see the repository license). The wordmark/lockups use `<text>` with
-offline system font stacks rather than bundled or traced typefaces - no
-third-party font files are distributed.
+## Assets
 
-**No AI raster generation was used anywhere** (z.ai image tooling was not
-invoked for any asset). Everything is deterministic, hand-written SVG, so
-the brand is infinitely scalable, diff-able in code review, and
-license-clean. The only machine step is the deterministic chromium
-rasterizer below.
+| File | Use |
+| --- | --- |
+| `logo.svg` | The standalone source-and-evidence mark. |
+| `logo-wordmark.svg` | README, web headers, and horizontal documentation lockups. |
+| `logo-wordmark-stacked.svg` | Social cards and square placements. |
+| `icon.svg` | Source of truth for Tauri icons. |
+| `cover.svg` | Documentation cover artwork. |
+| `social-preview.svg` | 1280 × 640 social card, ready for the GitHub repository social-preview setting. |
 
-## Regenerating the raster set
+The desktop header renders the same mark inline, and the Tauri icon set is
+generated from `icon.svg`. The SVG files are hand-authored, vector-native,
+and MIT-licensed with this repository.
+
+## Generate icons and previews
 
 ```bash
-node scripts/generate-brand-assets.mjs
+npm run brand:assets
 ```
 
-Uses the playwright chromium already in devDependencies (no new
-dependency). Deterministic by construction: fixed viewport per target,
-`deviceScaleFactor: 1`, transparent background, waits for
-`document.fonts.ready` + a double `requestAnimationFrame` before capture,
-no timestamps in output - two consecutive runs produce byte-identical
-files (verified by hash comparison).
+This runs `scripts/generate-brand-assets.mjs` and updates:
 
-Produces, into `src-tauri/icons/`:
+- `src-tauri/icons/icon.ico` plus 32/128/256/512 PNGs
+- `docs/design/brand/previews/` for visual review
 
-- `icon.png` (512), `128x128@2x.png` (256), `128x128.png` (128),
-  `32x32.png` (32)
-- `icon.ico` - multi-size PNG-in-ICO (16/32/48/256). The ICO container is
-  written by hand in the script (~40 lines: 6-byte ICONDIR + 16-byte entry
-  per image + raw PNG payloads; PNG entries are valid since Windows Vista).
+Upload `previews/social-preview-1280x640.png` in GitHub: **Settings → General
+→ Social preview**. GitHub stores that repository setting outside Git, so the
+source SVG and its deterministic PNG are kept here for future updates.
 
-`tauri.conf.json` currently references only `icons/icon.ico` (the bundle
-target is NSIS/Windows), and the script verifies on every run that every
-configured icon path exists. There is **no `icon.icns`**: ICNS authoring
-needs macOS tooling (`tauri icon` on a Mac, or `iconutil`); when an macOS
-target is added, run the official generator against `icon.svg`/`icon.png`.
-
-Previews land in `docs/design/brand/previews/` (16/32 px checks, lockups,
-cover, `check-sheet.png`).
-
-## Where things apply
-
-- **Now:** `src-tauri/icons/*` - consumed by the Tauri bundle (installer,
-  taskbar, window icon) via `tauri.conf.json`.
-- **Follow-up (src/desktop is frozen mid-slice):**
-  - favicon/in-app logo mark in the desktop shell (`logo.svg` inline, or
-    `previews/lockup-640.png` until SVG inlining is chosen);
-  - `tokens-proposal.css` merged into `src/desktop/src/styles/tokens.css`
-    by the next desktop slice (review contrast values there first);
-  - `cover.svg` as the docs cover once docs get a landing page.
-- Name availability ("note-lm") remains unverified legally - carried over
-  from PRODUCT.md; the working-name status is unchanged.
-
-## Known limits
-
-- At 16 px the dog-ear notch anti-aliases into a "cut corner" rather than
-  a distinct fold - accepted for this direction (the mark is meant to read
-  as raw geometry; ink block + white slit + red square all stay distinct,
-  confirmed via `check-sheet.png`).
-- The lockups render the wordmark with whatever grotesk the OS substitutes
-  (Arial on Windows). If pixel-exact wordmarks are ever required, convert
-  the text to paths at that point - deliberately not done now to avoid
-  hand-drawn letterforms.
+Review the 16px mark in `previews/check-sheet.png` before publishing a new
+icon. Keep typography in the system UI stack (`Segoe UI Variable`, `Aptos`,
+`Helvetica Neue`) and use `Cascadia Mono` only for technical metadata.

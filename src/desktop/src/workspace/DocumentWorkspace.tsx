@@ -68,9 +68,9 @@ export function DocumentWorkspace(props: {
     : ["source", "note", "chat"];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, minWidth: 0 }}>
-      <div className="rule-top" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1) var(--space-3)", borderBottom: "1px solid var(--rule)" }}>
-        <div role="tablist" aria-label="Arbeitsansicht" style={{ display: "flex", gap: "var(--space-1)" }}>
+    <div className="document-workspace" style={{ display: "flex", flexDirection: "column", minHeight: 0, flex: 1, minWidth: 0 }}>
+      <div className="rule-top workspace-toolbar" style={{ display: "flex", alignItems: "center", gap: "var(--space-2)", padding: "var(--space-1) var(--space-3)", borderBottom: "1px solid var(--rule)" }}>
+        <div className="workspace-tabs" role="tablist" aria-label="Arbeitsansicht" style={{ display: "flex", gap: "var(--space-1)" }}>
           {tabs.map((t) => (
             <button key={t} role="tab" aria-selected={view === t}
               onClick={() => setView(t)}
@@ -86,13 +86,13 @@ export function DocumentWorkspace(props: {
           ))}
         </div>
         <span style={{ flex: 1 }} />
-        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.navDrawerOpen} onClick={props.onToggleNav}>
+        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.navDrawerOpen} onClick={props.onToggleNav}>
           Navigation
         </button>
         <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} onClick={props.onResetLayout} title="Spaltenbreiten zurücksetzen">
           Layout zurücksetzen
         </button>
-        <button style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.inspectorOpen} onClick={props.onToggleInspector}>
+        <button className="workspace-toolbar-action" style={{ fontSize: "0.8rem", padding: "0 var(--space-2)" }} aria-pressed={props.ui.inspectorOpen} onClick={props.onToggleInspector}>
           Inspector
         </button>
       </div>

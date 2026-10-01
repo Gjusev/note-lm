@@ -32,9 +32,9 @@ function useHashRoute():
 export function App() {
   const route = useHashRoute();
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+    <div className="app-frame" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <header
-        className="rule-top"
+        className="rule-top app-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -45,12 +45,13 @@ export function App() {
       >
         <button
           onClick={() => (window.location.hash = "")}
-          style={{ border: "none", padding: 0, fontWeight: 700, letterSpacing: "0.04em", background: "transparent", color: "inherit" }}
+          className="brand-button"
           aria-label="Zur Bibliothek"
         >
-          note-lm
+          <BrandMark />
+          <span>note-lm</span>
         </button>
-        <div style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
+        <div className="app-actions" style={{ display: "flex", gap: "var(--space-3)", alignItems: "center" }}>
           <a
             href="#/activity"
             className="mono"
@@ -88,12 +89,23 @@ export function App() {
   );
 }
 
+function BrandMark() {
+  return (
+    <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="currentColor" />
+      <path d="M19 4v5h5" fill="#f6f4f0" opacity="0.9" />
+      <path d="M12 13h8M12 17h6" stroke="#f6f4f0" strokeWidth="2" strokeLinecap="round" />
+      <rect x="17" y="21" width="4" height="4" rx="1" fill="var(--accent)" />
+    </svg>
+  );
+}
+
 /** Explicit, persisted theme selection (light/dark/system). The resolved
  *  theme lands on <html data-theme> via lib/uiState. */
 function ThemeSelect() {
   const theme = useTheme();
   return (
-    <label className="mono" style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", fontSize: "0.72rem" }}>
+    <label className="mono theme-select" style={{ display: "flex", gap: "var(--space-1)", alignItems: "center", fontSize: "0.72rem" }}>
       Design
       <select
         value={theme.setting}
@@ -126,7 +138,7 @@ function StatusBadge() {
       .catch(() => setState("Motor nicht erreichbar"));
   }, []);
   return (
-    <span className="chip" title="Wo wird verarbeitet"
+    <span className="chip status-badge" title="Wo wird verarbeitet"
       style={{ background: "var(--chip-neutral-bg)", color: "var(--chip-neutral-fg)" }}>
       ◉ {state}
     </span>

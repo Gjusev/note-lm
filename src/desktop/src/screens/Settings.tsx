@@ -70,7 +70,7 @@ export function Settings() {
   const pendingChunks = profileStatus.data?.pendingCount ?? 0;
 
   return (
-    <section style={{ maxWidth: "760px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
+    <section className="page-shell" style={{ maxWidth: "760px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
       <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>Einstellungen · IA</h1>
       <p className="muted" style={{ marginTop: 0 }}>
         Modelle auf diesem Computer. Chat und Embeddings werden getrennt konfiguriert; ohne

@@ -23,7 +23,8 @@
     "eval:benchmark": "node scripts/run-benchmark.mjs",
     "fetch:llama": "node scripts/fetch-llama.mjs",
     "fetch:whisper": "node scripts/fetch-whisper.mjs",
-    "build:desktop": "vite build --config src/desktop/vite.config.ts"
+    "build:desktop": "vite build --config src/desktop/vite.config.ts",
+    "brand:assets": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
     "@azure/ai-form-recognizer": "^5.1.0",

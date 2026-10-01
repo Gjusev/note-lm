@@ -44,10 +44,10 @@ export function Library() {
   });
 
   return (
-    <section style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-3)" }}>
+    <section className="page-shell" style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
+      <div className="library-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-3)" }}>
         <h1 style={{ fontSize: "1.4rem", margin: 0 }}>Bibliothek</h1>
-        <div style={{ display: "flex", gap: "var(--space-2)" }}>
+        <div className="library-actions" style={{ display: "flex", gap: "var(--space-2)" }}>
           <button onClick={loadSample} disabled={sampling}>
             {sampling ? "Beispiel wird geladen…" : "Beispiel laden"}
           </button>
@@ -68,6 +68,7 @@ export function Library() {
             e.preventDefault();
             if (title.trim()) create.mutate(title.trim());
           }}
+          className="create-notebook-form"
           style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-4)" }}
         >
           <input
@@ -87,6 +88,7 @@ export function Library() {
         <p className="muted" style={{ marginTop: "var(--space-6)" }}>Laden…</p>
       ) : !notebooks?.length ? (
         <div
+          className="empty-state"
           style={{
             marginTop: "var(--space-6)",
             padding: "var(--space-6)",
@@ -101,7 +103,7 @@ export function Library() {
           </p>
         </div>
       ) : (
-        <ul style={{ listStyle: "none", padding: 0, marginTop: "var(--space-4)", display: "grid", gap: "var(--space-2)" }}>
+        <ul className="notebook-list" style={{ listStyle: "none", padding: 0, marginTop: "var(--space-4)", display: "grid", gap: "var(--space-2)" }}>
           {notebooks.map((nb) => (
             <li key={nb._id}>
               <a

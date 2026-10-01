@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-label="note-lm — research changes, evidence remembers">
+  <rect width="1280" height="640" fill="#F6F4F0"/>
+  <g fill="none" stroke="#DEDAD2" stroke-width="1"><path d="M76 75H1204M76 565H1204"/><path d="M76 75V565M264 75V565M452 75V565M640 75V565M828 75V565M1016 75V565M1204 75V565" opacity=".65"/></g>
+  <g transform="translate(96 102)"><path d="M0 0H92L130 38V162H0Z" fill="#292720"/><path d="M92 0V38H130" fill="#A44B3B"/><rect x="28" y="48" width="68" height="12" rx="6" fill="#F6F4F0"/><rect x="28" y="77" width="48" height="12" rx="6" fill="#F6F4F0"/><rect x="28" y="110" width="25" height="25" rx="6" fill="#A44B3B"/></g>
+  <text x="252" y="163" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="700" letter-spacing="-5" fill="#292720">note-lm<tspan fill="#A44B3B">.</tspan></text>
+  <text x="96" y="306" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="-4" fill="#292720">Research changes.</text><text x="96" y="382" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" letter-spacing="-4" fill="#292720">Evidence remembers.</text>
+  <g transform="translate(822 252)"><rect width="324" height="192" rx="18" fill="#FFFEFA" stroke="#DEDAD2" stroke-width="2"/><text x="28" y="43" font-family="ui-monospace, monospace" font-size="15" font-weight="700" letter-spacing="2" fill="#A44B3B">CLAIM / V1</text><path d="M28 71H270M28 99H234M28 127H250" stroke="#292720" stroke-width="9" stroke-linecap="round" opacity=".88"/><rect x="28" y="151" width="136" height="23" rx="11.5" fill="#F8EAE5"/><text x="42" y="168" font-family="ui-monospace, monospace" font-size="12" font-weight="700" fill="#A44B3B">SOURCE → V2</text></g>
+  <text x="96" y="525" font-family="ui-monospace, monospace" font-size="17" font-weight="700" letter-spacing="2.2" fill="#716D63">LOCAL-FIRST RESEARCH WITH RECEIPTS</text>
+</svg>

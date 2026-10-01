@@ -1,17 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="note-lm App-Symbol">
-  <!-- App icon, neo-brutalist: flat paper tile, sharp corners (radius 0),
-       a 4px structural ink frame, and the solid-geometry mark centered.
-       No gradients, no shadows, no rounded corners. Rasterized by
-       scripts/generate-brand-assets.mjs into src-tauri/icons
-       (512/256/128/32 PNG + multi-size ICO). This file is the source of
-       truth; PNGs are derived artifacts. -->
-  <rect width="512" height="512" fill="#F7F6F3"/>
-  <!-- structural frame: 24px at 512 = 0.75px at 16, still reads as a solid
-       dark edge in the taskbar instead of anti-aliasing away -->
-  <rect x="12" y="12" width="488" height="488" fill="none" stroke="#202020" stroke-width="24"/>
-  <g transform="translate(64,64) scale(12)">
-    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
-    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
-    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="note-lm app icon">
+  <rect width="512" height="512" rx="96" fill="#f6f4f0"/>
+  <rect x="20" y="20" width="472" height="472" rx="78" fill="none" stroke="#dedad2" stroke-width="8"/>
+  <g transform="translate(64 64) scale(12)">
+    <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="#292720"/>
+    <path d="M19 4v5h5" fill="#f6f4f0" opacity=".9"/>
+    <path d="M12 13h8M12 17h6" fill="none" stroke="#f6f4f0" stroke-width="2" stroke-linecap="round"/>
+    <rect x="17" y="21" width="4" height="4" rx="1" fill="#a44b3b"/>
   </g>
 </svg>

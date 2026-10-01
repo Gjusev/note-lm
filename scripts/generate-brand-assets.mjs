@@ -31,6 +31,7 @@ mkdirSync(icons, { recursive: true });
    honestly sized; the lockup keeps its 200x64 aspect. */
 const targets = [
   [join(brand, 'icon.svg'), join(icons, 'icon.png'), 512, 512],
+  [join(brand, 'logo.svg'), join(root, 'public', 'nobg_notelm-logo.png'), 256, 256],
   [join(brand, 'icon.svg'), join(icons, '128x128@2x.png'), 256, 256],
   [join(brand, 'icon.svg'), join(icons, '128x128.png'), 128, 128],
   [join(brand, 'icon.svg'), join(icons, '32x32.png'), 32, 32],
@@ -40,6 +41,7 @@ const targets = [
   [join(brand, 'logo-wordmark.svg'), join(previews, 'lockup-640.png'), 640, 174],
   [join(brand, 'logo-wordmark-stacked.svg'), join(previews, 'lockup-stacked-400.png'), 400, 300],
   [join(brand, 'cover.svg'), join(previews, 'cover-1200.png'), 1200, 675],
+  [join(brand, 'social-preview.svg'), join(previews, 'social-preview-1280x640.png'), 1280, 640],
 ];
 
 /* Sizes embedded in icon.ico (16 and 32 for shell views, 48 for alt-tab,

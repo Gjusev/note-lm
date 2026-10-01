@@ -39,6 +39,7 @@ function Splitter({ label, value, min, max, onChange }: {
       aria-valuemin={min}
       aria-valuemax={max}
       tabIndex={0}
+      className="workspace-splitter"
       style={{ width: 8, margin: "0 -4px", zIndex: 2, cursor: "col-resize", flex: "0 0 8px" }}
       onPointerDown={(e) => {
         dragging.current = true;
@@ -110,11 +111,13 @@ function OverlayPanel({ title, labelledBy, onClose, children, width, side }: {
   }, [onClose]);
   return (
     <div
+      className="workspace-overlay"
       style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 40 }}
       onClick={onClose}
     >
       <div
         ref={panelRef}
+        className="workspace-overlay-panel"
         role="dialog"
         aria-modal="true"
         aria-label={title}
@@ -160,11 +163,12 @@ export function WorkspaceShell(props: {
   const navAsOverlay = width > 0 && width < NARROW_NAV;
   const inspectorAsOverlay = width > 0 && width < NARROW_INSPECTOR;
   return (
-    <div ref={shellRef} style={{ display: "flex", width: "100%", minHeight: 0, position: "relative" }}>
+    <div ref={shellRef} className="workspace-shell" style={{ display: "flex", width: "100%", minHeight: 0, position: "relative" }}>
       {/* Navigator: inline column when wide, drawer below 700px. */}
       {!navAsOverlay && (
         <aside
           aria-label="Quellen und Notizen"
+          className="workspace-aside"
           style={{
             width: props.navWidth, flex: `0 0 ${props.navWidth}px`, minWidth: 0, minHeight: 0,
             display: "flex", flexDirection: "column", borderRight: "1px solid var(--rule)",
@@ -185,7 +189,7 @@ export function WorkspaceShell(props: {
           min={NAV_MIN} max={NAV_MAX} onChange={props.onNavWidth} />
       )}
       {/* Center column: the work surface (reader / note / chat / lists). */}
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div className="workspace-center" style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0 }}>
         {props.center}
       </div>
       {/* Inspector splitter sits between center and the inline column. */}
@@ -198,6 +202,7 @@ export function WorkspaceShell(props: {
       {!inspectorAsOverlay && props.inspectorOpen && (
         <aside
           aria-label="Inspector"
+          className="workspace-aside"
           style={{
             width: props.inspectorWidth, flex: `0 0 ${props.inspectorWidth}px`, minWidth: 0, minHeight: 0,
             display: "flex", flexDirection: "column", borderLeft: "1px solid var(--rule)",

@@ -3,82 +3,82 @@
     {
       "name": "engine server up (3128, fresh data dir, real engine.cjs)",
       "ok": true,
-      "ms": 811
+      "ms": 1006
     },
     {
       "name": "vite dev server up (5180)",
       "ok": true,
-      "ms": 535
+      "ms": 19
     },
     {
       "name": "1a Bibliothek lädt (Engine über HTTP erreichbar)",
       "ok": true,
-      "ms": 512
+      "ms": 2255
     },
     {
       "name": "1b Beispiel laden -> Notizbuch + Navigation",
       "ok": true,
-      "ms": 4402
+      "ms": 3236
     },
     {
       "name": "2 Workspace: Nav-Sektionen, Mitte, Inspector",
       "ok": true,
-      "ms": 35
+      "ms": 36
     },
     {
       "name": "3 Quelle öffnen: Reader, PDF-Canvas, Versionsdropdown",
       "ok": true,
-      "ms": 1498
+      "ms": 958
     },
     {
       "name": "4 Aussage mit offenem Vorschlag im Inspector",
       "ok": true,
-      "ms": 75
+      "ms": 64
     },
     {
       "name": "5a Matrix öffnen: Raster mit Aussage-Zeile + Quellen-Spalte",
       "ok": true,
-      "ms": 171
+      "ms": 103
     },
     {
       "name": "5b Matrix-Tastatur: Zelle fokussieren, Enter öffnet v1",
       "ok": true,
-      "ms": 31
+      "ms": 37
     },
     {
       "name": "6a Materialien: Anfrage steuert, Reihe erscheint (Engine-Stall gemeldet)",
       "ok": true,
-      "ms": 179
+      "ms": 114
     },
     {
       "name": "6b Berechnungen: Formular + typisierter Engine-Fehler (PDF ist kein CSV)",
       "ok": true,
-      "ms": 161
+      "ms": 183
     },
     {
       "name": "7 Anker-Chip öffnet den Reader an der Ankerversion",
       "ok": true,
-      "ms": 344
+      "ms": 94
     },
     {
       "name": "8 Design-Umschalter (data-theme)",
       "ok": true,
-      "ms": 81
+      "ms": 78
     },
     {
       "name": "9a 800px: Inspector wird Overlay-Dialog",
       "ok": true,
-      "ms": 38
+      "ms": 31
     },
     {
       "name": "9b Escape schließt das Overlay",
       "ok": true,
-      "ms": 8
+      "ms": 10
     },
     {
       "name": "9c 640px: Nav wird Drawer",
       "ok": true,
-      "ms": 73
+      "ms": 70
     },
     {
       "name": "10 keine Console-Fehler",
@@ -92,7 +92,7 @@
   "consoleErrors": [],
   "pageErrors": [],
   "networkServerLogs": [],
-  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uidrive-gOEq3b",
+  "dataDir": "C:\\Users\\ahmia\\AppData\\Local\\Temp\\notelm-uidrive-KVa4K6",
   "screenshots": [
     "01-library.png",
     "02-workspace.png",

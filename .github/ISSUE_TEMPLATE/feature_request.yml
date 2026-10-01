@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest an improvement to the research workflow.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Research problem
+      description: "Describe the work that is difficult today, not only a proposed solution."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence or examples
+      description: "Optional. Do not attach private source documents."

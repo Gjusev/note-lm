@@ -1,15 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 204 64" role="img" aria-label="note-lm Wortbildmarke">
-  <!-- Horizontal lockup: mark + wordmark "NOTE-LM".
-       Wordmark: heavy caps, tracking tight, offline Helvetica-style stack
-       ("Helvetica Neue", Arial, system-ui). Inter/Roboto/OpenSans are banned
-       by the brand direction; nothing is bundled or downloaded - the stack
-       renders with the OS grotesk (Arial on Windows, where the rasterizer
-       runs). The mark (logo.svg) stays the fully deterministic asset.
-       Stacked variant: logo-wordmark-stacked.svg. -->
-  <g transform="translate(0,8) scale(1.5)">
-    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
-    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
-    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" role="img" aria-label="note-lm wordmark">
+  <g transform="translate(0 8) scale(1.5)">
+    <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="#292720"/>
+    <path d="M19 4v5h5" fill="#f6f4f0" opacity=".9"/>
+    <path d="M12 13h8M12 17h6" fill="none" stroke="#f6f4f0" stroke-width="2" stroke-linecap="round"/>
+    <rect x="17" y="21" width="4" height="4" rx="1" fill="#a44b3b"/>
   </g>
-  <text x="48" y="45" font-family="'Helvetica Neue', Arial, system-ui, sans-serif" font-size="30" font-weight="700" letter-spacing="-0.5" fill="#202020">NOTE-LM</text>
+  <text x="51" y="43" fill="#292720" font-family="'Segoe UI Variable', Aptos, 'Helvetica Neue', Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="-1.5">note-lm</text>
 </svg>

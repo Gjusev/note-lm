@@ -1,16 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="note-lm Zeichen: Seitenblock mit Belegquadrat">
-  <!-- note-lm mark - "page + reference" as neo-Swiss/brutalist geometry.
-       The page is one raw rectangle with a dog-ear notch (sharp corners only);
-       the text line is a paper knockout; the citation marker is a SOLID red
-       square - the [E1] evidence idiom reduced to its smallest geometric form.
-       No strokes to anti-alias away: at 16 px this is still just three blocks
-       (ink page / paper line / red square), which is the legibility contract.
-       Hand-authored vector, no raster or AI-generation step (see README.md).
-       Check render: docs/design/brand/previews/ (check-sheet.png). -->
-  <!-- page: raw rectangle, dog-ear notch top-right, corner radius 0 -->
-  <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
-  <!-- text line as negative space -->
-  <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
-  <!-- citation marker: solid red square, the single accent -->
-  <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="note-lm evidence mark">
+  <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="#292720"/>
+  <path d="M19 4v5h5" fill="#f6f4f0" opacity=".9"/>
+  <path d="M12 13h8M12 17h6" fill="none" stroke="#f6f4f0" stroke-width="2" stroke-linecap="round"/>
+  <rect x="17" y="21" width="4" height="4" rx="1" fill="#a44b3b"/>
 </svg>

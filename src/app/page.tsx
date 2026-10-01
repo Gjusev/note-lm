@@ -226,7 +226,7 @@ export default function LandingPage() {
         className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-grid flex items-center justify-between px-5 py-3 md:px-12 md:py-4"
       >
         <Link href="/" className="flex items-center gap-2 md:gap-3 shrink-0">
-          <Image src="/nobg_notelm-logo.png" alt="NotebookLM" width={28} height={28} />
+          <Image src="/nobg_notelm-logo.png" alt="note-lm" width={28} height={28} />
           <span className="text-mono-label font-bold tracking-widest hidden sm:inline text-ink">
             NOTEBOOK LM
           </span>

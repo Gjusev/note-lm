@@ -1,18 +1,51 @@
 <p align="center">
-  <img src="docs/design/brand/logo-wordmark.svg" alt="note-lm wordmark" width="380">
+  <img src="docs/design/brand/logo-wordmark.svg" alt="note-lm" width="300">
 </p>
 
-**A local-first research notebook where every claim opens its evidence.**
-Import PDFs, web pages, CSV tables, audio and video; ask questions; save
-claims anchored to the exact source version they came from. When a source
-changes, the app tells you which claims need another look — it never
-silently rewrites your conclusions. Everything runs inside one installed
-Windows program: your data stays on your disk, and the AI runs locally
-unless you explicitly hand it a key.
+<p align="center">
+  <strong>A local-first research notebook where every claim opens its evidence.</strong><br>
+  Import a source. Save the passage behind a claim. Re-import with confidence.
+</p>
 
-[![Release v0.1.0](https://img.shields.io/badge/release-v0.1.0-b4473d)](https://github.com/Gjusev/note-lm/releases/tag/v0.1.0)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Platform](https://img.shields.io/badge/platform-Windows%20x64%20%28only%20OS%20tested%29-202020)
+<p align="center">
+  <a href="https://github.com/Gjusev/note-lm/releases"><img src="https://img.shields.io/github/v/release/Gjusev/note-lm?color=a44b3b&label=release" alt="Latest release"></a>
+  <a href="https://github.com/Gjusev/note-lm/actions/workflows/ci.yml"><img src="https://github.com/Gjusev/note-lm/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-292720" alt="MIT license"></a>
+  <img src="https://img.shields.io/badge/platform-Windows%20x64-716d63" alt="Windows x64">
+</p>
+
+<p align="center">
+  <a href="#download-and-install">Download</a> ·
+  <a href="#the-research-loop">How it works</a> ·
+  <a href="#quick-start">Contribute</a> ·
+  <a href="docs/BENUTZERHANDBUCH.md">User guide (DE)</a>
+</p>
+
+![note-lm evidence workspace: sources, reading surface and evidence inspector](eval/ui-drive/artifacts/02-workspace.png)
+
+> **Your conclusions should not lose their receipts.** note-lm records the
+> exact source version, locator and quotation behind a saved claim. When a
+> source changes, it asks for review instead of mutating research history.
+
+## The research loop
+
+| 1. Bring the source in | 2. Save the evidence | 3. Review what changed |
+| --- | --- | --- |
+| Import PDFs, pages, CSV tables, audio, or video. | Select a passage and save a claim pinned to its source version. | Re-importing creates review proposals; the original claim remains traceable. |
+| Local storage, local search, local models by default. | Open every citation back in the reader. | Compare claims and sources in the evidence matrix. |
+
+Everything runs in one installed Windows program. Your data remains on your
+disk; remote AI is opt-in and requires an explicit provider connection.
+
+## See it in 20 seconds
+
+<video src="docs/screenshots/note-lm-launch.mp4" poster="docs/screenshots/note-lm-launch-poster.jpg" controls muted playsinline>
+  <a href="docs/screenshots/note-lm-launch.mp4"><img src="docs/screenshots/note-lm-launch-poster.jpg" alt="Play the note-lm launch video"></a>
+</video>
+
+If your GitHub client does not render inline video, use the [launch video](docs/screenshots/note-lm-launch.mp4) or watch the short visual preview below.
+
+[![note-lm launch video](docs/screenshots/note-lm-launch.gif)](docs/screenshots/note-lm-launch.mp4)
 
 | The workspace | The evidence reader |
 | --- | --- |

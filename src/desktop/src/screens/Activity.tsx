@@ -136,7 +136,7 @@ export function Activity() {
   }, [active.length, resync, queryClient]);
 
   return (
-    <section style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
+    <section className="page-shell" style={{ maxWidth: "880px", margin: "0 auto", padding: "var(--space-6)", width: "100%" }}>
       <h1 style={{ fontSize: "1.3rem", marginTop: 0 }}>Aktivität</h1>
       <p className="muted" style={{ margin: 0 }}>
         {active.length === 0

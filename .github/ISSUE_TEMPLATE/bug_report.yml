@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a reproducible problem in note-lm.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Never include API keys, source documents, or personal research data."
+  - type: input
+    id: version
+    attributes:
+      label: note-lm version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Desktop app
+        - Import or extraction
+        - Search or chat
+        - Evidence and versions
+        - Installer or update
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. ...\n2. ...\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour and any safe-to-share logs
+    validations:
+      required: true

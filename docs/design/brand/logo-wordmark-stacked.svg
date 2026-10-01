@@ -1,17 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" role="img" aria-label="note-lm gestapelte Wortbildmarke">
-  <!-- Stacked lockup: mark, 2px structural rule, wordmark, mono metadata line.
-       Same type rules as logo-wordmark.svg (heavy caps, Helvetica-style
-       offline stack, Inter/Roboto/OpenSans banned). The metadata line uses
-       the mono stack - numerals and metadata are design elements in this
-       direction. -->
-  <g transform="translate(68,0) scale(2)">
-    <path d="M8 4H17l7 7V28H8Z" fill="#202020"/>
-    <rect x="11" y="12" width="10" height="3" fill="#FFFFFF"/>
-    <rect x="13" y="18" width="6" height="6" fill="#b4473d"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="note-lm stacked wordmark">
+  <g transform="translate(88 16) scale(2.7)">
+    <path d="M8 4h11l5 5v17a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V4Z" fill="#292720"/>
+    <path d="M19 4v5h5" fill="#f6f4f0" opacity=".9"/>
+    <path d="M12 13h8M12 17h6" fill="none" stroke="#f6f4f0" stroke-width="2" stroke-linecap="round"/>
+    <rect x="17" y="21" width="4" height="4" rx="1" fill="#a44b3b"/>
   </g>
-  <!-- rule inset to the wordmark width; wordmark + subline centered under
-       the mark (single anchor: everything centered on x=100) -->
-  <line x1="17" y1="76" x2="183" y2="76" stroke="#202020" stroke-width="2"/>
-  <text x="100" y="116" text-anchor="middle" font-family="'Helvetica Neue', Arial, system-ui, sans-serif" font-size="34" font-weight="700" letter-spacing="-0.5" fill="#202020">NOTE-LM</text>
-  <text x="100" y="138" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="11" letter-spacing="1.5" fill="#202020" opacity="0.62">FORSCHUNGSNOTIZBUCH</text>
+  <text x="120" y="128" text-anchor="middle" fill="#292720" font-family="'Segoe UI Variable', Aptos, 'Helvetica Neue', Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="-1.5">note-lm</text>
+  <path d="M72 140h96" stroke="#a44b3b"/>
+  <text x="120" y="160" text-anchor="middle" fill="#716d63" font-family="'Cascadia Mono', Consolas, monospace" font-size="8" letter-spacing="1.8">EVIDENCE, VERSIONED</text>
 </svg>

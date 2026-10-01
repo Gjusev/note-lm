@@ -21,8 +21,8 @@ function Section(props: {
   children: React.ReactNode;
 }) {
   return (
-    <section aria-label={props.title} style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
+    <section className="navigator-section" aria-label={props.title} style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div className="navigator-section-header" style={{ display: "flex", alignItems: "center", gap: "var(--space-1)" }}>
         <button
           aria-expanded={props.open}
           aria-controls={"nav-section-" + props.id}
@@ -99,7 +99,7 @@ export function SourceNavigator(props: {
   const calcs = useQuery({ queryKey: ["calculations", props.notebookId], queryFn: () => desktopApi.listCalculations(props.notebookId) });
 
   return (
-    <div style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflow: "hidden" }}>
+    <div className="workspace-nav" style={{ padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)", minHeight: 0, flex: 1, overflow: "hidden" }}>
       <Section id="sources" title="Quellen" count={props.sources.length}
         open={sectionOpen("sources", true)} onToggle={() => toggle("sources", sectionOpen("sources", true))}>
         <button className="primary" onClick={() => importFile.mutate()} disabled={importFile.isPending}>

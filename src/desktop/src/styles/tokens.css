@@ -1,67 +1,42 @@
-/* Design tokens — neo-Swiss/brutalist system (docs/design/brand, merged from
-   tokens-proposal.css): paper/ink extremes, hairline + structural rules,
-   radius collapsed to 0/2px, SOLID status chips, hover by INVERSION.
-   Theme selection is explicit (light/dark/system, persisted via
-   lib/uiState.ts): the resolved theme lands on <html data-theme>. "system"
-   is resolved in JS (matchMedia listener) so the dark block exists once.
-
-   Contrast notes (WCAG relative luminance):
-   - light accent #b4473d  L=0.1454 vs #ffffff -> 5.37:1
-   - dark accent  #d2705f  L=0.2612 vs #1c1b19 -> 5.10:1; action.primary.fg
-     is the dedicated per-theme token, never a hardcoded #fff
-   - chip fills carry white text at (both themes, canvas-independent):
-     success #346538 ~6.8:1, error #9f2f2d ~7.8:1, info #1f6c9f ~5.9:1,
-     warning #956400 ~5.3:1
-
-   Fonts: offline stacks only — nothing is bundled (no @font-face anywhere
-   in this app). --font-ui is the Helvetica-style grotesk whatever the OS
-   substitutes (Arial on Windows); JetBrains Mono is named but falls back
-   to the system mono. Do not claim bundled fonts offline. */
+/* Desktop design system — editorial minimalism. */
 :root {
-  /* semantic aliases (§6 token names) — brutalist values */
-  --surface-canvas: #f7f6f3;
-  --surface-document: #ffffff;
-  --text-primary: #202020;
-  --text-secondary: rgba(32, 32, 32, 0.62);
-  --border-default: #eaeaea; /* hairline COLOR (rows, grid columns) */
-  --status-success: #346538;
-  --status-warning: #956400;
-  --status-error: #9f2f2d; /* deeper than the accent so chip text passes */
-  --status-info: #1f6c9f;
-  --action-primary-bg: #b4473d;
+  --surface-canvas: #f6f4f0;
+  --surface-document: #fffefa;
+  --surface-raised: #ffffff;
+  --surface-subtle: #eeebe4;
+  --text-primary: #292720;
+  --text-secondary: #716d63;
+  --text-tertiary: #969188;
+  --border-default: #dedad2;
+  --border-strong: #c9c3b8;
+  --status-success: #386344;
+  --status-warning: #8a6414;
+  --status-error: #9b4336;
+  --status-info: #356c84;
+  --action-primary-bg: #a44b3b;
+  --action-primary-hover: #883e31;
   --action-primary-fg: #ffffff;
-  --focus: 2px solid #b4473d;
-
-  /* solid chip fg partners — same fills in both themes (the fill carries
-     its own white text, so contrast holds on any canvas behind it) */
+  --focus: 2px solid #a44b3b;
   --status-success-fg: #ffffff;
   --status-warning-fg: #ffffff;
   --status-error-fg: #ffffff;
   --status-info-fg: #ffffff;
-  --chip-neutral-bg: #202020;
-  --chip-neutral-fg: #f7f6f3;
-
-  /* border system: hairline separates list rows and grid columns; the 2px
-     structural rule bounds regions (app header, tab strip). The contrast
-     between the two IS the system — never the structural weight everywhere. */
-  --rule-hairline: 1px solid #eaeaea;
-  --rule-structural: 2px solid #202020;
-
-  /* radius collapsed: 0 for grid-aligned containers; 2px only where a fully
-     sharp corner clips glyphs (inputs, chips, dialogs). Nothing larger. */
+  --chip-neutral-bg: #eae7df;
+  --chip-neutral-fg: #454139;
+  --rule-hairline: 1px solid var(--border-default);
+  --rule-structural: 1px solid var(--border-strong);
   --radius-none: 0;
-  --radius-sharp: 2px;
-
-  /* legacy names kept — every existing screen uses them */
+  --radius-sharp: 7px;
+  --radius-panel: 10px;
   --paper: var(--surface-canvas);
-  --paper-muted: #ffffff; /* raised surface on the canvas, hairline-separated */
+  --paper-muted: var(--surface-document);
   --ink: var(--text-primary);
   --ink-60: var(--text-secondary);
-  --ink-40: rgba(32, 32, 32, 0.4);
+  --ink-40: var(--text-tertiary);
   --rule: var(--border-default);
   --accent: var(--action-primary-bg);
   --accent-fg: var(--action-primary-fg);
-  --accent-soft: rgba(180, 71, 61, 0.08); /* pdf text-layer focus only */
+  --accent-soft: #f8eae5;
   --ok: var(--status-success);
   --warn: var(--status-warning);
   --surface: var(--surface-document);
@@ -75,142 +50,138 @@
   --space-8: 32px;
   --space-12: 48px;
   --space-16: 64px;
-  --font-ui: "Helvetica Neue", Arial, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-ui: "Segoe UI Variable", "Aptos", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
   --font-meta: var(--font-mono);
 }
+
 [data-theme="dark"] {
-  --surface-canvas: #1c1b19;
-  --surface-document: #242220;
-  --text-primary: #ece9e2;
-  --text-secondary: rgba(236, 233, 226, 0.62);
-  --border-default: #2e2c29;
-  /* text-safe status variants on the dark canvas; the solid chip fills +
-     white fg from :root stay untouched (chips bring their own contrast) */
-  --status-success: #6fbf8e;
-  --status-warning: #d9a441;
-  --status-error: #d2705f;
-  --status-info: #85bddf;
-  --action-primary-bg: #d2705f;
-  --action-primary-fg: #1c1b19; /* 5.10:1 on #d2705f; white was 3.37:1 */
-  --paper-muted: #242220;
-  --ink-40: rgba(236, 233, 226, 0.4);
-  --accent-soft: rgba(210, 112, 95, 0.12);
-  --rule-hairline: 1px solid #2e2c29;
-  --rule-structural: 2px solid #ece9e2;
-  --chip-neutral-bg: #ece9e2;
-  --chip-neutral-fg: #1c1b19;
+  --surface-canvas: #1e1d1a;
+  --surface-document: #26241f;
+  --surface-raised: #2d2a25;
+  --surface-subtle: #34312b;
+  --text-primary: #f0ede5;
+  --text-secondary: #b6b0a5;
+  --text-tertiary: #898378;
+  --border-default: #3a3730;
+  --border-strong: #514c43;
+  --action-primary-bg: #cf725e;
+  --action-primary-hover: #e18670;
+  --action-primary-fg: #251d19;
+  --accent-soft: #482d27;
+  --chip-neutral-bg: #39352f;
+  --chip-neutral-fg: #ebe7de;
 }
+
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
 body {
   margin: 0;
+  overflow: hidden;
   background: var(--paper);
   color: var(--ink);
   font: 15px/1.55 var(--font-ui);
+  letter-spacing: -0.006em;
 }
 button, input, textarea, select { font: inherit; color: inherit; }
-/* Buttons are solid ink blocks; hover = ink/paper INVERSION (no scale
-   transforms, no shadows). Primary keeps the single hard accent red and
-   inverts to ink. Focus stays the 2px outline — the strongest non-color
-   focus indicator. */
 button {
   cursor: pointer;
-  background: var(--ink);
-  border: 1px solid var(--ink);
-  border-radius: var(--radius-none);
-  color: var(--paper);
-  padding: var(--space-2) var(--space-3);
-  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
-}
-button:not(:disabled):hover {
-  background: var(--paper); /* invert */
+  min-height: 32px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
   color: var(--ink);
-  border-color: var(--ink);
+  padding: 6px 10px;
+  line-height: 1.25;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
 }
-button:disabled { opacity: 0.45; cursor: default; }
-button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: 1px;
-}
+button:not(:disabled):hover { background: var(--surface-subtle); border-color: var(--ink-40); }
+button:not(:disabled):active { transform: scale(0.98); }
+button:disabled { opacity: 0.48; cursor: default; }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
-button.primary:not(:disabled):hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-input, textarea {
-  background: var(--surface);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-sharp);
-  padding: var(--space-2) var(--space-3);
+button.primary:not(:disabled):hover { background: var(--action-primary-hover); border-color: var(--action-primary-hover); color: var(--action-primary-fg); }
+input, textarea, select {
+  background: var(--surface-raised);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 7px 10px;
   width: 100%;
+  min-height: 34px;
+  transition: border-color 160ms ease, background-color 160ms ease;
 }
-/* metadata / numerals as design elements: mono, tracked caps, secondary ink */
-.mono, .meta {
-  font-family: var(--font-meta);
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-60);
-}
+input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
+input:hover, textarea:hover, select:hover { border-color: var(--border-strong); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+a { color: inherit; }
+h1, h2, h3 { color: var(--ink); letter-spacing: -0.03em; line-height: 1.15; }
+h1 { font-size: clamp(1.55rem, 1.2rem + 0.75vw, 2rem) !important; font-weight: 650; }
+h2 { font-size: 1.1rem !important; font-weight: 650; }
+h3 { font-size: 0.94rem; font-weight: 650; }
+.mono, .meta { font-family: var(--font-meta); font-size: 0.68rem; letter-spacing: 0.075em; text-transform: uppercase; color: var(--ink-60); }
 .muted { color: var(--ink-60); }
 .rule-top { border-top: 1px solid var(--rule); }
-/* Solid status chip base (radius 2px, mono tracked caps label); colors come
-   from the status + chip fg/bg token pairs at the call site — never color
-   alone, chips carry their words. */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  border-radius: var(--radius-sharp);
-  padding: 0 var(--space-2);
-  font-family: var(--font-meta);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1.7;
-  white-space: nowrap;
-}
-/* kbd: sharp 2px radius, hairline ink border, paper fill, mono, tracked */
-kbd {
-  font-family: var(--font-mono);
-  font-size: 0.78em;
-  line-height: 1;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1px solid var(--ink);
-  border-radius: 2px;
-  padding: 3px 5px;
-  white-space: nowrap;
-}
-[data-theme="dark"] kbd { color: var(--ink); background: var(--surface-document); }
+.chip { display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; border-radius: 999px; padding: 2px 7px; font-family: var(--font-meta); font-size: 0.62rem; font-weight: 650; letter-spacing: 0.07em; text-transform: uppercase; line-height: 1.45; white-space: nowrap; }
+kbd { font-family: var(--font-mono); font-size: 0.78em; line-height: 1; color: var(--ink); background: var(--surface-subtle); border: 1px solid var(--border-strong); border-radius: 4px; padding: 3px 5px; white-space: nowrap; }
 
-/* pdf.js text layer (viewer redesign): transparent glyphs over the canvas so
-   text is selectable/copyable; the reader captures the selection. Subset of
-   pdfjs web/pdf_viewer.css - only what TextLayer needs. */
-.text-layer {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  line-height: 1;
-  text-size-adjust: none;
-  forced-color-adjust: none;
-  transform-origin: 0 0;
-}
-.text-layer span, .text-layer br {
-  color: transparent;
-  position: absolute;
-  white-space: pre;
-  cursor: text;
-  transform-origin: 0% 0%;
-}
-/* keyboard path: the focused "quote block" gets a visible dashed outline +
-   a soft background so roving focus is locatable without a mouse */
-.text-layer span:focus {
-  outline: 1.5px dashed var(--accent);
-  outline-offset: 2px;
-  background: var(--accent-soft);
-}
-.text-layer ::selection { background: rgba(180, 71, 61, 0.32); }
-[data-theme="dark"] .text-layer ::selection { background: rgba(210, 112, 95, 0.4); }
+/* Shared product shell. */
+.app-frame { background: var(--paper); }
+.app-header { min-height: 56px; padding: 0 var(--space-6) !important; background: color-mix(in srgb, var(--surface-document) 94%, transparent); border-top: 0 !important; border-bottom: var(--rule-hairline) !important; }
+.brand-button { min-height: auto !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; color: var(--ink) !important; font-size: 1rem; font-weight: 720 !important; letter-spacing: -0.035em !important; }
+.brand-mark { width: 22px; height: 22px; margin-right: 8px; vertical-align: -5px; color: var(--ink); }
+.app-actions { gap: var(--space-2) !important; }
+.app-actions a { padding: 5px 6px; border-radius: 4px; color: var(--ink-60) !important; font-size: 0.67rem; transition: background-color 160ms ease, color 160ms ease; }
+.app-actions a:hover { color: var(--ink) !important; background: var(--surface-subtle); }
+.theme-select { font-size: 0.66rem !important; }
+.theme-select select { min-height: 28px; padding: 2px 24px 2px 7px !important; }
+.status-badge { background: var(--chip-neutral-bg) !important; color: var(--chip-neutral-fg) !important; }
+
+/* Main library, settings, and activity pages. */
+.page-shell { max-width: 980px !important; padding: var(--space-12) var(--space-6) !important; }
+.page-shell > h1 { margin-bottom: var(--space-2) !important; }
+.library-heading { margin-bottom: var(--space-6); }
+.library-actions { align-items: center; }
+.create-notebook-form { padding: var(--space-3); background: var(--surface-document); border: var(--rule-hairline); border-radius: var(--radius-panel); }
+.empty-state { max-width: 560px; margin: var(--space-12) auto 0 !important; padding: var(--space-8) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-panel); text-align: left !important; }
+.empty-state .mono { color: var(--accent) !important; }
+.notebook-list { gap: var(--space-2) !important; }
+.notebook-list a { position: relative; padding: var(--space-4) var(--space-6) !important; background: var(--surface-document); border: var(--rule-hairline) !important; border-radius: var(--radius-panel); transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease; }
+.notebook-list a::after { content: "→"; position: absolute; right: var(--space-4); top: 50%; color: var(--text-tertiary); transform: translateY(-50%); }
+.notebook-list a:hover { border-color: var(--border-strong) !important; background: var(--surface-raised); transform: translateY(-1px); }
+.notebook-list strong { font-size: 1rem; font-weight: 650; }
+.notebook-list .meta { margin-top: 3px; }
+
+/* The research workspace uses columns, not a wall of disconnected cards. */
+.workspace-shell { background: var(--surface-document); }
+.workspace-aside { background: var(--surface-canvas) !important; }
+.workspace-center { background: var(--surface-document); }
+.workspace-splitter { position: relative; background: transparent; }
+.workspace-splitter::after { content: ""; position: absolute; inset: 0 3px; background: var(--border-default); opacity: 0; transition: opacity 160ms ease; }
+.workspace-splitter:hover::after, .workspace-splitter:focus-visible::after { opacity: 1; }
+.workspace-overlay { background: rgba(31, 29, 25, 0.28) !important; }
+.workspace-overlay-panel { background: var(--surface-document) !important; box-shadow: 0 8px 24px rgba(37, 32, 24, 0.04); }
+.workspace-nav { padding: var(--space-4) !important; gap: var(--space-4) !important; }
+.navigator-section { padding-bottom: var(--space-3); border-bottom: var(--rule-hairline); }
+.navigator-section:last-child { border-bottom: 0; }
+.navigator-section-header button { min-height: 26px; color: var(--ink) !important; letter-spacing: -0.01em; }
+.document-workspace { background: var(--surface-document); }
+.workspace-toolbar { min-height: 48px; padding: var(--space-2) var(--space-4) !important; background: var(--surface-document); border-top: 0 !important; }
+.workspace-tabs { gap: 2px !important; }
+.workspace-tabs button { min-height: 30px !important; padding: 4px 9px !important; border: 0 !important; border-bottom: 2px solid transparent !important; border-radius: 4px 4px 0 0 !important; color: var(--ink-60) !important; }
+.workspace-tabs button[aria-selected="true"] { color: var(--ink) !important; background: var(--accent-soft) !important; border-bottom-color: var(--accent) !important; }
+.workspace-toolbar-action { min-height: 29px !important; padding: 4px 8px !important; background: transparent !important; border-color: transparent !important; color: var(--ink-60) !important; }
+.workspace-toolbar-action:hover { background: var(--surface-subtle) !important; color: var(--ink) !important; }
+
+* { scrollbar-color: var(--border-strong) transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border: 3px solid transparent; background-clip: padding-box; border-radius: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* PDF text layer remains transparent so original pages, not CSS, render it. */
+.text-layer { position: absolute; inset: 0; overflow: hidden; line-height: 1; text-size-adjust: none; forced-color-adjust: none; transform-origin: 0 0; }
+.text-layer span, .text-layer br { color: transparent; position: absolute; white-space: pre; cursor: text; transform-origin: 0% 0%; }
+.text-layer span:focus { outline: 1.5px dashed var(--accent); outline-offset: 2px; background: var(--accent-soft); }
+.text-layer ::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
