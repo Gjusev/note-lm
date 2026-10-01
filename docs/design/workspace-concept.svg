@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="940" viewBox="0 0 1440 940" role="img" aria-labelledby="title desc">
+<title id="title">note-lm — propuesta de espacio de investigación</title>
+<desc id="desc">Lámina estática con datos ilustrativos. Fuentes a la izquierda, documento versionado en el centro y evidencia a la derecha. La aplicación real no se modifica.</desc>
+<style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#202020}.muted{fill:#66635d}.small{font-size:13px}.label{font-size:12px;font-weight:600;letter-spacing:.8px}.body{font-size:15px}.title{font-size:20px;font-weight:600}.mono{font-family:Consolas,monospace;font-size:12px}</style>
+<rect width="1440" height="940" fill="#eeede7"/>
+<text x="32" y="43" class="title" >note-lm</text>
+<text x="154" y="43" class="body" >Una mesa de trabajo para investigar con evidencia</text>
+<text x="32" y="71" class="label" >PROPUESTA DE COMPOSICIÓN · DATOS ILUSTRATIVOS · CONTROLES NO FUNCIONALES</text>
+<rect x="24" y="94" width="1392" height="776" rx="10" fill="#fafafa" stroke="#ccc8be"/>
+<rect x="25" y="95" width="1390" height="52" rx="9" fill="#f7f6f2" stroke="none"/>
+<text x="46" y="127" class="body" >Bibliothek  /  Wärmespeicher im Quartier</text>
+<rect x="950" y="105" width="247" height="31" rx="5" fill="#ffffff" stroke="#d7d3ca"/>
+<text x="964" y="126" class="small muted" >Suchen oder Befehl eingeben</text>
+<text x="1219" y="126" class="small" >Aktivität</text>
+<text x="1304" y="126" class="small" >Einstellungen</text>
+<path d="M25 147H1415" fill="none" stroke="#dcd9d1"/>
+<rect x="25" y="148" width="238" height="680" rx="0" fill="#f2f1ec" stroke="none"/>
+<path d="M263 148V828 M1045 148V828" stroke="#dcd9d1"/>
+<text x="45" y="182" class="label muted" >QUELLEN</text>
+<text x="45" y="213" class="body" >Alle Quellen</text>
+<rect x="37" y="229" width="214" height="65" rx="5" fill="#e9dfd8" stroke="none"/>
+<rect x="37" y="229" width="3" height="65" rx="0" fill="#b4473d" stroke="none"/>
+<text x="49" y="252" class="body" font-weight="600">Quartiersspeicher.pdf</text>
+<text x="49" y="276" class="small muted" >PDF · v1 geöffnet · v2 verfügbar</text>
+<text x="49" y="326" class="body" >Messwerte.csv</text>
+<text x="49" y="348" class="small muted" >Tabelle · 3 Spalten</text>
+<text x="49" y="391" class="body" >Seminar · Wärmespeicher</text>
+<text x="49" y="413" class="small muted" >Video · Transkript verfügbar</text>
+<path d="M43 444H245" fill="none" stroke="#dcd9d1"/>
+<text x="45" y="476" class="label muted" >IM NOTIZBUCH</text>
+<text x="45" y="511" class="body" >Notizen</text>
+<text x="45" y="546" class="body" >Aussagen</text>
+<text x="45" y="581" class="body" >Tabellen &amp; Berechnungen</text>
+<text x="45" y="616" class="body" >Lernmaterialien</text>
+<rect x="43" y="752" width="201" height="38" rx="5" fill="#ffffff" stroke="#cfcac0"/>
+<text x="65" y="777" class="body" >+ Quelle hinzufügen</text>
+<text x="45" y="811" class="small muted" >Originale bleiben erhalten.</text>
+<text x="286" y="180" class="body" font-weight="600">Recherchieren</text>
+<text x="431" y="180" class="body" >Änderungen prüfen</text>
+<text x="613" y="180" class="body" >Lernen</text>
+<rect x="284" y="196" width="110" height="3" rx="0" fill="#b4473d" stroke="none"/>
+<text x="891" y="180" class="small muted" >3 Quellen ausgewählt</text>
+<path d="M264 201H1044" fill="none" stroke="#dcd9d1"/>
+<text x="286" y="232" class="body" font-weight="600">Quartiersspeicher.pdf</text>
+<text x="785" y="232" class="small muted" >Version 1  ·  Seite 4 / 12</text>
+<rect x="286" y="251" width="735" height="40" rx="5" fill="#f7eedb" stroke="none"/>
+<text x="302" y="276" class="small" >Eine neue Version ist verfügbar. Deine Referenz bleibt auf v1.</text>
+<rect x="310" y="315" width="685" height="477" rx="2" fill="#ffffff" stroke="#dfdcd5"/>
+<text x="348" y="354" class="label muted" >TECHNISCHER BERICHT · BEISPIELDOKUMENT</text>
+<text x="348" y="398" class="title" font-size="25">Betrieb des Quartiersspeichers</text>
+<text x="348" y="431" class="body" font-weight="600">4. Ergebnisse der Messreihe</text>
+<text x="348" y="470" class="body" >Die Messreihe vergleicht den Betrieb bei gleichbleibender</text>
+<text x="348" y="495" class="body" >Außentemperatur. Die Bedingungen sind in Tabelle 2 dokumentiert.</text>
+<rect x="342" y="515" width="611" height="32" rx="2" fill="#f8e5b8" stroke="none"/>
+<text x="348" y="537" class="body" >Die mittlere Speicherdauer beträgt in diesem Versuch 42 Stunden.</text>
+<text x="348" y="574" class="body" >Dieser Wert beschreibt ausschließlich die untersuchte Messreihe.</text>
+<path d="M348 607H953" fill="none" stroke="#dcd9d1"/>
+<text x="348" y="635" class="small" font-weight="600">Messgröße</text>
+<text x="793" y="635" class="small" font-weight="600">Messreihe A</text>
+<path d="M348 650H953" fill="none" stroke="#dcd9d1"/>
+<text x="348" y="677" class="body" >Mittlere Speicherdauer</text>
+<text x="831" y="677" class="body" >42 h</text>
+<text x="348" y="712" class="body" >Referenz</text>
+<text x="766" y="712" class="body" >Tabelle 2 · v1</text>
+<path d="M348 732H953" fill="none" stroke="#dcd9d1"/>
+<text x="348" y="763" class="small muted" >Illustrative Angaben; keine reale Studie.</text>
+<rect x="431" y="806" width="400" height="34" rx="5" fill="#202020" stroke="none"/>
+<text x="448" y="828" class="small" style="fill:#ffffff">Beleg speichern</text>
+<path d="M561 814V833" stroke="#777777"/>
+<text x="576" y="828" class="small" style="fill:#ffffff">Zur Notiz hinzufügen</text>
+<path d="M720 814V833" stroke="#777777"/>
+<text x="741" y="828" class="small" style="fill:#ffffff">Fragen</text>
+<text x="1068" y="181" class="body" font-weight="600">Beleg</text>
+<text x="1150" y="181" class="body" >Fragen</text>
+<text x="1242" y="181" class="body" >Details</text>
+<rect x="1067" y="196" width="38" height="3" rx="0" fill="#b4473d" stroke="none"/>
+<path d="M1046 201H1415" fill="none" stroke="#dcd9d1"/>
+<text x="1068" y="231" class="label muted" >AUSGEWÄHLTE AUSSAGE</text>
+<text x="1068" y="270" class="title" >Die mittlere Speicherdauer</text>
+<text x="1068" y="298" class="title" >beträgt 42 Stunden.</text>
+<text x="1068" y="329" class="small muted" >Verknüpft mit Bericht v1, Seite 4.</text>
+<path d="M1068 354H1392" fill="none" stroke="#dcd9d1"/>
+<text x="1068" y="385" class="label muted" >WARUM PRÜFEN?</text>
+<text x="1068" y="416" class="body" >Version 2 nennt an dieser Stelle</text>
+<text x="1068" y="441" class="body" >57 Stunden. Die Aussage wurde</text>
+<text x="1068" y="466" class="body" >noch nicht aktualisiert.</text>
+<rect x="1068" y="491" width="322" height="40" rx="5" fill="#b4473d" stroke="none"/>
+<text x="1133" y="517" class="body" style="fill:#ffffff">Versionen vergleichen</text>
+<text x="1068" y="565" class="label muted" >DEINE NOTIZ</text>
+<rect x="1068" y="583" width="322" height="113" rx="5" fill="#ffffff" stroke="#d7d3ca"/>
+<text x="1081" y="610" class="body" >Prüfen, ob die Bedingungen in v2</text>
+<text x="1081" y="636" class="body" >mit der ersten Messreihe</text>
+<text x="1081" y="662" class="body" >vergleichbar sind.</text>
+<text x="1068" y="733" class="small muted" >Eine geänderte Quelle ist ein Anlass</text>
+<text x="1068" y="754" class="small muted" >zur Prüfung, kein Wahrheitsurteil.</text>
+<path d="M25 849H1415" fill="none" stroke="#dcd9d1"/>
+<text x="46" y="868" class="small muted" >Verarbeitung: lokal</text>
+<text x="286" y="868" class="small muted" >Versionsbezug bleibt sichtbar · Entwurf</text>
+<text x="1100" y="868" class="small muted" >Bereit · Beispielzustand</text>
+<text x="32" y="908" class="body" >01  Fuentes y notas</text>
+<text x="384" y="908" class="body" >02  Documento o trabajo en primer plano</text>
+<text x="1037" y="908" class="body" >03  Evidencia y próxima acción</text>
+</svg>

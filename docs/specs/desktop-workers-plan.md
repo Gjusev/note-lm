@@ -59,6 +59,7 @@ No lanzar a la vez el worker legado y el nuevo consumidor sobre la misma cola.
 | Audio | Inspeccionar, normalizar si procede, segmentar, transcribir, unir, indexar | Segmento con tiempo y configuración |
 | Vídeo | Inspeccionar/subtítulos, extraer audio cuando sea necesario, transcribir, indexar | Subtítulo o segmento de audio |
 | Embeddings | Seleccionar chunks pendientes, inferir por lotes, validar, confirmar índice | Lote/chunk y perfil exacto |
+| Análisis profundo opcional | Extraer páginas, construir/refinar árbol, validar y publicar índice | Página/nodo cuando el backend lo permita; en otro caso reiniciar la etapa del índice |
 | Materiales | Seleccionar evidencia, generar borrador, validar, guardar; renderizar si procede | Borrador/etapa confirmada |
 | Modelos | Descargar o importar, verificar, registrar, probar carga | Bytes verificables y archivo completo |
 | Exportación/backup | Captura consistente de datos, copiar adjuntos, verificar, publicar archivo | Manifiesto y archivos confirmados |
@@ -73,6 +74,12 @@ Una fuente tiene disponibilidad por capacidad: original legible, texto listo,
 transcripción parcial/completa e índice semántico preparado. Se puede leer y
 buscar texto mientras se indexan embeddings. No presentar contenido parcial
 como una fuente procesada por completo.
+
+El análisis profundo se evalúa en el [plan PageIndex](pageindex-integration-plan.md).
+Su disponibilidad es independiente del índice híbrido. No prometer checkpoints
+internos del SDK sin haberlos implementado y probado; la UI debe explicar qué
+etapa se reinicia al reanudar. Los controles y eventos son los mismos del resto
+de tareas, sin una cola o ventana externa que el usuario tenga que gestionar.
 
 ## Estado persistente de tareas
 

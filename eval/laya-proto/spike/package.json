@@ -1,0 +1,16 @@
+{
+  "name": "laya-spike",
+  "private": true,
+  "type": "module",
+  "description": "laya-ts ONNX spike for note-lm engine path (eval prototype, not a product dependency)",
+  "dependencies": {
+    "laya-ts": "file:../../../../laya-upstream/laya-ts",
+    "onnxruntime-node": "^1.20.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "onnxruntime-node",
+      "protobufjs"
+    ]
+  }
+}

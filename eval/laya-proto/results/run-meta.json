@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-29T15:17:24",
+  "model": "laya-multilingual",
+  "threshold": 0.5,
+  "wall_seconds": 308.7,
+  "decisions": 2115,
+  "forward_seconds": 308.7,
+  "batch_overhead_seconds": 0.0,
+  "avg_s_per_decision_batched": 0.146,
+  "worst_batch_s_per_decision": 0.3535,
+  "n_batches": 20,
+  "batch_size": 128,
+  "note": "materiality re-run with fixed claim builder; hf_revision annotated post-run from the HF cache refs (same checkpoint all runs)",
+  "hf_revision": "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+}

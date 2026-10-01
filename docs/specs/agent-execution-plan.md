@@ -35,6 +35,7 @@ Leer primero este documento y después, según la tarea:
 - [IA local y RAG](local-ai-rag-plan.md).
 - [Importador de recursos](resource-importer-plan.md).
 - [Workers, pausa, seguimiento y recuperación en Tauri](desktop-workers-plan.md).
+- [Evaluación e integración opcional de PageIndex](pageindex-integration-plan.md).
 
 Los planes anteriores contienen estados históricos que han quedado atrás.
 La tabla siguiente refleja la revisión actual; el agente debe comprobar el
@@ -295,6 +296,14 @@ por versión/hash. Anotar por separado firma de binarios/publicación si aún no
 hay credenciales; no bloquear las comprobaciones locales por ese motivo.
 
 ## Primer encargo concreto para el agente
+
+Ampliación solicitada: evaluar **PageIndex como análisis profundo** siguiendo
+`pageindex-integration-plan.md`. Preparar corpus y localizadores cuando convenga;
+integrar en producto después de validar motor, workers y recuperación general.
+La evaluación compara FTS, híbrida, PageIndex y combinación. Incorporar solo
+si satisface sus criterios medidos; no sustituye las fases obligatorias ni
+convierte PageIndex Cloud en dependencia. La entrega incluye operación completa
+desde Tauri y recuperación de trabajos, no solo un script Python.
 
 Empezar por **fase 0**, después corregir la integridad del RAG en fase 1 y
 conectar el recorrido de fase 2. Validar empaquetado en fase 3. En cada entrega

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "note-ui"; src: local("Segoe UI"); }
+      @font-face { font-family: "note-mono"; src: local("Cascadia Mono"); }
+      :root { --paper: #f6f4f0; --surface: #fffefa; --ink: #292720; --muted: #716d63; --line: #dedad2; --accent: #a44b3b; --accent-soft: #f8eae5; }
+      * { box-sizing: border-box; }
+      html, body, #root { width: 1920px; height: 1080px; margin: 0; overflow: hidden; }
+      body { background: var(--paper); font-family: "note-ui", Arial, sans-serif; }
+      .clip { position: absolute; inset: 0; }
+      .scene { opacity: 0; visibility: hidden; }
+      .grain { position: absolute; inset: 0; opacity: .16; background-image: radial-gradient(rgba(41,39,32,.13) .6px, transparent .7px); background-size: 9px 9px; pointer-events: none; }
+      .kicker { color: var(--accent); font: 600 20px/1 "note-mono", Consolas, monospace; letter-spacing: .16em; text-transform: uppercase; }
+      .headline { margin: 22px 0 0; color: var(--ink); font-size: 96px; line-height: .98; letter-spacing: -.065em; font-weight: 650; max-width: 860px; }
+      .source-card { position: absolute; left: 980px; top: 250px; width: 540px; padding: 32px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+      .source-card::before { content: ""; position: absolute; left: 32px; right: 32px; top: 90px; height: 1px; background: var(--line); }
+      .source-name { color: var(--ink); font-size: 27px; font-weight: 650; }
+      .quote { margin: 44px 0 18px; color: var(--ink); font-size: 30px; line-height: 1.35; letter-spacing: -.025em; }
+      .version { display: inline-flex; align-items: center; padding: 5px 9px; border-radius: 999px; color: var(--accent); background: var(--accent-soft); font: 650 17px/1 "note-mono", Consolas, monospace; }
+      .anchor { position: absolute; left: 1050px; top: 650px; display: flex; gap: 14px; align-items: center; padding: 15px 20px; background: var(--ink); color: #fffefa; border-radius: 12px; font-size: 22px; }
+      .anchor-dot { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+      .version-update { position: absolute; left: 1370px; top: 650px; padding: 15px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); font: 650 19px/1 "note-mono", Consolas, monospace; }
+      .screen-wrap { position: absolute; left: 760px; top: 122px; width: 1020px; height: 638px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 20px 60px rgba(41,39,32,.09); transform-origin: center; }
+      .screen-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+      .evidence-scan { position: absolute; z-index: 2; left: 0; right: 0; top: 0; height: 3px; opacity: 0; background: var(--accent); box-shadow: 0 0 18px rgba(164,75,59,.5); pointer-events: none; }
+      .cursor { position: absolute; width: 30px; height: 42px; border-left: 3px solid var(--ink); border-top: 3px solid var(--ink); clip-path: polygon(0 0, 0 100%, 29% 70%, 49% 100%, 65% 88%, 45% 59%, 100% 59%); filter: drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
+      .callout { position: absolute; left: 115px; top: 340px; max-width: 500px; }
+      .callout p { margin: 18px 0 0; color: var(--muted); font-size: 27px; line-height: 1.45; }
+      .claim-card { position: absolute; left: 120px; bottom: 125px; width: 460px; padding: 25px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); font-size: 24px; line-height: 1.35; }
+      .claim-card small { display: block; margin-top: 16px; color: var(--accent); font: 600 16px/1 "note-mono", Consolas, monospace; letter-spacing: .08em; }
+      .inspector { position: absolute; left: 1115px; top: 240px; width: 560px; padding: 30px; background: var(--surface); border: 1px solid var(--line); border-radius: 17px; }
+      .inspector h2 { margin: 0; color: var(--ink); font-size: 31px; letter-spacing: -.04em; }
+      .inspector p { margin: 20px 0; color: var(--muted); font-size: 22px; line-height: 1.4; }
+      .proposal { display: inline-flex; padding: 9px 11px; border-radius: 999px; color: #8a6414; background: #fbf3db; font: 650 16px/1 "note-mono", Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .matrix { position: absolute; left: 250px; top: 145px; width: 1420px; height: 640px; padding: 34px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+      .matrix-title { color: var(--ink); font-size: 30px; font-weight: 650; letter-spacing: -.03em; }
+      .matrix-grid { display: grid; grid-template-columns: 330px repeat(4, 1fr); grid-template-rows: 74px repeat(3, 118px); gap: 1px; margin-top: 26px; background: var(--line); border: 1px solid var(--line); }
+      .matrix-grid > div { display: flex; align-items: center; padding: 18px; background: var(--surface); color: var(--muted); font-size: 20px; }
+      .matrix-grid .head { font: 650 16px/1.2 "note-mono", Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .matrix-grid .on { color: var(--accent); background: var(--accent-soft); font-weight: 650; }
+      .endcard { display: grid; place-items: center; text-align: center; background: var(--paper); }
+      .lockup { display: flex; flex-direction: column; align-items: center; }
+      .mark { position: relative; width: 100px; height: 120px; margin-bottom: 28px; background: var(--ink); border-radius: 15px 15px 10px 10px; }
+      .mark::before { content: ""; position: absolute; left: 23px; top: 28px; width: 54px; height: 9px; border-radius: 5px; background: var(--paper); box-shadow: 0 19px 0 var(--paper); }
+      .mark::after { content: ""; position: absolute; width: 21px; height: 21px; left: 39px; bottom: 19px; border-radius: 5px; background: var(--accent); }
+      .brand { color: var(--ink); font-size: 96px; font-weight: 700; letter-spacing: -.075em; line-height: 1; }
+      .brand span { color: var(--accent); }
+      .tagline { margin: 18px 0 0; color: var(--muted); font-size: 27px; letter-spacing: -.02em; }
+      .brand-rule { width: 90px; height: 1px; margin: 30px 0 18px; background: var(--accent); }
+      .url { color: var(--muted); font: 600 17px/1 "note-mono", Consolas, monospace; letter-spacing: .16em; }
+    </style>
+  </head>
+  <body>
+    <main id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+      <div class="grain"></div>
+      <section id="scene-hook" class="scene clip" data-start="0" data-duration="3" data-track-index="0">
+        <div style="position:absolute;left:140px;top:250px">
+          <div class="kicker">Versioned evidence</div>
+          <h1 class="headline">Research changes.<br>Evidence remembers.</h1>
+        </div>
+        <div id="source-card" class="source-card">
+          <div class="source-name">Kaffeestudie.pdf</div>
+          <p class="quote">“Der Zinssatz beträgt 3,5 Prozent seit dem Beschluss.”</p>
+          <span class="version">source · v1</span>
+        </div>
+        <div id="anchor-card" class="anchor"><span class="anchor-dot"></span>Claim anchored to v1</div>
+        <div id="version-update" class="version-update">source → v2</div>
+      </section>
+
+      <section id="scene-library" class="scene clip" data-start="3" data-duration="4" data-track-index="1">
+        <div class="callout"><div class="kicker">01 / Start with a source</div><h2 class="headline" style="font-size:74px">Bring the work in.</h2><p>Open a notebook, import the evidence, and keep it on your computer.</p></div>
+        <div id="library-screen" class="screen-wrap"><img src="assets/screens/library.png" alt="note-lm library"></div>
+        <div id="library-cursor" class="cursor" style="left:1495px;top:232px"></div>
+      </section>
+
+      <section id="scene-claim" class="scene clip" data-start="7" data-duration="5" data-track-index="2">
+        <div class="callout" style="top:170px"><div class="kicker">02 / Save the locator</div><h2 class="headline" style="font-size:74px">Every claim opens its evidence.</h2></div>
+        <div id="workspace-screen" class="screen-wrap" style="left:720px;top:160px;width:1100px;height:688px"><img src="assets/screens/workspace.png" alt="note-lm evidence workspace"><div id="evidence-scan" class="evidence-scan"></div></div>
+        <div id="claim-card" class="claim-card">“Der Zinssatz beträgt 3,5 Prozent.”<small>KAFFEESTUDIE.PDF · V1 · S.3</small></div>
+      </section>
+
+      <section id="scene-review" class="scene clip" data-start="12" data-duration="4" data-track-index="3">
+        <div style="position:absolute;left:150px;top:160px"><div class="kicker">03 / Review the change</div><h2 class="headline" style="font-size:78px">Nothing is silently rewritten.</h2></div>
+        <div id="review-screen" class="screen-wrap" style="left:160px;top:470px;width:820px;height:410px"><img src="assets/screens/claim.png" alt="note-lm claim inspector"></div>
+        <div id="proposal-card" class="inspector"><h2>Beleg &amp; Details</h2><p>The source changed. The recorded claim still points to its original evidence.</p><span class="proposal">Überarbeitung vorgeschlagen</span></div>
+      </section>
+
+      <section id="scene-matrix" class="scene clip" data-start="16" data-duration="4" data-track-index="4">
+        <div id="matrix-panel" class="matrix"><div class="matrix-title">Evidence matrix</div><div class="matrix-grid">
+          <div class="head">Claim / source</div><div class="head">Kaffee v1</div><div class="head">Kaffee v2</div><div class="head">Notes</div><div class="head">Review</div>
+          <div>Der Zinssatz beträgt 3,5 Prozent.</div><div class="on">anchored</div><div>changed</div><div>quoted</div><div class="on">open</div>
+          <div>Studie veröffentlicht 2026.</div><div>recorded</div><div class="on">current</div><div>linked</div><div>clear</div>
+          <div>Working hypothesis</div><div>—</div><div>—</div><div class="on">note</div><div>clear</div>
+        </div></div>
+      </section>
+
+      <section id="scene-end" class="scene endcard clip" data-start="17.1" data-duration="2.9" data-track-index="5">
+        <div id="lockup" class="lockup"><div class="mark"></div><div class="brand">note-lm<span id="brand-dot">.</span></div><div class="brand-rule"></div><p class="tagline">Local-first research, with receipts.</p><p class="url">NOTE-LM</p></div>
+      </section>
+
+      <audio id="music-bed" class="clip" data-start="0" data-duration="20" data-track-index="10" data-volume="0.18" src="assets/music/happy-beats-business-moves-vol-1-by-ende-dot-app.mp3"></audio>
+      <audio id="library-click" class="clip" data-start="5.45" data-duration="0.01" data-track-index="11" data-volume="0.42" src="assets/sfx/interface/click_003.ogg"></audio>
+      <audio id="mark-impact" class="clip" data-start="17.02" data-duration="0.18" data-track-index="12" data-volume="0.55" src="assets/sfx/impact/impactSoft_medium_001.ogg"></audio>
+    </main>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const show = (selector, at, options = {}) => tl.set(selector, { autoAlpha: 1 }, at).fromTo(selector, { opacity: 0, y: options.y ?? 24, scale: options.scale ?? 1 }, { opacity: 1, y: 0, scale: 1, duration: options.duration ?? .55, ease: "power3.out" }, at);
+      show("#scene-hook", 0, { y: 0, duration: .1 });
+      tl.fromTo(".headline", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: .75, ease: "power3.out" }, .1);
+      tl.fromTo("#source-card", { opacity: 0, x: 70, rotate: 2 }, { opacity: 1, x: 0, rotate: 0, duration: .6, ease: "power3.out" }, .45);
+      tl.fromTo("#anchor-card", { opacity: 0, y: 22, scale: .96 }, { opacity: 1, y: 0, scale: 1, duration: .38, ease: "back.out(1.4)" }, 1.45);
+      tl.fromTo("#version-update", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .35, ease: "power2.out" }, 2.05);
+      show("#scene-library", 3, { y: 0, duration: .1 });
+      tl.fromTo("#library-screen", { opacity: 0, x: 70, scale: .96 }, { opacity: 1, x: 0, scale: 1, duration: .7, ease: "power3.out" }, 3.15);
+      tl.fromTo("#library-cursor", { opacity: 0, x: -70, y: 55 }, { opacity: 1, x: 0, y: 0, duration: .5, ease: "power2.out" }, 4.4).to("#library-cursor", { scale: .84, duration: .12, yoyo: true, repeat: 1, ease: "power1.inOut" }, 5.42);
+      show("#scene-claim", 7, { y: 0, duration: .1 });
+      tl.fromTo("#workspace-screen", { opacity: 0, x: 60, scale: .96 }, { opacity: 1, x: 0, scale: 1, duration: .65, ease: "power3.out" }, 7.05);
+      tl.fromTo("#claim-card", { opacity: 0, y: 34, scale: .96 }, { opacity: 1, y: 0, scale: 1, duration: .4, ease: "back.out(1.2)" }, 8.02);
+      tl.fromTo("#evidence-scan", { opacity: 0, y: 10 }, { opacity: .8, y: 650, duration: 3.3, ease: "none" }, 8.15).to("#evidence-scan", { opacity: 0, duration: .3 }, 11.45);
+      show("#scene-review", 12, { y: 0, duration: .1 });
+      tl.fromTo("#review-screen", { opacity: 0, y: 55, scale: .96 }, { opacity: 1, y: 0, scale: 1, duration: .65, ease: "power3.out" }, 12.2);
+      tl.fromTo("#proposal-card", { opacity: 0, x: 55 }, { opacity: 1, x: 0, duration: .5, ease: "power3.out" }, 13.05);
+      tl.to(".proposal", { opacity: .52, duration: .45, yoyo: true, repeat: 3, ease: "sine.inOut" }, 13.85);
+      show("#scene-matrix", 16, { y: 0, duration: .1 });
+      tl.fromTo("#matrix-panel", { opacity: 0, y: 34, scale: .98 }, { opacity: 1, y: 0, scale: 1, duration: .65, ease: "power3.out" }, 16.05);
+      tl.fromTo(".matrix-grid .on", { opacity: 0, scale: .85 }, { opacity: 1, scale: 1, duration: .22, stagger: .1, ease: "back.out(1.5)" }, 16.45);
+      tl.to("#matrix-panel", { opacity: 0, duration: .08, ease: "none" }, 17.02);
+      show("#scene-end", 17.02, { y: 0, duration: .1 });
+      tl.fromTo("#lockup", { opacity: 0, scale: .88, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: .72, ease: "expo.out" }, 17.02);
+      tl.to("#brand-dot", { opacity: .3, duration: .45, yoyo: true, repeat: 3, ease: "sine.inOut" }, 17.8);
+      tl.seek(0);
+      window.__timelines = window.__timelines || {};
+      window.__timelines.main = tl;
+    </script>
+  </body>
+</html>

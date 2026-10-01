@@ -1,0 +1,1 @@
+note-lm is a local-first research notebook where every claim opens the evidence and source version behind it. Research changes; your evidence trail does not disappear.

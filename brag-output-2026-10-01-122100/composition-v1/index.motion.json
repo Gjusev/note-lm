@@ -1,0 +1,15 @@
+{
+  "duration": 20,
+  "assertions": [
+    { "kind": "appearsBy", "selector": "#scene-hook", "bySec": 0.2 },
+    { "kind": "appearsBy", "selector": "#library-screen", "bySec": 3.9 },
+    { "kind": "appearsBy", "selector": "#claim-card", "bySec": 8.7 },
+    { "kind": "appearsBy", "selector": "#proposal-card", "bySec": 13.8 },
+    { "kind": "appearsBy", "selector": "#lockup", "bySec": 17.9 },
+    { "kind": "before", "a": "#library-screen", "b": "#claim-card" },
+    { "kind": "before", "a": "#claim-card", "b": "#proposal-card" },
+    { "kind": "before", "a": "#proposal-card", "b": "#lockup" },
+    { "kind": "staysInFrame", "selector": "#lockup" },
+    { "kind": "keepsMoving", "withinSelector": "#root", "maxStaticSec": 1.9 }
+  ]
+}

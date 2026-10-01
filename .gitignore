@@ -65,6 +65,11 @@ eval/docling-proto/*.log
 # T2-v2 natural-speech eval: 16k mono wav conversion cache (originals in audio-orig/)
 eval/audio-proto-v2/wav/
 
+# laya eval prototype: isolated venv, checkpoint/model caches, run logs
+eval/laya-proto/.venv/
+eval/laya-proto/models/
+eval/laya-proto/*.log
+
 # docling scoped-distribution eval (T5): curated model copies, download
 # caches, fresh-cache probe, determinism double-run
 eval/docling-proto-v2/curated/models/

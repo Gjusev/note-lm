@@ -16,6 +16,9 @@
 | Run local AI and hybrid retrieval inside the desktop application | [llama.cpp and local RAG plan](specs/local-ai-rag-plan.md) |
 | Continue implementation from the current verified code | [Execution plan for the next agent](specs/agent-execution-plan.md) |
 | Control all media processing from Tauri, including pause and recovery | [Desktop workers and activity center](specs/desktop-workers-plan.md) |
+| Evaluate PageIndex for deep document analysis inside Tauri | [PageIndex evaluation and integration plan](specs/pageindex-integration-plan.md) |
+| Plan an open-source product around versioned evidence and research updates | [Open-source innovation strategy](specs/open-source-innovation-strategy.md) |
+| Explore upcoming capabilities and the desktop UI/UX direction | [Product, UX and design research](specs/product-ux-design-research.md) |
 | Understand the product scope and acceptance criteria | [MVP specification](specs/ki-research-notebook-mvp.md) |
 | Review the architecture page copy | [Architecture page copy](specs/architecture-page-copy.md) |
 | Read the user-facing German guide | [Benutzerhandbuch](BENUTZERHANDBUCH.md) |

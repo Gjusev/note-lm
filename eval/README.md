@@ -83,6 +83,17 @@ page matching against recorded evidence.
 
 ## Negative results (published, not hidden)
 
+- **LAYA zero-shot — System-1 triage decisions: DO NOT ADOPT** — the
+  multilingual checkpoint cannot discriminate our domain's decisions
+  zero-shot: matrix pre-screening page-AUROC 0.5206 (chance), recall@1
+  3/24, unanswerable clean 0/6; proposal prioritisation rank-AUC 0.23
+  (inverted); query-intent choice collapses to one class (0.20 accuracy).
+  Inference mechanics are fine (ONNX spike: exact Python parity, ~0.15
+  s/decision CPU) and latency passed — quality is the blocker. Criteria
+  pre-registered, decision report and raw runs:
+  `laya-proto/report.md` / `laya-proto/results/` (criteria:
+  `laya-proto/criteria.md`). Only viable revisit: fine-tuning on own
+  labelled decisions, with new pre-registered criteria.
 - **PI-2 — PageIndex "Análisis profundo": DO NOT ADOPT** — quality failed
   (structural fully_supported −13.6 pp vs hybrid), latency failed (p95 3.4x
   hybrid), and the pre-registered Flash mode cannot index this corpus at all
@@ -98,6 +109,8 @@ corpus/                  corpora + generators + validators (+ per-corpus READMEs
 harness/                 run-retrieval-eval.mts, run-pi2-eval.mts, results/
 harness/results/         timestamped run JSONs + history.jsonl (trend)
 pageindex-proto/         PI-1/PI-2 prototype, decision criteria + report
+laya-proto/              LAYA triage prototype: criteria, eval runner,
+                         ONNX spike + negative decision report
 reports/                 e1-e2-run.json, e1-e2-change-review.md,
                          benchmark-summary.md (written by eval:benchmark)
 ```
