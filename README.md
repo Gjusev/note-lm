@@ -49,11 +49,10 @@ If your GitHub client does not render inline video, use the [launch video](docs/
 
 | The workspace | The evidence reader |
 | --- | --- |
-| ![Workspace with chat, sources and a saved claim](eval/ui-drive/artifacts/02-workspace.png) | ![PDF source open in the reader](eval/ui-drive/artifacts/03-reader-pdf.png) |
-| **The evidence matrix** | **Dark theme** |
-| ![Claims by sources matrix grid](eval/ui-drive/artifacts/05-matrix.png) | ![The same app in dark theme](eval/ui-drive/artifacts/07-dark-theme.png) |
+| ![Archive-index workspace: numbered sources, ruled chat, evidence inspector](eval/ui-drive/artifacts/02-workspace.png) | ![PDF source open in the reader at its anchored version](eval/ui-drive/artifacts/03-reader-pdf.png) | ![Claims × sources matrix as a printed table](eval/ui-drive/artifacts/05-matrix.png) |
+| ![Dark workspace with a filed claim card](eval/ui-drive/artifacts/dark-workspace.png) | ![Dark matrix, WCAG-checked contrast](eval/ui-drive/artifacts/dark-matrix.png) | ![First-run onboarding with live resource recognition](eval/ui-drive/artifacts/wizard-02-ressourcen.png) |
 
-Real screenshots, not mockups — captured by the automated UI-drive test
+captured by the automated UI-drive test
 suite that gates every change.
 
 ## Download and install
